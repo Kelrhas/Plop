@@ -1,0 +1,7 @@
+## Visual
+.vs/
+*.user
+*.pdb
+*.suo
+*.sdf
+*.obj

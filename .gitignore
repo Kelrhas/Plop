@@ -5,3 +5,11 @@
 *.suo
 *.sdf
 *.obj
+
+*.bak
+
+bin/
+*.tlog
+*.idb
+*.log
+*.pch

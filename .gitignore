@@ -13,3 +13,5 @@ bin/
 *.idb
 *.log
 *.pch
+*.enc
+Config.json

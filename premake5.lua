@@ -20,7 +20,12 @@ workspace "Plop"
 		"%{prj.location}/src/**.cpp"
 	}
 	
-	objdir "%{prj.location}/intermediate/"
+	files
+	{
+		"Externals/json/nlohmann_json.natvis"
+	}
+
+	objdir "intermediate/%{prj.name}/"
 	
 	filter "configurations:Debug"
 		defines { "DEBUG" }
@@ -40,8 +45,12 @@ workspace "Plop"
 	filter "system:Windows"
 		systemversion "latest"
 		
-	libdirs {}
+
 	includedirs {}
+
+	libdirs {}
+
+	characterset("MBCS") --Unicode
 
 project "Plop"
 	kind "StaticLib" --SharedLib
@@ -59,10 +68,27 @@ project "Plop"
 	
 	includedirs
 	{
-		"%{prj.name}/src/"
+		"%{prj.name}/src/",
+		"Externals/json/",
+		"Externals/glew/include"
+	}
+	
+	libdirs
+	{
+		"Externals/glew/lib/"
+	}
+
+	links
+	{
+		"Externals/glew/lib/glew32s.lib",
+		"opengl32.lib"
 	}
 		
-	defines { "PLOP_BUILD" }
+	defines
+	{
+		"PLOP_BUILD",
+		"GLEW_STATIC"
+	}
 		
 project "Sample"
 	kind "ConsoleApp" -- WindowedApp
@@ -74,11 +100,11 @@ project "Sample"
 	
 	location "%{prj.name}"
 	targetdir "bin/"
+	debugdir "./"
 	
 	includedirs
 	{
 		"Plop/src/",
-		"Externals/"
 	}
 	
 	links { "Plop" }

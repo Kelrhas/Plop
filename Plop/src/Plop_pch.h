@@ -13,3 +13,10 @@
 #include <unordered_set>
 
 #include <Windows.h>
+
+#include <Types.h>
+
+
+#define BREAK() __debugbreak()
+#define ASSERT(action, ...) {bool b = (action); if(!b){ Log::Assert(""); BREAK(); }}
+#define VERIFY(action, ...) {bool b = (action); if(!b){ Log::Assert(""); BREAK(); }}

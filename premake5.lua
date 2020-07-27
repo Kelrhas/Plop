@@ -13,19 +13,9 @@ workspace "Plop"
 	{
 		"MultiProcessorCompile"
 	}
-	
-	cppfiles =
-	{
-		"%{prj.location}/src/**.h",
-		"%{prj.location}/src/**.cpp"
-	}
-	
-	files
-	{
-		"Externals/json/nlohmann_json.natvis"
-	}
 
 	objdir "intermediate/%{prj.name}/"
+	targetdir "bin/"
 	
 	filter "configurations:Debug"
 		defines { "_DEBUG" }
@@ -44,13 +34,11 @@ workspace "Plop"
 		
 	filter "system:Windows"
 		systemversion "latest"
-		
-
-	includedirs {}
-
-	libdirs {}
 
 	characterset("MBCS") --Unicode
+
+include "Externals/imgui"
+
 
 project "Plop"
 	kind "StaticLib" --SharedLib
@@ -58,19 +46,24 @@ project "Plop"
 	cppdialect "C++17"
 	staticruntime "on"
 	
-	files (cppfiles)
-	
 	location "%{prj.name}"
-	targetdir "bin/"
 	
 	pchheader "Plop_pch.h"
 	pchsource "%{prj.location}/src/Plop_pch.cpp"
+	
+	files
+	{
+		"%{prj.location}/src/**.h",
+		"%{prj.location}/src/**.cpp",
+		"Externals/json/nlohmann_json.natvis"
+	}
 	
 	includedirs
 	{
 		"%{prj.name}/src/",
 		"Externals/json/",
-		"Externals/glew/include"
+		"Externals/glew/include",
+		"Externals/ImGui/"
 	}
 	
 	libdirs
@@ -81,6 +74,7 @@ project "Plop"
 	links
 	{
 		"Externals/glew/lib/glew32s.lib",
+		"ImGui",
 		"opengl32.lib"
 	}
 		
@@ -96,11 +90,14 @@ project "Sample"
 	cppdialect "C++17"
 	staticruntime "on"
 	
-	files (cppfiles)
-	
 	location "%{prj.name}"
-	targetdir "bin/"
 	debugdir "./"
+	
+	files
+	{
+		"%{prj.location}/src/**.h",
+		"%{prj.location}/src/**.cpp"
+	}
 	
 	includedirs
 	{

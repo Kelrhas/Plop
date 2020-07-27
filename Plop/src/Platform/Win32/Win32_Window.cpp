@@ -3,9 +3,15 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 
+#include <imgui.h>
+#include <Platform/Win32/imgui_impl_win32.h>
+#include <Platform/Win32/imgui_impl_opengl3.h>
+
 #include <Platform/Win32/Win32_Window.h>
 #include <Application.h>
 #include <Log.h>
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace Plop
 {
@@ -27,6 +33,12 @@ namespace Plop
 	LRESULT Win_Window::WindowCallback(HWND _hWnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam)
 	{
 		LRESULT result = 0;
+
+
+		result = ImGui_ImplWin32_WndProcHandler(_hWnd, _uMsg, _wParam, _lParam);
+		if (result)
+			return true;
+
 		switch (_uMsg)
 		{
 			case WM_CREATE:
@@ -131,6 +143,14 @@ namespace Plop
 			}
 			break;
 
+			case WM_DPICHANGED:
+			{
+				int iDpi = GetDpiForWindow(m_hWnd);
+				ImGuiIO& io = ImGui::GetIO();
+				io.FontGlobalScale = iDpi / 96.f;
+			}
+			break;
+
 
 			case WM_MOVE:
 			{
@@ -209,8 +229,8 @@ namespace Plop
 			case GL_DEBUG_TYPE_OTHER:				str.append("\n\tType: Other"); break;
 		}
 
-		ASSERT(severity == GL_DEBUG_SEVERITY_HIGH);
-
+		//ASSERT(severity == GL_DEBUG_SEVERITY_HIGH);
+		/*
 		switch (severity)
 		{
 			case GL_DEBUG_SEVERITY_HIGH:			str.append("\n\tSeverity: high");			Log::Error(str.c_str()); break;
@@ -218,7 +238,7 @@ namespace Plop
 			case GL_DEBUG_SEVERITY_LOW:				str.append("\n\tSeverity: low");			Log::Warn(str.c_str()); break;
 			case GL_DEBUG_SEVERITY_NOTIFICATION:	str.append("\n\tSeverity: notification");	Log::Info(str.c_str()); break;
 		}
-
+		*/
 	}
 
 	static Win_Window* s_pWaitingWindow = nullptr;
@@ -246,7 +266,6 @@ namespace Plop
 		windowClass.cbWndExtra = sizeof(Win_Window*);
 		
 		DWORD windowStyle = WS_VISIBLE;
-
 		if (m_config.bFullscreen)
 		{
 			windowStyle |= WS_POPUP | WS_MAXIMIZE;
@@ -273,6 +292,13 @@ namespace Plop
 		if (!m_hWnd)
 			return;
 
+		{
+			ImGui::CreateContext();
+			ImGui::StyleColorsDark();
+			ImGui_ImplWin32_Init(m_hWnd);
+			ImGui_ImplOpenGL3_Init();
+		}
+
 		Log::Info(" GL Version %s", glGetString(GL_VERSION));
 		Log::Info(" GLSL Version %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 		Log::Info(" Renderer %s", glGetString(GL_RENDERER));
@@ -283,10 +309,17 @@ namespace Plop
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
 #endif
+
+		SwapBuffers(m_hDeviceContext);
 	}
 
 	void Win_Window::Destroy()
 	{
+		
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+		
 		wglDeleteContext(m_hGLRenderContext);
 	}
 
@@ -317,7 +350,26 @@ namespace Plop
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2(m_config.uWidth, m_config.uHeight);
+		io.DeltaTime = 1.f / 60.f;
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+
+		static bool b = true;
+		if(b)
+			ImGui::ShowDemoWindow(&b);
+
+		ImGui::EndFrame();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
 		// vsync if necessary
+		glFlush();
 		SwapBuffers(m_hDeviceContext);
 	}
 

@@ -19,3 +19,4 @@ Config.json
 *.vcxproj.filters
 *.sln
 premake 2017.bat
+imgui.ini

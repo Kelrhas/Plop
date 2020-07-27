@@ -28,18 +28,18 @@ workspace "Plop"
 	objdir "intermediate/%{prj.name}/"
 	
 	filter "configurations:Debug"
-		defines { "DEBUG" }
+		defines { "_DEBUG" }
 		symbols "On"
 		targetsuffix "_d"
 
 	filter "configurations:Release"
-		defines { "NDEBUG", "RELEASE" }
+		defines { "NDEBUG", "_RELEASE" }
 		symbols "On"
 		optimize "Debug"
 		targetsuffix "_r"
 
 	filter "configurations:Master"
-		defines { "MASTER" }
+		defines { "_MASTER" }
 		optimize "Speed"
 		
 	filter "system:Windows"

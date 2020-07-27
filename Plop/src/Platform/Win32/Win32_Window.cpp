@@ -143,10 +143,10 @@ namespace Plop
 			{
 				WPARAM fwSizeType = _wParam; // resizing flag
 				/*if (g_pRenderer != nullptr && fwSizeType != SIZE_MINIMIZED)
-				{
+				{*/
 					m_config.uWidth = LOWORD(_lParam); // width of client area
 					m_config.uHeight = HIWORD(_lParam); // height of client area 
-
+					/*
 					g_pRenderer->Resize(m_config.uWidth, m_config.uHeight);
 				}*/
 			}
@@ -171,7 +171,7 @@ namespace Plop
 				return 0;
 
 			default:
-				result = DefWindowProc(m_hWnd, _uMsg, _wParam, _lParam);
+				result = DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);
 				break;
 		}
 
@@ -232,7 +232,6 @@ namespace Plop
 			if (pThis)
 				return pThis->WindowCallback(_hWnd, _uMsg, _wParam, _lParam);
 		}
-		
 		return DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);
 	}
 

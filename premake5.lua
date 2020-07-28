@@ -19,17 +19,20 @@ workspace "Plop"
 	
 	filter "configurations:Debug"
 		defines { "_DEBUG" }
+		runtime "Debug"
 		symbols "On"
 		targetsuffix "_d"
 
 	filter "configurations:Release"
 		defines { "NDEBUG", "_RELEASE" }
+		runtime "Release"
 		symbols "On"
 		optimize "Debug"
 		targetsuffix "_r"
 
 	filter "configurations:Master"
 		defines { "_MASTER" }
+		runtime "Release"
 		optimize "Speed"
 		
 	filter "system:Windows"

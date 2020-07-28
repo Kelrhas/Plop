@@ -159,9 +159,9 @@ namespace Plop
 				m_config.uPosX = LOWORD(_lParam); // position of client area
 				m_config.uPosY = HIWORD(_lParam);
 
-				WindowMoveEvent event;
-				event.iNewPosX = LOWORD( _lParam );
-				event.iNewPosY = HIWORD( _lParam );
+				WindowMoveEvent event(*this);
+				event.iNewPosX = m_config.uPosX;
+				event.iNewPosY = m_config.uPosY;
 				EventDispatcher::SendEvent( event );
 			}
 			break;
@@ -169,18 +169,20 @@ namespace Plop
 			case WM_SIZE:
 			{
 				WPARAM fwSizeType = _wParam; // resizing flag
-				/*if (g_pRenderer != nullptr && fwSizeType != SIZE_MINIMIZED)
-				{*/
+				if( fwSizeType != SIZE_MINIMIZED)
+				{
 					m_config.uWidth = LOWORD(_lParam); // width of client area
 					m_config.uHeight = HIWORD(_lParam); // height of client area 
-					/*
-					g_pRenderer->Resize(m_config.uWidth, m_config.uHeight);
-				}*/
 
-				WindowSizeEvent event;
-				event.iNewWidth = LOWORD( _lParam ); // width of client area
-				event.iNewHeight = HIWORD( _lParam ); // height of client area 
-				EventDispatcher::SendEvent( event );
+					WindowSizeEvent event( *this );
+					event.iNewWidth = m_config.uWidth; // width of client area
+					event.iNewHeight = m_config.uHeight; // height of client area 
+					EventDispatcher::SendEvent( event );
+				}
+				/*
+				if (g_pRenderer != nullptr)
+					g_pRenderer->Resize(m_config.uWidth, m_config.uHeight);
+				*/
 			}
 			break;
 
@@ -350,7 +352,7 @@ namespace Plop
 		{
 			if (message.message == WM_QUIT)
 			{
-				WindowCloseEvent event;
+				WindowCloseEvent event(*this);
 				EventDispatcher::SendEvent( event );
 			}
 			else

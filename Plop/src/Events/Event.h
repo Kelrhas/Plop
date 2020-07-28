@@ -19,7 +19,8 @@ namespace Plop
 	class Event
 	{
 	public:
-	
+		virtual ~Event() {}
+
 		virtual EventType	GetEventType() const = 0; // use MACRO_EVENT_TYPE if missing
 
 				bool		IsHandled() const { return m_bHandled; }

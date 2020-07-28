@@ -7,6 +7,7 @@
 
 #include <Log.h>
 #include <Events/EventDispatcher.h>
+#include <Events/WindowEvent.h>
 
 namespace Plop
 {
@@ -94,8 +95,19 @@ namespace Plop
 
 	bool Application::OnEvent( Event& _event )
 	{
-		if (_event.GetEventType() == EventType::WindowCloseEvent)
-			m_bRunning = false;
+		switch (_event.GetEventType())
+		{
+			case EventType::WindowCloseEvent:
+				m_bRunning = false;
+				break;
+
+			case EventType::WindowMoveEvent:
+
+				WindowMoveEvent& moveEvent = *(WindowMoveEvent*)(&_event);
+				Log::Info( "Window moved to %d %d", moveEvent.iNewPosX, moveEvent.iNewPosY );
+
+				break;
+		}
 
 		return _event.IsHandled();
 	}

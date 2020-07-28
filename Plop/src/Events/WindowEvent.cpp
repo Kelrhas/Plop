@@ -4,7 +4,7 @@
 
 namespace Plop
 {
-	WindowEvent::WindowEvent() : Event()
+	WindowEvent::WindowEvent( const Window& _window ) : Event(), window(_window)
 	{}
 
 

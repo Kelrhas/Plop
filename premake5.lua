@@ -40,7 +40,7 @@ workspace "Plop"
 
 	characterset("MBCS") --Unicode
 
-include "Externals/imgui"
+include "Externals/imgui-premake"
 
 
 project "Plop"

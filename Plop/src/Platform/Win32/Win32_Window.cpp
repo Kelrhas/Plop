@@ -12,6 +12,8 @@
 #include <Log.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#include <Events/EventDispatcher.h>
+#include <Events/WindowEvent.h>
 
 namespace Plop
 {
@@ -156,6 +158,11 @@ namespace Plop
 			{
 				m_config.uPosX = LOWORD(_lParam); // position of client area
 				m_config.uPosY = HIWORD(_lParam);
+
+				WindowMoveEvent event;
+				event.iNewPosX = LOWORD( _lParam );
+				event.iNewPosY = HIWORD( _lParam );
+				EventDispatcher::SendEvent( event );
 			}
 			break;
 
@@ -169,6 +176,11 @@ namespace Plop
 					/*
 					g_pRenderer->Resize(m_config.uWidth, m_config.uHeight);
 				}*/
+
+				WindowSizeEvent event;
+				event.iNewWidth = LOWORD( _lParam ); // width of client area
+				event.iNewHeight = HIWORD( _lParam ); // height of client area 
+				EventDispatcher::SendEvent( event );
 			}
 			break;
 
@@ -338,8 +350,8 @@ namespace Plop
 		{
 			if (message.message == WM_QUIT)
 			{
-				//bRunning = false;
-				break;
+				WindowCloseEvent event;
+				EventDispatcher::SendEvent( event );
 			}
 			else
 			{

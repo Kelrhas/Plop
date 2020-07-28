@@ -15,7 +15,10 @@
 #include <Windows.h>
 
 #include <Types.h>
+#include <Log.h>
 
+#define COMPILE_ASSERT(b, m) static_assert(b, m);
+#define ASSERT_COMPILE_TIME(b, m) COMPILE_ASSERT(b, m);
 
 #define BREAK() __debugbreak()
 #define ASSERT(action, ...) {bool b = (action); if(!b){ Log::Assert(""); BREAK(); }}

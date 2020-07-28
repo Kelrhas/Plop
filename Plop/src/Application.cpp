@@ -6,10 +6,10 @@
 #include <json.hpp>
 
 #include <Log.h>
+#include <Events/EventDispatcher.h>
 
 namespace Plop
 {
-
 	///
 	/// Config
 	///
@@ -92,14 +92,23 @@ namespace Plop
 
 	}
 
+	bool Application::OnEvent( Event& _event )
+	{
+		if (_event.GetEventType() == EventType::WindowCloseEvent)
+			m_bRunning = false;
+
+		return _event.IsHandled();
+	}
+
 	void Application::Init()
 	{
 		VERIFY(Log::Init());
 
-		if (s_pInstance != nullptr)
-			__debugbreak();
+		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
 
 		s_pInstance = this;
+
+		EventDispatcher::RegisterListener( this );
 
 		m_Config.pGameConfig = CreateGameConfig();
 		m_Config.Load();
@@ -110,9 +119,11 @@ namespace Plop
 		m_Config.Save();
 	}
 
-	void Application::Reset()
+	void Application::Destroy()
 	{
+		EventDispatcher::UnregisterListener( this );
 
+		EventDispatcher::Destroy();
 	}
 
 	void Application::Run()

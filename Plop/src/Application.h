@@ -3,6 +3,8 @@
 #include "PlopInclude.h"
 #include <Window.h>
 
+#include <Events/IEventListener.h>
+
 namespace Plop
 {
 	struct GameConfig
@@ -23,14 +25,16 @@ namespace Plop
 		void		Save() const;
 	};
 
-	class Application
+	class Application : public IEventListener
 	{
 	public:
 		Application();
 		virtual ~Application();
 
+		bool OnEvent( Event& _event ) override;
+
 		void Init();
-		void Reset();
+		void Destroy();
 
 		void Run();
 

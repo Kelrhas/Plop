@@ -66,7 +66,8 @@ project "Plop"
 		"%{prj.name}/src/",
 		"Externals/json/",
 		"Externals/glew/include",
-		"Externals/ImGui/"
+		"Externals/ImGui/",
+		"Externals/glm/"
 	}
 	
 	libdirs
@@ -105,6 +106,7 @@ project "Sample"
 	includedirs
 	{
 		"Plop/src/",
+		"Externals/glm/"
 	}
 	
 	links { "Plop" }

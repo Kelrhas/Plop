@@ -20,3 +20,4 @@ Config.json
 *.sln
 premake 2017.bat
 imgui.ini
+enc_temp_folder/*

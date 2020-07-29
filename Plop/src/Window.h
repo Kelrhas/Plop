@@ -4,6 +4,9 @@
 
 namespace Plop
 {
+
+	class RenderContext;
+
 	struct WindowConfig
 	{
 		uint32_t	uWidth = 1600;		// this is the client (viewport) size, not really the window size
@@ -38,6 +41,7 @@ namespace Plop
 
 	protected:
 		WindowConfig& m_config;
+		RenderContext* m_pRenderContext = nullptr;
 	};
 }
 

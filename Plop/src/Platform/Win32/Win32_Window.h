@@ -4,11 +4,11 @@
 
 namespace Plop
 {
-	class Win_Window : public Window
+	class Win32_Window : public Window
 	{
 	public:
-		Win_Window(WindowConfig& _config);
-		virtual ~Win_Window() override;
+		Win32_Window(WindowConfig& _config);
+		virtual ~Win32_Window() override;
 
 		virtual void		Init() override;
 		virtual void		Destroy() override;
@@ -20,14 +20,10 @@ namespace Plop
 				LRESULT		WindowCallback(HWND _hWnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam);
 
 				HWND		GetHWND() const { return m_hWnd; }
+
+
 	private:
-
-
-
-
 				HWND		m_hWnd;
-				HDC			m_hDeviceContext;
-				HGLRC		m_hGLRenderContext;
 	};
 }
 

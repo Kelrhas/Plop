@@ -1,13 +1,10 @@
 #include <Plop_pch.h>
 
-#include <GL/glew.h>
-#include <GL/wglew.h>
-
+#include <ImGuiPlatform.h>
 #include <imgui.h>
-#include <Platform/Win32/imgui_impl_win32.h>
-#include <Platform/Win32/imgui_impl_opengl3.h>
 
 #include <Platform/Win32/Win32_Window.h>
+#include <Platform/OpenGL/OpenGLWin32_Context.h>
 #include <Application.h>
 #include <Log.h>
 
@@ -21,21 +18,19 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 namespace Plop
 {
 
-	Win_Window::Win_Window(WindowConfig& _config)
+	Win32_Window::Win32_Window(WindowConfig& _config)
 		: Window(_config)
 		, m_hWnd(NULL)
-		, m_hDeviceContext(NULL)
-		, m_hGLRenderContext(NULL)
 	{
 
 	}
 
-	Win_Window::~Win_Window()
+	Win32_Window::~Win32_Window()
 	{
 
 	}
 
-	LRESULT Win_Window::WindowCallback(HWND _hWnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam)
+	LRESULT Win32_Window::WindowCallback(HWND _hWnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam)
 	{
 		LRESULT result = 0;
 
@@ -49,102 +44,13 @@ namespace Plop
 			case WM_CREATE:
 			{
 				m_hWnd = _hWnd;
-				// prevent dpi scaling ?
+
+				// prevent dpi scaling
 				SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
-				m_hDeviceContext = GetDC(m_hWnd);
 
-				PIXELFORMATDESCRIPTOR pfd = {};
-				pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-				pfd.nVersion = 1;
-				pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER /*| PFD_GENERIC_ACCELERATED*/;
-				pfd.iPixelType = PFD_TYPE_RGBA;				//The kind of framebuffer. RGBA or palette.
-				pfd.cColorBits = 24;						//Colordepth of the framebuffer, without alpha
-				pfd.cDepthBits = 24;						//Number of bits for the depthbuffer
-				pfd.cStencilBits = 8;						//Number of bits for the stencil
-				pfd.iLayerType = PFD_MAIN_PLANE;
-
-
-				int  iWinPixelFormat = ChoosePixelFormat(m_hDeviceContext, &pfd);
-				if (iWinPixelFormat == 0)
-				{
-					Log::Error("ChoosePixelFormat failed!");
-					return -1;
-				}
-
-				//DescribePixelFormat(m_hDeviceContext, iWinPixelFormat, sizeof(pfd), &pfd);
-				BOOL bResult = SetPixelFormat(m_hDeviceContext, iWinPixelFormat, &pfd);
-				if (!bResult)
-				{
-					Log::Error("SetPixelFormat failed!");
-					return -1;
-				}
-
-
-				HGLRC tempContext = wglCreateContext(m_hDeviceContext);
-				wglMakeCurrent(m_hDeviceContext, tempContext);
+				m_pRenderContext = new OpenGLWin32_Context(*this);
+				m_pRenderContext->Init();
 				
-				GLenum err = glewInit();
-				if (err != GLEW_OK)
-				{
-					Log::Error("glewInit failed!");
-					return -1;
-				}
-
-				if (wglewIsSupported("WGL_ARB_create_context") == 1)
-				{
-					int pixelFormatAttribs[] =
-					{
-						WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB,		GL_TRUE,
-						WGL_DRAW_TO_WINDOW_ARB,					GL_TRUE,
-						WGL_SUPPORT_OPENGL_ARB,					GL_TRUE,
-						WGL_DOUBLE_BUFFER_ARB,					GL_TRUE,
-						WGL_ACCELERATION_ARB,					WGL_FULL_ACCELERATION_ARB,
-						WGL_PIXEL_TYPE_ARB,						WGL_TYPE_RGBA_ARB,
-						WGL_COLOR_BITS_ARB,						32,
-						WGL_DEPTH_BITS_ARB,						24,
-						WGL_STENCIL_BITS_ARB,					8,
-						0
-					};
-
-					//
-					int iPixelFormat;
-					UINT uNumFormats;
-					wglChoosePixelFormatARB(m_hDeviceContext, pixelFormatAttribs, 0, 1, &iPixelFormat, &uNumFormats);
-					if (!uNumFormats)
-					{
-						Log::Error("wglChoosePixelFormatARB failed!");
-						return -1;
-					}
-
-					PIXELFORMATDESCRIPTOR pfd;
-					DescribePixelFormat(m_hDeviceContext, iPixelFormat, sizeof(pfd), &pfd);
-					if (!SetPixelFormat(m_hDeviceContext, iPixelFormat, &pfd))
-					{
-						Log::Error("SetPixelFormat failed!");
-						return -1;
-					}
-
-					// version 4.4 minimum for glBufferStorage
-					int contextAttribs[] =
-					{
-						WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-						WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-						WGL_CONTEXT_MINOR_VERSION_ARB, 4,
-						WGL_CONTEXT_FLAGS_ARB, 0,
-						0
-					};
-
-					m_hGLRenderContext = wglCreateContextAttribsARB(m_hDeviceContext, 0, contextAttribs);
-					VERIFY(wglMakeCurrent(NULL, NULL));
-					VERIFY(wglDeleteContext(tempContext));
-					VERIFY(wglMakeCurrent(m_hDeviceContext, m_hGLRenderContext));
-					//Assert_GL();
-				}
-				else
-				{	//It's not possible to make a GL 3.x context. Use the old style context (GL 2.1 and before)
-					m_hGLRenderContext = tempContext;
-					return -1;
-				}
 			}
 			break;
 
@@ -258,21 +164,21 @@ namespace Plop
 		*/
 	}
 
-	static Win_Window* s_pWaitingWindow = nullptr;
+	static Win32_Window* s_pWaitingWindow = nullptr;
 	LRESULT CALLBACK MainWindowCallback(HWND _hWnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam)
 	{
 		if(_uMsg == WM_NCCREATE && s_pWaitingWindow != nullptr)
 			SetWindowLongPtr(_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(s_pWaitingWindow));
 		else
 		{
-			Win_Window* pThis = reinterpret_cast<Win_Window*>(::GetWindowLongPtr(_hWnd, GWLP_USERDATA));
+			Win32_Window* pThis = reinterpret_cast<Win32_Window*>(::GetWindowLongPtr(_hWnd, GWLP_USERDATA));
 			if (pThis)
 				return pThis->WindowCallback(_hWnd, _uMsg, _wParam, _lParam);
 		}
 		return DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);
 	}
 
-	void Win_Window::Init()
+	void Win32_Window::Init()
 	{
 		HINSTANCE hInstance = NULL; // take the current
 		WNDCLASS windowClass = {};
@@ -280,7 +186,7 @@ namespace Plop
 		windowClass.hInstance = hInstance;
 		windowClass.lpfnWndProc = MainWindowCallback;
 		windowClass.lpszClassName = "MainWindow";
-		windowClass.cbWndExtra = sizeof(Win_Window*);
+		windowClass.cbWndExtra = sizeof(Win32_Window*);
 		
 		DWORD windowStyle = WS_VISIBLE;
 		if (m_config.bFullscreen)
@@ -326,21 +232,18 @@ namespace Plop
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
 #endif
-
-		SwapBuffers(m_hDeviceContext);
 	}
 
-	void Win_Window::Destroy()
+	void Win32_Window::Destroy()
 	{
-		
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
 		
-		wglDeleteContext(m_hGLRenderContext);
+		m_pRenderContext->Destroy(); 
 	}
 
-	void Win_Window::Update()
+	void Win32_Window::Update()
 	{
 		// events
 		MSG message;
@@ -391,7 +294,7 @@ namespace Plop
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(m_config.uWidth, m_config.uHeight);
+		io.DisplaySize = ImVec2((float)m_config.uWidth, (float)m_config.uHeight);
 		io.DeltaTime = 1.f / 60.f;
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -407,13 +310,10 @@ namespace Plop
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
-		// vsync if necessary
-		glFlush();
-		SwapBuffers(m_hDeviceContext);
+		m_pRenderContext->Flush();
 	}
 
-	void Win_Window::ToggleFullscreen()
+	void Win32_Window::ToggleFullscreen()
 	{
 		static WINDOWPLACEMENT windowPlacement;
 		DWORD windowStyle = GetWindowLong(m_hWnd, GWL_STYLE);
@@ -448,17 +348,14 @@ namespace Plop
 
 	}
 
-	void Win_Window::SetVSync(bool _bEnabled)
+	void Win32_Window::SetVSync(bool _bEnabled)
 	{
-		if(_bEnabled)
-			wglSwapIntervalEXT(1);
-		else
-			wglSwapIntervalEXT(0);
+		m_pRenderContext->SetVSync(_bEnabled);
 	}
 
 	Window* Window::Create(WindowConfig& _config)
 	{
-		return new Win_Window(_config);
+		return new Win32_Window(_config);
 	}
 
 }

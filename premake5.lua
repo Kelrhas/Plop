@@ -1,6 +1,11 @@
 workspace "Plop"
 	architecture "x86_64"
 	startproject "Sample"
+
+	linkoptions
+	{
+		"/IGNORE:4099" -- for glew pdb
+	}
 	
 	configurations
 	{
@@ -11,7 +16,14 @@ workspace "Plop"
 	
 	flags
 	{
-		"MultiProcessorCompile"
+		"MultiProcessorCompile",
+		"FatalWarnings",
+		"ShadowedVariables"
+	}
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	objdir "intermediate/%{prj.name}/"
@@ -20,13 +32,19 @@ workspace "Plop"
 	filter "configurations:Debug"
 		defines { "_DEBUG" }
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 		targetsuffix "_d"
+		linkoptions
+		{
+			"/NODEFAULTLIB:libcmt.lib",
+			"/NODEFAULTLIB:msvcrt.lib",
+			"/NODEFAULTLIB:msvcrtd.lib"
+		}
 
 	filter "configurations:Release"
 		defines { "NDEBUG", "_RELEASE" }
 		runtime "Release"
-		symbols "On"
+		symbols "on"
 		optimize "Debug"
 		targetsuffix "_r"
 
@@ -53,12 +71,13 @@ project "Plop"
 	
 	pchheader "Plop_pch.h"
 	pchsource "%{prj.location}/src/Plop_pch.cpp"
-	
+		
 	files
 	{
 		"%{prj.location}/src/**.h",
 		"%{prj.location}/src/**.cpp",
-		"Externals/json/nlohmann_json.natvis"
+		"Externals/json/nlohmann_json.natvis",
+		"Externals/glm/util/*"
 	}
 	
 	includedirs

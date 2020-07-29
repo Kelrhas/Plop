@@ -26,5 +26,10 @@ project "ImGui"
 	{
 		"%{prj.location}"
 	}
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
+	}
 	
 		

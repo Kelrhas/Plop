@@ -13,6 +13,9 @@
 
 #include <glm/glm.hpp>
 
+
+#include <Platform/OpenGL/OpenGL_Shader.h>
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace Plop
@@ -226,7 +229,7 @@ namespace Plop
 		Log::Info(" GLSL Version %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 		Log::Info(" Renderer %s", glGetString(GL_RENDERER));
 
-		glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+		glClearColor(0.15f, 0.15f, 0.15f, 0.0f);
 
 #ifndef _MASTER
 		glEnable(GL_DEBUG_OUTPUT);
@@ -272,6 +275,33 @@ namespace Plop
 		glViewport(0, 0, m_config.uWidth, m_config.uHeight);
 
 
+		
+		String vertSrc = R"(
+
+			#version 330 core
+
+			layout (location=0) in vec3 pos;
+
+			void main()
+			{
+				gl_Position = vec4(pos, 1.0);
+			}
+		)";
+
+		String fragSrc = R"(
+
+			#version 330 core
+
+			layout (location=0) out vec4 color;
+
+			void main()
+			{
+				color = vec4(1, 1, 0, 1);
+			}
+		)";
+
+
+		static OpenGL_Shader shader;
 		static GLuint VBO = 0;
 		if (VBO == 0)
 		{
@@ -290,7 +320,11 @@ namespace Plop
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+			shader.Create( vertSrc, fragSrc );
+
 		}
+		shader.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		ImGuiIO& io = ImGui::GetIO();

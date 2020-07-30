@@ -15,6 +15,8 @@
 
 
 #include <Platform/OpenGL/OpenGL_Shader.h>
+#include <Platform/OpenGL/OpenGL_Buffers.h>
+#include <Platform/OpenGL/OpenGL_VertexArray.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -281,9 +283,13 @@ namespace Plop
 			#version 330 core
 
 			layout (location=0) in vec3 pos;
+			layout (location=1) in vec4 color;
+
+			out vec4 v_color;
 
 			void main()
 			{
+				v_color = color;
 				gl_Position = vec4(pos, 1.0);
 			}
 		)";
@@ -294,38 +300,48 @@ namespace Plop
 
 			layout (location=0) out vec4 color;
 
+			in vec4 v_color;
+
 			void main()
 			{
-				color = vec4(1, 1, 0, 1);
+				color = v_color;
 			}
 		)";
 
 
 		static OpenGL_Shader shader;
-		static GLuint VBO = 0;
-		if (VBO == 0)
+		static OpenGL_VertexBuffer* pBuff = nullptr;
+		static OpenGL_IndexBuffer* pBuffInd = nullptr;
+		if (pBuff == nullptr)
 		{
-			glm::vec3 Vertices[3];
-			Vertices[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
-			Vertices[1] = glm::vec3(1.0f, -1.0f, 0.0f);
-			Vertices[2] = glm::vec3(0.0f, 1.0f, 0.0f);
+			float vertices[] = {
+				-1.0f, -1.0f, 0.0f, 1.f, 0.f, 0.f, 1.f,
+				1.0f, -1.0f, 0.0f, 1.f, 0.f, 1.f, 1.f,
+				0.0f, 1.0f, 0.0f, 0.f, 1.f, 0.f, 1.f
+			};
 
-			static GLuint vao;
-			glGenVertexArrays(1, &vao);
-			glBindVertexArray(vao);
-			glGenBuffers(1, &VBO);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			uint32_t indices[3] = { 0, 1, 2 };
+
+
+			OpenGL_VertexArray* pVAO = (OpenGL_VertexArray*)VertexArray::Create();
+			pVAO->Bind();
+
+			pBuff = (OpenGL_VertexBuffer*)VertexBuffer::Create((uint32_t)sizeof(vertices) *  3, (float*)&vertices);
+			pBuffInd = (OpenGL_IndexBuffer*)IndexBuffer::Create((uint32_t)sizeof(indices), indices);
+			
+			BufferLayout layout = {
+				{ "position", BufferLayout::ElementType::FLOAT3},
+				{ "color", BufferLayout::ElementType::FLOAT4},
+				//{ "normal", BufferLayout::ElementType::FLOAT3, true}
+			};
+
+			pBuff->SetLayout(layout);
 
 			shader.Create( vertSrc, fragSrc );
 
 		}
 		shader.Bind();
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, pBuffInd->GetCount(), GL_UNSIGNED_INT, nullptr);
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)m_config.uWidth, (float)m_config.uHeight);

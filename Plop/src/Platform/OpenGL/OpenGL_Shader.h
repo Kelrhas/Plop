@@ -13,8 +13,8 @@ namespace Plop
 		~OpenGL_Shader();
 
 		virtual void Create( const String& _sVertSrc, const String& _sFragSrc ) override;
-		virtual void Bind() override;
-		virtual void Unbind() override;
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
 		
 	private:
 		GLuint m_uVertShader;

@@ -34,7 +34,14 @@ namespace Plop
 		glGetShaderiv( m_uVertShader, GL_COMPILE_STATUS, &iIsCompiled );
 		if (iIsCompiled == GL_FALSE)
 		{
-			Log::Error( "Vertex shader failed to compile" );
+			GLint iMaxLength = 0;
+			glGetShaderiv(m_uVertShader, GL_INFO_LOG_LENGTH, &iMaxLength);
+
+			GLchar* pLog = new GLchar[iMaxLength];
+			glGetShaderInfoLog(m_uVertShader, iMaxLength, &iMaxLength, &pLog[0]);
+
+			Log::Error( "Vertex shader failed to compile:\n%s", pLog);
+
 			glDeleteShader( m_uVertShader );
 			return;
 		}
@@ -50,7 +57,14 @@ namespace Plop
 		glGetShaderiv( m_uFragShader, GL_COMPILE_STATUS, &iIsCompiled );
 		if (iIsCompiled == GL_FALSE)
 		{
-			Log::Error( "Vertex shader failed to compile" );
+			GLint iMaxLength = 0;
+			glGetShaderiv(m_uFragShader, GL_INFO_LOG_LENGTH, &iMaxLength);
+
+			GLchar* pLog = new GLchar[iMaxLength];
+			glGetShaderInfoLog(m_uFragShader, iMaxLength, &iMaxLength, &pLog[0]);
+
+			Log::Error( "Fragment shader failed to compile:\n%s", pLog);
+
 			glDeleteShader( m_uVertShader );
 			glDeleteShader( m_uFragShader );
 			return;
@@ -76,12 +90,12 @@ namespace Plop
 		}
 	}
 
-	void OpenGL_Shader::Bind()
+	void OpenGL_Shader::Bind() const
 	{
 		glUseProgram( m_uProgram );
 	}
 
-	void OpenGL_Shader::Unbind()
+	void OpenGL_Shader::Unbind() const
 	{
 		glUseProgram( 0 );
 	}

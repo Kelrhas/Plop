@@ -1,26 +1,61 @@
 #pragma once
 
+#include <Renderer/VertexArray.h>
+#include <Renderer/Shader.h>
+#include <Camera/Camera.h>
+
 namespace Plop
 {
-	enum class RenderAPI
+
+	//////////////////////////////////////////////////////////////////////////
+	// RenderAPI
+	class RenderAPI
 	{
-		NONE,
-		OPENGL,
-		//VULKAN,
-		//DIRECTX
+	public:
+		enum class API
+		{
+			NONE,
+			OPENGL,
+			//VULKAN,
+			//DIRECTX
+		};
+
+		RenderAPI() = default;
+		virtual ~RenderAPI() = default;
+
+
+
+		virtual void Clear() = 0;
+
+		virtual void DrawIndexed(const VertexArrayPtr& _xVertexArray) = 0;
+
+
+		static API GetAPI() { return s_eRenderer; }
+
+	private:
+		static API s_eRenderer;
 	};
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// Renderer
 	class Renderer
 	{
 	public:
-		Renderer();
-		~Renderer();
+
+		static void				PrepareScene(const Camera* _pCamera);
+		static void				EndScene();
+
+		static void				Clear();
+
+		static void				SubmitDraw(const ShaderPtr& _xShader, const VertexArrayPtr& _xVA);
 
 
-		static RenderAPI GetAPI() { return s_eRenderer; }
+		static RenderAPI::API	GetAPI() { return RenderAPI::GetAPI(); }
 
 	private:
-		static RenderAPI s_eRenderer;
+		static RenderAPI*		s_pAPI;
+		static const Camera*	s_pCurrentCamera;
 	};
 
 }

@@ -1,4 +1,4 @@
-#include <Plop_pch.h>
+#include "Plop_pch.h"
 #include "VertexArray.h"
 
 #include <Renderer/Renderer.h>
@@ -10,10 +10,10 @@ namespace Plop
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::OPENGL: return new OpenGL_VertexArray();
+			case RenderAPI::API::OPENGL: return new OpenGL_VertexArray();
 		}
 
-		Log::Assert("Render API not supported");
+		ASSERT(false, "Render API not supported");
 		return nullptr;
 	}
 }

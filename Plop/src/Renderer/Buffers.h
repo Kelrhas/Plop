@@ -1,7 +1,12 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+
 namespace Plop
 {
+	//////////////////////////////////////////////////////////////////////////
+	// BufferLayout
 	class BufferLayout
 	{
 	public:
@@ -25,7 +30,7 @@ namespace Plop
 			Element(String _sName, ElementType _eType, bool _bNormalized = false);
 		};
 
-
+		BufferLayout() = default;
 		BufferLayout(const std::initializer_list<Element>& _elements);
 
 		const std::vector<Element>& GetElements() const { return m_vecElements; }
@@ -41,9 +46,11 @@ namespace Plop
 
 	private:
 		std::vector<Element> m_vecElements;
-		uint32_t m_uStride;
+		uint32_t m_uStride = 0;
 	};
 
+	//////////////////////////////////////////////////////////////////////////
+	// VertexBuffer
 	class VertexBuffer
 	{
 	public:
@@ -54,12 +61,19 @@ namespace Plop
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
-		virtual void SetLayout(const BufferLayout& _layout) = 0;
+				void SetLayout(const BufferLayout& _layout);
+				const BufferLayout& GetLayout() const { return m_layout; }
 
 		static VertexBuffer* Create(size_t _uSize);
 		static VertexBuffer* Create(uint32_t _uCount, float* _pVerts);
-	};
 
+	protected:
+		BufferLayout m_layout;
+	};
+	using VertexBufferPtr = std::shared_ptr<VertexBuffer>;
+
+	//////////////////////////////////////////////////////////////////////////
+	// IndexBuffer
 	class IndexBuffer
 	{
 	public:
@@ -76,5 +90,6 @@ namespace Plop
 	protected:
 		uint32_t m_uCount = 0;
 	};
+	using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
 }
 

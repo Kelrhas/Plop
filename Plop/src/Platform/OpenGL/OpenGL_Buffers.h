@@ -3,6 +3,8 @@
 
 namespace Plop
 {
+	//////////////////////////////////////////////////////////////////////////
+	// VertexBuffer
 	class OpenGL_VertexBuffer : public VertexBuffer
 	{
 	public:
@@ -13,12 +15,12 @@ namespace Plop
 		virtual void Bind() const override;
 		virtual void Unbind() const override;
 
-		virtual void SetLayout(const BufferLayout& _layout) override;
-
 	private:
 		uint32_t m_uID = 0;
 	};
 
+	//////////////////////////////////////////////////////////////////////////
+	// IndexBuffer
 	class OpenGL_IndexBuffer : public IndexBuffer
 	{
 	public:

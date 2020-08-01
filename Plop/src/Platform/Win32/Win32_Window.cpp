@@ -1,22 +1,17 @@
-#include <Plop_pch.h>
+#include "Plop_pch.h"
 
-#include <ImGuiPlatform.h>
 #include <imgui.h>
+#include <GL/glew.h>
 
 #include <Platform/Win32/Win32_Window.h>
 #include <Platform/OpenGL/OpenGLWin32_Context.h>
 #include <Application.h>
-#include <Log.h>
+#include <Debug/Log.h>
 
 #include <Events/EventDispatcher.h>
 #include <Events/WindowEvent.h>
 
 #include <glm/glm.hpp>
-
-
-#include <Platform/OpenGL/OpenGL_Shader.h>
-#include <Platform/OpenGL/OpenGL_Buffers.h>
-#include <Platform/OpenGL/OpenGL_VertexArray.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -220,12 +215,6 @@ namespace Plop
 		if (!m_hWnd)
 			return;
 
-		{
-			ImGui::CreateContext();
-			ImGui::StyleColorsDark();
-			ImGui_ImplWin32_Init(m_hWnd);
-			ImGui_ImplOpenGL3_Init();
-		}
 
 		Log::Info(" GL Version %s", glGetString(GL_VERSION));
 		Log::Info(" GLSL Version %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -241,9 +230,6 @@ namespace Plop
 
 	void Win32_Window::Destroy()
 	{
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
 		
 		m_pRenderContext->Destroy(); 
 	}
@@ -273,92 +259,10 @@ namespace Plop
 			}
 		}
 
-		glClear(GL_COLOR_BUFFER_BIT);
+
 		glViewport(0, 0, m_config.uWidth, m_config.uHeight);
 
 
-		
-		String vertSrc = R"(
-
-			#version 330 core
-
-			layout (location=0) in vec3 pos;
-			layout (location=1) in vec4 color;
-
-			out vec4 v_color;
-
-			void main()
-			{
-				v_color = color;
-				gl_Position = vec4(pos, 1.0);
-			}
-		)";
-
-		String fragSrc = R"(
-
-			#version 330 core
-
-			layout (location=0) out vec4 color;
-
-			in vec4 v_color;
-
-			void main()
-			{
-				color = v_color;
-			}
-		)";
-
-
-		static OpenGL_Shader shader;
-		static OpenGL_VertexBuffer* pBuff = nullptr;
-		static OpenGL_IndexBuffer* pBuffInd = nullptr;
-		if (pBuff == nullptr)
-		{
-			float vertices[] = {
-				-1.0f, -1.0f, 0.0f, 1.f, 0.f, 0.f, 1.f,
-				1.0f, -1.0f, 0.0f, 1.f, 0.f, 1.f, 1.f,
-				0.0f, 1.0f, 0.0f, 0.f, 1.f, 0.f, 1.f
-			};
-
-			uint32_t indices[3] = { 0, 1, 2 };
-
-
-			OpenGL_VertexArray* pVAO = (OpenGL_VertexArray*)VertexArray::Create();
-			pVAO->Bind();
-
-			pBuff = (OpenGL_VertexBuffer*)VertexBuffer::Create((uint32_t)sizeof(vertices) *  3, (float*)&vertices);
-			pBuffInd = (OpenGL_IndexBuffer*)IndexBuffer::Create((uint32_t)sizeof(indices), indices);
-			
-			BufferLayout layout = {
-				{ "position", BufferLayout::ElementType::FLOAT3},
-				{ "color", BufferLayout::ElementType::FLOAT4},
-				//{ "normal", BufferLayout::ElementType::FLOAT3, true}
-			};
-
-			pBuff->SetLayout(layout);
-
-			shader.Create( vertSrc, fragSrc );
-
-		}
-		shader.Bind();
-		glDrawElements(GL_TRIANGLES, pBuffInd->GetCount(), GL_UNSIGNED_INT, nullptr);
-
-		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2((float)m_config.uWidth, (float)m_config.uHeight);
-		io.DeltaTime = 1.f / 60.f;
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-
-		static bool b = true;
-		if(b)
-			ImGui::ShowDemoWindow(&b);
-
-		ImGui::EndFrame();
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		m_pRenderContext->Flush();
 	}

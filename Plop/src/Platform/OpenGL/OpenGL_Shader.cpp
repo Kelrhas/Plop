@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <GL/GL.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace Plop
 {
 
@@ -19,7 +21,7 @@ namespace Plop
 		glDeleteProgram( m_uProgram );
 	}
 
-	void OpenGL_Shader::Create( const String& _sVertSrc, const String& _sFragSrc )
+	void OpenGL_Shader::Load( const String& _sVertSrc, const String& _sFragSrc )
 	{
 		GLint iIsCompiled;
 
@@ -98,5 +100,14 @@ namespace Plop
 	void OpenGL_Shader::Unbind() const
 	{
 		glUseProgram( 0 );
+	}
+
+	void OpenGL_Shader::SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const
+	{
+		GLint iLoc = glGetUniformLocation(m_uProgram, _sName.c_str());
+		if (iLoc >= 0)
+		{
+			glUniformMatrix4fv(iLoc, 1, GL_FALSE, glm::value_ptr(_mMat));
+		}
 	}
 }

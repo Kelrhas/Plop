@@ -1,7 +1,10 @@
 #include <PlopInclude.h>
 
 #include "SampleApp.h"
-#include <Log.h>
+#include <Debug/Log.h>
+
+#include <SampleLayer.h>
+
 
 Plop::Application* Plop::CreateApplication()
 {
@@ -10,6 +13,7 @@ Plop::Application* Plop::CreateApplication()
 
 SampleApp::SampleApp()
 {
+	RegisterAppLayer(new SampleLayer());
 }
 
 Plop::GameConfig* SampleApp::CreateGameConfig()

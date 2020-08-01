@@ -17,6 +17,8 @@ namespace Plop
 		virtual void		ToggleFullscreen() override;
 		virtual void		SetVSync(bool _bEnabled) override;
 
+		virtual void*		GetNativeWindow() const override { return m_hWnd; }
+
 				LRESULT		WindowCallback(HWND _hWnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam);
 
 				HWND		GetHWND() const { return m_hWnd; }

@@ -1,4 +1,4 @@
-#include <Plop_pch.h>
+#include "Plop_pch.h"
 #include "OpenGL_Buffers.h"
 
 #include <GL/glew.h>
@@ -35,17 +35,6 @@ namespace Plop
 	void OpenGL_VertexBuffer::Unbind() const
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
-	void OpenGL_VertexBuffer::SetLayout(const BufferLayout& _layout)
-	{
-		int iAttrib = 0;
-		for (const BufferLayout::Element& elmt : _layout)
-		{
-			glEnableVertexAttribArray(iAttrib);
-			glVertexAttribPointer(iAttrib, BufferLayout::GetElementCount(elmt.eType), GL_FLOAT, elmt.bNormalized, _layout.GetStride(), (const void*)elmt.uOffset);
-			++iAttrib;
-		}
 	}
 
 

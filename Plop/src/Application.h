@@ -1,7 +1,8 @@
 #pragma once
 
-#include "PlopInclude.h"
 #include <Window.h>
+#include <ApplicationLayer.h>
+#include <Debug/ImGuiLayer.h>
 
 #include <Events/IEventListener.h>
 
@@ -31,15 +32,23 @@ namespace Plop
 		Application();
 		virtual ~Application();
 
-		bool OnEvent( Event& _event ) override;
+		virtual bool OnEvent( Event& _event ) override;
 
 		void Init();
 		void Destroy();
 
 		void Run();
 
-
 		virtual GameConfig* CreateGameConfig();
+
+		Window& GetWindow() const { return *m_xWindow; }
+
+		// ApplicationLayer
+		void RegisterAppLayer(ApplicationLayer* _pLayer);
+		void UnregisterAppLayer(ApplicationLayer* _pLayer);
+
+
+		static Application* Get() { return s_pInstance; }
 		static Config& GetConfig() { return s_pInstance->m_Config; }
 
 	private:
@@ -48,6 +57,13 @@ namespace Plop
 		Config m_Config;
 		std::unique_ptr<Window> m_xWindow;
 		bool m_bRunning = true;
+
+		std::vector<ApplicationLayer*> m_vecAppLayers;
+		ImGuiLayer m_ImGuiLayer;
+		static bool _SortAppLayer(const ApplicationLayer* _pLayerA, const ApplicationLayer* _pLayerB)
+		{
+			return _pLayerA->GetPriority() < _pLayerB->GetPriority();
+		}
 	};
 
 

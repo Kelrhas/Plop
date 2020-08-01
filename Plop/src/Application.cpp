@@ -1,13 +1,21 @@
-#include <Plop_pch.h>
+#include "Plop_pch.h"
 #include <PlopInclude.h>
 
 #include <fstream>
 
 #include <json.hpp>
 
-#include <Log.h>
+#include <Debug/Log.h>
 #include <Events/EventDispatcher.h>
 #include <Events/WindowEvent.h>
+
+
+
+
+#include <Platform/OpenGL/OpenGL_Shader.h>
+#include <Platform/OpenGL/OpenGL_Buffers.h>
+#include <Platform/OpenGL/OpenGL_VertexArray.h>
+#include <Renderer/Renderer.h>
 
 namespace Plop
 {
@@ -129,10 +137,15 @@ namespace Plop
 		m_xWindow->Init();
 
 		m_Config.Save();
+
+
+		RegisterAppLayer(&m_ImGuiLayer);
 	}
 
 	void Application::Destroy()
 	{
+		UnregisterAppLayer(&m_ImGuiLayer);
+
 		EventDispatcher::UnregisterListener( this );
 
 		EventDispatcher::Destroy();
@@ -143,10 +156,41 @@ namespace Plop
 
 		while (m_bRunning)
 		{
+			m_ImGuiLayer.NewFrame();
+
+			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
+			{
+				pAppLayer->OnUpdate();
+			}
+			m_ImGuiLayer.EndFrame();
+
 			m_xWindow->Update();
 		}
 
 		m_xWindow->Destroy();
+	}
+
+	void Application::RegisterAppLayer(ApplicationLayer* _pLayer)
+	{
+		m_vecAppLayers.push_back(_pLayer);
+		std::sort(m_vecAppLayers.begin(), m_vecAppLayers.end(), _SortAppLayer);
+
+		_pLayer->OnRegistered();
+	}
+
+	void Application::UnregisterAppLayer(ApplicationLayer* _pLayer)
+	{
+		for (int i = 0; i < m_vecAppLayers.size(); ++i)
+		{
+			if (m_vecAppLayers[i] == _pLayer)
+			{
+				m_vecAppLayers[i] = m_vecAppLayers.back();
+				m_vecAppLayers.pop_back();
+			}
+		}
+		std::sort(m_vecAppLayers.begin(), m_vecAppLayers.end(), _SortAppLayer);
+
+		_pLayer->OnUnregistered();
 	}
 
 	GameConfig* Application::CreateGameConfig()

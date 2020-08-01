@@ -125,6 +125,8 @@ project "Sample"
 	includedirs
 	{
 		"Plop/src/",
+		"%{prj.name}/src/",
+		"Externals/ImGui/",
 		"Externals/glm/"
 	}
 	

@@ -1,4 +1,4 @@
-#include <Plop_pch.h>
+#include "Plop_pch.h"
 #include "Buffers.h"
 
 #include <Renderer/Renderer.h>
@@ -53,14 +53,19 @@ namespace Plop
 		return 0;
 	}
 
+	void VertexBuffer::SetLayout(const BufferLayout& _layout)
+	{
+		m_layout = _layout;
+	}
+
 	VertexBuffer* VertexBuffer::Create(size_t _uSize)
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::OPENGL: return new OpenGL_VertexBuffer(_uSize);
+			case RenderAPI::API::OPENGL: return new OpenGL_VertexBuffer(_uSize);
 		}
 
-		Log::Assert("Render API not supported");
+		ASSERT(false, "Render API not supported");
 		return nullptr;
 	}
 
@@ -68,10 +73,10 @@ namespace Plop
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::OPENGL: return new OpenGL_VertexBuffer(_uCount, _pVerts);
+			case RenderAPI::API::OPENGL: return new OpenGL_VertexBuffer(_uCount, _pVerts);
 		}
 
-		Log::Assert("Render API not supported");
+		ASSERT(false, "Render API not supported");
 		return nullptr;
 	}
 
@@ -80,10 +85,10 @@ namespace Plop
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::OPENGL: return new OpenGL_IndexBuffer(_uCount, _pIndices);
+			case RenderAPI::API::OPENGL: return new OpenGL_IndexBuffer(_uCount, _pIndices);
 		}
 
-		Log::Assert("Render API not supported");
+		ASSERT(false, "Render API not supported");
 		return nullptr;
 	}
 }

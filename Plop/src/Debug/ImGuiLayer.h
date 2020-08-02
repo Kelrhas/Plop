@@ -9,7 +9,7 @@ namespace Plop
 	public:
 		virtual void OnRegistered() override;
 		virtual void OnUnregistered() override;
-		virtual void OnUpdate() override;
+		virtual void OnUpdate(TimeStep& _timeStep) override;
 
 		virtual uint8_t GetPriority() const { return 200; }
 

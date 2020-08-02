@@ -6,7 +6,7 @@ namespace Plop
 
 	Camera::Camera()
 	{
-		m_vPosition = glm::vec3(0.5f, 0.f, 0.f);
+		m_vPosition = glm::vec3(0.f, 0.f, 0.f);
 		m_qRotation = glm::identity<glm::quat>();
 
 		UpdateViewMatrix();

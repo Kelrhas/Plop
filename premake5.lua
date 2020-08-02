@@ -55,6 +55,7 @@ workspace "Plop"
 		
 	filter "system:Windows"
 		systemversion "latest"
+		defines { "PLATFORM_WINDOWS" }
 
 	characterset("MBCS") --Unicode
 

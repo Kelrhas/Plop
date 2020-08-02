@@ -2,9 +2,10 @@
 
 #include <imgui.h>
 
+#include <Constants.h>
 #include <Renderer/Renderer.h>
 
-void SampleLayer::OnUpdate()
+void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	if (ImGui::Begin("Sample window"))
 	{
@@ -82,6 +83,7 @@ void SampleLayer::OnUpdate()
 
 	}
 
+	m_pCamera->Rotate(VEC3_FORWARD, glm::radians(5.f));
 
 	Plop::Renderer::Clear();
 

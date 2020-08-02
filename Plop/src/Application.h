@@ -5,6 +5,7 @@
 #include <Debug/ImGuiLayer.h>
 
 #include <Events/IEventListener.h>
+#include <TimeStep.h>
 
 namespace Plop
 {
@@ -32,35 +33,37 @@ namespace Plop
 		Application();
 		virtual ~Application();
 
-		virtual bool OnEvent( Event& _event ) override;
+		// IEventListener
+		virtual bool			OnEvent( Event& _event ) override;
 
-		void Init();
-		void Destroy();
+				void			Init();
+				void			Destroy();
 
-		void Run();
+				void			Run();
 
-		virtual GameConfig* CreateGameConfig();
+		virtual GameConfig*		CreateGameConfig();
 
-		Window& GetWindow() const { return *m_xWindow; }
+				Window&			GetWindow() const { return *m_xWindow; }
 
-		// ApplicationLayer
-		void RegisterAppLayer(ApplicationLayer* _pLayer);
-		void UnregisterAppLayer(ApplicationLayer* _pLayer);
+				// ApplicationLayer
+				void			RegisterAppLayer(ApplicationLayer* _pLayer);
+				void			UnregisterAppLayer(ApplicationLayer* _pLayer);
 
 
-		static Application* Get() { return s_pInstance; }
-		static Config& GetConfig() { return s_pInstance->m_Config; }
+		static Application*		Get() { return s_pInstance; }
+		static Config&			GetConfig() { return s_pInstance->m_Config; }
 
 	private:
-		static Application* s_pInstance;
+		static Application*		s_pInstance;
 
-		Config m_Config;
-		std::unique_ptr<Window> m_xWindow;
-		bool m_bRunning = true;
+				Config			m_Config;
+				std::unique_ptr<Window> m_xWindow;
+				TimeStep		m_timeStep;
+				bool			m_bRunning = true;
 
-		std::vector<ApplicationLayer*> m_vecAppLayers;
-		ImGuiLayer m_ImGuiLayer;
-		static bool _SortAppLayer(const ApplicationLayer* _pLayerA, const ApplicationLayer* _pLayerB)
+				std::vector<ApplicationLayer*> m_vecAppLayers;
+				ImGuiLayer		m_ImGuiLayer;
+		static bool				_SortAppLayer(const ApplicationLayer* _pLayerA, const ApplicationLayer* _pLayerB)
 		{
 			return _pLayerA->GetPriority() < _pLayerB->GetPriority();
 		}

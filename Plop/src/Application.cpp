@@ -138,7 +138,7 @@ namespace Plop
 
 		m_Config.Save();
 
-
+		m_timeStep.Advance();
 		RegisterAppLayer(&m_ImGuiLayer);
 	}
 
@@ -156,11 +156,12 @@ namespace Plop
 
 		while (m_bRunning)
 		{
+			m_timeStep.Advance();
 			m_ImGuiLayer.NewFrame();
 
 			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
 			{
-				pAppLayer->OnUpdate();
+				pAppLayer->OnUpdate(m_timeStep);
 			}
 			m_ImGuiLayer.EndFrame();
 

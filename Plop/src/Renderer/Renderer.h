@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Renderer/VertexArray.h>
-#include <Renderer/Shader.h>
+#include <Renderer/Mesh.h>
 #include <Camera/Camera.h>
 
 namespace Plop
@@ -48,7 +47,7 @@ namespace Plop
 
 		static void				Clear();
 
-		static void				SubmitDraw(const ShaderPtr& _xShader, const VertexArrayPtr& _xVA);
+		static void				SubmitDraw(const MeshPtr& _xMesh);
 
 
 		static RenderAPI::API	GetAPI() { return RenderAPI::GetAPI(); }

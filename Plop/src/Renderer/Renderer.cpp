@@ -31,11 +31,14 @@ namespace Plop
 		s_pAPI->Clear();
 	}
 
-	void Renderer::SubmitDraw(const ShaderPtr& _xShader, const VertexArrayPtr& _xVA)
+	void Renderer::SubmitDraw(const MeshPtr& _xMesh)
 	{
-		_xShader->Bind();
-		_xShader->SetUniformMat4("u_mVP", s_pCurrentCamera->GetViewProjectionMatrix());
-		_xVA->Bind();
-		s_pAPI->DrawIndexed(_xVA);
+		_xMesh->m_xShader->Bind();
+		_xMesh->m_xShader->SetUniformMat4("u_mViewProjection", s_pCurrentCamera->GetViewProjectionMatrix()); // will have to move into scene prepare command
+
+		_xMesh->m_xShader->SetUniformMat4("u_mModel", _xMesh->m_mTransform);
+
+		_xMesh->m_xVertexArray->Bind();
+		s_pAPI->DrawIndexed(_xMesh->m_xVertexArray);
 	}
 }

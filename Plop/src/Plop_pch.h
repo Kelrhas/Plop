@@ -21,7 +21,16 @@
 #define COMPILE_ASSERT(b, m) static_assert(b, m);
 #define ASSERT_COMPILE_TIME(b, m) COMPILE_ASSERT(b, m);
 
+#ifndef _MASTER
 #define BREAK() __debugbreak()
-#define ASSERT(action, ...) {bool b = (action); if(!b){ Log::Assert(""); BREAK(); }}
-#define VERIFY(action, ...) {bool b = (action); if(!b){ Log::Assert(""); BREAK(); }}
+#define ASSERT(action, ...) {bool b = (action); if(!b){ Log::Assert(__VA_ARGS__); BREAK(); }}
+#define VERIFY(action, ...) {bool b = (action); if(!b){ Log::Assert(__VA_ARGS__); BREAK(); }}
+#define VERIFY_NO_MSG(action) {bool b = (action); if(!b){ BREAK(); }}
+#define EXCEPTION(action, ...) {bool b = (action); if(!b){ Log::Error(__VA_ARGS__); BREAK(); }}
+#else
+#define BREAK() do{}while(0)
+#define ASSERT(action, ...) do{}while(0)
+#define VERIFY(action, ...) do{(action)}while(0)
+#define EXCEPTION(action, ...) {bool b = (action); if(!b){ Log::Error(__VA_ARGS__); Log::Flush(); }} // we flush to be sure that we have the log in the file before a possible crash
+#endif
 

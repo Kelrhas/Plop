@@ -50,7 +50,7 @@ namespace Plop
 		String str = "Assert:\t";
 		str.append(_pStr);
 
-		SetConsoleTextAttribute(s_hConsole, FOREGROUND_BLUE);
+		SetConsoleTextAttribute(s_hConsole, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
 
 		va_list args;
 		va_start(args, _pStr);
@@ -59,7 +59,6 @@ namespace Plop
 
 		va_end(args);
 	}
-
 
 	void Log::Warn(const char* _pStr, ...)
 	{
@@ -91,6 +90,10 @@ namespace Plop
 		va_end(args);
 	}
 
+	void Log::Flush()
+	{
+		// TODO flush the file if we have one still open
+	}
 
 	void Log::Output(const char* _pBuff, va_list _args)
 	{

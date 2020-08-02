@@ -13,6 +13,8 @@ namespace Plop
 		static void Warn	(const char* _pStr, ...);
 		static void Error	(const char* _pStr, ...);
 
+		static void Flush	();
+
 	private:
 		static void Output	(const char* _pBuff, va_list _args);
 

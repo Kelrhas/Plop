@@ -122,7 +122,7 @@ namespace Plop
 
 	void Application::Init()
 	{
-		VERIFY(Log::Init());
+		VERIFY(Log::Init(), "Log did not init properly");
 
 		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
 

@@ -44,7 +44,7 @@ namespace Plop
 	void EventDispatcher::Destroy()
 	{
 		// make sure everyone has unregistered
-		ASSERT( m_vecListeners.size() == 0 );
+		ASSERT( m_vecListeners.size() == 0, "There are %d EventListener still registered", (int)m_vecListeners.size());
 	}
 
 }

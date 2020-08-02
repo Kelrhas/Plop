@@ -97,9 +97,9 @@ namespace Plop
 			};
 
 			m_hGLRenderContext = wglCreateContextAttribsARB(m_hDeviceContext, 0, contextAttribs);
-			VERIFY(wglMakeCurrent(NULL, NULL));
-			VERIFY(wglDeleteContext(tempContext));
-			VERIFY(wglMakeCurrent(m_hDeviceContext, m_hGLRenderContext));
+			VERIFY_NO_MSG(wglMakeCurrent(NULL, NULL));
+			VERIFY_NO_MSG(wglDeleteContext(tempContext));
+			VERIFY_NO_MSG(wglMakeCurrent(m_hDeviceContext, m_hGLRenderContext));
 			//Assert_GL();
 		}
 		else

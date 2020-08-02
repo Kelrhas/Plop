@@ -126,7 +126,7 @@ namespace Plop
 		//if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
 		//	return;
 
-		std::string str("Opengl message: ");
+		String str("Opengl message: ");
 		str.append(message);
 
 		switch (source)

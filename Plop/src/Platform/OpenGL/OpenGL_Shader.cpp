@@ -1,6 +1,8 @@
 #include "Plop_pch.h"
 #include "OpenGL_Shader.h"
 
+#include <fstream>
+
 #include <GL/glew.h>
 #include <GL/GL.h>
 
@@ -16,80 +18,79 @@ namespace Plop
 
 	OpenGL_Shader::~OpenGL_Shader()
 	{
-		glDeleteShader( m_uVertShader );
-		glDeleteShader( m_uFragShader );
 		glDeleteProgram( m_uProgram );
+	}
+
+	void OpenGL_Shader::Load(const String& _sFile)
+	{
+		String sContent;
+		std::ifstream file(_sFile, std::ios::in | std::ios::binary);
+		ASSERT(file.is_open(), "File not found: %s", _sFile.c_str());
+		if (file.is_open())
+		{
+			file.seekg(0, std::ios::end);
+			size_t size = file.tellg();
+			ASSERT(size > 0, "The file %s is empty", _sFile);
+			if (size > 0)
+			{
+				sContent.resize(size);
+				file.seekg(0);
+				file.read(&sContent[0], size);
+			}
+			file.close();
+		}
+
+#ifdef _DEBUG
+		// add file watcher to live reload any change
+		const char* pFileToken = "#file";
+#endif
+
+		auto GetGLTypeFromStrType = [](const String& _sType)->GLenum
+		{
+			if (_stricmp(_sType.c_str(), "vertex") == 0)
+				return GL_VERTEX_SHADER;
+			if (_stricmp(_sType.c_str(), "fragment") == 0)
+				return GL_FRAGMENT_SHADER;
+
+			return GL_INVALID_ENUM;
+		};
+
+		const char* pTypeToken = "#type ";
+		
+		String sVertSrc, sFragSrc;
+		size_t currentPos = sContent.find(pTypeToken, 0);
+		while (currentPos != String::npos)
+		{
+			size_t EOL = sContent.find("\r\n", currentPos);
+			ASSERT(EOL != String::npos, "No shader under type %s", sContent.substr(currentPos).c_str());
+			if (EOL == String::npos)
+				break;
+
+			String sType = sContent.substr(currentPos + strlen(pTypeToken), EOL - currentPos - strlen(pTypeToken) );
+			GLenum eType = GetGLTypeFromStrType(sType);
+
+			ASSERT(eType != GL_INVALID_ENUM, "Unknown shader type");
+			ASSERT(m_mapShaderSources.find(eType) == m_mapShaderSources.end(), "Shader type already read");
+
+			size_t nextLinePos = sContent.find_first_not_of("\r\n", EOL);
+			currentPos = sContent.find(pTypeToken, nextLinePos);
+
+			if (currentPos != String::npos)
+				m_mapShaderSources[eType] = sContent.substr(nextLinePos, currentPos - nextLinePos);
+			else
+				m_mapShaderSources[eType] = sContent.substr(nextLinePos);
+		}
+
+
+		Compile();
 	}
 
 	void OpenGL_Shader::Load( const String& _sVertSrc, const String& _sFragSrc )
 	{
-		GLint iIsCompiled;
-
-		//////////////////////////////////////////////////////////////////////////
-		// VERTEX
-
-		m_uVertShader = glCreateShader( GL_VERTEX_SHADER );
-		const GLchar* pVertSrc = (const GLchar*)_sVertSrc.c_str();
-		glShaderSource( m_uVertShader, 1, &pVertSrc, nullptr );
-		glCompileShader( m_uVertShader );
-
-		glGetShaderiv( m_uVertShader, GL_COMPILE_STATUS, &iIsCompiled );
-		if (iIsCompiled == GL_FALSE)
-		{
-			GLint iMaxLength = 0;
-			glGetShaderiv(m_uVertShader, GL_INFO_LOG_LENGTH, &iMaxLength);
-
-			GLchar* pLog = new GLchar[iMaxLength];
-			glGetShaderInfoLog(m_uVertShader, iMaxLength, &iMaxLength, &pLog[0]);
-
-			Log::Error( "Vertex shader failed to compile:\n%s", pLog);
-
-			glDeleteShader( m_uVertShader );
-			return;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		// FRAGMENT
-
-		m_uFragShader = glCreateShader( GL_FRAGMENT_SHADER );
-		const GLchar* pFragSrc = (const GLchar*)_sFragSrc.c_str();
-		glShaderSource( m_uFragShader, 1, &pFragSrc, nullptr );
-		glCompileShader( m_uFragShader );
-
-		glGetShaderiv( m_uFragShader, GL_COMPILE_STATUS, &iIsCompiled );
-		if (iIsCompiled == GL_FALSE)
-		{
-			GLint iMaxLength = 0;
-			glGetShaderiv(m_uFragShader, GL_INFO_LOG_LENGTH, &iMaxLength);
-
-			GLchar* pLog = new GLchar[iMaxLength];
-			glGetShaderInfoLog(m_uFragShader, iMaxLength, &iMaxLength, &pLog[0]);
-
-			Log::Error( "Fragment shader failed to compile:\n%s", pLog);
-
-			glDeleteShader( m_uVertShader );
-			glDeleteShader( m_uFragShader );
-			return;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// PROGRAM
-
-		m_uProgram = glCreateProgram();
-		glAttachShader( m_uProgram, m_uVertShader );
-		glAttachShader( m_uProgram, m_uFragShader );
-		glLinkProgram( m_uProgram );
-
-		GLint iIsLinked;
-		glGetProgramiv( m_uProgram, GL_LINK_STATUS, &iIsLinked );
-		if (iIsLinked == GL_FALSE)
-		{
-			Log::Error( "Program did not link" );
-			glDeleteShader( m_uVertShader );
-			glDeleteShader( m_uFragShader );
-			glDeleteProgram( m_uFragShader );
-		}
+		Clear();
+		m_mapShaderSources[GL_VERTEX_SHADER] = _sVertSrc;
+		m_mapShaderSources[GL_FRAGMENT_SHADER] = _sFragSrc;
+		Compile();
 	}
 
 	void OpenGL_Shader::Bind() const
@@ -108,6 +109,85 @@ namespace Plop
 		if (iLoc >= 0)
 		{
 			glUniformMatrix4fv(iLoc, 1, GL_FALSE, glm::value_ptr(_mMat));
+		}
+	}
+
+	void OpenGL_Shader::Clear()
+	{
+		m_mapShaderSources.clear();
+	}
+
+	void OpenGL_Shader::Compile()
+	{
+
+		if(m_uProgram == 0)
+			m_uProgram = glCreateProgram();
+
+		//////////////////////////////////////////////////////////////////////////
+		// SHADERS
+		GLint iIsCompiled;
+
+		std::vector<GLuint> vecShaders;
+
+		for (auto& shaderPair : m_mapShaderSources)
+		{
+			GLenum eShaderType = shaderPair.first;
+			const String& sShaderSrc = shaderPair.second;
+			GLuint uShader = glCreateShader(eShaderType);
+
+			const GLchar* pSrc = (const GLchar*)sShaderSrc.c_str();
+			glShaderSource(uShader, 1, &pSrc, nullptr);
+			glCompileShader(uShader);
+
+			glGetShaderiv(uShader, GL_COMPILE_STATUS, &iIsCompiled);
+			if (iIsCompiled == GL_FALSE)
+			{
+				GLint iMaxLength = 0;
+				glGetShaderiv(uShader, GL_INFO_LOG_LENGTH, &iMaxLength);
+
+				GLchar* pLog = new GLchar[iMaxLength];
+				glGetShaderInfoLog(uShader, iMaxLength, &iMaxLength, &pLog[0]);
+
+				Log::Error("Shader failed to compile:\n%s", pLog);
+
+				glDeleteShader(uShader);
+				break;
+			}
+
+			glAttachShader(m_uProgram, uShader);
+			vecShaders.push_back(uShader);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// PROGRAM LINK
+
+		glLinkProgram(m_uProgram);
+
+		GLint iIsLinked;
+		glGetProgramiv(m_uProgram, GL_LINK_STATUS, &iIsLinked);
+		if (iIsLinked == GL_FALSE)
+		{
+			GLint iMaxLength = 0;
+			glGetProgramiv(m_uProgram, GL_INFO_LOG_LENGTH, &iMaxLength);
+
+			GLchar* pLog = new GLchar[iMaxLength];
+			glGetProgramInfoLog(m_uProgram, iMaxLength, &iMaxLength, &pLog[0]);
+
+			Log::Error("Program did not link:\n%s", pLog);
+
+			for (GLuint uShader : vecShaders)
+				glDeleteShader(uShader);
+			glDeleteProgram(m_uProgram);
+			return;
+		}
+
+
+		// all went well, free the shaders as we no longer need them
+		for (GLuint uShader : vecShaders)
+		{
+			glDetachShader(m_uProgram, uShader);
+			glDeleteShader(uShader);
 		}
 	}
 }

@@ -6,6 +6,25 @@
 
 namespace Plop
 {
+	Shader* Shader::Create(const String& _sFile)
+	{
+		Shader* pShader = nullptr;
+		switch (Renderer::GetAPI())
+		{
+			case RenderAPI::API::OPENGL:		pShader = new OpenGL_Shader();
+		}
+
+		if (pShader)
+		{
+			pShader->Load(_sFile);
+			return pShader;
+		}
+
+
+		ASSERT(false, "Render API not supported");
+		return nullptr;
+	}
+
 	Shader* Shader::Create(const String& _sVertSrc, const String& _sFragSrc)
 	{
 		Shader* pShader = nullptr;

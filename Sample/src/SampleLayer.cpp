@@ -14,39 +14,6 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 	}
 
 
-	static String vertSrc = R"(
-
-				#version 330 core
-
-				layout (location=0) in vec3 pos;
-				layout (location=1) in vec4 color;
-
-				uniform mat4 u_mVP;
-
-				out vec4 v_color;
-
-				void main()
-				{
-					v_color = color;
-					gl_Position = u_mVP * vec4(pos, 1.0);
-				}
-			)";
-
-	static String fragSrc = R"(
-
-				#version 330 core
-
-				layout (location=0) out vec4 color;
-
-				in vec4 v_color;
-
-				void main()
-				{
-					color = v_color;
-				}
-			)";
-
-
 	static Plop::ShaderPtr xShader = nullptr;
 	static Plop::VertexArrayPtr xVAO = nullptr;
 	if (xVAO == nullptr)
@@ -79,11 +46,11 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 		xIndBuff.reset(Plop::IndexBuffer::Create((uint32_t)sizeof(indices), indices));
 		xVAO->SetIndexBuffer(xIndBuff);
 
-		xShader.reset(Plop::Shader::Create(vertSrc, fragSrc));
+		xShader.reset(Plop::Shader::Create("data/shaders/vertexColor.glsl"));
 
 	}
 
-	m_pCamera->Rotate(VEC3_FORWARD, glm::radians(5.f));
+	m_pCamera->Rotate(VEC3_FORWARD, glm::radians(25.f) * _timeStep.GetGameDeltaTime());
 
 	Plop::Renderer::Clear();
 

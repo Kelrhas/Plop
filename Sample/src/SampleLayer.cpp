@@ -25,11 +25,11 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 		};
 
 
-		xMesh->m_xVertexArray.reset(Plop::VertexArray::Create());
+		xMesh->m_xVertexArray = Plop::VertexArray::Create();
 		xMesh->m_xVertexArray->Bind();
 
 		Plop::VertexBufferPtr xVertBuff;
-		xVertBuff.reset(Plop::VertexBuffer::Create((uint32_t)sizeof(vertices) * 3, (float*)&vertices));
+		xVertBuff = Plop::VertexBuffer::Create((uint32_t)sizeof(vertices) * 3, (float*)&vertices);
 
 		Plop::BufferLayout layout = {
 			{ "position", Plop::BufferLayout::ElementType::FLOAT3},
@@ -43,10 +43,10 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 		uint32_t indices[3] = { 0, 1, 2 };
 		Plop::IndexBufferPtr xIndBuff;
-		xIndBuff.reset(Plop::IndexBuffer::Create((uint32_t)sizeof(indices), indices));
+		xIndBuff = Plop::IndexBuffer::Create((uint32_t)sizeof(indices), indices);
 		xMesh->m_xVertexArray->SetIndexBuffer(xIndBuff);
 
-		xMesh->m_xShader.reset(Plop::Shader::Create("data/shaders/vertexColor.glsl"));
+		xMesh->m_xShader = Plop::Shader::Create("data/shaders/vertexColor.glsl");
 	}
 
 	m_pCamera->Rotate(VEC3_FORWARD, glm::radians(25.f) * _timeStep.GetGameDeltaTime());

@@ -6,18 +6,18 @@
 
 namespace Plop
 {
-	Shader* Shader::Create(const String& _sFile)
+	ShaderPtr Shader::Create(const String& _sFile)
 	{
-		Shader* pShader = nullptr;
+		ShaderPtr xShader = nullptr;
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL:		pShader = new OpenGL_Shader();
+			case RenderAPI::API::OPENGL:		xShader = std::make_shared < OpenGL_Shader>();
 		}
 
-		if (pShader)
+		if (xShader)
 		{
-			pShader->Load(_sFile);
-			return pShader;
+			xShader->Load(_sFile);
+			return xShader;
 		}
 
 
@@ -25,18 +25,18 @@ namespace Plop
 		return nullptr;
 	}
 
-	Shader* Shader::Create(const String& _sVertSrc, const String& _sFragSrc)
+	ShaderPtr Shader::Create(const String& _sVertSrc, const String& _sFragSrc)
 	{
-		Shader* pShader = nullptr;
+		ShaderPtr xShader = nullptr;
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL:		pShader = new OpenGL_Shader();
+			case RenderAPI::API::OPENGL:		xShader = std::make_shared<OpenGL_Shader>();
 		}
 
-		if (pShader)
+		if (xShader)
 		{
-			pShader->Load(_sVertSrc, _sFragSrc);
-			return pShader;
+			xShader->Load(_sVertSrc, _sFragSrc);
+			return xShader;
 		}
 
 

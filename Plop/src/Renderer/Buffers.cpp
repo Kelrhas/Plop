@@ -6,6 +6,8 @@
 
 namespace Plop
 {
+	//////////////////////////////////////////////////////////////////////////
+	// BufferLayout
 	BufferLayout::Element::Element(String _sName, ElementType _eType, bool _bNormalized /*= false*/)
 		: sName(_sName), eType(_eType), bNormalized(_bNormalized)
 	{
@@ -53,27 +55,29 @@ namespace Plop
 		return 0;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// VertexBuffer
 	void VertexBuffer::SetLayout(const BufferLayout& _layout)
 	{
 		m_layout = _layout;
 	}
 
-	VertexBuffer* VertexBuffer::Create(size_t _uSize)
+	VertexBufferPtr VertexBuffer::Create(size_t _uSize)
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL: return new OpenGL_VertexBuffer(_uSize);
+			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_VertexBuffer>(_uSize);
 		}
 
 		ASSERT(false, "Render API not supported");
 		return nullptr;
 	}
 
-	VertexBuffer* VertexBuffer::Create(uint32_t _uCount, float* _pVerts)
+	VertexBufferPtr VertexBuffer::Create(uint32_t _uCount, float* _pVerts)
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL: return new OpenGL_VertexBuffer(_uCount, _pVerts);
+			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_VertexBuffer>(_uCount, _pVerts);
 		}
 
 		ASSERT(false, "Render API not supported");
@@ -81,11 +85,13 @@ namespace Plop
 	}
 
 
-	IndexBuffer* IndexBuffer::Create(uint32_t _uCount, uint32_t* _pIndices)
+	//////////////////////////////////////////////////////////////////////////
+	// IndexBuffer
+	IndexBufferPtr IndexBuffer::Create(uint32_t _uCount, uint32_t* _pIndices)
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL: return new OpenGL_IndexBuffer(_uCount, _pIndices);
+			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_IndexBuffer>(_uCount, _pIndices);
 		}
 
 		ASSERT(false, "Render API not supported");

@@ -6,6 +6,9 @@ namespace Plop
 {
 	//////////////////////////////////////////////////////////////////////////
 	// VertexArray
+	class VertexArray;
+	using VertexArrayPtr = std::shared_ptr<VertexArray>;
+
 	class VertexArray
 	{
 	public:
@@ -21,10 +24,9 @@ namespace Plop
 		virtual void Draw() const = 0;
 
 
-		static VertexArray* Create();
+		static VertexArrayPtr Create();
 
 	protected:
 	};
 
-	using VertexArrayPtr = std::shared_ptr<VertexArray>;
 }

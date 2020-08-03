@@ -4,6 +4,9 @@
 
 namespace Plop
 {
+	class Shader;
+	using ShaderPtr = std::shared_ptr<Shader>;
+
 	class Shader
 	{
 	public:
@@ -17,11 +20,9 @@ namespace Plop
 		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const = 0;
 
 
-		static Shader* Create(const String& _sFile);
-		static Shader* Create(const String& _sVertSrc, const String& _sFragSrc);
+		static ShaderPtr Create(const String& _sFile);
+		static ShaderPtr Create(const String& _sVertSrc, const String& _sFragSrc);
 
 	protected:
 	};
-
-	using ShaderPtr = std::shared_ptr<Shader>;
 }

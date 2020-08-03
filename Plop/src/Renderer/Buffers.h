@@ -51,6 +51,9 @@ namespace Plop
 
 	//////////////////////////////////////////////////////////////////////////
 	// VertexBuffer
+	class VertexBuffer;
+	using VertexBufferPtr = std::shared_ptr<VertexBuffer>;
+
 	class VertexBuffer
 	{
 	public:
@@ -64,16 +67,18 @@ namespace Plop
 				void SetLayout(const BufferLayout& _layout);
 				const BufferLayout& GetLayout() const { return m_layout; }
 
-		static VertexBuffer* Create(size_t _uSize);
-		static VertexBuffer* Create(uint32_t _uCount, float* _pVerts);
+		static VertexBufferPtr Create(size_t _uSize);
+		static VertexBufferPtr Create(uint32_t _uCount, float* _pVerts);
 
 	protected:
 		BufferLayout m_layout;
 	};
-	using VertexBufferPtr = std::shared_ptr<VertexBuffer>;
 
 	//////////////////////////////////////////////////////////////////////////
 	// IndexBuffer
+	class IndexBuffer;
+	using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
+
 	class IndexBuffer
 	{
 	public:
@@ -85,11 +90,10 @@ namespace Plop
 
 				uint32_t GetCount() const { return m_uCount; }
 
-		static IndexBuffer* Create(uint32_t _uCount, uint32_t* _pIndices);
+		static IndexBufferPtr Create(uint32_t _uCount, uint32_t* _pIndices);
 
 	protected:
 		uint32_t m_uCount = 0;
 	};
-	using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
 }
 

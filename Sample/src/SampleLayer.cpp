@@ -6,6 +6,11 @@
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
 
+void SampleLayer::OnRegistered()
+{
+	m_pCamera = new Plop::OrthographicCamera();
+}
+
 void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	if (ImGui::Begin("Sample window"))

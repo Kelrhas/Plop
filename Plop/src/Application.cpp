@@ -9,12 +9,6 @@
 #include <Events/EventDispatcher.h>
 #include <Events/WindowEvent.h>
 
-
-
-
-#include <Platform/OpenGL/OpenGL_Shader.h>
-#include <Platform/OpenGL/OpenGL_Buffers.h>
-#include <Platform/OpenGL/OpenGL_VertexArray.h>
 #include <Renderer/Renderer.h>
 
 namespace Plop

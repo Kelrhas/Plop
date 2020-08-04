@@ -7,7 +7,7 @@ namespace Plop
 	class OpenGLWin32_Context : public RenderContext
 	{
 	public:
-		OpenGLWin32_Context(Window& _window) : RenderContext(_window) {}
+		OpenGLWin32_Context() : RenderContext() {}
 
 		virtual void Init() override;
 		virtual void Flush() override;

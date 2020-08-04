@@ -48,8 +48,8 @@ namespace Plop
 				// prevent dpi scaling
 				SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
 
-				m_pRenderContext = new OpenGLWin32_Context(*this);
-				m_pRenderContext->Init();
+				m_xRenderContext = RenderContext::Create();
+				m_xRenderContext->Init();
 				
 			}
 			break;
@@ -231,7 +231,7 @@ namespace Plop
 	void Win32_Window::Destroy()
 	{
 		
-		m_pRenderContext->Destroy(); 
+		m_xRenderContext->Destroy(); 
 	}
 
 	void Win32_Window::Update()
@@ -264,7 +264,7 @@ namespace Plop
 
 
 
-		m_pRenderContext->Flush();
+		m_xRenderContext->Flush();
 	}
 
 	void Win32_Window::ToggleFullscreen()
@@ -304,7 +304,7 @@ namespace Plop
 
 	void Win32_Window::SetVSync(bool _bEnabled)
 	{
-		m_pRenderContext->SetVSync(_bEnabled);
+		m_xRenderContext->SetVSync(_bEnabled);
 	}
 
 	Window* Window::Create(WindowConfig& _config)

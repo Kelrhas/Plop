@@ -6,6 +6,7 @@
 #include <GL/wglew.h>
 #include <GL/gl.h>
 
+#include <Application.h>
 #include <Platform/Win32/Win32_Window.h>
 
 namespace Plop
@@ -13,7 +14,7 @@ namespace Plop
 
 	void OpenGLWin32_Context::Init()
 	{
-		m_hDeviceContext = GetDC(((Win32_Window&)m_window).GetHWND());
+		m_hDeviceContext = GetDC(((Win32_Window&)Application::Get()->GetWindow()).GetHWND());
 
 		PIXELFORMATDESCRIPTOR pfd = {};
 		pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);

@@ -1,13 +1,14 @@
 #pragma once
 
-#include <Window.h>
-
 namespace Plop
 {
+	class RenderContext;
+	using RenderContextPtr = std::shared_ptr<RenderContext>;
+
 	class RenderContext
 	{
 	public:
-		RenderContext(Window& _window) : m_window(_window) {}
+		RenderContext() {}
 		virtual ~RenderContext() = default;
 
 		virtual void Init() = 0;
@@ -16,7 +17,8 @@ namespace Plop
 
 		virtual void SetVSync(bool _bEnabled) = 0;
 
+		static RenderContextPtr Create();
+
 	protected:
-		Window& m_window;
 	};
 }

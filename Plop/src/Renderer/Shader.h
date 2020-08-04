@@ -17,6 +17,7 @@ namespace Plop
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
+		virtual void SetUniformInt(const String& _sName, int _int) const = 0;
 		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const = 0;
 
 

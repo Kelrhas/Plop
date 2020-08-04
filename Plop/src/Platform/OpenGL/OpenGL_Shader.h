@@ -17,6 +17,7 @@ namespace Plop
 		virtual void Bind() const override;
 		virtual void Unbind() const override;
 
+		virtual void SetUniformInt( const String& _sName, int _int ) const override;
 		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const override;
 		
 	private:

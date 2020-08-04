@@ -78,7 +78,8 @@ project "Plop"
 		"%{prj.location}/src/**.h",
 		"%{prj.location}/src/**.cpp",
 		"Externals/json/nlohmann_json.natvis",
-		"Externals/glm/util/*"
+		"Externals/glm/util/*",
+		"Externals/stb/stb.cpp"
 	}
 	
 	includedirs
@@ -87,7 +88,8 @@ project "Plop"
 		"Externals/json/",
 		"Externals/glew/include",
 		"Externals/ImGui/",
-		"Externals/glm/"
+		"Externals/glm/",
+		"Externals/stb/"
 	}
 	
 	libdirs

@@ -152,16 +152,13 @@ namespace Plop
 			case GL_DEBUG_TYPE_OTHER:				str.append("\n\tType: Other"); break;
 		}
 
-		//ASSERT(severity == GL_DEBUG_SEVERITY_HIGH);
-		/*
 		switch (severity)
 		{
 			case GL_DEBUG_SEVERITY_HIGH:			str.append("\n\tSeverity: high");			Log::Error(str.c_str()); break;
 			case GL_DEBUG_SEVERITY_MEDIUM:			str.append("\n\tSeverity: medium");			Log::Warn(str.c_str()); break;
 			case GL_DEBUG_SEVERITY_LOW:				str.append("\n\tSeverity: low");			Log::Warn(str.c_str()); break;
-			case GL_DEBUG_SEVERITY_NOTIFICATION:	str.append("\n\tSeverity: notification");	Log::Info(str.c_str()); break;
+			//case GL_DEBUG_SEVERITY_NOTIFICATION:	str.append("\n\tSeverity: notification");	Log::Info(str.c_str()); break;
 		}
-		*/
 	}
 
 	static Win32_Window* s_pWaitingWindow = nullptr;

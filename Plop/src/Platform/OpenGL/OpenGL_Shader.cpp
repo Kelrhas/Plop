@@ -103,6 +103,15 @@ namespace Plop
 		glUseProgram( 0 );
 	}
 
+	void OpenGL_Shader::SetUniformInt( const String& _sName, int _int ) const
+	{
+		GLint iLoc = glGetUniformLocation( m_uProgram, _sName.c_str() );
+		if (iLoc >= 0)
+		{
+			glUniform1i( iLoc, _int );
+		}
+	}
+
 	void OpenGL_Shader::SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const
 	{
 		GLint iLoc = glGetUniformLocation(m_uProgram, _sName.c_str());

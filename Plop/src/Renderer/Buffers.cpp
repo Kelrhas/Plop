@@ -32,6 +32,7 @@ namespace Plop
 		switch (_eType)
 		{
 			case ElementType::FLOAT:		return 4;
+			case ElementType::FLOAT2:		return 4 * 2;
 			case ElementType::FLOAT3:		return 4 * 3;
 			case ElementType::FLOAT4:		return 4 * 4;
 			case ElementType::MAT4:			return 4 * 4 * 4;
@@ -46,6 +47,7 @@ namespace Plop
 		switch (_eType)
 		{
 			case ElementType::FLOAT:		return 1;
+			case ElementType::FLOAT2:		return 2;
 			case ElementType::FLOAT3:		return 3;
 			case ElementType::FLOAT4:		return 4;
 			case ElementType::MAT4:			return 4;

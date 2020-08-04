@@ -37,6 +37,7 @@ namespace Plop
 		_xMesh->m_xShader->SetUniformMat4("u_mViewProjection", s_pCurrentCamera->GetViewProjectionMatrix()); // will have to move into scene prepare command
 
 		_xMesh->m_xShader->SetUniformMat4("u_mModel", _xMesh->m_mTransform);
+		_xMesh->m_xShader->SetUniformInt("u_tDiffuse", 0);
 
 		_xMesh->m_xVertexArray->Bind();
 		s_pAPI->DrawIndexed(_xMesh->m_xVertexArray);

@@ -14,6 +14,7 @@ namespace Plop
 		{
 			NONE,
 			FLOAT,
+			FLOAT2,
 			FLOAT3,
 			FLOAT4,
 			MAT4,

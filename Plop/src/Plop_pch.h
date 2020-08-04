@@ -23,10 +23,10 @@
 
 #ifndef _MASTER
 #define BREAK() __debugbreak()
-#define ASSERT(action, ...) {bool b = (action); if(!b){ Log::Assert(__VA_ARGS__); BREAK(); }}
-#define VERIFY(action, ...) {bool b = (action); if(!b){ Log::Assert(__VA_ARGS__); BREAK(); }}
+#define ASSERT(action, ...) {bool b = (action); if(!b){ Plop::Log::Assert(__VA_ARGS__); BREAK(); }}
+#define VERIFY(action, ...) {bool b = (action); if(!b){ Plop::Log::Assert(__VA_ARGS__); BREAK(); }}
 #define VERIFY_NO_MSG(action) {bool b = (action); if(!b){ BREAK(); }}
-#define EXCEPTION(action, ...) {bool b = (action); if(!b){ Log::Error(__VA_ARGS__); BREAK(); }}
+#define EXCEPTION(action, ...) {bool b = (action); if(!b){ Plop::Log::Error(__VA_ARGS__); BREAK(); }}
 #else
 #define BREAK() do{}while(0)
 #define ASSERT(action, ...) do{}while(0)

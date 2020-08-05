@@ -4,9 +4,9 @@
 
 #define MAX_INPUT_KEYS 256
 
-namespace Input
+namespace Plop
 {
-	enum KeyCode
+	enum class KeyCode : uint32_t
 	{
 		KEY_Backspace = VK_BACK,
 		KEY_Tab = VK_TAB,

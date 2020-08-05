@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <GL/glew.h>
 
+#include <Input/Input.h>
 #include <Platform/Win32/Win32_Window.h>
 #include <Platform/OpenGL/OpenGLWin32_Context.h>
 #include <Application.h>
@@ -231,8 +232,10 @@ namespace Plop
 		m_xRenderContext->Destroy(); 
 	}
 
-	void Win32_Window::Update()
+	void Win32_Window::Update(const TimeStep& _timeStep)
 	{
+		Input::Update(_timeStep);
+
 		// events
 		MSG message;
 		while (PeekMessage(&message, m_hWnd, 0, 0, PM_REMOVE))

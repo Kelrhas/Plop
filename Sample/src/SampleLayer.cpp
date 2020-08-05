@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include <Constants.h>
+#include <Input/Input.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
 
@@ -57,6 +58,10 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 		xTex = Plop::Texture::Create2D( "data/textures/approval.png" );
 	}
 
+	if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Left))
+		m_pCamera->Translate(-VEC3_RIGHT * _timeStep.GetGameDeltaTime());
+	if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Right))
+		m_pCamera->Translate(VEC3_RIGHT * _timeStep.GetGameDeltaTime());
 	//m_pCamera->Rotate(VEC3_FORWARD, glm::radians(25.f) * _timeStep.GetGameDeltaTime());
 
 	Plop::Renderer::Clear();
@@ -64,6 +69,13 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 	Plop::Renderer::PrepareScene(m_pCamera);
 
 	xTex->BindSlot( 0 );
+	xMesh->m_mTransform = glm::identity<glm::mat4>();
+	Plop::Renderer::SubmitDraw(xMesh);
+	xMesh->m_mTransform = glm::translate(xMesh->m_mTransform, VEC3_RIGHT);
+	Plop::Renderer::SubmitDraw(xMesh);
+	xMesh->m_mTransform = glm::translate(xMesh->m_mTransform, VEC3_RIGHT);
+	Plop::Renderer::SubmitDraw(xMesh);
+	xMesh->m_mTransform = glm::translate(xMesh->m_mTransform, VEC3_RIGHT);
 	Plop::Renderer::SubmitDraw(xMesh);
 
 	Plop::Renderer::EndScene();

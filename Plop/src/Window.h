@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Renderer/RenderContext.h>
+#include <glm/glm.hpp>
+
+#include <TimeStep.h>
 
 namespace Plop
 {
@@ -25,13 +28,14 @@ namespace Plop
 
 		virtual void		Init() = 0;
 		virtual void		Destroy() = 0;
-		virtual void		Update() = 0;
+		virtual void		Update(const TimeStep& _timeStep) = 0;
 
 		virtual void		SetVSync(bool _bEnabled) = 0;
 		virtual void		ToggleFullscreen() = 0;
 
 		virtual void*		GetNativeWindow() const = 0;
 
+		glm::vec2			GetViewportSize() const { return glm::vec2(m_config.uWidth, m_config.uHeight); }
 		unsigned int		GetWidth() const { return m_config.uWidth; }
 		unsigned int		GetHeight() const { return m_config.uHeight; }
 		float				GetAspectRatio() const { return (float)m_config.uWidth / (float)m_config.uHeight; }

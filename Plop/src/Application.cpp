@@ -5,6 +5,7 @@
 
 #include <json.hpp>
 
+#include <Input/Input.h>
 #include <Debug/Log.h>
 #include <Events/EventDispatcher.h>
 #include <Events/WindowEvent.h>
@@ -131,6 +132,8 @@ namespace Plop
 		m_xWindow = std::unique_ptr<Window>(Window::Create(m_Config.windows["Test"]));
 		m_xWindow->Init();
 
+		Input::Init(m_xWindow->GetNativeWindow());
+
 		Renderer::Init();
 
 		m_Config.Save();
@@ -162,7 +165,7 @@ namespace Plop
 			}
 			m_ImGuiLayer.EndFrame();
 
-			m_xWindow->Update();
+			m_xWindow->Update(m_timeStep);
 		}
 
 		m_xWindow->Destroy();

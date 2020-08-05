@@ -23,7 +23,7 @@ namespace Plop
 		virtual ~RenderAPI() = default;
 
 
-
+		virtual void Init() = 0;
 		virtual void Clear() = 0;
 
 		virtual void DrawIndexed(const VertexArrayPtr& _xVertexArray) = 0;
@@ -41,7 +41,7 @@ namespace Plop
 	class Renderer
 	{
 	public:
-
+		static void				Init();
 		static void				PrepareScene(const Camera* _pCamera);
 		static void				EndScene();
 

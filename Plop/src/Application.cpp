@@ -118,6 +118,7 @@ namespace Plop
 	{
 		VERIFY(Log::Init(), "Log did not init properly");
 
+
 		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
 
 		s_pInstance = this;
@@ -129,6 +130,8 @@ namespace Plop
 
 		m_xWindow = std::unique_ptr<Window>(Window::Create(m_Config.windows["Test"]));
 		m_xWindow->Init();
+
+		Renderer::Init();
 
 		m_Config.Save();
 

@@ -16,6 +16,11 @@ namespace Plop
 	RenderAPI* Renderer::s_pAPI = new OpenGL_Renderer();
 	const Camera* Renderer::s_pCurrentCamera = nullptr;
 
+	void Renderer::Init()
+	{
+		s_pAPI->Init();
+	}
+
 	void Renderer::PrepareScene(const Camera* _pCamera)
 	{
 		s_pCurrentCamera = _pCamera;

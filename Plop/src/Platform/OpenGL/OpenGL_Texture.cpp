@@ -12,18 +12,35 @@ namespace Plop
 		stbi_set_flip_vertically_on_load( true );
 		stbi_uc* pData = stbi_load( _sFile.c_str(), &iWidth, &iHeight, &iChannels, 0 );
 		ASSERT( pData, "File '%s' has failed to load", _sFile.c_str() );
-		ASSERT( iChannels == 4, "Check nuber of channels in GL upload" );
 
 		m_uWidth = iWidth;
 		m_uHeight = iHeight;
 
+		GLenum eInternalFormat = 0;
+		GLenum eDataFormat = 0;
+		if (iChannels == 4)
+		{
+			eInternalFormat = GL_RGBA8;
+			eDataFormat = GL_RGBA;
+		}
+		else if (iChannels == 3)
+		{
+			eInternalFormat = GL_RGB8;
+			eDataFormat = GL_RGB;
+		}
+		else if (iChannels == 1)
+		{
+			eInternalFormat = GL_R32F;
+			eDataFormat = GL_RED;
+		}
+
 		glCreateTextures( GL_TEXTURE_2D, 1, &m_uID );
-		glTextureStorage2D( m_uID, 1, GL_RGBA8, m_uWidth, m_uHeight );
+		glTextureStorage2D( m_uID, 1, eInternalFormat, m_uWidth, m_uHeight );
 
 		glTextureParameteri( m_uID, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		glTextureParameteri( m_uID, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-		glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, GL_RGBA, GL_UNSIGNED_BYTE, pData );
+		glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, eDataFormat, GL_UNSIGNED_BYTE, pData );
 
 		stbi_image_free( pData );
 	}

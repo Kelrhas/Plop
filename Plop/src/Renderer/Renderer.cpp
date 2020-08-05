@@ -15,6 +15,7 @@ namespace Plop
 	// Renderer
 	RenderAPI* Renderer::s_pAPI = new OpenGL_Renderer();
 	const Camera* Renderer::s_pCurrentCamera = nullptr;
+	ShaderLibrary Renderer::s_shaderLibrary;
 
 	void Renderer::PrepareScene(const Camera* _pCamera)
 	{
@@ -41,5 +42,10 @@ namespace Plop
 
 		_xMesh->m_xVertexArray->Bind();
 		s_pAPI->DrawIndexed(_xMesh->m_xVertexArray);
+	}
+
+	ShaderPtr Renderer::LoadShader( const String& _sFile )
+	{
+		return s_shaderLibrary.Load( _sFile );
 	}
 }

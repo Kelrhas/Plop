@@ -2,6 +2,7 @@
 #include "OpenGL_Shader.h"
 
 #include <fstream>
+#include <filesystem>
 
 #include <GL/glew.h>
 #include <GL/GL.h>
@@ -83,6 +84,9 @@ namespace Plop
 
 
 		Compile();
+
+		std::filesystem::path sPath = _sFile;
+		m_sName = sPath.filename().string();
 	}
 
 	void OpenGL_Shader::Load( const String& _sVertSrc, const String& _sFragSrc )

@@ -1,14 +1,19 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 
 namespace Plop
 {
+	//////////////////////////////////////////////////////////////////////////
+	// Shader
 	class Shader;
+	class ShaderLibrary;
 	using ShaderPtr = std::shared_ptr<Shader>;
 
 	class Shader
 	{
+		friend class ShaderLibrary;
 	public:
 		virtual ~Shader() = default;
 
@@ -17,13 +22,29 @@ namespace Plop
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
+				const String& GetName() const { return m_sName; }
+
 		virtual void SetUniformInt(const String& _sName, int _int) const = 0;
 		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const = 0;
-
-
-		static ShaderPtr Create(const String& _sFile);
-		static ShaderPtr Create(const String& _sVertSrc, const String& _sFragSrc);
+		
 
 	protected:
+		static ShaderPtr Create(const String& _sFile);
+
+		String		m_sName;
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+	// ShaderLibrary
+	class ShaderLibrary
+	{
+	public:
+
+		ShaderPtr Load( const String& _sFile );
+		void Add( const ShaderPtr& _xShader );
+		ShaderPtr GetShader( const String& _sName );
+
+	private:
+		std::unordered_map<String, ShaderPtr> m_mapShaders;
 	};
 }

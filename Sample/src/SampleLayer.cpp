@@ -51,7 +51,7 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 		Plop::IndexBufferPtr xIndBuff = Plop::IndexBuffer::Create((uint32_t)sizeof(indices) / sizeof(uint32_t), indices);
 		xMesh->m_xVertexArray->SetIndexBuffer(xIndBuff);
 
-		xMesh->m_xShader = Plop::Shader::Create("data/shaders/textured.glsl");
+		xMesh->m_xShader = Plop::Renderer::LoadShader("data/shaders/textured.glsl");
 		//xMesh->m_xShader = Plop::Shader::Create("data/shaders/vertexColor.glsl");
 
 		xTex = Plop::Texture::Create2D( "data/textures/approval.png" );

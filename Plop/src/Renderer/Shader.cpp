@@ -6,12 +6,14 @@
 
 namespace Plop
 {
+	//////////////////////////////////////////////////////////////////////////
+	// Shader
 	ShaderPtr Shader::Create(const String& _sFile)
 	{
 		ShaderPtr xShader = nullptr;
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL:		xShader = std::make_shared < OpenGL_Shader>();
+			case RenderAPI::API::OPENGL:		xShader = std::make_shared<OpenGL_Shader>();
 		}
 
 		if (xShader)
@@ -25,23 +27,34 @@ namespace Plop
 		return nullptr;
 	}
 
-	ShaderPtr Shader::Create(const String& _sVertSrc, const String& _sFragSrc)
+
+	//////////////////////////////////////////////////////////////////////////
+	// ShaderLibrary
+
+	ShaderPtr ShaderLibrary::Load( const String& _sFile )
 	{
-		ShaderPtr xShader = nullptr;
-		switch (Renderer::GetAPI())
-		{
-			case RenderAPI::API::OPENGL:		xShader = std::make_shared<OpenGL_Shader>();
-		}
-
-		if (xShader)
-		{
-			xShader->Load(_sVertSrc, _sFragSrc);
-			return xShader;
-		}
-
-
-		ASSERT(false, "Render API not supported");
-		return nullptr;
+		ShaderPtr xShader = Shader::Create( _sFile );
+		Add( xShader );
+		return xShader;
 	}
 
+	void ShaderLibrary::Add( const ShaderPtr& _xShader )
+	{
+		auto& it = m_mapShaders.find( _xShader->GetName() );
+		ASSERT( it == m_mapShaders.end(), "Shader already exists" );
+		if (it == m_mapShaders.end())
+		{
+			m_mapShaders[_xShader->GetName()] = _xShader;
+		}
+	}
+
+	ShaderPtr ShaderLibrary::GetShader( const String& _sName )
+	{
+		auto& it = m_mapShaders.find( _sName );
+		ASSERT( it != m_mapShaders.end(), "Shader not found" );
+		if (it != m_mapShaders.end())
+			return it->second;
+
+		return nullptr;
+	}
 }

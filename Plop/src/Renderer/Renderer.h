@@ -49,12 +49,15 @@ namespace Plop
 
 		static void				SubmitDraw(const MeshPtr& _xMesh);
 
+		static ShaderPtr		LoadShader( const String& _sFile );
+
 
 		static RenderAPI::API	GetAPI() { return RenderAPI::GetAPI(); }
 
 	private:
 		static RenderAPI*		s_pAPI;
 		static const Camera*	s_pCurrentCamera;
+		static ShaderLibrary	s_shaderLibrary;
 	};
 
 }

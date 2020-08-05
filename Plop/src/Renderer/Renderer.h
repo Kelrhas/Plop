@@ -25,6 +25,7 @@ namespace Plop
 
 		virtual void Init() = 0;
 		virtual void Clear() = 0;
+		virtual void Resize(uint32_t _uWidth, uint32_t _uHeight) = 0;
 
 		virtual void DrawIndexed(const VertexArrayPtr& _xVertexArray) = 0;
 
@@ -42,6 +43,9 @@ namespace Plop
 	{
 	public:
 		static void				Init();
+
+		static void				OnResize(uint32_t _uWidth, uint32_t _uHeight);
+
 		static void				PrepareScene(const Camera* _pCamera);
 		static void				EndScene();
 

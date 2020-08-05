@@ -22,6 +22,11 @@ namespace Plop
 		s_pAPI->Init();
 	}
 
+	void Renderer::OnResize(uint32_t _uWidth, uint32_t _uHeight)
+	{
+		s_pAPI->Resize(_uWidth, _uHeight);
+	}
+
 	void Renderer::PrepareScene(const Camera* _pCamera)
 	{
 		s_pCurrentCamera = _pCamera;

@@ -89,6 +89,13 @@ namespace Plop
 					event.iNewHeight = m_config.uHeight; // height of client area 
 					EventDispatcher::SendEvent( event );
 				}
+				else
+				{
+					WindowSizeEvent event(*this);
+					event.iNewWidth = 0;
+					event.iNewHeight = 0;
+					EventDispatcher::SendEvent(event);
+				}
 				/*
 				if (g_pRenderer != nullptr)
 					g_pRenderer->Resize(m_config.uWidth, m_config.uHeight);
@@ -258,11 +265,6 @@ namespace Plop
 				DispatchMessage(&message);
 			}
 		}
-
-
-		glViewport(0, 0, m_config.uWidth, m_config.uHeight);
-
-
 
 		m_xRenderContext->Flush();
 	}

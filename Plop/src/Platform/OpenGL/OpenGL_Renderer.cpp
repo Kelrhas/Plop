@@ -17,6 +17,11 @@ namespace Plop
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
+	void OpenGL_Renderer::Resize(uint32_t _uWidth, uint32_t _uHeight)
+	{
+		glViewport(0, 0, _uWidth, _uHeight);
+	}
+
 	void OpenGL_Renderer::DrawIndexed(const VertexArrayPtr& _xVertexArray)
 	{
 		_xVertexArray->Draw();

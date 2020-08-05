@@ -105,11 +105,18 @@ namespace Plop
 				break;
 
 			case EventType::WindowMoveEvent:
+			{
+				WindowMoveEvent& moveEvent = (WindowMoveEvent&)_event;
+				Log::Info("Window moved to %d %d", moveEvent.iNewPosX, moveEvent.iNewPosY);
+			}
+			break;
 
-				WindowMoveEvent& moveEvent = *(WindowMoveEvent*)(&_event);
-				Log::Info( "Window moved to %d %d", moveEvent.iNewPosX, moveEvent.iNewPosY );
-
-				break;
+			case EventType::WindowSizeEvent:
+			{
+				WindowSizeEvent& sizeEvent = (WindowSizeEvent&)_event;
+				Renderer::OnResize(sizeEvent.iNewWidth, sizeEvent.iNewHeight);
+			}
+			break;
 		}
 
 		return _event.IsHandled();

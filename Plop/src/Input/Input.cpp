@@ -20,6 +20,37 @@ namespace Plop
 		m_hWindow = (HWND)_pNativeWindow;
 	}
 
+	void Input::Update(const TimeStep& _timeStep)
+	{
+		float fDeltaTime = _timeStep.GetSystemDeltaTime();
+
+		for (int i = 0; i < MAX_INPUT_KEYS; ++i)
+		{
+			if (m_oKeyMap[i].uFlags & KEY_DOWN_FLAG)
+			{
+				m_oKeyMap[i].fTimeDown += fDeltaTime;
+				m_oKeyMap[i].uFlags |= KEY_WASDOWN_FLAG;
+			}
+			else
+			{
+				m_oKeyMap[i].uFlags &= ~KEY_WASDOWN_FLAG;
+			}
+		}
+
+		for (int i = 0; i < 5; ++i)
+		{
+			if (m_oMouseInfos[i].uFlags & KEY_DOWN_FLAG)
+			{
+				m_oMouseInfos[i].fTimeDown += fDeltaTime;
+				m_oMouseInfos[i].uFlags |= KEY_WASDOWN_FLAG;
+			}
+			else
+			{
+				m_oMouseInfos[i].uFlags &= ~KEY_WASDOWN_FLAG;
+			}
+		}
+	}
+
 	void Input::RegisterKey(KeyCode eKeycode, VoidFuncBool pEventFunc)
 	{
 		m_oEventKeyMap[eKeycode].push_back(pEventFunc);

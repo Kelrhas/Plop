@@ -37,7 +37,10 @@ namespace Plop
 
 
 		static void Init(void* _pNativeWindow);
-		static bool Update(const TimeStep& _timeStep); // return if the messaging input has been consumed, to be called platform-wise
+		static void Update(const TimeStep& _timeStep);
+#ifdef PLATFORM_WINDOWS
+		static LRESULT Win32_Message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 
 		static void RegisterKey(VoidFuncKeyCodeBool pEventFunc);
 		static void RegisterKey(KeyCode eKeycode, VoidFuncBool pEventFunc);

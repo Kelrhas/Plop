@@ -38,7 +38,11 @@ namespace Plop
 
 		result = ImGui_ImplWin32_WndProcHandler(_hWnd, _uMsg, _wParam, _lParam);
 		if (result)
-			return true;
+			return result;
+
+		// 0 is captured
+		if(Input::Win32_Message(_hWnd, _uMsg, _wParam, _lParam) == 0)
+			return 0;
 
 		switch (_uMsg)
 		{
@@ -241,8 +245,6 @@ namespace Plop
 
 	void Win32_Window::Update(const TimeStep& _timeStep)
 	{
-		Input::Update(_timeStep);
-
 		// events
 		MSG message;
 		while (PeekMessage(&message, m_hWnd, 0, 0, PM_REMOVE))

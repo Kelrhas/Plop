@@ -16,6 +16,7 @@
 
 #include <Constants.h>
 #include <Types.h>
+#include <Debug/Debug.h>
 #include <Debug/Log.h>
 
 #define COMPILE_ASSERT(b, m) static_assert(b, m);

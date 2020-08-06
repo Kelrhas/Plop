@@ -28,9 +28,8 @@ namespace Plop
 
 	void OrthographicCamera::SetOrtho(float _fLeft, float _fRight, float _fBottom, float _fTop, float _fNear /*= -1.f*/, float _fFar /*= 1.f*/)
 	{
-		float fAspectRatio = Application::Get()->GetWindow().GetAspectRatio();
-		m_fLeft = _fLeft * fAspectRatio;
-		m_fRight = _fRight * fAspectRatio;
+		m_fLeft = _fLeft;
+		m_fRight = _fRight;
 		m_fBottom = _fBottom;
 		m_fTop = _fTop;
 		m_fNear = _fNear;

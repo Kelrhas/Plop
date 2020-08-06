@@ -85,8 +85,7 @@ namespace Plop
 
 		Compile();
 
-		std::filesystem::path sPath = _sFile;
-		m_sName = sPath.filename().string();
+		m_sName = GetNameFromFile(_sFile);
 	}
 
 	void OpenGL_Shader::Load( const String& _sVertSrc, const String& _sFragSrc )

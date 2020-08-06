@@ -14,5 +14,6 @@ namespace Plop
 		ShaderPtr		m_xShader;
 		VertexArrayPtr	m_xVertexArray;
 		glm::mat4		m_mTransform = glm::identity<glm::mat4>();
+		int				m_iTexSlot = 0;
 	};
 }

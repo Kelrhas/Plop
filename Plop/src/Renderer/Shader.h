@@ -28,6 +28,8 @@ namespace Plop
 		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const = 0;
 		
 
+		static String GetNameFromFile(const String& _sFile);
+
 	protected:
 		static ShaderPtr Create(const String& _sFile);
 

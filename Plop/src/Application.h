@@ -54,6 +54,7 @@ namespace Plop
 
 		static Application*		Get() { return s_pInstance; }
 		static Config&			GetConfig() { return s_pInstance->m_Config; }
+		static TimeStep&		GetTimeStep() { return s_pInstance->m_timeStep; }
 
 	private:
 		static Application*		s_pInstance;

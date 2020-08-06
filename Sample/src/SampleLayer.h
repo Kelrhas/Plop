@@ -2,7 +2,11 @@
 
 #include <ApplicationLayer.h>
 #include <Camera/OrthographicCamera.h>
+#include <Camera/Camera2DController.h>
+#include <Renderer/Mesh.h>
 
+//////////////////////////////////////////////////////////////////////////
+// SampleLayer
 class SampleLayer : public Plop::ApplicationLayer
 {
 public:
@@ -14,5 +18,21 @@ public:
 
 private:
 	Plop::OrthographicCamera* m_pCamera = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+// SampleLayer2D
+class SampleLayer2D : public Plop::ApplicationLayer
+{
+public:
+	virtual void OnRegistered() override;
+	virtual void OnUnregistered() override;
+	virtual void OnUpdate(Plop::TimeStep& _timeStep) override;
+
+	virtual uint8_t GetPriority() const override { return 20; }
+
+private:
+	Plop::Camera2DController	m_CameraController;
+	Plop::MeshPtr				m_xTowerMesh = nullptr;
 };
 

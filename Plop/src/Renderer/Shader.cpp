@@ -1,6 +1,8 @@
 #include "Plop_pch.h"
 #include "Shader.h"
 
+#include <filesystem>
+
 #include <Platform/OpenGL/OpenGL_Shader.h>
 #include <Renderer/Renderer.h>
 
@@ -8,6 +10,13 @@ namespace Plop
 {
 	//////////////////////////////////////////////////////////////////////////
 	// Shader
+
+	String Shader::GetNameFromFile(const String& _sFile)
+	{
+		std::filesystem::path sPath = _sFile;
+		return sPath.filename().string();
+	}
+
 	ShaderPtr Shader::Create(const String& _sFile)
 	{
 		ShaderPtr xShader = nullptr;
@@ -33,6 +42,10 @@ namespace Plop
 
 	ShaderPtr ShaderLibrary::Load( const String& _sFile )
 	{
+		auto& it = m_mapShaders.find(Shader::GetNameFromFile(_sFile));
+		if (it != m_mapShaders.end())
+			return it->second;
+
 		ShaderPtr xShader = Shader::Create( _sFile );
 		Add( xShader );
 		return xShader;

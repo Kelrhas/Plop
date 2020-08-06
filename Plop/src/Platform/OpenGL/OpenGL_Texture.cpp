@@ -53,6 +53,7 @@ namespace Plop
 
 	void OpenGL_Texture2D::BindSlot(int _iSlot) const
 	{
-		glBindTexture( GL_TEXTURE_2D, m_uID );
+		glBindTextureUnit( _iSlot, m_uID );
+		PlopDebug::Assert_GL();
 	}
 }

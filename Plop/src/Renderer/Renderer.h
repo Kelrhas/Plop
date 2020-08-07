@@ -2,6 +2,7 @@
 
 #include <Renderer/Mesh.h>
 #include <Camera/Camera.h>
+#include <Camera/OrthographicCamera.h>
 
 namespace Plop
 {
@@ -41,12 +42,16 @@ namespace Plop
 	// Renderer
 	class Renderer
 	{
+		struct SceneData
+		{
+			glm::mat4 mVPMatrix;
+		};
 	public:
 		static void				Init();
 
 		static void				OnResize(uint32_t _uWidth, uint32_t _uHeight);
 
-		static void				PrepareScene(const Camera* _pCamera);
+		static void				PrepareScene(const Camera& _Camera);
 		static void				EndScene();
 
 		static void				Clear();
@@ -60,7 +65,7 @@ namespace Plop
 
 	private:
 		static RenderAPI*		s_pAPI;
-		static const Camera*	s_pCurrentCamera;
+		static SceneData		s_SceneData;
 		static ShaderLibrary	s_shaderLibrary;
 	};
 

@@ -63,7 +63,7 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 	Plop::Renderer::Clear();
 
-	Plop::Renderer::PrepareScene(m_pCamera);
+	Plop::Renderer::PrepareScene(*m_pCamera);
 
 	xMesh->m_mTransform = glm::identity<glm::mat4>();
 	Plop::Renderer::SubmitDraw(xMesh);
@@ -131,9 +131,9 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	m_CameraController.OnUpdate(_timeStep);
 
-	Plop::Renderer::PrepareScene(&m_CameraController.GetCamera());
+	Plop::Renderer::PrepareScene(m_CameraController.GetCamera());
 
-	m_xTowerMesh->m_mTransform = glm::identity<glm::mat4>();
+	m_xTowerMesh->m_mTransform = glm::scale(glm::identity<glm::mat4>(), glm::vec3(0.1f));
 	Plop::Renderer::SubmitDraw(m_xTowerMesh);
 	m_xTowerMesh->m_mTransform = glm::translate(m_xTowerMesh->m_mTransform, -VEC3_RIGHT);
 	Plop::Renderer::SubmitDraw(m_xTowerMesh);

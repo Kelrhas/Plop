@@ -14,7 +14,7 @@ namespace Plop
 	//////////////////////////////////////////////////////////////////////////
 	// Renderer
 	RenderAPI* Renderer::s_pAPI = new OpenGL_Renderer();
-	const Camera* Renderer::s_pCurrentCamera = nullptr;
+	Renderer::SceneData Renderer::s_SceneData;
 	ShaderLibrary Renderer::s_shaderLibrary;
 
 	void Renderer::Init()
@@ -27,9 +27,9 @@ namespace Plop
 		s_pAPI->Resize(_uWidth, _uHeight);
 	}
 
-	void Renderer::PrepareScene(const Camera* _pCamera)
+	void Renderer::PrepareScene(const Camera& _camera )
 	{
-		s_pCurrentCamera = _pCamera;
+		s_SceneData.mVPMatrix = _camera.GetViewProjectionMatrix();
 	}
 
 	void Renderer::EndScene()
@@ -45,7 +45,7 @@ namespace Plop
 	void Renderer::SubmitDraw(const MeshPtr& _xMesh)
 	{
 		_xMesh->m_xShader->Bind();
-		_xMesh->m_xShader->SetUniformMat4("u_mViewProjection", s_pCurrentCamera->GetViewProjectionMatrix()); // will have to move into scene prepare command
+		_xMesh->m_xShader->SetUniformMat4("u_mViewProjection", s_SceneData.mVPMatrix ); // will have to move into scene prepare command
 
 		_xMesh->m_xShader->SetUniformMat4("u_mModel", _xMesh->m_mTransform);
 		if (_xMesh->m_xTex)

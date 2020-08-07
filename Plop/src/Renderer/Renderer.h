@@ -92,7 +92,8 @@ namespace Plop
 		static void				DrawQuadColor( glm::vec3 _vPos, glm::vec2 _vSize, glm::vec4 _vColor );
 
 	private:
-		static Mesh				m_Quad;
+		static bool				s_bRendering2D;
+		static Mesh				s_Quad;
 	};
 
 }

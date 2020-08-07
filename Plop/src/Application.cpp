@@ -142,6 +142,7 @@ namespace Plop
 		Input::Init(m_xWindow->GetNativeWindow());
 
 		Renderer::Init();
+		Renderer2D::Init();
 
 		m_Config.Save();
 

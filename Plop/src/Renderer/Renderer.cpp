@@ -66,7 +66,8 @@ namespace Plop
 
 	//////////////////////////////////////////////////////////////////////////
 	// Renderer2D
-	Mesh	Renderer2D::m_Quad;
+	bool	Renderer2D::s_bRendering2D = false;
+	Mesh	Renderer2D::s_Quad;
 
 	void Renderer2D::Init()
 	{
@@ -77,8 +78,8 @@ namespace Plop
 			 0.5f, -0.5f, 0.0f,
 		};
 
-		m_Quad.m_xVertexArray = VertexArray::Create();
-		m_Quad.m_xVertexArray->Bind();
+		s_Quad.m_xVertexArray = VertexArray::Create();
+		s_Quad.m_xVertexArray->Bind();
 
 		BufferLayout layout = {
 			{ "position", BufferLayout::ElementType::FLOAT3}
@@ -86,25 +87,26 @@ namespace Plop
 
 		VertexBufferPtr xVertBuff = VertexBuffer::Create( (uint32_t)sizeof( vertices ) * 3, (float*)&vertices );
 		xVertBuff->SetLayout( layout );
-		m_Quad.m_xVertexArray->AddVertexBuffer( xVertBuff );
+		s_Quad.m_xVertexArray->AddVertexBuffer( xVertBuff );
 
 
 		uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
 		IndexBufferPtr xIndBuff = IndexBuffer::Create( (uint32_t)sizeof( indices ) / sizeof( uint32_t ), indices );
-		m_Quad.m_xVertexArray->SetIndexBuffer( xIndBuff );
+		s_Quad.m_xVertexArray->SetIndexBuffer( xIndBuff );
 
-		m_Quad.m_xShader = Plop::Renderer::LoadShader( "data/shaders/flatColor.glsl" );
+		s_Quad.m_xShader = Plop::Renderer::LoadShader( "data/shaders/flatColor.glsl" );
 	}
 
 	void Renderer2D::PrepareScene( const OrthographicCamera& _camera )
 	{
-		m_Quad.m_xShader->Bind();
-		m_Quad.m_xShader->SetUniformMat4( "u_mViewProjection", _camera.GetViewProjectionMatrix() );
+		s_bRendering2D = true;
+		s_Quad.m_xShader->Bind();
+		s_Quad.m_xShader->SetUniformMat4( "u_mViewProjection", _camera.GetViewProjectionMatrix() );
 	}
 
 	void Renderer2D::EndScene()
 	{
-
+		s_bRendering2D = false;
 	}
 
 	void Renderer2D::Clear()
@@ -114,20 +116,22 @@ namespace Plop
 
 	void Renderer2D::DrawQuadColor( glm::vec2 _vPos, glm::vec2 _vSize, glm::vec4 _vColor )
 	{
+		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
 		DrawQuadColor( glm::vec3( _vPos, 0.f ), _vSize, _vColor );
 	}
 
 	void Renderer2D::DrawQuadColor( glm::vec3 _vPos, glm::vec2 _vSize, glm::vec4 _vColor )
 	{
-		m_Quad.m_mTransform = glm::translate( glm::identity<glm::mat4>(), _vPos );
-		m_Quad.m_mTransform = glm::scale( m_Quad.m_mTransform, glm::vec3( _vSize, 1.f ) );
+		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
+		s_Quad.m_mTransform = glm::translate( glm::identity<glm::mat4>(), _vPos );
+		s_Quad.m_mTransform = glm::scale( s_Quad.m_mTransform, glm::vec3( _vSize, 1.f ) );
 
 
-		m_Quad.m_xShader->SetUniformVec4( "u_color", _vColor );
-		m_Quad.m_xShader->SetUniformMat4( "u_mModel", m_Quad.m_mTransform );
+		s_Quad.m_xShader->SetUniformVec4( "u_color", _vColor );
+		s_Quad.m_xShader->SetUniformMat4( "u_mModel", s_Quad.m_mTransform );
 
-		m_Quad.m_xVertexArray->Bind();
-		Renderer::s_pAPI->DrawIndexed( m_Quad.m_xVertexArray );
+		s_Quad.m_xVertexArray->Bind();
+		Renderer::s_pAPI->DrawIndexed( s_Quad.m_xVertexArray );
 	}
 
 }

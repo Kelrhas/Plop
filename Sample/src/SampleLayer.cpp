@@ -31,10 +31,10 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 	{
 		xMesh = std::make_shared<Plop::Mesh>();
 		float vertices[] = {
-			-0.6f, -0.6f, 0.0f,		1.f, 0.f, 0.f, 1.f,		0.f, 0.f,
-			-0.6f,  0.6f, 0.0f,		1.f, 0.f, 1.f, 1.f,		0.f, 1.f,
-			 0.6f,  0.6f, 0.0f,		0.f, 1.f, 0.f, 1.f,		1.f, 1.f,
-			 0.6f, -0.6f, 0.0f,		1.f, 1.f, 0.f, 1.f,		1.f, 0.f
+			-0.6f, -0.6f, 0.0f,		/*1.f, 0.f, 0.f, 1.f,*/		0.f, 0.f,
+			-0.6f,  0.6f, 0.0f,		/*1.f, 0.f, 1.f, 1.f,*/		0.f, 1.f,
+			 0.6f,  0.6f, 0.0f,		/*0.f, 1.f, 0.f, 1.f,*/		1.f, 1.f,
+			 0.6f, -0.6f, 0.0f,		/*1.f, 1.f, 0.f, 1.f,*/		1.f, 0.f
 		};
 
 
@@ -43,7 +43,7 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 		Plop::BufferLayout layout = {
 			{ "position", Plop::BufferLayout::ElementType::FLOAT3},
-			{ "color", Plop::BufferLayout::ElementType::FLOAT4},
+			//{ "color", Plop::BufferLayout::ElementType::FLOAT4},
 			{ "uv", Plop::BufferLayout::ElementType::FLOAT2}
 		};
 
@@ -57,6 +57,8 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 		xMesh->m_xVertexArray->SetIndexBuffer(xIndBuff);
 
 		xMesh->m_xShader = Plop::Renderer::LoadShader("data/shaders/textured.glsl");
+		xMesh->m_xShader->Bind();
+		xMesh->m_xShader->SetUniformVec4("u_color", glm::vec4(1.f));
 
 		xMesh->m_xTex = Plop::Texture::Create2D( "assets/textures/approval.png" );
 	}
@@ -91,10 +93,10 @@ void SampleLayer2D::OnRegistered()
 	{
 		m_xTowerMesh = std::make_shared<Plop::Mesh>();
 		float vertices[] = {
-			-0.6f, -0.6f, 0.0f,		1.f, 0.f, 0.f, 1.f,		0.f, 0.f,
-			-0.6f,  0.6f, 0.0f,		1.f, 0.f, 1.f, 1.f,		0.f, 1.f,
-			 0.6f,  0.6f, 0.0f,		0.f, 1.f, 0.f, 1.f,		1.f, 1.f,
-			 0.6f, -0.6f, 0.0f,		1.f, 1.f, 0.f, 1.f,		1.f, 0.f
+			-0.6f, -0.6f, 0.0f,		/*1.f, 0.f, 0.f, 1.f,	*/	0.f, 0.f,
+			-0.6f,  0.6f, 0.0f,		/*1.f, 0.f, 1.f, 1.f,	*/	0.f, 1.f,
+			 0.6f,  0.6f, 0.0f,		/*0.f, 1.f, 0.f, 1.f,	*/	1.f, 1.f,
+			 0.6f, -0.6f, 0.0f,		/*1.f, 1.f, 0.f, 1.f,	*/	1.f, 0.f
 		};
 
 
@@ -103,7 +105,7 @@ void SampleLayer2D::OnRegistered()
 
 		Plop::BufferLayout layout = {
 			{ "position", Plop::BufferLayout::ElementType::FLOAT3},
-			{ "color", Plop::BufferLayout::ElementType::FLOAT4},
+			//{ "color", Plop::BufferLayout::ElementType::FLOAT4},
 			{ "uv", Plop::BufferLayout::ElementType::FLOAT2}
 		};
 
@@ -117,8 +119,11 @@ void SampleLayer2D::OnRegistered()
 		m_xTowerMesh->m_xVertexArray->SetIndexBuffer(xIndBuff);
 
 		m_xTowerMesh->m_xShader = Plop::Renderer::LoadShader("data/shaders/textured.glsl");
+		m_xTowerMesh->m_xShader->Bind();
+		m_xTowerMesh->m_xShader->SetUniformVec4("u_color", glm::vec4(1.f));
 
 		m_xTowerMesh->m_xTex = Plop::Texture::Create2D("assets/textures/tower.png");
+		m_xTowerMesh->m_xTex->BindSlot( 1 );
 	}
 }
 
@@ -136,6 +141,9 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	Plop::Renderer2D::DrawQuadColor( glm::vec2( 0.f ), glm::vec2( 2.f ), glm::vec4( 1.f ) );
 	Plop::Renderer2D::DrawQuadColor( glm::vec2( -0.5f, 0.f ), glm::vec2( 0.5f, 1.f ), glm::vec4( 0.f, 0.f, 1.f, 1.f) );
 	Plop::Renderer2D::DrawQuadColor( glm::vec2(0.5f, 0.f), glm::vec2( 0.5f, 1.f ), glm::vec4( 1.f, 0.f, 0.f, 1.f) );
+
+	static Plop::TexturePtr xTex = Plop::Texture::Create2D("assets/textures/tower.png");
+	Plop::Renderer2D::DrawQuadTexture(glm::vec2(0.f, 0.2f), glm::vec2(0.2f), xTex);
 
 	Plop::Renderer2D::EndScene();
 }

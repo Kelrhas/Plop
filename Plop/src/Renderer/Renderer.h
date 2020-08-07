@@ -88,12 +88,15 @@ namespace Plop
 
 		static void				Clear();
 
-		static void				DrawQuadColor( glm::vec2 _vPos, glm::vec2 _vSize, glm::vec4 _vColor );
-		static void				DrawQuadColor( glm::vec3 _vPos, glm::vec2 _vSize, glm::vec4 _vColor );
+		static void				DrawQuadColor(const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor);
+		static void				DrawQuadColor(const glm::vec3& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor );
+		static void				DrawQuadTexture(const glm::vec2& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture);
+		static void				DrawQuadTexture(const glm::vec3& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture);
 
 	private:
 		static bool				s_bRendering2D;
 		static Mesh				s_Quad;
+		static TexturePtr		s_xWhiteTex;
 	};
 
 }

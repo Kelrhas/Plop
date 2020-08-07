@@ -38,7 +38,7 @@ namespace Plop
 		glTextureStorage2D( m_uID, 1, eInternalFormat, m_uWidth, m_uHeight );
 
 		glTextureParameteri( m_uID, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		glTextureParameteri( m_uID, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		glTextureParameteri( m_uID, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
 		glTextureParameteri( m_uID, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		glTextureParameteri( m_uID, GL_TEXTURE_WRAP_T, GL_CLAMP );
@@ -57,6 +57,5 @@ namespace Plop
 	void OpenGL_Texture2D::BindSlot(int _iSlot) const
 	{
 		glBindTextureUnit( _iSlot, m_uID );
-		PlopDebug::Assert_GL();
 	}
 }

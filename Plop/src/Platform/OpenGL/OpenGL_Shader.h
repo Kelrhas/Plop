@@ -18,7 +18,8 @@ namespace Plop
 		virtual void Unbind() const override;
 
 		virtual void SetUniformInt( const String& _sName, int _int ) const override;
-		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mMat) const override;
+		virtual void SetUniformVec4( const String& _sName, const glm::vec4& _vec ) const override;
+		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mat) const override;
 		
 	private:
 				void Clear();

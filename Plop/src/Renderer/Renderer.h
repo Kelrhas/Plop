@@ -40,8 +40,10 @@ namespace Plop
 
 	//////////////////////////////////////////////////////////////////////////
 	// Renderer
+	class Renderer2D;
 	class Renderer
 	{
+		friend class Renderer2D;
 		struct SceneData
 		{
 			glm::mat4 mVPMatrix;
@@ -67,6 +69,30 @@ namespace Plop
 		static RenderAPI*		s_pAPI;
 		static SceneData		s_SceneData;
 		static ShaderLibrary	s_shaderLibrary;
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+	// Renderer2D
+	class Renderer2D
+	{
+		struct SceneData
+		{
+			glm::mat4 mVPMatrix;
+		};
+
+	public:
+		static void				Init();
+
+		static void				PrepareScene( const OrthographicCamera& _camera );
+		static void				EndScene();
+
+		static void				Clear();
+
+		static void				DrawQuadColor( glm::vec2 _vPos, glm::vec2 _vSize, glm::vec4 _vColor );
+		static void				DrawQuadColor( glm::vec3 _vPos, glm::vec2 _vSize, glm::vec4 _vColor );
+
+	private:
+		static Mesh				m_Quad;
 	};
 
 }

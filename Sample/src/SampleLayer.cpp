@@ -83,6 +83,8 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 void SampleLayer2D::OnRegistered()
 {
+	Plop::Renderer2D::Init();
+
 	Plop::EventDispatcher::RegisterListener(&m_CameraController);
 
 	m_CameraController.Init();
@@ -131,16 +133,18 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	m_CameraController.OnUpdate(_timeStep);
 
-	Plop::Renderer::PrepareScene(m_CameraController.GetCamera());
+	Plop::Renderer2D::PrepareScene(m_CameraController.GetCamera());
 
-	m_xTowerMesh->m_mTransform = glm::scale(glm::identity<glm::mat4>(), glm::vec3(0.1f));
-	Plop::Renderer::SubmitDraw(m_xTowerMesh);
-	m_xTowerMesh->m_mTransform = glm::translate(m_xTowerMesh->m_mTransform, -VEC3_RIGHT);
-	Plop::Renderer::SubmitDraw(m_xTowerMesh);
-	m_xTowerMesh->m_mTransform = glm::translate(m_xTowerMesh->m_mTransform, -VEC3_RIGHT);
-	Plop::Renderer::SubmitDraw(m_xTowerMesh);
-	m_xTowerMesh->m_mTransform = glm::translate(m_xTowerMesh->m_mTransform, -VEC3_RIGHT);
-	Plop::Renderer::SubmitDraw(m_xTowerMesh);
+	//m_xTowerMesh->m_mTransform = glm::scale(glm::identity<glm::mat4>(), glm::vec3(0.1f));
+	//Plop::Renderer::SubmitDraw(m_xTowerMesh);
+	//m_xTowerMesh->m_mTransform = glm::translate(m_xTowerMesh->m_mTransform, -VEC3_RIGHT);
+	//Plop::Renderer::SubmitDraw(m_xTowerMesh);
+	//m_xTowerMesh->m_mTransform = glm::translate(m_xTowerMesh->m_mTransform, -VEC3_RIGHT);
+	//Plop::Renderer::SubmitDraw(m_xTowerMesh);
+	//m_xTowerMesh->m_mTransform = glm::translate(m_xTowerMesh->m_mTransform, -VEC3_RIGHT);
+	//Plop::Renderer::SubmitDraw(m_xTowerMesh);
 
-	Plop::Renderer::EndScene();
+	Plop::Renderer2D::DrawQuadColor( glm::vec2( 0.f ), glm::vec2( 1.f ), glm::vec4( 1.f ) );
+
+	Plop::Renderer2D::EndScene();
 }

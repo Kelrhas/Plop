@@ -40,6 +40,9 @@ namespace Plop
 		glTextureParameteri( m_uID, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		glTextureParameteri( m_uID, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
+		glTextureParameteri( m_uID, GL_TEXTURE_WRAP_S, GL_CLAMP );
+		glTextureParameteri( m_uID, GL_TEXTURE_WRAP_T, GL_CLAMP );
+
 		glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, eDataFormat, GL_UNSIGNED_BYTE, pData );
 
 		stbi_image_free( pData );

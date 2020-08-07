@@ -58,8 +58,7 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 		xMesh->m_xShader = Plop::Renderer::LoadShader("data/shaders/textured.glsl");
 
-		xTex = Plop::Texture::Create2D( "assets/textures/approval.png" );
-		xTex->BindSlot(0);
+		xMesh->m_xTex = Plop::Texture::Create2D( "assets/textures/approval.png" );
 	}
 
 	Plop::Renderer::Clear();
@@ -119,9 +118,7 @@ void SampleLayer2D::OnRegistered()
 
 		m_xTowerMesh->m_xShader = Plop::Renderer::LoadShader("data/shaders/textured.glsl");
 
-		Plop::TexturePtr xTex = Plop::Texture::Create2D("assets/textures/tower.png");
-		xTex->BindSlot(1);
-		m_xTowerMesh->m_iTexSlot = 1;
+		m_xTowerMesh->m_xTex = Plop::Texture::Create2D("assets/textures/tower.png");
 	}
 }
 

@@ -1,7 +1,7 @@
 ## Visual
 .vs/
 *.user
-*.pdb
+bin/*.pdb
 *.suo
 *.sdf
 *.obj

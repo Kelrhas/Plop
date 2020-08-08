@@ -38,6 +38,7 @@ namespace Plop
 
 	void ImGuiLayer::NewFrame()
 	{
+		PROFILING_FUNCTION();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -45,6 +46,7 @@ namespace Plop
 
 	void ImGuiLayer::EndFrame()
 	{
+		PROFILING_FUNCTION();
 		ImGui::EndFrame();
 
 		ImGui::Render();

@@ -1,6 +1,7 @@
 #include "Plop_pch.h"
 #include "Debug.h"
 
+#include <GL/glew.h>
 #include <Debug/Log.h>
 
 namespace PlopDebug

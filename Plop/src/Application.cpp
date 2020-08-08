@@ -6,6 +6,7 @@
 #include <json.hpp>
 
 #include <Input/Input.h>
+#include <Debug/Debug.h>
 #include <Debug/Log.h>
 #include <Events/EventDispatcher.h>
 #include <Events/WindowEvent.h>
@@ -14,9 +15,9 @@
 
 namespace Plop
 {
-	///
+	//////////////////////////////////////////////////////////////////////////
 	/// Config
-	///
+
 	const char* Config::CONFIG_FILE_NAME = "Config.json";
 
 	void to_json(nlohmann::json& j, const WindowConfig& _config)
@@ -80,9 +81,8 @@ namespace Plop
 	}
 
 
-	///
+	//////////////////////////////////////////////////////////////////////////
 	/// Application
-	///
 
 	Application* Application::s_pInstance = nullptr;
 
@@ -126,6 +126,8 @@ namespace Plop
 	{
 		VERIFY(Log::Init(), "Log did not init properly");
 
+		PROFILING_INIT();
+
 
 		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
 
@@ -157,6 +159,8 @@ namespace Plop
 		EventDispatcher::UnregisterListener( this );
 
 		EventDispatcher::Destroy();
+
+		PROFILING_SHUTDOWN();
 	}
 
 	void Application::Run()
@@ -164,6 +168,8 @@ namespace Plop
 
 		while (m_bRunning)
 		{
+			PROFILING_FRAME("MainThread");
+
 			m_timeStep.Advance();
 			m_ImGuiLayer.NewFrame();
 

@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <Debug/Debug.h>
 #include <Constants.h>
 #include <Events/EventDispatcher.h>
 #include <Input/Input.h>
@@ -18,6 +19,8 @@ void SampleLayer::OnRegistered()
 
 void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 {
+	PROFILING_FUNCTION();
+
 	if (ImGui::Begin("Sample window"))
 	{
 		ImGui::Text("Sample text");
@@ -134,6 +137,8 @@ void SampleLayer2D::OnUnregistered()
 
 void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 {
+	PROFILING_FUNCTION();
+
 	m_CameraController.OnUpdate(_timeStep);
 
 	Plop::Renderer2D::PrepareScene(m_CameraController.GetCamera());

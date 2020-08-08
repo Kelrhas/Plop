@@ -245,6 +245,8 @@ namespace Plop
 
 	void Win32_Window::Update(const TimeStep& _timeStep)
 	{
+		PROFILING_FUNCTION();
+
 		// events
 		MSG message;
 		while (PeekMessage(&message, m_hWnd, 0, 0, PM_REMOVE))

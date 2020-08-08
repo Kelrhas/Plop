@@ -89,19 +89,20 @@ project "Plop"
 		"Externals/glew/include",
 		"Externals/ImGui/",
 		"Externals/glm/",
-		"Externals/stb/"
+		"Externals/stb/",
+		"Externals/optick/include/"
 	}
 	
 	libdirs
 	{
-		"Externals/glew/lib/"
+		"Externals/glew/lib/",
 	}
 
 	links
 	{
 		"Externals/glew/lib/glew32s.lib",
 		"ImGui",
-		"opengl32.lib"
+		"opengl32.lib",
 	}
 		
 	defines
@@ -130,8 +131,18 @@ project "Sample"
 		"Plop/src/",
 		"%{prj.name}/src/",
 		"Externals/ImGui/",
-		"Externals/glm/"
+		"Externals/glm/",
+		"Externals/optick/include/"
+	}
+
+	libdirs
+	{
+		"Externals/optick/lib/x64/%{cfg.buildcfg}/"
 	}
 	
-	links { "Plop" }
+	links
+	{
+		"Plop",
+		"OptickCore.lib"
+	}
 	

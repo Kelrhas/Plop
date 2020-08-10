@@ -2,13 +2,15 @@
 
 #include <optick.h>
 
-namespace PlopDebug
+namespace Plop
 {
-	void Assert_GL();
+	namespace Debug
+	{
+		void Assert_GL();
 
-	void TODO(const char* _pMessage = nullptr);
+		void TODO( const char* _pMessage = nullptr );
+	}
 }
-
 
 #define PROFILING_INIT()		{}
 #define PROFILING_SHUTDOWN()	OPTICK_SHUTDOWN()

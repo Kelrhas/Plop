@@ -15,6 +15,8 @@ namespace Plop
 		// from Texture
 		virtual void BindSlot(int _iSlot) const override;
 
+		virtual bool Compare( const Texture& _other ) override;
+
 	private:
 		GLuint m_uID;
 	};

@@ -26,4 +26,14 @@ namespace Plop
 	{
 		_xVertexArray->Draw();
 	}
+
+
+
+	int OpenGL_Renderer::GetMaxTextureUnit() const
+	{
+		int iMaxTexUnit = 32;
+		//glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, &iMaxTexUnit );
+		// TODO: we set 32 in the shader for now
+		return iMaxTexUnit;
+	}
 }

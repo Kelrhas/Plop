@@ -140,6 +140,7 @@ namespace Plop
 
 		m_xWindow = std::unique_ptr<Window>(Window::Create(m_Config.windows["Test"]));
 		m_xWindow->Init();
+		m_xWindow->SetVSync( false );
 
 		Input::Init(m_xWindow->GetNativeWindow());
 

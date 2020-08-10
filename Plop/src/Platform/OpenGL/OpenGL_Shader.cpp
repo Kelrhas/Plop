@@ -76,6 +76,8 @@ namespace Plop
 			size_t nextLinePos = sContent.find_first_not_of("\r\n", EOL);
 			currentPos = sContent.find(pTypeToken, nextLinePos);
 
+
+			// TODO: add #line XX to be able to debug more easyly
 			if (currentPos != String::npos)
 				m_mapShaderSources[eType] = sContent.substr(nextLinePos, currentPos - nextLinePos);
 			else
@@ -112,6 +114,15 @@ namespace Plop
 		if (iLoc >= 0)
 		{
 			glUniform1i( iLoc, _int );
+		}
+	}
+
+	void OpenGL_Shader::SetUniformIntArray( const String& _sName, int* _ints, uint32_t _uCount ) const
+	{
+		GLint iLoc = glGetUniformLocation( m_uProgram, _sName.c_str() );
+		if (iLoc >= 0)
+		{
+			glUniform1iv( iLoc, _uCount, _ints );
 		}
 	}
 

@@ -31,6 +31,7 @@ namespace Plop
 	{
 		switch (_eType)
 		{
+			case ElementType::INT:		return 4;
 			case ElementType::FLOAT:		return 4;
 			case ElementType::FLOAT2:		return 4 * 2;
 			case ElementType::FLOAT3:		return 4 * 3;
@@ -46,6 +47,7 @@ namespace Plop
 	{
 		switch (_eType)
 		{
+			case ElementType::INT:			return 1;
 			case ElementType::FLOAT:		return 1;
 			case ElementType::FLOAT2:		return 2;
 			case ElementType::FLOAT3:		return 3;
@@ -75,11 +77,11 @@ namespace Plop
 		return nullptr;
 	}
 
-	VertexBufferPtr VertexBuffer::Create(uint32_t _uCount, float* _pVerts)
+	VertexBufferPtr VertexBuffer::Create(size_t _uSize, void* _pData)
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_VertexBuffer>(_uCount, _pVerts);
+			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_VertexBuffer>( _uSize, _pData );
 		}
 
 		ASSERT(false, "Render API not supported");
@@ -89,6 +91,17 @@ namespace Plop
 
 	//////////////////////////////////////////////////////////////////////////
 	// IndexBuffer
+	IndexBufferPtr IndexBuffer::Create(uint32_t _uCount)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_IndexBuffer>(_uCount);
+		}
+
+		ASSERT(false, "Render API not supported");
+		return nullptr;
+	}
+
 	IndexBufferPtr IndexBuffer::Create(uint32_t _uCount, uint32_t* _pIndices)
 	{
 		switch (Renderer::GetAPI())

@@ -1,6 +1,7 @@
 #include "SampleLayer.h"
 
 #include <imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <Debug/Debug.h>
 #include <Constants.h>
@@ -50,35 +51,36 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 			{ "uv", Plop::BufferLayout::ElementType::FLOAT2}
 		};
 
-		Plop::VertexBufferPtr xVertBuff = Plop::VertexBuffer::Create((uint32_t)sizeof(vertices) * 3, (float*)&vertices);
+		Plop::VertexBufferPtr xVertBuff = Plop::VertexBuffer::Create(sizeof(vertices), (void*)&vertices);
 		xVertBuff->SetLayout(layout);
 		xMesh->m_xVertexArray->AddVertexBuffer(xVertBuff);
 
 
 		uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
-		Plop::IndexBufferPtr xIndBuff = Plop::IndexBuffer::Create((uint32_t)sizeof(indices) / sizeof(uint32_t), indices);
+		Plop::IndexBufferPtr xIndBuff = Plop::IndexBuffer::Create(sizeof(indices) / sizeof(uint32_t), indices);
 		xMesh->m_xVertexArray->SetIndexBuffer(xIndBuff);
 
 		xMesh->m_xShader = Plop::Renderer::LoadShader("data/shaders/textured.glsl");
 		xMesh->m_xShader->Bind();
 		xMesh->m_xShader->SetUniformVec4("u_color", glm::vec4(1.f));
 
-		xMesh->m_xTex = Plop::Texture::Create2D( "assets/textures/approval.png" );
+		xMesh->m_xTex = Plop::Texture::Create2D( "assets/textures/grass.png" );
 	}
 
 	Plop::Renderer::Clear();
 
 	Plop::Renderer::PrepareScene(*m_pCamera);
-
-	xMesh->m_mTransform = glm::identity<glm::mat4>();
-	Plop::Renderer::SubmitDraw(xMesh);
-	xMesh->m_mTransform = glm::translate(xMesh->m_mTransform, VEC3_RIGHT);
-	Plop::Renderer::SubmitDraw(xMesh);
-	xMesh->m_mTransform = glm::translate(xMesh->m_mTransform, VEC3_RIGHT);
-	Plop::Renderer::SubmitDraw(xMesh);
-	xMesh->m_mTransform = glm::translate(xMesh->m_mTransform, VEC3_RIGHT);
-	Plop::Renderer::SubmitDraw(xMesh);
-
+	{
+		PROFILING_SCOPE( "DrawScene" );
+		//xMesh->m_mTransform = glm::identity<glm::mat4>();
+		//Plop::Renderer::SubmitDraw( xMesh );
+		//xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
+		//Plop::Renderer::SubmitDraw( xMesh );
+		//xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
+		//Plop::Renderer::SubmitDraw( xMesh );
+		//xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
+		//Plop::Renderer::SubmitDraw( xMesh );
+	}
 	Plop::Renderer::EndScene();
 
 }
@@ -112,13 +114,13 @@ void SampleLayer2D::OnRegistered()
 			{ "uv", Plop::BufferLayout::ElementType::FLOAT2}
 		};
 
-		Plop::VertexBufferPtr xVertBuff = Plop::VertexBuffer::Create((uint32_t)sizeof(vertices) * 3, (float*)&vertices);
+		Plop::VertexBufferPtr xVertBuff = Plop::VertexBuffer::Create(sizeof(vertices), (float*)&vertices);
 		xVertBuff->SetLayout(layout);
 		m_xTowerMesh->m_xVertexArray->AddVertexBuffer(xVertBuff);
 
 
 		uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
-		Plop::IndexBufferPtr xIndBuff = Plop::IndexBuffer::Create((uint32_t)sizeof(indices) / sizeof(uint32_t), indices);
+		Plop::IndexBufferPtr xIndBuff = Plop::IndexBuffer::Create(sizeof(indices) / sizeof(uint32_t), indices);
 		m_xTowerMesh->m_xVertexArray->SetIndexBuffer(xIndBuff);
 
 		m_xTowerMesh->m_xShader = Plop::Renderer::LoadShader("data/shaders/textured.glsl");
@@ -143,12 +145,56 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 
 	Plop::Renderer2D::PrepareScene(m_CameraController.GetCamera());
 
-	Plop::Renderer2D::DrawQuadColor( glm::vec2( 0.f ), glm::vec2( 2.f ), glm::vec4( 1.f ) );
-	Plop::Renderer2D::DrawQuadColor( glm::vec2( -0.5f, 0.f ), glm::vec2( 0.5f, 1.f ), glm::vec4( 0.f, 0.f, 1.f, 1.f) );
-	Plop::Renderer2D::DrawQuadColor( glm::vec2(0.5f, 0.f), glm::vec2( 0.5f, 1.f ), glm::vec4( 1.f, 0.f, 0.f, 1.f) );
+	static glm::vec2 vSize( 1.f );
+	ImGui::DragFloat2( "Grass Size", glm::value_ptr( vSize ), 0.1f, 0.f, 10.f );
+	static Plop::TexturePtr xGrassTex = Plop::Texture::Create2D( "assets/textures/grass.png" );
+	static Plop::TexturePtr xApprovalTex = Plop::Texture::Create2D( "assets/textures/approval.png" );
+	static Plop::TexturePtr xTowerTex = Plop::Texture::Create2D( "assets/textures/tower.png" );
+	{
+		PROFILING_SCOPE("Drawing grass");
+		static int nb = 5;
+		ImGui::DragInt( "Grid", &nb, 0.1f, 0, 50 );
+		for (int i = 0; i < nb; ++i)
+		{
+			for (int j = 0; j < nb; ++j)
+			{
+				Plop::Renderer2D::DrawQuadColor( glm::vec3( i, j, 0.f ), vSize, glm::vec4(i/ (float)nb, j/ (float)nb, 0.f, 1.f) );
+				Plop::Renderer2D::DrawQuadTexture( glm::vec3( i+nb, j, 0.f ), vSize, xGrassTex );
+				Plop::Renderer2D::DrawQuadTexture( glm::vec3( i, j + nb, 0.f ), vSize, xApprovalTex );
+				Plop::Renderer2D::DrawQuadTextureRotated( glm::vec3( i+nb, j + nb, 0.f ), vSize, i / (float)nb * 3.14f, xTowerTex );
+			}
+		}
+	}
+	static float fPlayerSpeed = 0.1f;
+	ImGui::DragFloat( "Speed", &fPlayerSpeed, 0.1f, 0.f, 0.3f );
+	if (ImGui::Button( "Reset" ))
+	{
+		m_vPlayerSpeed = glm::vec2( 0.f );
+		m_vPlayerPos = glm::vec2( 0.f );
+	}
+	m_vPlayerSpeed *= 0.5f;
+	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_Q ))
+		m_vPlayerSpeed.x = -1.f;
+	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_D ))
+		m_vPlayerSpeed.x = 1.f;
+	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_Z ))
+		m_vPlayerSpeed.y = 1.f;
+	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_S ))
+		m_vPlayerSpeed.y = -1.f;
+	
+	float fSpeedSq = glm::dot( m_vPlayerSpeed, m_vPlayerSpeed );
+	if(fSpeedSq > fPlayerSpeed)
+		m_vPlayerSpeed = glm::normalize( m_vPlayerSpeed ) * fPlayerSpeed;
 
-	static Plop::TexturePtr xTex = Plop::Texture::Create2D("assets/textures/tower.png");
-	Plop::Renderer2D::DrawQuadTexture(glm::vec2(0.f, 0.2f), glm::vec2(0.2f), xTex);
+	if (glm::any( glm::isnan( m_vPlayerSpeed ) ))
+		m_vPlayerSpeed = glm::vec2( 0.f );
+
+	m_vPlayerPos += m_vPlayerSpeed;
+
+	static Plop::TexturePtr xTex = Plop::Texture::Create2D("assets/textures/approval.png");
+	static float fAngle = 0.f;
+	ImGui::DragFloat( "Angle", &fAngle, 0.1f, -3.14f, 3.14f );
+	Plop::Renderer2D::DrawQuadTextureRotated( m_vPlayerPos, glm::vec2(0.2f), fAngle, xTex);
 
 	Plop::Renderer2D::EndScene();
 }

@@ -58,4 +58,9 @@ namespace Plop
 	{
 		glBindTextureUnit( _iSlot, m_uID );
 	}
+
+	bool OpenGL_Texture2D::Compare( const Texture& _other )
+	{
+		return m_uID == ((OpenGL_Texture2D&)_other).m_uID;
+	}
 }

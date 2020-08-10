@@ -13,6 +13,7 @@ namespace Plop
 		enum class ElementType : uint8_t
 		{
 			NONE,
+			INT,
 			FLOAT,
 			FLOAT2,
 			FLOAT3,
@@ -58,18 +59,20 @@ namespace Plop
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(size_t _uSize) {}
-		VertexBuffer(uint32_t _uCount, float* _pVerts) {}
+		VertexBuffer( size_t _uSize ) {}
+		VertexBuffer( size_t _uSize, void* _pData) {}
 		virtual ~VertexBuffer() = default;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
+		virtual void SetData( size_t _uSize, void* _pData ) = 0;
+
 				void SetLayout(const BufferLayout& _layout);
 				const BufferLayout& GetLayout() const { return m_layout; }
 
-		static VertexBufferPtr Create(size_t _uSize);
-		static VertexBufferPtr Create(uint32_t _uCount, float* _pVerts);
+		static VertexBufferPtr Create( size_t _uSize );
+		static VertexBufferPtr Create( size_t _uSize, void* _pData );
 
 	protected:
 		BufferLayout m_layout;
@@ -83,14 +86,18 @@ namespace Plop
 	class IndexBuffer
 	{
 	public:
+		IndexBuffer(uint32_t _uCount) : m_uCount(_uCount) {}
 		IndexBuffer(uint32_t _uCount, uint32_t* _pIndices) : m_uCount(_uCount) {}
 		virtual ~IndexBuffer() = default;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
+		virtual void SetData( uint32_t _uCount, uint32_t* _pIndices ) = 0;
+
 				uint32_t GetCount() const { return m_uCount; }
 
+		static IndexBufferPtr Create(uint32_t _uCount);
 		static IndexBufferPtr Create(uint32_t _uCount, uint32_t* _pIndices);
 
 	protected:

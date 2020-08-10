@@ -13,6 +13,8 @@ namespace Plop
 		virtual void BindSlot(int _iSlot) const = 0;
 
 		static TexturePtr Create2D( const String& _sFile );
+
+		virtual bool Compare( const Texture& _other ) = 0;
 	};
 
 	class Texture2D : public Texture

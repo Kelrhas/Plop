@@ -66,54 +66,70 @@ namespace Plop
 
 	//////////////////////////////////////////////////////////////////////////
 	// Renderer2D
-	bool		Renderer2D::s_bRendering2D = false;
-	Mesh		Renderer2D::s_Quad;
-	TexturePtr	Renderer2D::s_xWhiteTex = nullptr;
+	uint32_t						Renderer2D::MAX_TEX_UNIT = 32;
+	bool							Renderer2D::s_bRendering2D = false;
+	TexturePtr						Renderer2D::s_xWhiteTex = nullptr;
+	ShaderPtr						Renderer2D::s_xShader = nullptr;
+	VertexArrayPtr					Renderer2D::s_xVertexArray = nullptr;
+	VertexBufferPtr					Renderer2D::s_xVertexBuffer = nullptr;
+	IndexBufferPtr					Renderer2D::s_xIndexBuffer = nullptr;
+	Renderer2D::SceneData			Renderer2D::s_sceneData;
+
+	const BufferLayout Renderer2D::Vertex::layout = {
+			{ "in_position", BufferLayout::ElementType::FLOAT3},
+			{ "in_color", BufferLayout::ElementType::FLOAT4},
+			{ "in_uv", BufferLayout::ElementType::FLOAT2},
+			{ "in_texUnit", BufferLayout::ElementType::FLOAT},
+	};
 
 	void Renderer2D::Init()
 	{
-		float vertices[] = {
-			-0.5f, -0.5f, 0.0f,		0.f, 0.f,
-			-0.5f,  0.5f, 0.0f,		0.f, 1.f,
-			 0.5f,  0.5f, 0.0f,		1.f, 1.f,
-			 0.5f, -0.5f, 0.0f,		1.f, 0.f
-		};
+		MAX_TEX_UNIT = Renderer::s_pAPI->GetMaxTextureUnit();
+		s_sceneData.pTextureUnits = new TexturePtr[MAX_TEX_UNIT];
 
-		s_Quad.m_xVertexArray = VertexArray::Create();
-		s_Quad.m_xVertexArray->Bind();
+		s_xWhiteTex = Texture::Create2D( "assets/textures/white.png" );
+		s_xWhiteTex->BindSlot( 0 );
 
-		BufferLayout layout = {
-			{ "position", BufferLayout::ElementType::FLOAT3},
-			{ "uv", BufferLayout::ElementType::FLOAT2}
-		};
+		s_xShader = Plop::Renderer::LoadShader( "data/shaders/textured.glsl" );
+		s_xShader->Bind();
+		s_xShader->SetUniformVec4( "u_color", glm::vec4( 1.f ) );
 
-		VertexBufferPtr xVertBuff = VertexBuffer::Create( (uint32_t)sizeof( vertices ) * 3, (float*)&vertices );
-		xVertBuff->SetLayout( layout );
-		s_Quad.m_xVertexArray->AddVertexBuffer( xVertBuff );
+		int* textures = new int[MAX_TEX_UNIT];
+		for (uint32_t i = 0; i < MAX_TEX_UNIT; ++i)
+			textures[i] = i;
+		s_xShader->SetUniformIntArray( "u_textures", textures, MAX_TEX_UNIT );
+		delete[] textures;
 
+		s_xVertexArray = VertexArray::Create();
+		s_xVertexArray->Bind();
 
-		uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
-		IndexBufferPtr xIndBuff = IndexBuffer::Create( (uint32_t)sizeof( indices ) / sizeof( uint32_t ), indices );
-		s_Quad.m_xVertexArray->SetIndexBuffer( xIndBuff );
+		s_xVertexBuffer = VertexBuffer::Create( MAX_VERTICES * sizeof(Vertex) );
+		s_xVertexBuffer->SetLayout( Vertex::layout );
+		s_xVertexArray->AddVertexBuffer( s_xVertexBuffer );
 
-		s_Quad.m_xShader = Plop::Renderer::LoadShader( "data/shaders/textured.glsl" );
-		s_Quad.m_xShader->Bind();
-		s_Quad.m_xShader->SetUniformVec4("u_color", glm::vec4(1.f));
+		s_xIndexBuffer = IndexBuffer::Create( MAX_INDICES );
+		s_xVertexArray->SetIndexBuffer( s_xIndexBuffer );
 
-		s_xWhiteTex = Texture::Create2D("assets/textures/white.png");
-		s_xWhiteTex->BindSlot(0);
+		s_sceneData.vecVertices.reserve( MAX_VERTICES );
+		s_sceneData.vecIndices.reserve( MAX_INDICES );
 	}
 
 	void Renderer2D::PrepareScene( const OrthographicCamera& _camera )
 	{
 		s_bRendering2D = true;
-		s_Quad.m_xShader->Bind();
-		s_Quad.m_xShader->SetUniformMat4( "u_mViewProjection", _camera.GetViewProjectionMatrix() );
+		s_xShader->Bind();
+		s_xShader->SetUniformMat4( "u_mViewProjection", _camera.GetViewProjectionMatrix() );
+		s_xWhiteTex->BindSlot( 0 );
 	}
 
 	void Renderer2D::EndScene()
 	{
+		if (s_sceneData.uNbQuad > 0)
+			DrawBatch();
+
 		s_bRendering2D = false;
+
+		Debug::Assert_GL();
 	}
 
 	void Renderer2D::Clear()
@@ -124,45 +140,242 @@ namespace Plop
 	void Renderer2D::DrawQuadColor(const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor)
 	{
 		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
-		DrawQuadColor( glm::vec3( _vPos, 0.f ), _vSize, _vColor );
+
+
+		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
+			DrawBatch();
+
+		glm::vec2 vHalfSize( _vSize / 2.f );
+
+		Vertex v;
+		v.vColor = _vColor;
+
+
+		bool bTexFound = false;
+		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
+		{
+			if (s_sceneData.pTextureUnits[i]->Compare( *s_xWhiteTex ))
+			{
+				v.fTexUnit = (float)i;
+				bTexFound = true;
+				break;
+			}
+		}
+		if (!bTexFound)
+		{
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = s_xWhiteTex;
+			v.fTexUnit = (float)s_sceneData.uNbTex++;
+		}
+
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV = glm::vec2( 0.f );
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV.x = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.y = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.x = 0.f;
+		s_sceneData.vecVertices.push_back( v );
+
+
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+
+		++s_sceneData.uNbQuad;
 	}
 
-	void Renderer2D::DrawQuadColor(const glm::vec3& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor)
+	void Renderer2D::DrawQuadColorRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vColor )
 	{
-		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
-		s_Quad.m_mTransform = glm::translate( glm::identity<glm::mat4>(), _vPos );
-		s_Quad.m_mTransform = glm::scale( s_Quad.m_mTransform, glm::vec3( _vSize, 1.f ) );
+		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 
-		s_xWhiteTex->BindSlot( 0 );
-		s_Quad.m_xShader->SetUniformInt( "u_tDiffuse", 0 );
-		s_Quad.m_xShader->SetUniformVec4( "u_color", _vColor );
-		s_Quad.m_xShader->SetUniformMat4( "u_mModel", s_Quad.m_mTransform );
+		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
+			DrawBatch();
 
-		s_Quad.m_xVertexArray->Bind();
-		Renderer::s_pAPI->DrawIndexed( s_Quad.m_xVertexArray );
+		glm::mat4 mTransform = glm::rotate( glm::identity<glm::mat4>(), _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
+		glm::vec2 vHalfSize( _vSize / 2.f );
+		vHalfSize = mTransform * glm::vec4( vHalfSize, 0.f, 0.f );
+
+
+		Vertex v;
+		v.vColor = _vColor;
+
+		bool bTexFound = false;
+		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
+		{
+			if (s_sceneData.pTextureUnits[i]->Compare( *s_xWhiteTex ))
+			{
+				v.fTexUnit = (float)i;
+				bTexFound = true;
+				break;
+			}
+		}
+		if (!bTexFound)
+		{
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = s_xWhiteTex;
+			v.fTexUnit = (float)s_sceneData.uNbTex++;
+		}
+
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV = glm::vec2( 0.f );
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV.x = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.y = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.x = 0.f;
+		s_sceneData.vecVertices.push_back( v );
+
+
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+
+		++s_sceneData.uNbQuad;
 	}
 
-	void Renderer2D::DrawQuadTexture(const glm::vec2& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture)
+	void Renderer2D::DrawQuadTexture( const glm::vec2& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
-		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
-		DrawQuadTexture( glm::vec3( _vPos, 0.f ), _vSize, _xTexture);
+		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+
+
+		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
+			DrawBatch();
+
+		glm::vec2 vHalfSize( _vSize / 2.f );
+
+		Vertex v;
+		v.vColor = _vTint;
+
+		bool bTexFound = false;
+		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
+		{
+			if (s_sceneData.pTextureUnits[i]->Compare( *_xTexture ))
+			{
+				v.fTexUnit = (float)i;
+				bTexFound = true;
+				break;
+			}
+		}
+		if (!bTexFound)
+		{
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = _xTexture;
+			v.fTexUnit = (float)s_sceneData.uNbTex++;
+		}
+
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV = glm::vec2( 0.f );
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV.x = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.y = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.x = 0.f;
+		s_sceneData.vecVertices.push_back( v );
+
+
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+
+		++s_sceneData.uNbQuad;
 	}
 
-	void Renderer2D::DrawQuadTexture(const glm::vec3& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture)
+	void Renderer2D::DrawQuadTextureRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const TexturePtr& _xTexture, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
-		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
-		s_Quad.m_mTransform = glm::translate( glm::identity<glm::mat4>(), _vPos );
-		s_Quad.m_mTransform = glm::scale( s_Quad.m_mTransform, glm::vec3( _vSize, 1.f ) );
+		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 
-		_xTexture->BindSlot(0);
-		s_Quad.m_xShader->SetUniformInt( "u_tDiffuse", 0 );
-		s_Quad.m_xShader->SetUniformVec4( "u_color", glm::vec4(1.f) );
-		s_Quad.m_xShader->SetUniformMat4( "u_mModel", s_Quad.m_mTransform );
+		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
+			DrawBatch();
 
-		s_Quad.m_xVertexArray->Bind();
-		Renderer::s_pAPI->DrawIndexed( s_Quad.m_xVertexArray );
+		glm::mat4 mTransform = glm::rotate( glm::identity<glm::mat4>(), _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
+		glm::vec2 vHalfSize( _vSize / 2.f );
+		vHalfSize = mTransform * glm::vec4( vHalfSize, 0.f, 0.f );
+
+		Vertex v;
+		v.vColor = _vTint;
+
+		bool bTexFound = false;
+		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
+		{
+			if (s_sceneData.pTextureUnits[i]->Compare( *_xTexture ))
+			{
+				v.fTexUnit = (float)i;
+				bTexFound = true;
+				break;
+			}
+		}
+		if (!bTexFound)
+		{
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = _xTexture;
+			v.fTexUnit = (float)s_sceneData.uNbTex++;
+		}
+
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV = glm::vec2( 0.f );
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vUV.x = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.y = 1.f;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vUV.x = 0.f;
+		s_sceneData.vecVertices.push_back( v );
+
+
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+
+		++s_sceneData.uNbQuad;
+	}
+
+	void Renderer2D::DrawBatch()
+	{
+		PROFILING_FUNCTION();
+
+		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+
+		s_xVertexBuffer->SetData( s_sceneData.vecVertices.size() * sizeof(Vertex), (float*)s_sceneData.vecVertices.data() );
+		s_xIndexBuffer->SetData( (uint32_t)s_sceneData.vecIndices.size(), s_sceneData.vecIndices.data() );
+
+		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
+		{
+			s_sceneData.pTextureUnits[i]->BindSlot( i );
+		}
+
+		s_xVertexArray->Bind();
+		Renderer::s_pAPI->DrawIndexed( s_xVertexArray );
+
+		s_sceneData.uNbQuad = 0;
+		s_sceneData.uNbTex = 0;
+		s_sceneData.vecVertices.clear();
+		s_sceneData.vecIndices.clear();
 	}
 
 }

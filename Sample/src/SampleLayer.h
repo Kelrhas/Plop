@@ -34,5 +34,7 @@ public:
 private:
 	Plop::Camera2DController	m_CameraController;
 	Plop::MeshPtr				m_xTowerMesh = nullptr;
+	glm::vec2					m_vPlayerPos = glm::vec2( 0.f, 0.f );
+	glm::vec2					m_vPlayerSpeed = glm::vec2( 0.f, 0.f );
 };
 

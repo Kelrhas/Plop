@@ -22,14 +22,16 @@ namespace Plop
 
 	void Camera2DController::OnUpdate(TimeStep& _timeStep)
 	{
+		float fSpeed = m_fZoomLevel;
+
 		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Left))
-			m_camera.Translate(-VEC3_RIGHT * _timeStep.GetGameDeltaTime());
+			m_camera.Translate(-VEC3_RIGHT * _timeStep.GetGameDeltaTime() * fSpeed );
 		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Right))
-			m_camera.Translate(VEC3_RIGHT * _timeStep.GetGameDeltaTime());
+			m_camera.Translate(VEC3_RIGHT * _timeStep.GetGameDeltaTime() * fSpeed );
 		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Up))
-			m_camera.Translate(VEC3_UP * _timeStep.GetGameDeltaTime());
+			m_camera.Translate(VEC3_UP * _timeStep.GetGameDeltaTime() * fSpeed );
 		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Down))
-			m_camera.Translate(-VEC3_UP * _timeStep.GetGameDeltaTime());
+			m_camera.Translate(-VEC3_UP * _timeStep.GetGameDeltaTime() * fSpeed );
 	}
 
 	bool Camera2DController::OnMouseWheel(float _fWheel)

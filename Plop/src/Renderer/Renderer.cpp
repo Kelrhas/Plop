@@ -199,9 +199,9 @@ namespace Plop
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
 			DrawBatch();
 
-		glm::mat4 mTransform = glm::rotate( glm::identity<glm::mat4>(), _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
+		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
 		glm::vec2 vHalfSize( _vSize / 2.f );
-		vHalfSize = mTransform * glm::vec4( vHalfSize, 0.f, 0.f );
 
 
 		Vertex v;
@@ -223,16 +223,20 @@ namespace Plop
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( -vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV = glm::vec2( 0.f );
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.x = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.y = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( -vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.x = 0.f;
 		s_sceneData.vecVertices.push_back( v );
 
@@ -308,9 +312,9 @@ namespace Plop
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
 			DrawBatch();
 
-		glm::mat4 mTransform = glm::rotate( glm::identity<glm::mat4>(), _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
+		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
 		glm::vec2 vHalfSize( _vSize / 2.f );
-		vHalfSize = mTransform * glm::vec4( vHalfSize, 0.f, 0.f );
 
 		Vertex v;
 		v.vColor = _vTint;
@@ -331,16 +335,20 @@ namespace Plop
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( -vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4(v.vPosition, 1.f);
 		v.vUV = glm::vec2( 0.f );
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.x = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.y = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( -vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.x = 0.f;
 		s_sceneData.vecVertices.push_back( v );
 

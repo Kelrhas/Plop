@@ -158,7 +158,7 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 		{
 			for (int j = 0; j < nb; ++j)
 			{
-				Plop::Renderer2D::DrawQuadColor( glm::vec3( i, j, 0.f ), vSize, glm::vec4(i/ (float)nb, j/ (float)nb, 0.f, 1.f) );
+				Plop::Renderer2D::DrawQuadColorRotated( glm::vec3( i, j, 0.f ), vSize, i / (float)nb * 3.14f, glm::vec4(i/ (float)nb, j/ (float)nb, 0.f, 1.f) );
 				Plop::Renderer2D::DrawQuadTexture( glm::vec3( i+nb, j, 0.f ), vSize, xGrassTex );
 				Plop::Renderer2D::DrawQuadTexture( glm::vec3( i, j + nb, 0.f ), vSize, xApprovalTex );
 				Plop::Renderer2D::DrawQuadTextureRotated( glm::vec3( i+nb, j + nb, 0.f ), vSize, i / (float)nb * 3.14f, xTowerTex );
@@ -195,6 +195,24 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	static float fAngle = 0.f;
 	ImGui::DragFloat( "Angle", &fAngle, 0.1f, -3.14f, 3.14f );
 	Plop::Renderer2D::DrawQuadTextureRotated( m_vPlayerPos, glm::vec2(0.2f), fAngle, xTex);
+
+	if (Plop::Input::IsMouseLeftPressed())
+	{
+		static Plop::ParticleData data;
+		data.fLifeTimeBase = 2.f;
+		data.vPositionBase = glm::vec3( 0.f );
+		data.vPositionVariationMin = glm::vec3( -0.5f );
+		data.vPositionVariationMax = glm::vec3( 0.5f );
+		data.vSizeStart = glm::vec2( 0.3f );
+		data.vSizeEnd = glm::vec2( 0.1f );
+		data.vSpeedStart = glm::vec3( 0.f, 1.f, 0.f );
+		data.vSpeedEnd = glm::vec3( 0.f, -1.f, 0.f );
+		data.vColorStart = glm::vec4( 1.f );
+		data.vColorEnd = glm::vec4( 1.f, 0.f, 0.f, 1.f );
+		m_particles.Spawn( data, 10 );
+	}
+
+	m_particles.Update( _timeStep );
 
 	Plop::Renderer2D::EndScene();
 }

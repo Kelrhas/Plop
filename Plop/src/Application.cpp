@@ -179,7 +179,8 @@ namespace Plop
 				pAppLayer->OnUpdate(m_timeStep);
 			}
 			m_ImGuiLayer.EndFrame();
-
+			
+			Input::Update( m_timeStep );
 			m_xWindow->Update(m_timeStep);
 		}
 

@@ -191,10 +191,15 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 
 	m_vPlayerPos += m_vPlayerSpeed;
 
-	static Plop::TexturePtr xTex = Plop::Texture::Create2D("assets/textures/approval.png");
+	static Plop::Sprite playerSprite;
+	if (playerSprite.GetTexture() == nullptr)
+	{
+		playerSprite.SetTexture( Plop::Texture::Create2D( "assets/textures/approval.png" ) );
+		playerSprite.SetUV( glm::vec2( 0.2f ), glm::vec2( 0.8f ) );
+	}
 	static float fAngle = 0.f;
 	ImGui::DragFloat( "Angle", &fAngle, 0.1f, -3.14f, 3.14f );
-	Plop::Renderer2D::DrawQuadTextureRotated( m_vPlayerPos, glm::vec2(0.2f), fAngle, xTex);
+	Plop::Renderer2D::DrawSprite( m_vPlayerPos, glm::vec2(0.2f), playerSprite, fAngle);
 
 	if (Plop::Input::IsMouseLeftPressed())
 	{

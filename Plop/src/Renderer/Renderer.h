@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/Mesh.h>
+#include <Renderer/Sprite.h>
 #include <Camera/Camera.h>
 #include <Camera/OrthographicCamera.h>
 
@@ -109,8 +110,6 @@ namespace Plop
 		static void				PrepareScene( const OrthographicCamera& _camera );
 		static void				EndScene();
 
-		static void				Clear();
-
 		static void				DrawQuadColor( const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor );
 		//static void				DrawQuadColor( const glm::vec3& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor );
 		static void				DrawQuadColorRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vColor );
@@ -119,6 +118,7 @@ namespace Plop
 		//static void				DrawQuadTexture( const glm::vec3& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture, const glm::vec4& _vTint = glm::vec4( 1.f ) );
 		static void				DrawQuadTextureRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const TexturePtr& _xTexture, const glm::vec4& _vTint = glm::vec4( 1.f ) );
 
+		static void				DrawSprite( const glm::vec2& _vPos, const glm::vec2& _vSize, const Sprite& _sprite, float _fAngleRad = 0.f );
 
 	private:
 

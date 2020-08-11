@@ -132,11 +132,6 @@ namespace Plop
 		Debug::Assert_GL();
 	}
 
-	void Renderer2D::Clear()
-	{
-
-	}
-
 	void Renderer2D::DrawQuadColor(const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor)
 	{
 		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
@@ -350,6 +345,65 @@ namespace Plop
 		v.vPosition = glm::vec3( -vHalfSize.x, vHalfSize.y, 0.f );
 		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.x = 0.f;
+		s_sceneData.vecVertices.push_back( v );
+
+
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
+		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+
+		++s_sceneData.uNbQuad;
+	}
+
+	void Renderer2D::DrawSprite( const glm::vec2& _vPos, const glm::vec2& _vSize, const Sprite& _sprite, float _fAngleRad /* = 0.f */ )
+	{
+		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+
+
+		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
+			DrawBatch();
+
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
+		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
+		glm::vec2 vHalfSize( _vSize / 2.f );
+
+		Vertex v;
+		v.vColor = _sprite.GetTint();;
+
+		bool bTexFound = false;
+		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
+		{
+			if (s_sceneData.pTextureUnits[i]->Compare( *_sprite.GetTexture() ))
+			{
+				v.fTexUnit = (float)i;
+				bTexFound = true;
+				break;
+			}
+		}
+		if (!bTexFound)
+		{
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = _sprite.GetTexture();
+			v.fTexUnit = (float)s_sceneData.uNbTex++;
+		}
+
+		v.vPosition = glm::vec3( -vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vUV = _sprite.GetUVMin();
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vUV.x = _sprite.GetUVMax().x;
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vUV = _sprite.GetUVMax();
+		s_sceneData.vecVertices.push_back( v );
+		v.vPosition = glm::vec3( -vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vUV.x = _sprite.GetUVMin().x;
 		s_sceneData.vecVertices.push_back( v );
 
 

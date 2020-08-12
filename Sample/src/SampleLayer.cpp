@@ -208,13 +208,13 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 		data.vPositionBase = glm::vec3( 0.f );
 		data.vPositionVariationMin = glm::vec3( -0.5f );
 		data.vPositionVariationMax = glm::vec3( 0.5f );
-		data.vSizeStart = glm::vec2( 0.3f );
-		data.vSizeEnd = glm::vec2( 0.1f );
+		data.vSizeStart = glm::vec2( 0.15f );
+		data.vSizeEnd = glm::vec2( 0.02f );
 		data.vSpeedStart = glm::vec3( 0.f, 1.f, 0.f );
 		data.vSpeedEnd = glm::vec3( 0.f, -1.f, 0.f );
 		data.vColorStart = glm::vec4( 1.f );
 		data.vColorEnd = glm::vec4( 1.f, 0.f, 0.f, 1.f );
-		m_particles.Spawn( data, 10 );
+		m_particles.Spawn( data, 50 );
 	}
 
 	m_particles.Update( _timeStep );

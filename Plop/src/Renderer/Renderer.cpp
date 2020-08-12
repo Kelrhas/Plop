@@ -134,6 +134,8 @@ namespace Plop
 
 	void Renderer2D::DrawQuadColor(const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor)
 	{
+		PROFILING_FUNCTION();
+
 		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
 
 
@@ -188,6 +190,8 @@ namespace Plop
 
 	void Renderer2D::DrawQuadColorRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vColor )
 	{
+		PROFILING_FUNCTION();
+
 		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 
@@ -248,6 +252,8 @@ namespace Plop
 
 	void Renderer2D::DrawQuadTexture( const glm::vec2& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
+		PROFILING_FUNCTION();
+
 		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 
@@ -301,6 +307,8 @@ namespace Plop
 
 	void Renderer2D::DrawQuadTextureRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const TexturePtr& _xTexture, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
+		PROFILING_FUNCTION();
+
 		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 
@@ -360,6 +368,8 @@ namespace Plop
 
 	void Renderer2D::DrawSprite( const glm::vec2& _vPos, const glm::vec2& _vSize, const Sprite& _sprite, float _fAngleRad /* = 0.f */ )
 	{
+		PROFILING_FUNCTION();
+
 		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 

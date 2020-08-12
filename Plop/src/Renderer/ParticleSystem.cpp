@@ -27,6 +27,8 @@ namespace Plop
 
 	void ParticleSystem::Spawn( const ParticleData& _data, int iNbParticle /*= 1*/ )
 	{
+		PROFILING_FUNCTION();
+
 		for (int i = 0; i < m_iMaxNumberParticles; ++i)
 		{
 			if (!m_pParticles[i].bActive)
@@ -55,6 +57,8 @@ namespace Plop
 
 	void ParticleSystem::Update( const TimeStep& _timeStep )
 	{
+		PROFILING_FUNCTION();
+
 		float fDT = _timeStep.GetGameDeltaTime();
 
 		int iNbActive = 0;

@@ -171,6 +171,8 @@ namespace Plop
 		{
 			PROFILING_FRAME("MainThread");
 
+			Renderer2D::NewFrame();
+
 			m_timeStep.Advance();
 			m_ImGuiLayer.NewFrame();
 
@@ -182,6 +184,8 @@ namespace Plop
 			
 			Input::Update( m_timeStep );
 			m_xWindow->Update(m_timeStep);
+
+			Renderer2D::EndFrame();
 		}
 
 		m_xWindow->Destroy();

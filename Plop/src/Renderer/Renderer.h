@@ -78,6 +78,14 @@ namespace Plop
 	// Renderer2D
 	class Renderer2D
 	{
+		struct Stats
+		{
+			uint32_t uDrawCalls = 0;
+			uint32_t uQuads = 0;
+
+			void Reset();
+		};
+
 		struct Vertex
 		{
 			glm::vec3	vPosition;
@@ -96,7 +104,9 @@ namespace Plop
 			uint32_t				uNbQuad = 0;
 			uint32_t				uNbTex = 0;
 			TexturePtr*				pTextureUnits = nullptr;
+			Stats					frameStat;
 		};
+
 
 		static uint32_t MAX_TEX_UNIT;
 		static const uint32_t MAX_QUADS = 10000;
@@ -106,6 +116,9 @@ namespace Plop
 
 	public:
 		static void				Init();
+
+		static void				NewFrame();
+		static void				EndFrame();
 
 		static void				PrepareScene( const OrthographicCamera& _camera );
 		static void				EndScene();

@@ -13,6 +13,13 @@ namespace Plop
 
 	//////////////////////////////////////////////////////////////////////////
 	// Renderer
+
+	void Renderer2D::Stats::Reset()
+	{
+		uDrawCalls = 0;
+		uQuads = 0;
+	}
+
 	RenderAPI* Renderer::s_pAPI = new OpenGL_Renderer();
 	Renderer::SceneData Renderer::s_SceneData;
 	ShaderLibrary Renderer::s_shaderLibrary;
@@ -112,6 +119,16 @@ namespace Plop
 
 		s_sceneData.vecVertices.reserve( MAX_VERTICES );
 		s_sceneData.vecIndices.reserve( MAX_INDICES );
+	}
+
+
+	void Renderer2D::NewFrame()
+	{
+		s_sceneData.frameStat.Reset();
+	}
+
+	void Renderer2D::EndFrame()
+	{
 	}
 
 	void Renderer2D::PrepareScene( const OrthographicCamera& _camera )
@@ -443,6 +460,9 @@ namespace Plop
 
 		s_xVertexArray->Bind();
 		Renderer::s_pAPI->DrawIndexed( s_xVertexArray );
+
+		s_sceneData.frameStat.uDrawCalls++;
+		s_sceneData.frameStat.uQuads += s_sceneData.uNbQuad;
 
 		s_sceneData.uNbQuad = 0;
 		s_sceneData.uNbTex = 0;

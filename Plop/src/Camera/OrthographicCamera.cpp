@@ -1,7 +1,7 @@
 #include "Plop_pch.h"
 #include "OrthographicCamera.h"
 
-#include <glm/glm.hpp>
+#include <Constants.h>
 #include <Application.h>
 
 namespace Plop

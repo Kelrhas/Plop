@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Renderer/RenderContext.h>
-#include <glm/glm.hpp>
+#include <Constants.h>
 
 #include <TimeStep.h>
 

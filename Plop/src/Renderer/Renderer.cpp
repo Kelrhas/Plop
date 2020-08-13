@@ -94,8 +94,8 @@ namespace Plop
 		MAX_TEX_UNIT = Renderer::s_pAPI->GetMaxTextureUnit();
 		s_sceneData.pTextureUnits = new TexturePtr[MAX_TEX_UNIT];
 
-		s_xWhiteTex = Texture::Create2D( "assets/textures/white.png" );
-		s_xWhiteTex->BindSlot( 0 );
+		uint32_t uWhite = 0xFFFFFFFF;
+		s_xWhiteTex = Texture::Create2D( 1, 1, &uWhite );
 
 		s_xShader = Plop::Renderer::LoadShader( "data/shaders/textured.glsl" );
 		s_xShader->Bind();
@@ -136,7 +136,6 @@ namespace Plop
 		s_bRendering2D = true;
 		s_xShader->Bind();
 		s_xShader->SetUniformMat4( "u_mViewProjection", _camera.GetViewProjectionMatrix() );
-		s_xWhiteTex->BindSlot( 0 );
 	}
 
 	void Renderer2D::EndScene()

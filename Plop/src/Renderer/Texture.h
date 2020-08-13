@@ -11,10 +11,12 @@ namespace Plop
 		virtual ~Texture() {}
 
 		virtual void BindSlot(int _iSlot) const = 0;
-
-		static TexturePtr Create2D( const String& _sFile );
+		virtual void SetData( void* _pData ) = 0;
 
 		virtual bool Compare( const Texture& _other ) = 0;
+
+		static TexturePtr Create2D( const String& _sFile );
+		static TexturePtr Create2D( uint32_t _uWidth, uint32_t _uHeight, void* _pData );
 	};
 
 	class Texture2D : public Texture

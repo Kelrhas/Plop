@@ -15,4 +15,14 @@ namespace Plop
 		ASSERT( false, "Render API not supported" );
 		return nullptr;
 	}
+
+	TexturePtr Texture::Create2D( uint32_t _uWidth, uint32_t _uHeight, void* _pData )
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RenderAPI::API::OPENGL:		return std::make_shared<OpenGL_Texture2D>( _uWidth, _uHeight, _pData );
+		}
+		ASSERT( false, "Render API not supported" );
+		return nullptr;
+	}
 }

@@ -12,9 +12,12 @@ namespace Plop
 
 				void				SetTexture( const TexturePtr& _xTexture );
 				const TexturePtr&	GetTexture() const { return m_xTexture; }
+
 				void				SetUV( const glm::vec2& _vUVMin, const glm::vec2& _vUVMax );
+				void				SetSpriteIndex( uint32_t _uXIndex, uint32_t _uYIndex, uint32_t _uMaxHorizontal, uint32_t _uMaxVertical );
 				const glm::vec2&	GetUVMin() const { return m_vUVMin; }
 				const glm::vec2&	GetUVMax() const { return m_vUVMax; }
+
 				void				SetTint( const glm::vec4& _vTint );
 				const glm::vec4&	GetTint() const { return m_vTint; }
 

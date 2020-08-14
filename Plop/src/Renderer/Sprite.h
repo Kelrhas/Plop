@@ -13,8 +13,10 @@ namespace Plop
 				void				SetTexture( const TexturePtr& _xTexture );
 				const TexturePtr&	GetTexture() const { return m_xTexture; }
 
+				const glm::uvec2&	GetSize() const { return m_vSize; }
+
 				void				SetUV( const glm::vec2& _vUVMin, const glm::vec2& _vUVMax );
-				void				SetSpriteIndex( uint32_t _uXIndex, uint32_t _uYIndex, uint32_t _uMaxHorizontal, uint32_t _uMaxVertical );
+				void				SetSpriteIndex( const glm::uvec2& _vSpriteIndex, const glm::uvec2& _vSpriteSheetCount, const glm::uvec2& _vSpriteSize = { 1, 1 } );
 				const glm::vec2&	GetUVMin() const { return m_vUVMin; }
 				const glm::vec2&	GetUVMax() const { return m_vUVMax; }
 
@@ -23,6 +25,7 @@ namespace Plop
 
 	private:
 		TexturePtr		m_xTexture = nullptr;
+		glm::uvec2		m_vSize = glm::uvec2( 1 );
 		glm::vec2		m_vUVMin = glm::vec2( 0.f );
 		glm::vec2		m_vUVMax = glm::vec2( 1.f );
 		glm::vec4		m_vTint = glm::vec4( 1.f );

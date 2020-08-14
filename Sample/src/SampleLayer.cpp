@@ -158,7 +158,7 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	{
 		PROFILING_SCOPE("Drawing grass");
 		static int nb = 5;
-		ImGui::DragInt( "Grid", &nb, 0.1f, 0, 50 );
+		ImGui::DragInt( "Grid", &nb, 0.1f, 0, 50 ); Plop::Renderer2D::DrawQuadColor( glm::vec3( nb / 2.f - 0.5f, nb / 2.f - 0.5f, -0.1f ), glm::vec2( nb + 2.f ), glm::vec4( 1.f ) );
 		for (int i = 0; i < nb; ++i)
 		{
 			for (int j = 0; j < nb; ++j)
@@ -200,11 +200,12 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	if (playerSprite.GetTexture() == nullptr)
 	{
 		playerSprite.SetTexture( m_xSpritesheet );
-		playerSprite.SetSpriteIndex( 18, 1, 23, 13 );
+		playerSprite.SetSpriteIndex( { 18, 1 }, { 23, 13 } );
+		playerSprite.SetSpriteIndex( { 0, 0 }, { 23, 13 }, { 9, 1 } );
 	}
 	static float fAngle = 0.f;
 	ImGui::DragFloat( "Angle", &fAngle, 0.1f, -3.14f, 3.14f );
-	Plop::Renderer2D::DrawSprite( m_vPlayerPos, glm::vec2(1.f), playerSprite, fAngle);
+	Plop::Renderer2D::DrawSprite( m_vPlayerPos, playerSprite.GetSize(), playerSprite, fAngle);
 
 	if (Plop::Input::IsMouseLeftPressed())
 	{

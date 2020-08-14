@@ -1,6 +1,5 @@
-workspace "Plop"
+--workspace
 	architecture "x86_64"
-	startproject "Sample"
 
 	linkoptions
 	{
@@ -110,39 +109,3 @@ project "Plop"
 		"PLOP_BUILD",
 		"GLEW_STATIC"
 	}
-		
-project "Sample"
-	kind "ConsoleApp" -- WindowedApp
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
-	
-	location "%{prj.name}"
-	debugdir "./"
-	
-	files
-	{
-		"%{prj.location}/src/**.h",
-		"%{prj.location}/src/**.cpp"
-	}
-	
-	includedirs
-	{
-		"Plop/src/",
-		"%{prj.name}/src/",
-		"Externals/ImGui/",
-		"Externals/glm/",
-		"Externals/optick/include/"
-	}
-
-	libdirs
-	{
-		"Externals/optick/lib/x64/%{cfg.buildcfg}/"
-	}
-	
-	links
-	{
-		"Plop",
-		"OptickCore.lib"
-	}
-	

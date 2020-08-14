@@ -64,10 +64,6 @@ namespace Plop
 
 				case WM_CHAR:
 				{
-					char str[3] = "0\n";
-					str[0] = (char)wParam;
-					OutputDebugStringA(str);
-
 					for (VoidFuncCharVec::const_iterator it(m_oEventChar.begin()); it != m_oEventChar.end(); ++it)
 					{
 						(*it)((char)wParam);

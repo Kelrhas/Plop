@@ -130,6 +130,11 @@ void SampleLayer2D::OnRegistered()
 		m_xTowerMesh->m_xTex = Plop::Texture::Create2D("assets/textures/tower.png");
 		m_xTowerMesh->m_xTex->BindSlot( 1 );
 	}
+
+	if (m_xSpritesheet == nullptr)
+	{
+		m_xSpritesheet = Plop::Texture::Create2D( "assets/textures/tilesheet.png" );
+	}
 }
 
 void SampleLayer2D::OnUnregistered()
@@ -194,12 +199,12 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	static Plop::Sprite playerSprite;
 	if (playerSprite.GetTexture() == nullptr)
 	{
-		playerSprite.SetTexture( Plop::Texture::Create2D( "assets/textures/approval.png" ) );
-		playerSprite.SetUV( glm::vec2( 0.2f ), glm::vec2( 0.8f ) );
+		playerSprite.SetTexture( m_xSpritesheet );
+		playerSprite.SetSpriteIndex( 18, 1, 23, 13 );
 	}
 	static float fAngle = 0.f;
 	ImGui::DragFloat( "Angle", &fAngle, 0.1f, -3.14f, 3.14f );
-	Plop::Renderer2D::DrawSprite( m_vPlayerPos, glm::vec2(0.2f), playerSprite, fAngle);
+	Plop::Renderer2D::DrawSprite( m_vPlayerPos, glm::vec2(1.f), playerSprite, fAngle);
 
 	if (Plop::Input::IsMouseLeftPressed())
 	{

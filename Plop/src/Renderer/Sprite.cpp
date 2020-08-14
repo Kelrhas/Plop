@@ -16,6 +16,17 @@ namespace Plop
 		m_vUVMax.y = glm::clamp( std::max( _vUVMax.y, _vUVMax.y ), 0.f, 1.f );
 	}
 
+	void Sprite::SetSpriteIndex( uint32_t _uXIndex, uint32_t _uYIndex, uint32_t _uMaxHorizontal, uint32_t _uMaxVertical )
+	{
+		const float fWidth = 1.f / _uMaxHorizontal;
+		const float fHeight = 1.f / _uMaxVertical;
+
+		m_vUVMin.x = _uXIndex * fWidth;
+		m_vUVMin.y = _uYIndex * fHeight;
+		m_vUVMax.x = (_uXIndex + 1) * fWidth;
+		m_vUVMax.y = (_uYIndex + 1) * fHeight;
+	}
+
 	void Sprite::SetTint( const glm::vec4& _vTint )
 	{
 		m_vTint = _vTint;

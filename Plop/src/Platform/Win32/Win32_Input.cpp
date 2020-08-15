@@ -89,7 +89,7 @@ namespace Plop
 						m_vMousePixelPos = vMousePos;
 					else
 					{
-						glm::vec2 vViewportPos = vMousePos / Application::Get()->GetWindow().GetViewportSize();
+						glm::vec2 vViewportPos = vMousePos / (glm::vec2)Application::Get()->GetWindow().GetViewportSize();
 						glm::vec2 vDelta = vViewportPos - m_vMouseViewportPos;
 
 						for (MouseMoveCallbackVec::const_iterator it(m_oEventMouseMove.begin()); it != m_oEventMouseMove.end(); ++it)

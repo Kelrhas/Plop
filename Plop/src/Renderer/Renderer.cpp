@@ -1,6 +1,7 @@
 #include "Plop_pch.h"
 #include "Renderer.h"
 
+#include <Application.h>
 #include <Platform/OpenGL/OpenGL_Renderer.h>
 
 namespace Plop
@@ -77,6 +78,7 @@ namespace Plop
 	bool							Renderer2D::s_bRendering2D = false;
 	TexturePtr						Renderer2D::s_xWhiteTex = nullptr;
 	ShaderPtr						Renderer2D::s_xShader = nullptr;
+	FrameBufferPtr					Renderer2D::s_xFramebuffer = nullptr;
 	VertexArrayPtr					Renderer2D::s_xVertexArray = nullptr;
 	VertexBufferPtr					Renderer2D::s_xVertexBuffer = nullptr;
 	IndexBufferPtr					Renderer2D::s_xIndexBuffer = nullptr;
@@ -107,6 +109,9 @@ namespace Plop
 		s_xShader->SetUniformIntArray( "u_textures", textures, MAX_TEX_UNIT );
 		delete[] textures;
 
+		glm::uvec2 vViewportSize = Application::Get()->GetWindow().GetViewportSize();
+		s_xFramebuffer = FrameBuffer::Create( vViewportSize.x, vViewportSize.y );
+
 		s_xVertexArray = VertexArray::Create();
 		s_xVertexArray->Bind();
 
@@ -124,10 +129,14 @@ namespace Plop
 	void Renderer2D::NewFrame()
 	{
 		s_sceneData.frameStat.Reset();
+		s_xFramebuffer->Bind();
 	}
 
 	void Renderer2D::EndFrame()
 	{
+		s_xFramebuffer->Unbind();
+
+		Renderer::s_pAPI->DrawFrameBuffer( s_xFramebuffer );
 	}
 
 	void Renderer2D::PrepareScene( const OrthographicCamera& _camera )

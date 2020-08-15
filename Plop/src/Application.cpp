@@ -151,10 +151,12 @@ namespace Plop
 
 		m_timeStep.Advance();
 		RegisterAppLayer(&m_ImGuiLayer);
+		RegisterAppLayer(&m_EditorLayer );
 	}
 
 	void Application::Destroy()
 	{
+		UnregisterAppLayer(&m_EditorLayer );
 		UnregisterAppLayer(&m_ImGuiLayer);
 
 		EventDispatcher::UnregisterListener( this );
@@ -162,6 +164,11 @@ namespace Plop
 		EventDispatcher::Destroy();
 
 		PROFILING_SHUTDOWN();
+	}
+
+	void Application::Close()
+	{
+		m_bRunning = false;
 	}
 
 	void Application::Run()

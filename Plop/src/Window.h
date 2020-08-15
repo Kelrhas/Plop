@@ -39,7 +39,7 @@ namespace Plop
 		unsigned int		GetWidth() const { return m_config.uWidth; }
 		unsigned int		GetHeight() const { return m_config.uHeight; }
 		float				GetAspectRatio() const { return (float)m_config.uWidth / (float)m_config.uHeight; }
-
+		RenderContextPtr	GetRenderContext() const { return m_xRenderContext; }
 
 		static Window*		Create(WindowConfig& _config);
 

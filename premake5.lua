@@ -88,6 +88,7 @@ project "Plop"
 		"Externals/json/",
 		"Externals/glew/include",
 		"Externals/ImGui/",
+		"Externals/ImGui-premake/",
 		"Externals/glm/",
 		"Externals/stb/",
 		"Externals/optick/include/"
@@ -123,7 +124,7 @@ project "Sample"
 	files
 	{
 		"%{prj.location}/src/**.h",
-		"%{prj.location}/src/**.cpp"
+		"%{prj.location}/src/**.cpp",
 	}
 	
 	includedirs

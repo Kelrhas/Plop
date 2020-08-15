@@ -121,6 +121,11 @@ namespace Plop
 		wglDeleteContext(m_hGLRenderContext);
 	}
 
+	void OpenGLWin32_Context::SetCurrent()
+	{
+		VERIFY_NO_MSG( wglMakeCurrent( m_hDeviceContext, m_hGLRenderContext ) );
+	}
+
 	void OpenGLWin32_Context::SetVSync(bool _bEnabled)
 	{
 		if (_bEnabled)

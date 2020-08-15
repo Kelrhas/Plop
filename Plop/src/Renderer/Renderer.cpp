@@ -121,7 +121,6 @@ namespace Plop
 		s_sceneData.vecIndices.reserve( MAX_INDICES );
 	}
 
-
 	void Renderer2D::NewFrame()
 	{
 		s_sceneData.frameStat.Reset();
@@ -144,8 +143,6 @@ namespace Plop
 			DrawBatch();
 
 		s_bRendering2D = false;
-
-		Debug::Assert_GL();
 	}
 
 	void Renderer2D::DrawQuadColor(const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor)

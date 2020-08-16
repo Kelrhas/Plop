@@ -31,7 +31,7 @@ namespace Plop
 		{
 #ifndef _MASTER
 			if (_pMessage)
-				Plop::Log::Info( "TODO:%s", _pMessage );
+				Plop::Log::Info( "TODO:\t{}\n", _pMessage );
 			static bool bIgnore = false;
 			if (!bIgnore)
 				__debugbreak();

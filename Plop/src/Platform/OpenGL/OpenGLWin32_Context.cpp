@@ -30,7 +30,7 @@ namespace Plop
 		int  iWinPixelFormat = ChoosePixelFormat(m_hDeviceContext, &pfd);
 		if (iWinPixelFormat == 0)
 		{
-			Log::Error("ChoosePixelFormat failed!");
+			Log::Error("ChoosePixelFormat failed!\n");
 			return;
 		}
 
@@ -38,7 +38,7 @@ namespace Plop
 		BOOL bResult = SetPixelFormat(m_hDeviceContext, iWinPixelFormat, &pfd);
 		if (!bResult)
 		{
-			Log::Error("SetPixelFormat failed!");
+			Log::Error("SetPixelFormat failed!\n");
 			return;
 		}
 
@@ -49,7 +49,7 @@ namespace Plop
 		GLenum err = glewInit();
 		if (err != GLEW_OK)
 		{
-			Log::Error("glewInit failed!");
+			Log::Error("glewInit failed!\n");
 			return;
 		}
 
@@ -75,7 +75,7 @@ namespace Plop
 			wglChoosePixelFormatARB(m_hDeviceContext, pixelFormatAttribs, 0, 1, &iPixelFormat, &uNumFormats);
 			if (!uNumFormats)
 			{
-				Log::Error("wglChoosePixelFormatARB failed!");
+				Log::Error("wglChoosePixelFormatARB failed!\n");
 				return;
 			}
 
@@ -83,7 +83,7 @@ namespace Plop
 			DescribePixelFormat(m_hDeviceContext, iPixelFormat, sizeof(pfd), &pfd);
 			if (!SetPixelFormat(m_hDeviceContext, iPixelFormat, &pfd))
 			{
-				Log::Error("SetPixelFormat failed!");
+				Log::Error("SetPixelFormat failed!\n");
 				return;
 			}
 

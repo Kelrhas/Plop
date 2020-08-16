@@ -180,7 +180,7 @@ namespace Plop
 				GLchar* pLog = new GLchar[iMaxLength];
 				glGetShaderInfoLog(uShader, iMaxLength, &iMaxLength, &pLog[0]);
 
-				Log::Error("Shader failed to compile:\n%s", pLog);
+				Log::Error("Shader failed to compile:{}\n", pLog);
 
 				glDeleteShader(uShader);
 				break;

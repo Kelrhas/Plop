@@ -180,7 +180,7 @@ namespace Plop
 				GLchar* pLog = new GLchar[iMaxLength];
 				glGetShaderInfoLog(uShader, iMaxLength, &iMaxLength, &pLog[0]);
 
-				Log::Error("Shader failed to compile:{}\n", pLog);
+				Log::Error("Shader failed to compile: {}", pLog);
 
 				glDeleteShader(uShader);
 				break;
@@ -206,7 +206,7 @@ namespace Plop
 			GLchar* pLog = new GLchar[iMaxLength];
 			glGetProgramInfoLog(m_uProgram, iMaxLength, &iMaxLength, &pLog[0]);
 
-			Log::Error("Program did not link:\n%s", pLog);
+			Log::Error("Program did not link: {}", pLog);
 
 			for (GLuint uShader : vecShaders)
 				glDeleteShader(uShader);

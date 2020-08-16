@@ -39,9 +39,6 @@ namespace Plop
 		io.DisplaySize = ImVec2((float)Application::Get()->GetWindow().GetWidth(), (float)Application::Get()->GetWindow().GetHeight());
 		io.DeltaTime = 1.f / 60.f;
 
-		static bool b = true;
-		if (b)
-			ImGui::ShowDemoWindow(&b);
 	}
 
 	void ImGuiLayer::NewFrame()

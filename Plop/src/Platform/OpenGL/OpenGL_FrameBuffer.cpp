@@ -13,6 +13,8 @@ namespace Plop
 
 	OpenGL_FrameBuffer::~OpenGL_FrameBuffer()
 	{
+		glDeleteTextures( 1, &m_uColorBuffer );
+		glDeleteTextures( 1, &m_uDepthBuffer );
 		glDeleteFramebuffers( 1, &m_uID );
 	}
 	

@@ -4,6 +4,7 @@
 #include <imgui.h>
 
 #include <Application.h>
+#include <Editor/Console.h>
 
 namespace Plop
 {
@@ -50,6 +51,11 @@ namespace Plop
 
 		// we can draw editor windows here
 
+		if(m_bShowImGuiDemo)
+			ImGui::ShowDemoWindow( &m_bShowImGuiDemo );
+
+		// TODO set docking to bottom
+		Console::Draw();
 
 		ImGui::End();
 	}
@@ -64,12 +70,19 @@ namespace Plop
 	{
 		if (ImGui::BeginMenuBar())
 		{
-			if (ImGui::BeginMenu( "Docking" ))
+			if (ImGui::BeginMenu( "File" ))
 			{
 				if (ImGui::MenuItem( "Close" ))
 				{
 					Application::Get()->Close();
 				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu( "Help" ))
+			{
+				ImGui::MenuItem( "Show demo window", nullptr, &m_bShowImGuiDemo );
 
 				ImGui::EndMenu();
 			}

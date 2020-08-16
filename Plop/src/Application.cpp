@@ -107,7 +107,7 @@ namespace Plop
 			case EventType::WindowMoveEvent:
 			{
 				WindowMoveEvent& moveEvent = (WindowMoveEvent&)_event;
-				Log::Info("Window moved to {0} {1}\n", moveEvent.iNewPosX, moveEvent.iNewPosY);
+				Log::Info("Window moved to {0} {1}", moveEvent.iNewPosX, moveEvent.iNewPosY);
 			}
 			break;
 
@@ -124,12 +124,13 @@ namespace Plop
 
 	void Application::Init()
 	{
-		VERIFY(Log::Init(), "Log did not init properly\n");
+		VERIFY(Log::Init(), "Log did not init properly");
+		Console::Init();
 
 		PROFILING_INIT();
 
 
-		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized\n" );
+		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
 
 		s_pInstance = this;
 

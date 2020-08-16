@@ -12,8 +12,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <Windows.h>
-
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
 #include <fmt/format.h>

@@ -18,5 +18,8 @@ namespace Plop
 
 
 				void ShowMenuBar();
+
+	private:
+		bool		m_bShowImGuiDemo = false;
 	};
 }

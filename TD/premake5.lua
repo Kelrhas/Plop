@@ -12,6 +12,9 @@ project "TD"
 	location "./"
 	debugdir "../"
 	
+	pchheader "TD_pch.h"
+	pchsource "%{prj.location}/src/TD_pch.cpp"
+	
 	files
 	{
 		"%{prj.location}/src/**.h",

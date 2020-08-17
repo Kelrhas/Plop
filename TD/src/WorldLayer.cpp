@@ -1,3 +1,4 @@
+#include "TD_pch.h"
 #include "WorldLayer.h"
 
 #include <imgui.h>
@@ -15,18 +16,7 @@ void WorldLayer::OnRegistered()
 	Plop::EventDispatcher::RegisterListener(&m_CameraController);
 
 	m_CameraController.Init();
-
-	if (m_xSpritesheet == nullptr)
-	{
-		m_xSpritesheet = Plop::Texture::Create2D( "TD/assets/textures/tilesheet.png" );
-
-		m_grass.SetTexture( m_xSpritesheet );
-		m_grass.SetSpriteIndex( { 1, 11 }, { 23, 13 } );
-		m_dirt.SetTexture( m_xSpritesheet );
-		m_dirt.SetSpriteIndex( { 1, 8 }, { 23, 13 } );
-		m_water.SetTexture( m_xSpritesheet );
-		m_water.SetSpriteIndex( { 11, 11 }, { 23, 13 } );
-	}
+	m_Level.Init();
 }
 
 void WorldLayer::OnUnregistered()
@@ -42,21 +32,9 @@ void WorldLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 	Plop::Renderer::Clear();
 
-	Plop::Renderer2D::PrepareScene(m_CameraController.GetCamera());
+	Plop::Renderer2D::PrepareScene( m_CameraController.GetCamera() );
 
-	{
-		PROFILING_SCOPE( "Drawing world" );
-		static int nb = 5;
-		ImGui::DragInt( "Grid", &nb, 0.1f, 0, 50 );
-
-		for (int i = -nb; i < nb; ++i)
-		{
-			for (int j = -nb; j < nb; ++j)
-			{
-				Plop::Renderer2D::DrawSprite( { i, j }, { 1.f, 1.f }, (i*j % 3 == 0) ? m_grass : (i*j % 3 == 1) ? m_dirt : m_water );
-			}
-		}
-	}
+	m_Level.Draw();
 
 	Plop::Renderer2D::EndScene();
 }

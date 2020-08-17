@@ -7,6 +7,7 @@
 #include <Renderer/ParticleSystem.h>
 #include <Renderer/Sprite.h>
 
+#include <Level.h>
 
 //////////////////////////////////////////////////////////////////////////
 // WorldLayer
@@ -21,9 +22,6 @@ public:
 
 private:
 	Plop::Camera2DController	m_CameraController;
-	Plop::TexturePtr			m_xSpritesheet;
-	Plop::Sprite				m_grass;
-	Plop::Sprite				m_dirt;
-	Plop::Sprite				m_water;
+	Level						m_Level;
 };
 

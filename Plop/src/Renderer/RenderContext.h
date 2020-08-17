@@ -17,7 +17,10 @@ namespace Plop
 		virtual void Flush() = 0;
 		virtual void Destroy() = 0;
 
+		virtual void SetCurrent() = 0;
 		virtual void SetVSync(bool _bEnabled) = 0;
+
+		virtual void* GetNativeContext() const = 0;
 
 		static RenderContextPtr Create();
 

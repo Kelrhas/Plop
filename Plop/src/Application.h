@@ -5,6 +5,7 @@
 #include <Window.h>
 #include <ApplicationLayer.h>
 #include <Debug/ImGuiLayer.h>
+#include <Editor/EditorLayer.h>
 
 #include <Events/IEventListener.h>
 #include <TimeStep.h>
@@ -40,6 +41,7 @@ namespace Plop
 
 				void			Init();
 				void			Destroy();
+				void			Close(); // user asked
 
 				void			Run();
 
@@ -66,6 +68,7 @@ namespace Plop
 
 				std::vector<ApplicationLayer*> m_vecAppLayers;
 				ImGuiLayer		m_ImGuiLayer;
+				EditorLayer		m_EditorLayer;
 		static bool				_SortAppLayer(const ApplicationLayer* _pLayerA, const ApplicationLayer* _pLayerB)
 		{
 			return _pLayerA->GetPriority() < _pLayerB->GetPriority();

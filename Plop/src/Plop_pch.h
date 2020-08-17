@@ -12,7 +12,11 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <Windows.h>
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <fmt/format-inl.h>
+#include <fmt/color.h>
 
 #include <Constants.h>
 #include <Types.h>

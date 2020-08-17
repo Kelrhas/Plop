@@ -2,6 +2,7 @@
 
 #include <Renderer/Mesh.h>
 #include <Renderer/Sprite.h>
+#include <Renderer/FrameBuffer.h>
 #include <Camera/Camera.h>
 #include <Camera/OrthographicCamera.h>
 
@@ -30,6 +31,7 @@ namespace Plop
 		virtual void Resize(uint32_t _uWidth, uint32_t _uHeight) = 0;
 
 		virtual void DrawIndexed(const VertexArrayPtr& _xVertexArray) = 0;
+		virtual void DrawFrameBuffer( const FrameBufferPtr& _xFramebuffer ) = 0;
 		
 		
 		virtual int GetMaxTextureUnit() const = 0;
@@ -141,6 +143,7 @@ namespace Plop
 		static bool				s_bRendering2D;
 		static TexturePtr		s_xWhiteTex;
 		static ShaderPtr		s_xShader;
+		static FrameBufferPtr	s_xFramebuffer;
 		static VertexArrayPtr	s_xVertexArray;
 		static VertexBufferPtr	s_xVertexBuffer;
 		static IndexBufferPtr	s_xIndexBuffer;

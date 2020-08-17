@@ -35,11 +35,11 @@ namespace Plop
 
 		virtual void*		GetNativeWindow() const = 0;
 
-		glm::vec2			GetViewportSize() const { return glm::vec2(m_config.uWidth, m_config.uHeight); }
+		glm::uvec2			GetViewportSize() const { return glm::vec2(m_config.uWidth, m_config.uHeight); }
 		unsigned int		GetWidth() const { return m_config.uWidth; }
 		unsigned int		GetHeight() const { return m_config.uHeight; }
 		float				GetAspectRatio() const { return (float)m_config.uWidth / (float)m_config.uHeight; }
-
+		RenderContextPtr	GetRenderContext() const { return m_xRenderContext; }
 
 		static Window*		Create(WindowConfig& _config);
 

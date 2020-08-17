@@ -22,13 +22,6 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	PROFILING_FUNCTION();
 
-	if (ImGui::Begin("Sample window"))
-	{
-		ImGui::Text("Sample text");
-	}
-	ImGui::End();
-
-
 	static Plop::MeshPtr xMesh = nullptr;
 	static Plop::TexturePtr xTex = nullptr;
 	if (xMesh == nullptr)
@@ -148,6 +141,8 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 
 	m_CameraController.OnUpdate(_timeStep);
 
+	ImGui::Begin( "Sample window" );
+
 	Plop::Renderer2D::PrepareScene(m_CameraController.GetCamera());
 
 	static glm::vec2 vSize( 1.f );
@@ -226,4 +221,6 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	m_particles.Update( _timeStep );
 
 	Plop::Renderer2D::EndScene();
+
+	ImGui::End();
 }

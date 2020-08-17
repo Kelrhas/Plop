@@ -87,9 +87,11 @@ project "Plop"
 		"Externals/json/",
 		"Externals/glew/include",
 		"Externals/ImGui/",
+		"Externals/ImGui-premake/",
 		"Externals/glm/",
 		"Externals/stb/",
-		"Externals/optick/include/"
+		"Externals/optick/include/",
+		"Externals/fmt/include",
 	}
 	
 	libdirs

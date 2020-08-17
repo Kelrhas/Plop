@@ -168,7 +168,7 @@ namespace Plop
 		{
 			case GL_DEBUG_SEVERITY_HIGH:			str.append("\n\tSeverity: high");			Log::Error(str.c_str()); break;
 			case GL_DEBUG_SEVERITY_MEDIUM:			str.append("\n\tSeverity: medium");			Log::Warn(str.c_str()); break;
-			case GL_DEBUG_SEVERITY_LOW:				str.append("\n\tSeverity: low");			Log::Warn(str.c_str()); break;
+			case GL_DEBUG_SEVERITY_LOW:				str.append("\n\tSeverity: low");			Log::Info(str.c_str()); break;
 			//case GL_DEBUG_SEVERITY_NOTIFICATION:	str.append("\n\tSeverity: notification");	Log::Info(str.c_str()); break;
 		}
 	}
@@ -225,9 +225,9 @@ namespace Plop
 			return;
 
 
-		Log::Info(" GL Version %s", glGetString(GL_VERSION));
-		Log::Info(" GLSL Version %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-		Log::Info(" Renderer %s", glGetString(GL_RENDERER));
+		Log::Info(" GL Version {}", glGetString(GL_VERSION));
+		Log::Info(" GLSL Version {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
+		Log::Info(" Renderer {}", glGetString(GL_RENDERER));
 
 		glClearColor(0.15f, 0.15f, 0.15f, 0.0f);
 

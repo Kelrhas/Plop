@@ -90,12 +90,5 @@ namespace Plop
 					++iNbActive;
 			}
 		}
-
-
-		if (ImGui::Begin( "Particles" ))
-		{
-			ImGui::Text( "Nb active : %d", iNbActive );
-		}
-		ImGui::End();
 	}
 }

@@ -12,6 +12,7 @@ namespace Plop
 		virtual void Resize(uint32_t _uWidth, uint32_t _uHeight) override;
 
 		virtual void DrawIndexed(const VertexArrayPtr& _xVertexArray) override;
+		virtual void DrawFrameBuffer( const FrameBufferPtr& _xFramebuffer ) override;
 
 
 		virtual int GetMaxTextureUnit() const override;

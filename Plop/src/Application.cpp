@@ -107,7 +107,7 @@ namespace Plop
 			case EventType::WindowMoveEvent:
 			{
 				WindowMoveEvent& moveEvent = (WindowMoveEvent&)_event;
-				Log::Info("Window moved to %d %d", moveEvent.iNewPosX, moveEvent.iNewPosY);
+				Log::Info("Window moved to {0} {1}", moveEvent.iNewPosX, moveEvent.iNewPosY);
 			}
 			break;
 
@@ -125,6 +125,7 @@ namespace Plop
 	void Application::Init()
 	{
 		VERIFY(Log::Init(), "Log did not init properly");
+		Console::Init();
 
 		PROFILING_INIT();
 
@@ -151,10 +152,12 @@ namespace Plop
 
 		m_timeStep.Advance();
 		RegisterAppLayer(&m_ImGuiLayer);
+		RegisterAppLayer(&m_EditorLayer );
 	}
 
 	void Application::Destroy()
 	{
+		UnregisterAppLayer(&m_EditorLayer );
 		UnregisterAppLayer(&m_ImGuiLayer);
 
 		EventDispatcher::UnregisterListener( this );
@@ -162,6 +165,11 @@ namespace Plop
 		EventDispatcher::Destroy();
 
 		PROFILING_SHUTDOWN();
+	}
+
+	void Application::Close()
+	{
+		m_bRunning = false;
 	}
 
 	void Application::Run()

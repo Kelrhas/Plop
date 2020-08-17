@@ -1,8 +1,8 @@
 #include "Plop_pch.h"
 #include "ImGuiLayer.h"
 
-#include <examples/imgui_impl_opengl3.h>
-#include <examples/imgui_impl_win32.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_win32.h>
 
 #include <Application.h>
 #include <Imgui.h>
@@ -12,9 +12,17 @@ namespace Plop
 
 	void ImGuiLayer::OnRegistered()
 	{
+		ImGui_ImplWin32_EnableDpiAwareness();
+
+		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
 		ImGui::StyleColorsDark();
-		ImGui_ImplWin32_Init(Application::Get()->GetWindow().GetNativeWindow());
+		ImGui_ImplWin32_Init( Application::Get()->GetWindow().GetNativeWindow(), Application::Get()->GetWindow().GetRenderContext()->GetNativeContext ());
 		ImGui_ImplOpenGL3_Init();
 	}
 
@@ -31,9 +39,6 @@ namespace Plop
 		io.DisplaySize = ImVec2((float)Application::Get()->GetWindow().GetWidth(), (float)Application::Get()->GetWindow().GetHeight());
 		io.DeltaTime = 1.f / 60.f;
 
-		static bool b = true;
-		if (b)
-			ImGui::ShowDemoWindow(&b);
 	}
 
 	void ImGuiLayer::NewFrame()
@@ -51,5 +56,13 @@ namespace Plop
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			Application::Get()->GetWindow().GetRenderContext()->SetCurrent();
+		}
 	}
 }

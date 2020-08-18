@@ -25,7 +25,7 @@ namespace Plop
 				void Init();
 				void Shutdown();
 
-				Entity CreateEntity();
+				Entity CreateEntity( const String& _sName = "New Entity" );
 
 	private:
 		entt::registry	m_ENTTRegistry;

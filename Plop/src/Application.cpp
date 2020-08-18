@@ -107,7 +107,7 @@ namespace Plop
 			case EventType::WindowMoveEvent:
 			{
 				WindowMoveEvent& moveEvent = (WindowMoveEvent&)_event;
-				Log::Info("Window moved to {0} {1}", moveEvent.iNewPosX, moveEvent.iNewPosY);
+				//Log::Info("Window moved to {0} {1}", moveEvent.iNewPosX, moveEvent.iNewPosY);
 			}
 			break;
 

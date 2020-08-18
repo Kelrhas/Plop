@@ -1,29 +1,23 @@
 --workspace
 	architecture "x86_64"
 
-	linkoptions
-	{
+	linkoptions {
 		"/IGNORE:4099" -- for glew pdb
 	}
 	
-	configurations
-	{
+	configurations {
 		"Debug",
 		"Release",
 		"Master"
 	}
 	
-	flags
-	{
+	flags {
 		"MultiProcessorCompile",
 		"FatalWarnings",
 		"ShadowedVariables"
 	}
 
-	defines
-	{
-		"_CRT_SECURE_NO_WARNINGS"
-	}
+	defines { "_CRT_SECURE_NO_WARNINGS"	}
 
 	objdir "intermediate/%{prj.name}/"
 	targetdir "bin/"
@@ -33,8 +27,7 @@
 		runtime "Debug"
 		symbols "on"
 		targetsuffix "_d"
-		linkoptions
-		{
+		linkoptions {
 			"/NODEFAULTLIB:libcmt.lib",
 			"/NODEFAULTLIB:msvcrt.lib",
 			"/NODEFAULTLIB:msvcrtd.lib"
@@ -54,7 +47,10 @@
 		
 	filter "system:Windows"
 		systemversion "latest"
-		defines { "PLATFORM_WINDOWS" }
+		defines {
+			"PLATFORM_WINDOWS",
+			"NOMINMAX" -- removes the min and max macro to avoid conflict with std
+		}
 
 	characterset("MBCS") --Unicode
 
@@ -72,8 +68,7 @@ project "Plop"
 	pchheader "Plop_pch.h"
 	pchsource "%{prj.location}/src/Plop_pch.cpp"
 		
-	files
-	{
+	files {
 		"%{prj.location}/src/**.h",
 		"%{prj.location}/src/**.cpp",
 		"Externals/json/nlohmann_json.natvis",
@@ -81,8 +76,7 @@ project "Plop"
 		"Externals/stb/stb.cpp"
 	}
 	
-	includedirs
-	{
+	includedirs {
 		"%{prj.name}/src/",
 		"Externals/json/",
 		"Externals/glew/include",
@@ -91,23 +85,21 @@ project "Plop"
 		"Externals/glm/",
 		"Externals/stb/",
 		"Externals/optick/include/",
-		"Externals/fmt/include",
+		"Externals/fmt/include/",
+		"Externals/entt/",
 	}
 	
-	libdirs
-	{
+	libdirs {
 		"Externals/glew/lib/",
 	}
 
-	links
-	{
+	links {
 		"Externals/glew/lib/glew32s.lib",
 		"ImGui",
 		"opengl32.lib",
 	}
 		
-	defines
-	{
+	defines {
 		"PLOP_BUILD",
 		"GLEW_STATIC"
 	}

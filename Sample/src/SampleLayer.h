@@ -5,6 +5,7 @@
 #include <Camera/Camera2DController.h>
 #include <Renderer/Mesh.h>
 #include <Renderer/ParticleSystem.h>
+#include <ECS/Level.h>
 
 //////////////////////////////////////////////////////////////////////////
 // SampleLayer
@@ -39,5 +40,6 @@ private:
 	glm::vec2					m_vPlayerSpeed = glm::vec2( 0.f, 0.f );
 	Plop::ParticleSystem		m_particles;
 	Plop::TexturePtr			m_xSpritesheet;
+	Plop::LevelPtr				m_xLevel = nullptr;
 };
 

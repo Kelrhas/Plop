@@ -24,7 +24,9 @@ project "Sample"
 		"../Plop/src/",
 		"../Externals/ImGui/",
 		"../Externals/glm/",
-		"../Externals/optick/include/"
+		"../Externals/optick/include/",
+		"../Externals/fmt/include/",
+		"../Externals/entt/",
 	}
 
 	libdirs

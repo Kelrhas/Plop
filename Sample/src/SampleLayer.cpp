@@ -9,6 +9,7 @@
 #include <Input/Input.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
+#include <ECS/Entity.h>
 
 //////////////////////////////////////////////////////////////////////////
 // SampleLayer
@@ -86,6 +87,20 @@ void SampleLayer2D::OnRegistered()
 	Plop::EventDispatcher::RegisterListener(&m_CameraController);
 
 	m_CameraController.Init();
+	if (m_xLevel == nullptr)
+	{
+		m_xLevel = std::make_shared<Plop::Level>();
+		m_xLevel->Init();
+	}
+
+	Plop::Entity player( m_xLevel->CreateEntity() );
+	ASSERT( player, "Invalid entity" );
+	if (!player.HasComponent<glm::mat4>())
+	{
+		player.AddComponent<glm::mat4>();
+		player.GetComponent<glm::mat4>();
+		player.RemoveComponent<glm::mat4>();
+	}
 
 	if (m_xTowerMesh == nullptr)
 	{

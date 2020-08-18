@@ -1,6 +1,8 @@
 #include "Plop_pch.h"
 #include "Console.h"
 
+#include <Application.h>
+
 namespace Plop
 {
 	const uint32_t		COLOR_COMMAND = 0x008400FF;
@@ -16,6 +18,8 @@ namespace Plop
 		memset( s_pInputBuffer, 0, sizeof( s_pInputBuffer ) );
 
 		RegisterCommand( "Test", []( const String& _args ) { Console::AddOutput( "Command Test with args" ); } );
+		RegisterCommand( "Close", []( const String& _args ) { Application::Get()->Close(); } );
+		RegisterCommand( "Exit", []( const String& _args ) { Application::Get()->Close(); } );
 	}
 
 	void Console::AddOutput( const String& _str, uint32_t _uColorRGBA /*= 0xFFFFFFFF*/, LogEntry::Type _eType /*= LogEntry::Type::Info*/ )

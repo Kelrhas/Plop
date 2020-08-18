@@ -8,7 +8,7 @@ namespace Plop
 		, m_xLevel( _xLevel )
 	{}
 
-	Entity::Entity( Entity&& _other )
+	Entity::Entity( Entity&& _other ) noexcept
 	{
 		m_EntityId = _other.m_EntityId;
 		m_xLevel = _other.m_xLevel;
@@ -21,7 +21,7 @@ namespace Plop
 
 	Entity::operator bool() const
 	{
-		if (m_xLevel.expired())
+		if (m_EntityId == entt::null || m_xLevel.expired() )
 			return false;
 
 		return m_xLevel.lock()->m_ENTTRegistry.valid( m_EntityId );

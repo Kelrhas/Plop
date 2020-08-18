@@ -14,7 +14,7 @@ namespace Plop
 		Entity() = default;
 		Entity( entt::entity _entityID, const LevelWeakPtr& _xLevel );
 		Entity( const Entity& _other ) = delete;
-		Entity( Entity&& _other );
+		Entity( Entity&& _other ) noexcept;
 
 		operator bool() const;
 

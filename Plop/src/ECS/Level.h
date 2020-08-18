@@ -1,8 +1,8 @@
 #pragma once
 
+#pragma warning(disable:4307) // https://github.com/skypjack/entt/issues/121
 #include <entt.hpp>
 
-//#include <ECS/Entity.h>
 
 namespace Plop
 {
@@ -12,6 +12,9 @@ namespace Plop
 	using LevelPtr = std::shared_ptr<Level>;
 	using LevelWeakPtr = std::weak_ptr<Level>;
 
+	/**
+	 * Hold entities
+	 */
 	class Level : public std::enable_shared_from_this<Level>
 	{
 		friend class Entity;

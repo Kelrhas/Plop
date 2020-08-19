@@ -97,7 +97,6 @@ void SampleLayer2D::OnRegistered()
 	{
 		m_PlayerEntity = m_xLevel->CreateEntity();
 		ASSERT( m_PlayerEntity, "Invalid entity" );
-		m_PlayerEntity.AddComponent<glm::mat4>();
 	}
 
 	if (m_xTowerMesh == nullptr)
@@ -159,13 +158,6 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	PROFILING_FUNCTION();
 
 	m_CameraController.OnUpdate(_timeStep);
-
-
-
-	if (m_PlayerEntity)
-	{
-		m_PlayerEntity.ImGuiDraw();
-	}
 
 	ImGui::Begin( "Sample window" );
 

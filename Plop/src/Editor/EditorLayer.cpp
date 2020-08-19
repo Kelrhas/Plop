@@ -2,15 +2,26 @@
 #include "EditorLayer.h"
 
 #include <imgui.h>
+#include <imgui_entt_entity_editor.hpp>
+
 
 #include <Application.h>
 #include <Editor/Console.h>
+#include <ECS/BaseComponents.h>
+#include <ECS/Entity.h>
+#include <ECS/Level.h>
 
 namespace Plop
 {
+	::MM::EntityEditor<entt::entity> ENTTEditor;
+
+#define REGISTER_COMPONENT(comp) ENTTEditor.registerComponent<comp##Component>( #comp )
+
 	void EditorLayer::OnRegistered()
 	{
-
+		REGISTER_COMPONENT( Name );
+		REGISTER_COMPONENT( Transform );
+		REGISTER_COMPONENT( SpriteRenderer );
 	}
 
 	void EditorLayer::OnUnregistered()
@@ -56,6 +67,16 @@ namespace Plop
 
 		// TODO set docking to bottom
 		Console::Draw();
+
+		if (!Level::s_xCurrentLevel.expired())
+		{
+			LevelPtr xLevel = Level::s_xCurrentLevel.lock();
+
+			xLevel->m_ENTTRegistry.each( [this, &xLevel]( auto entity )
+			{
+				ENTTEditor.render( xLevel->m_ENTTRegistry, entity );
+			} );
+		}
 
 		ImGui::End();
 	}

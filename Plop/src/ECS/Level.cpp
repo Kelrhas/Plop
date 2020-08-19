@@ -6,12 +6,15 @@
 
 namespace Plop
 {
+	LevelWeakPtr Level::s_xCurrentLevel;
+
 	Level::~Level()
 	{
 	}
 
 	void Level::Init()
 	{
+		s_xCurrentLevel = weak_from_this();
 	}
 
 	void Level::Shutdown()
@@ -24,7 +27,7 @@ namespace Plop
 		Entity e = { entityID, weak_from_this() };
 
 		e.AddComponent<NameComponent>( _sName );
-		e.AddComponent<TransfomComponent>();
+		e.AddComponent<TransformComponent>();
 
 		return e;
 	}

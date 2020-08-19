@@ -25,6 +25,7 @@ namespace Plop
 
 				void				SetTint( const glm::vec4& _vTint );
 				const glm::vec4&	GetTint() const { return m_vTint; }
+				glm::vec4&			GetTint() { return m_vTint; }
 
 	private:
 		TexturePtr		m_xTexture = nullptr;

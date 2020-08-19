@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 
+#pragma warning(disable:4307) // https://github.com/skypjack/entt/issues/121
 #include <entt.hpp>
 #include <imgui.h>
 

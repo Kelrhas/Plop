@@ -18,6 +18,7 @@ namespace Plop
 	class Level : public std::enable_shared_from_this<Level>
 	{
 		friend class Entity;
+		friend class EditorLayer;
 	public:
 		Level() = default;
 		virtual ~Level();
@@ -27,7 +28,10 @@ namespace Plop
 
 				Entity CreateEntity( const String& _sName = "New Entity" );
 
+
 	private:
 		entt::registry	m_ENTTRegistry;
+
+		static LevelWeakPtr s_xCurrentLevel;
 	};
 }

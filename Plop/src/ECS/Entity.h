@@ -17,6 +17,7 @@ namespace Plop
 		Entity( Entity&& _other ) noexcept;
 
 		operator bool() const;
+		Entity& operator =( const Entity& _other );
 
 
 		template <class Comp, typename ...Args>
@@ -49,6 +50,9 @@ namespace Plop
 			ASSERT( HasComponent<Comp>(), "Entity does not have this component" );
 			return m_xLevel.lock()->m_ENTTRegistry.get<Comp>( m_EntityId );
 		}
+
+
+		void ImGuiDraw();
 
 	private:
 		entt::entity	m_EntityId{ entt::null };

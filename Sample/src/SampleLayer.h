@@ -6,6 +6,7 @@
 #include <Renderer/Mesh.h>
 #include <Renderer/ParticleSystem.h>
 #include <ECS/Level.h>
+#include <ECS/Entity.h>
 
 //////////////////////////////////////////////////////////////////////////
 // SampleLayer
@@ -36,6 +37,7 @@ public:
 private:
 	Plop::Camera2DController	m_CameraController;
 	Plop::MeshPtr				m_xTowerMesh = nullptr;
+	Plop::Entity				m_PlayerEntity;
 	glm::vec2					m_vPlayerPos = glm::vec2( 0.f, 0.f );
 	glm::vec2					m_vPlayerSpeed = glm::vec2( 0.f, 0.f );
 	Plop::ParticleSystem		m_particles;

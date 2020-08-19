@@ -27,6 +27,7 @@ project "Sample"
 		"../Externals/optick/include/",
 		"../Externals/fmt/include/",
 		"../Externals/entt/",
+		"../Externals/imgui_entt_entity_editor/",
 	}
 
 	libdirs

@@ -29,9 +29,18 @@ namespace Plop
 				Entity CreateEntity( const String& _sName = "New Entity" );
 
 
+				entt::registry& GetEntityRegistry() { return m_ENTTRegistry; }
+				const entt::registry& GetEntityRegistry() const { return m_ENTTRegistry; }
+
+
+		static LevelWeakPtr GetCurrentLevel() { return s_xCurrentLevel; }
+
+
+	protected:
+		static LevelWeakPtr s_xCurrentLevel;
+
 	private:
 		entt::registry	m_ENTTRegistry;
 
-		static LevelWeakPtr s_xCurrentLevel;
 	};
 }

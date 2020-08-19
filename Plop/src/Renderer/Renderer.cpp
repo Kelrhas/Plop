@@ -3,6 +3,8 @@
 
 #include <Application.h>
 #include <Platform/OpenGL/OpenGL_Renderer.h>
+#include <ECS/BaseComponents.h>
+#include <ECS/Level.h>
 
 namespace Plop
 {
@@ -148,6 +150,26 @@ namespace Plop
 
 	void Renderer2D::EndScene()
 	{
+		// TODO: maybe find an other place to call these
+		LevelWeakPtr xLevelWeak = Level::GetCurrentLevel();
+		if (!xLevelWeak.expired())
+		{
+			LevelPtr xLevel = xLevelWeak.lock();
+
+			auto& reg = xLevel->GetEntityRegistry();
+			auto& view = reg.view<TransformComponent, SpriteRendererComponent>();
+			for (auto entity : view)
+			{
+				SpriteRendererComponent& renderer = view.get<SpriteRendererComponent>( entity );
+				if (!renderer.xSprite)
+					continue;
+
+				TransformComponent& transform = view.get<TransformComponent>( entity );
+
+				Renderer2D::DrawSprite( *renderer.xSprite, transform.mTransform );
+			}
+		}
+
 		if (s_sceneData.uNbQuad > 0)
 			DrawBatch();
 
@@ -388,19 +410,30 @@ namespace Plop
 		++s_sceneData.uNbQuad;
 	}
 
-	void Renderer2D::DrawSprite( const glm::vec2& _vPos, const glm::vec2& _vSize, const Sprite& _sprite, float _fAngleRad /* = 0.f */ )
+	void Renderer2D::DrawSprite( const Sprite& _sprite, const glm::vec2& _vPos, const glm::vec2& _vSize /*= glm::vec2( 1.f )*/, float _fAngleRad /*= 0.f*/ )
+	{
+
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
+		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
+		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+
+		DrawSprite( _sprite, mTransform );
+	}
+
+	void Renderer2D::DrawSprite( const Sprite& _sprite, const glm::mat4& _mTransform )
 	{
 		PROFILING_FUNCTION();
 
 		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+		ASSERT( _sprite.GetTexture() != nullptr, "Sprite does not have a texture binded" );
+		if (!_sprite.GetTexture())
+			return;
 
+
+		glm::mat4 mTransform = glm::scale( _mTransform, glm::vec3( _sprite.GetSize(), 1.f ) );
 
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
 			DrawBatch();
-
-		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
-		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
-		glm::vec2 vHalfSize( _vSize / 2.f );
 
 		Vertex v;
 		v.vColor = _sprite.GetTint();;
@@ -421,19 +454,19 @@ namespace Plop
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
-		v.vPosition = glm::vec3( -vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( -0.5f, -0.5f, 0.f );
 		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV = _sprite.GetUVMin();
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( vHalfSize.x, -vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( 0.5f, -0.5f, 0.f );
 		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.x = _sprite.GetUVMax().x;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( 0.5f, 0.5f, 0.f );
 		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV = _sprite.GetUVMax();
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( -vHalfSize.x, vHalfSize.y, 0.f );
+		v.vPosition = glm::vec3( -0.5f, 0.5f, 0.f );
 		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
 		v.vUV.x = _sprite.GetUVMin().x;
 		s_sceneData.vecVertices.push_back( v );

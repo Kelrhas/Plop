@@ -9,6 +9,7 @@
 #include <Input/Input.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
+#include <ECS/BaseComponents.h>
 
 //////////////////////////////////////////////////////////////////////////
 // SampleLayer
@@ -93,10 +94,25 @@ void SampleLayer2D::OnRegistered()
 		m_xLevel->Init();
 	}
 
+
+	if (m_xSpritesheet == nullptr)
+	{
+		m_xSpritesheet = Plop::Texture::Create2D( "assets/textures/tilesheet.png" );
+	}
+
 	if (!m_PlayerEntity)
 	{
 		m_PlayerEntity = m_xLevel->CreateEntity();
 		ASSERT( m_PlayerEntity, "Invalid entity" );
+
+		Plop::SpriteRendererComponent& renderer = m_PlayerEntity.AddComponent<Plop::SpriteRendererComponent>();
+
+		renderer.xSprite = std::make_shared<Plop::Sprite>();
+		renderer.xSprite->SetTexture( m_xSpritesheet );
+		renderer.xSprite->SetSpriteIndex( { 18, 1 }, { 23, 13 } );
+		renderer.xSprite->SetSpriteIndex( { 0, 0 }, { 23, 13 }, { 9, 1 } );
+
+		static float fAngle = 0.f;
 	}
 
 	if (m_xTowerMesh == nullptr)
@@ -134,11 +150,6 @@ void SampleLayer2D::OnRegistered()
 
 		m_xTowerMesh->m_xTex = Plop::Texture::Create2D("assets/textures/tower.png");
 		m_xTowerMesh->m_xTex->BindSlot( 1 );
-	}
-
-	if (m_xSpritesheet == nullptr)
-	{
-		m_xSpritesheet = Plop::Texture::Create2D( "assets/textures/tilesheet.png" );
 	}
 }
 
@@ -183,6 +194,11 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 			}
 		}
 	}
+
+
+	Plop::SpriteRendererComponent& renderer = m_PlayerEntity.GetComponent<Plop::SpriteRendererComponent>();
+	Plop::Renderer2D::DrawSprite( *renderer.xSprite, m_vPlayerPos );
+
 	static float fPlayerSpeed = 0.1f;
 	ImGui::DragFloat( "Speed", &fPlayerSpeed, 0.1f, 0.f, 0.3f );
 	if (ImGui::Button( "Reset" ))
@@ -208,17 +224,6 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 		m_vPlayerSpeed = glm::vec2( 0.f );
 
 	m_vPlayerPos += m_vPlayerSpeed;
-
-	static Plop::Sprite playerSprite;
-	if (playerSprite.GetTexture() == nullptr)
-	{
-		playerSprite.SetTexture( m_xSpritesheet );
-		playerSprite.SetSpriteIndex( { 18, 1 }, { 23, 13 } );
-		playerSprite.SetSpriteIndex( { 0, 0 }, { 23, 13 }, { 9, 1 } );
-	}
-	static float fAngle = 0.f;
-	ImGui::DragFloat( "Angle", &fAngle, 0.1f, -3.14f, 3.14f );
-	Plop::Renderer2D::DrawSprite( m_vPlayerPos, playerSprite.GetSize(), playerSprite, fAngle);
 
 	if (Plop::Input::IsMouseLeftPressed())
 	{

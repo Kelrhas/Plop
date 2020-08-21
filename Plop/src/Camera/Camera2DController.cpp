@@ -24,14 +24,14 @@ namespace Plop
 	{
 		float fSpeed = m_fZoomLevel;
 
-		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Left))
+		/*if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Left))
 			m_camera.Translate(-VEC3_RIGHT * _timeStep.GetGameDeltaTime() * fSpeed );
 		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Right))
 			m_camera.Translate(VEC3_RIGHT * _timeStep.GetGameDeltaTime() * fSpeed );
 		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Up))
 			m_camera.Translate(VEC3_UP * _timeStep.GetGameDeltaTime() * fSpeed );
 		if (Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Down))
-			m_camera.Translate(-VEC3_UP * _timeStep.GetGameDeltaTime() * fSpeed );
+			m_camera.Translate(-VEC3_UP * _timeStep.GetGameDeltaTime() * fSpeed );*/
 	}
 
 	bool Camera2DController::OnMouseWheel(float _fWheel)
@@ -46,6 +46,6 @@ namespace Plop
 	void Camera2DController::SetSize()
 	{
 		float fAspectRatio = Application::Get()->GetWindow().GetAspectRatio();
-		m_camera.SetOrtho(-m_fZoomLevel * fAspectRatio, m_fZoomLevel * fAspectRatio, -m_fZoomLevel, m_fZoomLevel);
+		m_camera.SetOrthographicSize( m_fZoomLevel );
 	}
 }

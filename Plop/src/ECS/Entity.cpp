@@ -35,4 +35,9 @@ namespace Plop
 
 		return *this;
 	}
+
+	bool Entity::operator==( const Entity& _other )
+	{
+		return m_EntityId == _other.m_EntityId;
+	}
 }

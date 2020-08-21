@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/Sprite.h>
+#include <Camera/Camera.h>
 
 #include <imgui_entt_entity_editor.hpp>
 
@@ -29,12 +30,19 @@ namespace Plop
 
 		operator glm::mat4() const { return mTransform; }
 
+		glm::vec3 GetPosition() { return mTransform[3]; }
+
 		glm::mat4 mTransform = glm::identity<glm::mat4>();
 	};
 
 	struct SpriteRendererComponent
 	{
 		SpritePtr xSprite = nullptr;
+	};
+
+	struct CameraComponent
+	{
+		CameraPtr xCamera = nullptr;
 	};
 }
 
@@ -48,4 +56,7 @@ namespace MM
 
 	template <>
 	void ComponentEditorWidget<Plop::SpriteRendererComponent>( entt::registry& reg, entt::registry::entity_type e );
+
+	template <>
+	void ComponentEditorWidget<Plop::CameraComponent>( entt::registry& reg, entt::registry::entity_type e );
 }

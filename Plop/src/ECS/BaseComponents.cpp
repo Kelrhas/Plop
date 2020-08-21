@@ -3,6 +3,11 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+namespace Plop
+{
+
+}
+
 namespace MM
 {
 	template <>
@@ -30,6 +35,55 @@ namespace MM
 		{
 			ImGui::DragFloat4( "Tint", glm::value_ptr( comp.xSprite->GetTint() ), 0.1f );
 		}
-		ImGui::Text( "Invalid Sprite" );;
+		else
+		{
+			ImGui::Text( "Invalid Sprite" );
+		}
+	}
+
+	template <>
+	void ComponentEditorWidget<Plop::CameraComponent>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::CameraComponent>( e );
+		if (comp.xCamera)
+		{
+			bool bOrtho = comp.xCamera->IsOrthographic();
+			if (ImGui::Checkbox( "Orthographic", &bOrtho ))
+			{
+				if (bOrtho)
+					comp.xCamera->SetOrthographic();
+				else
+					comp.xCamera->SetPerspective();
+			}
+
+			if (bOrtho)
+			{
+				float fOrthoSize = comp.xCamera->GetOrthographicSize();
+				if (ImGui::DragFloat( "Size", &fOrthoSize, 0.1f, 0.f, FLT_MAX ))
+					comp.xCamera->SetOrthographicSize( fOrthoSize );
+			}
+			else
+			{
+				float fFOV = comp.xCamera->GetPerspectiveFOV();
+				if (ImGui::DragFloat( "FOV (°)", &fFOV, 0.1f, 10, 170 ))
+					comp.xCamera->SetPerspectiveFOV( glm::radians( fFOV ) );
+			}
+		}
+		else
+		{
+			if (ImGui::Button( "Create orthographic" ))
+			{
+				comp.xCamera = std::make_shared<Plop::Camera>();
+				comp.xCamera->SetOrthographic();
+				comp.xCamera->Init();
+			}
+
+			if (ImGui::Button( "Create perspective" ))
+			{
+				comp.xCamera = std::make_shared<Plop::Camera>();
+				comp.xCamera->SetPerspective();
+				comp.xCamera->Init();
+			}
+		}
 	}
 }

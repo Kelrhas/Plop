@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Events/IEventListener.h>
-#include <Camera/OrthographicCamera.h>
+#include <Camera/Camera.h>
 #include <TimeStep.h>
 
 namespace Plop
@@ -19,14 +19,14 @@ namespace Plop
 
 
 
-				OrthographicCamera& GetCamera() { return m_camera; }
-				const OrthographicCamera& GetCamera() const { return m_camera; }
+				Camera& GetCamera() { return m_camera; }
+				const Camera& GetCamera() const { return m_camera; }
 
 	private:
 				void SetSize();
 
 
 		float m_fZoomLevel = 1.f;
-		OrthographicCamera m_camera;
+		Camera m_camera;
 	};
 }

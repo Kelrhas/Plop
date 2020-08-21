@@ -1,15 +1,14 @@
 #include "Plop_pch.h"
 #include "Camera.h"
 
+#include <Application.h>
+
 namespace Plop
 {
 
 	Camera::Camera()
 	{
-		m_vPosition = glm::vec3(0.f, 0.f, 0.f);
-		m_qRotation = glm::identity<glm::quat>();
 
-		UpdateViewMatrix();
 	}
 
 	Camera::~Camera()
@@ -19,77 +18,63 @@ namespace Plop
 
 	bool Camera::Init()
 	{
+		SetAspectRatio( Application::Get()->GetWindow().GetAspectRatio() );
 		return true;
 	}
 
-	void Camera::Update()
+	void Camera::SetAspectRatio( float _fAspectRatio )
 	{
-
+		m_fAspectRatio = _fAspectRatio;
+		UpdateProjectionMatrix();
 	}
 
-	void Camera::UpdateViewMatrix()
+	void Camera::SetOrthographic()
 	{
-		glm::mat4 mTransform = glm::translate(glm::identity<glm::mat4>(), m_vPosition) * glm::mat4_cast(m_qRotation);
-
-		m_mViewMatrix = glm::inverse(mTransform);
-		m_mViewProjectionMatrix = m_mProjectionMatrix * m_mViewMatrix;
+		if (!m_bIsOrtho)
+		{
+			m_bIsOrtho = true;
+			UpdateProjectionMatrix();
+		}
 	}
 
-	void Camera::SetPosition(glm::vec3 _vPos)
+	void Camera::SetOrthographicSize( float _fSize )
 	{
-		m_vPosition = _vPos;
+		m_bIsOrtho = true;
+		m_fOrthoSize = _fSize;
+		UpdateProjectionMatrix();
 	}
 
-	void Camera::Translate(glm::vec3 _vTranslate)
+	void Camera::SetPerspective()
 	{
-		m_vPosition += _vTranslate;
-		UpdateViewMatrix();
+		if (!m_bIsOrtho)
+		{
+			m_bIsOrtho = false;
+			UpdateProjectionMatrix();
+		}
 	}
 
-	void Camera::Rotate(glm::vec3 vAxis, float fAngle)
+	void Camera::SetPerspectiveFOV( float _fFOV )
 	{
-		m_qRotation = glm::rotate(m_qRotation, fAngle, vAxis);
-
-		UpdateViewMatrix();
+		m_bIsOrtho = false;
+		m_fPersFOV = _fFOV;
+		UpdateProjectionMatrix();
 	}
 
-	void Camera::LookAt(glm::vec3 _vPos, glm::vec3 _vTarget, glm::vec3 _vUp)
+	void Camera::UpdateProjectionMatrix()
 	{
-		glm::vec3 vDir = _vTarget - _vPos;
-		m_vPosition = _vPos;
-		m_qRotation = glm::quatLookAt(vDir , _vUp);
-		m_qRotation = glm::normalize(m_qRotation);
+		if (m_bIsOrtho)
+		{
+			float fLeft = m_fOrthoSize * m_fAspectRatio * -0.5f;
+			float fRight = m_fOrthoSize * m_fAspectRatio * 0.5f;
+			float fBottom = m_fOrthoSize * -0.5f;
+			float fTop = m_fOrthoSize * 0.5f;
 
-		UpdateViewMatrix();
+			m_mProjectionMatrix = glm::ortho( fLeft, fRight, fBottom, fTop, m_fNear, m_fFar );
+		}
+		else
+		{
+			Debug::TODO("Check this");
+			m_mProjectionMatrix = glm::perspective( m_fPersFOV, m_fAspectRatio, m_fNear, m_fFar );
+		}
 	}
-
-	const glm::vec3& Camera::GetPosition() const
-	{
-		return m_vPosition;
-	}
-
-	glm::vec3 Camera::GetDirection() const
-	{
-		glm::mat4 mT = glm::transpose(m_mViewMatrix);
-		glm::vec3 vDir = -mT[2];
-
-		return vDir;
-	}
-
-	glm::vec3 Camera::GetRight() const
-	{
-		glm::mat4 mT = glm::transpose(m_mViewMatrix);
-		glm::vec3 vRight = mT[0];
-
-		return vRight;
-	}
-
-	glm::vec3 Camera::GetUp() const
-	{
-		glm::mat4 mT = glm::transpose(m_mViewMatrix);
-		glm::vec3 vUp = mT[1];
-
-		return vUp;
-	}
-
 }

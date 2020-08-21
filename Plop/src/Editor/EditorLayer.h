@@ -2,6 +2,7 @@
 
 #include <ApplicationLayer.h>
 #include <Events/IEventListener.h>
+#include <ECS/Entity.h>
 
 namespace Plop
 {
@@ -21,5 +22,6 @@ namespace Plop
 
 	private:
 		bool		m_bShowImGuiDemo = false;
+		Entity		m_SelectedEntity;
 	};
 }

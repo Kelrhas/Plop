@@ -4,6 +4,9 @@
 
 namespace Plop
 {
+	class Camera;
+	using CameraPtr = std::shared_ptr<Camera>;
+
 	class Camera
 	{
 	public:
@@ -11,36 +14,34 @@ namespace Plop
 		virtual ~Camera();
 
 		virtual bool				Init();
-		virtual void				Update();
+		virtual void				Update() {}
 
-		//virtual	const float			GetNearPlane() const = 0;
-		//virtual	const float			GetFarPlane() const = 0;
-		//virtual Frustum				GetFrustum() const = 0;
-
-		const glm::vec3&			GetPosition() const;
-		const glm::mat4&			GetViewMatrix() const { return m_mViewMatrix; }
 		const glm::mat4&			GetProjectionMatrix() const { return m_mProjectionMatrix; }
-		const glm::mat4&			GetViewProjectionMatrix() const { return m_mViewProjectionMatrix; }
 
-				void				SetPosition(glm::vec3 _vPos);
-				void				Translate(glm::vec3 _vTranslate);
-				void				Rotate(glm::vec3 _vAxis, float _fAngle);
-				void				LookAt(glm::vec3 _vPos, glm::vec3 _vTarget, glm::vec3 _vUp);
+				void				SetAspectRatio(float _fAspectRatio);
 
-				glm::vec3			GetDirection() const;
-				glm::vec3			GetRight() const;
-				glm::vec3			GetUp() const;
+				void				SetOrthographic();
+				bool				IsOrthographic() const { return m_bIsOrtho; }
+				void				SetOrthographicSize(float _fSize);
+				float				GetOrthographicSize() const { return m_fOrthoSize; }
+
+				void				SetPerspective();
+				bool				IsPerspective() const { return !m_bIsOrtho; }
+				void				SetPerspectiveFOV( float _fFOV );
+				float				GetPerspectiveFOV() const { return m_fPersFOV; }
 
 	protected:
+		virtual void				UpdateProjectionMatrix();
 
-
-		virtual void				UpdateProjectionMatrix() = 0;
-				void				UpdateViewMatrix();
-
-				glm::vec3			m_vPosition;
-				glm::quat			m_qRotation;
-				glm::mat4			m_mViewMatrix;
 				glm::mat4			m_mProjectionMatrix;
-				glm::mat4			m_mViewProjectionMatrix;
+
+				float				m_fAspectRatio = 1.f;
+				float				m_fNear = -1.f;
+				float				m_fFar = 1.f;
+				bool				m_bIsOrtho = true;
+
+				float				m_fOrthoSize = 10.f;
+
+				float				m_fPersFOV = glm::radians( 65.f );
 	};
 }

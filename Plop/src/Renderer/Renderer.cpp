@@ -37,9 +37,9 @@ namespace Plop
 		s_pAPI->Resize(_uWidth, _uHeight);
 	}
 
-	void Renderer::PrepareScene(const Camera& _camera )
+	void Renderer::PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix )
 	{
-		s_SceneData.mVPMatrix = _camera.GetViewProjectionMatrix();
+		s_SceneData.mVPMatrix = _mProjectionMatrix * _mViewMatrix;
 	}
 
 	void Renderer::EndScene()
@@ -141,35 +141,16 @@ namespace Plop
 		Renderer::s_pAPI->DrawFrameBuffer( s_xFramebuffer );
 	}
 
-	void Renderer2D::PrepareScene( const OrthographicCamera& _camera )
+	void Renderer2D::PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix )
 	{
 		s_bRendering2D = true;
 		s_xShader->Bind();
-		s_xShader->SetUniformMat4( "u_mViewProjection", _camera.GetViewProjectionMatrix() );
+		glm::mat4 mProjView = _mProjectionMatrix * _mViewMatrix;
+		s_xShader->SetUniformMat4( "u_mViewProjection", mProjView );
 	}
 
 	void Renderer2D::EndScene()
 	{
-		// TODO: maybe find an other place to call these
-		LevelWeakPtr xLevelWeak = Level::GetCurrentLevel();
-		if (!xLevelWeak.expired())
-		{
-			LevelPtr xLevel = xLevelWeak.lock();
-
-			auto& reg = xLevel->GetEntityRegistry();
-			auto& view = reg.view<TransformComponent, SpriteRendererComponent>();
-			for (auto entity : view)
-			{
-				SpriteRendererComponent& renderer = view.get<SpriteRendererComponent>( entity );
-				if (!renderer.xSprite)
-					continue;
-
-				TransformComponent& transform = view.get<TransformComponent>( entity );
-
-				Renderer2D::DrawSprite( *renderer.xSprite, transform.mTransform );
-			}
-		}
-
 		if (s_sceneData.uNbQuad > 0)
 			DrawBatch();
 

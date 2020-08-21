@@ -8,8 +8,10 @@
 
 namespace Plop
 {
+	class EditorLayer;
 	class Entity
 	{
+		friend class EditorLayer;
 	public:
 
 		Entity() = default;
@@ -19,6 +21,7 @@ namespace Plop
 
 		operator bool() const;
 		Entity& operator =( const Entity& _other );
+		bool operator ==( const Entity& _other );
 
 
 		template <class Comp, typename ...Args>

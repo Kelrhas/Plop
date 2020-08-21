@@ -4,7 +4,6 @@
 #include <Renderer/Sprite.h>
 #include <Renderer/FrameBuffer.h>
 #include <Camera/Camera.h>
-#include <Camera/OrthographicCamera.h>
 
 namespace Plop
 {
@@ -58,7 +57,7 @@ namespace Plop
 
 		static void				OnResize(uint32_t _uWidth, uint32_t _uHeight);
 
-		static void				PrepareScene(const Camera& _Camera);
+		static void				PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix );
 		static void				EndScene();
 
 		static void				Clear();
@@ -122,7 +121,7 @@ namespace Plop
 		static void				NewFrame();
 		static void				EndFrame();
 
-		static void				PrepareScene( const OrthographicCamera& _camera );
+		static void				PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix );
 		static void				EndScene();
 
 

@@ -3,6 +3,7 @@
 #pragma warning(disable:4307) // https://github.com/skypjack/entt/issues/121
 #include <entt.hpp>
 
+#include <TimeStep.h>
 
 namespace Plop
 {
@@ -25,6 +26,8 @@ namespace Plop
 
 				void Init();
 				void Shutdown();
+
+				void Update( TimeStep _ts );
 
 				Entity CreateEntity( const String& _sName = "New Entity" );
 

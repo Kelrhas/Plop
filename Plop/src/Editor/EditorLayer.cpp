@@ -8,7 +8,6 @@
 #include <Application.h>
 #include <Editor/Console.h>
 #include <ECS/BaseComponents.h>
-#include <ECS/Entity.h>
 #include <ECS/Level.h>
 
 namespace Plop
@@ -22,6 +21,7 @@ namespace Plop
 		REGISTER_COMPONENT( Name );
 		REGISTER_COMPONENT( Transform );
 		REGISTER_COMPONENT( SpriteRenderer );
+		REGISTER_COMPONENT( Camera );
 	}
 
 	void EditorLayer::OnUnregistered()
@@ -68,14 +68,32 @@ namespace Plop
 		// TODO set docking to bottom
 		Console::Draw();
 
-		if (!Level::s_xCurrentLevel.expired())
+		if (ImGui::Begin( "Scene graph" ))
 		{
-			LevelPtr xLevel = Level::s_xCurrentLevel.lock();
-
-			xLevel->m_ENTTRegistry.each( [this, &xLevel]( auto entity )
+			if (!Level::s_xCurrentLevel.expired())
 			{
-				ENTTEditor.render( xLevel->m_ENTTRegistry, entity );
-			} );
+				LevelPtr xLevel = Level::s_xCurrentLevel.lock();
+
+				auto& view = xLevel->m_ENTTRegistry.view<NameComponent>();
+				view.each( [this](entt::entity _e, const NameComponent& _comp) {
+					Entity e{ _e, Level::s_xCurrentLevel };
+
+					if (ImGui::Selectable( _comp.sName.c_str(), m_SelectedEntity == e ))
+					{
+						m_SelectedEntity = e;
+					}
+				} );
+			}
+		}
+		ImGui::End();
+
+		if (m_SelectedEntity)
+		{
+			if (!Level::s_xCurrentLevel.expired())
+			{
+				LevelPtr xLevel = Level::s_xCurrentLevel.lock();
+				ENTTEditor.render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId );
+			}
 		}
 
 		ImGui::End();

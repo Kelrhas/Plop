@@ -16,7 +16,6 @@
 
 void SampleLayer::OnRegistered()
 {
-	m_pCamera = new Plop::OrthographicCamera();
 }
 
 void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
@@ -63,20 +62,21 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 	Plop::Renderer::Clear();
 
+	/*
 	Plop::Renderer::PrepareScene(*m_pCamera);
 	{
 		PROFILING_SCOPE( "DrawScene" );
-		//xMesh->m_mTransform = glm::identity<glm::mat4>();
-		//Plop::Renderer::SubmitDraw( xMesh );
-		//xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
-		//Plop::Renderer::SubmitDraw( xMesh );
-		//xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
-		//Plop::Renderer::SubmitDraw( xMesh );
-		//xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
-		//Plop::Renderer::SubmitDraw( xMesh );
+		xMesh->m_mTransform = glm::identity<glm::mat4>();
+		Plop::Renderer::SubmitDraw( xMesh );
+		xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
+		Plop::Renderer::SubmitDraw( xMesh );
+		xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
+		Plop::Renderer::SubmitDraw( xMesh );
+		xMesh->m_mTransform = glm::translate( xMesh->m_mTransform, VEC3_RIGHT );
+		Plop::Renderer::SubmitDraw( xMesh );
 	}
 	Plop::Renderer::EndScene();
-
+	*/
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,10 +84,6 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 void SampleLayer2D::OnRegistered()
 {
-	Plop::EventDispatcher::RegisterListener(&m_CameraController);
-
-	m_CameraController.Init();
-
 	if (m_xLevel == nullptr)
 	{
 		m_xLevel = std::make_shared<Plop::Level>();
@@ -100,9 +96,12 @@ void SampleLayer2D::OnRegistered()
 		m_xSpritesheet = Plop::Texture::Create2D( "assets/textures/tilesheet.png" );
 	}
 
+	Plop::Entity cameraEntity = m_xLevel->CreateEntity( "Camera" );
+	cameraEntity.AddComponent<Plop::CameraComponent>();
+
 	if (!m_PlayerEntity)
 	{
-		m_PlayerEntity = m_xLevel->CreateEntity();
+		m_PlayerEntity = m_xLevel->CreateEntity( "Player" );
 		ASSERT( m_PlayerEntity, "Invalid entity" );
 
 		Plop::SpriteRendererComponent& renderer = m_PlayerEntity.AddComponent<Plop::SpriteRendererComponent>();
@@ -159,72 +158,14 @@ void SampleLayer2D::OnUnregistered()
 	{
 		m_PlayerEntity.RemoveComponent<glm::mat4>();
 	}
-
-
-	Plop::EventDispatcher::UnregisterListener(&m_CameraController);
 }
 
 void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	PROFILING_FUNCTION();
-
-	m_CameraController.OnUpdate(_timeStep);
-
-	ImGui::Begin( "Sample window" );
-
-	Plop::Renderer2D::PrepareScene(m_CameraController.GetCamera());
-
-	static glm::vec2 vSize( 1.f );
-	ImGui::DragFloat2( "Grass Size", glm::value_ptr( vSize ), 0.1f, 0.f, 10.f );
-	static Plop::TexturePtr xGrassTex = Plop::Texture::Create2D( "assets/textures/grass.png" );
-	static Plop::TexturePtr xApprovalTex = Plop::Texture::Create2D( "assets/textures/approval.png" );
-	static Plop::TexturePtr xTowerTex = Plop::Texture::Create2D( "assets/textures/tower.png" );
-	{
-		PROFILING_SCOPE("Drawing grass");
-		static int nb = 5;
-		ImGui::DragInt( "Grid", &nb, 0.1f, 0, 50 ); Plop::Renderer2D::DrawQuadColor( glm::vec3( nb / 2.f - 0.5f, nb / 2.f - 0.5f, -0.1f ), glm::vec2( nb + 2.f ), glm::vec4( 1.f ) );
-		for (int i = 0; i < nb; ++i)
-		{
-			for (int j = 0; j < nb; ++j)
-			{
-				Plop::Renderer2D::DrawQuadColorRotated( glm::vec3( i, j, 0.f ), vSize, i / (float)nb * 3.14f, glm::vec4(i/ (float)nb, j/ (float)nb, 0.f, 1.f) );
-				Plop::Renderer2D::DrawQuadTexture( glm::vec3( i+nb, j, 0.f ), vSize, xGrassTex );
-				Plop::Renderer2D::DrawQuadTexture( glm::vec3( i, j + nb, 0.f ), vSize, xApprovalTex );
-				Plop::Renderer2D::DrawQuadTextureRotated( glm::vec3( i+nb, j + nb, 0.f ), vSize, i / (float)nb * 3.14f, xTowerTex );
-			}
-		}
-	}
-
-
-	Plop::SpriteRendererComponent& renderer = m_PlayerEntity.GetComponent<Plop::SpriteRendererComponent>();
-	Plop::Renderer2D::DrawSprite( *renderer.xSprite, m_vPlayerPos );
-
-	static float fPlayerSpeed = 0.1f;
-	ImGui::DragFloat( "Speed", &fPlayerSpeed, 0.1f, 0.f, 0.3f );
-	if (ImGui::Button( "Reset" ))
-	{
-		m_vPlayerSpeed = glm::vec2( 0.f );
-		m_vPlayerPos = glm::vec2( 0.f );
-	}
-	m_vPlayerSpeed *= 0.5f;
-	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_Q ))
-		m_vPlayerSpeed.x = -1.f;
-	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_D ))
-		m_vPlayerSpeed.x = 1.f;
-	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_Z ))
-		m_vPlayerSpeed.y = 1.f;
-	if (Plop::Input::IsKeyDown( Plop::KeyCode::KEY_S ))
-		m_vPlayerSpeed.y = -1.f;
 	
-	float fSpeedSq = glm::dot( m_vPlayerSpeed, m_vPlayerSpeed );
-	if(fSpeedSq > fPlayerSpeed)
-		m_vPlayerSpeed = glm::normalize( m_vPlayerSpeed ) * fPlayerSpeed;
-
-	if (glm::any( glm::isnan( m_vPlayerSpeed ) ))
-		m_vPlayerSpeed = glm::vec2( 0.f );
-
-	m_vPlayerPos += m_vPlayerSpeed;
-
+	m_xLevel->Update( _timeStep );
+	/*
 	if (Plop::Input::IsMouseLeftPressed())
 	{
 		static Plop::ParticleData data;
@@ -242,8 +183,5 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 	}
 
 	m_particles.Update( _timeStep );
-
-	Plop::Renderer2D::EndScene();
-
-	ImGui::End();
+	*/
 }

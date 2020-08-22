@@ -188,12 +188,13 @@ namespace Plop
 			{
 				pAppLayer->OnUpdate(m_timeStep);
 			}
-			m_ImGuiLayer.EndFrame();
 			
 			Input::Update( m_timeStep );
 			m_xWindow->Update(m_timeStep);
 
 			Renderer2D::EndFrame();
+
+			m_ImGuiLayer.EndFrame();
 		}
 
 		m_xWindow->Destroy();

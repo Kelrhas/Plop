@@ -854,7 +854,7 @@ static void ImGui_ImplWin32_SwapBuffers(ImGuiViewport* viewport, void*)
 static void ImGui_ImplWin32_OnChangedViewport(ImGuiViewport* viewport)
 {
     (void)viewport;
-#if 0
+#if 1
     ImGuiStyle default_style;
     //default_style.WindowPadding = ImVec2(0, 0);
     //default_style.WindowBorderSize = 0.0f;

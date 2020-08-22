@@ -100,10 +100,6 @@ namespace Plop
 					event.iNewHeight = 0;
 					EventDispatcher::SendEvent(event);
 				}
-				/*
-				if (g_pRenderer != nullptr)
-					g_pRenderer->Resize(m_config.uWidth, m_config.uHeight);
-				*/
 			}
 			break;
 
@@ -116,7 +112,7 @@ namespace Plop
 			case WM_CLOSE:
 				//if (MessageBox(m_hWnd, L"Really quit?", L"My application", MB_OKCANCEL) == IDOK)
 			{
-				DestroyWindow(m_hWnd);
+				Application::Get()->Close();
 			}
 			break;
 
@@ -239,8 +235,8 @@ namespace Plop
 
 	void Win32_Window::Destroy()
 	{
-		
-		m_xRenderContext->Destroy(); 
+		m_xRenderContext->Destroy();
+		DestroyWindow( m_hWnd );
 	}
 
 	void Win32_Window::Update(const TimeStep& _timeStep)

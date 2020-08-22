@@ -124,8 +124,8 @@ namespace Plop
 
 	void Application::Init()
 	{
-		VERIFY(Log::Init(), "Log did not init properly");
 		Console::Init();
+		VERIFY(Log::Init(), "Log did not init properly");
 
 		PROFILING_INIT();
 

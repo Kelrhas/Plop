@@ -7,7 +7,7 @@ namespace Plop
 {
 	struct LogEntry
 	{
-		enum class Type
+		enum class Type : uint8_t
 		{
 			Info,
 			Assert,
@@ -15,10 +15,12 @@ namespace Plop
 			Error,
 			Command,
 
+			Count
+
 		} eType = Type::Info;
 
 		String sLog;
-		uint32_t uColor = 0xFFFFFFFF;
+		//ImU32 uColor = 0xFFFFFFFF;
 	};
 
 	class Console
@@ -27,8 +29,8 @@ namespace Plop
 	public:
 
 		static void					Init();
-		static void					AddOutput( const String& _str, uint32_t _uColor = 0xFFFFFFFF, LogEntry::Type _eType = LogEntry::Type::Info);
-
+		static void					AddOutput( const String& _str, LogEntry::Type _eType = LogEntry::Type::Info );
+		
 		static void					RegisterCommand( const char* _pCommand, std::function<void( const String& )> _callback );
 		static bool					ExecCommand( const char* _pText );
 
@@ -45,5 +47,6 @@ namespace Plop
 		static LogEntry				s_ConsoleBuffer[MAX_ENTRY];
 		static uint32_t				s_uEntryIndex;
 		static ImGuiTextFilter		s_Filter;
+		static bool					s_bNeedAutoScroll;
 	};
 }

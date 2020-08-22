@@ -5,24 +5,44 @@
 
 namespace Plop
 {
-	const uint32_t		COLOR_COMMAND = 0x008400FF;
+	// ImGui colors are 0xAABBGGRR
+	const ImU32 s_BufferTypeColors[] = {
+		 0xFFFFFFFF, 0xFFA000A0, 0xFF00A5FF, 0xFF0000FF, 0xFF008400, // text color
+		 0xFFD8D8D8, 0xFF700070, 0xFF0092CC, 0xFF0000CC, 0xFF006200, // hovered color
+		 0xFFA0A0A0, 0xFF450045, 0xFF005580, 0xFF000080, 0xFF004000, // fade color
+	};
+	static_assert(sizeof( s_BufferTypeColors ) / sizeof( s_BufferTypeColors[0] ) == (int)LogEntry::Type::Count * 3);
+	const char* s_BufferTypeNames[] = {
+		"Info",
+		"Assert",
+		"Warning",
+		"Error",
+		"Command"
+	};
+	static_assert(sizeof( s_BufferTypeNames ) / sizeof( s_BufferTypeNames[0] ) == (int)LogEntry::Type::Count);
+	int	 s_BufferCountPerType[(int)LogEntry::Type::Count]{ 0 };
+	bool s_BufferTypeDisplayed[(int)LogEntry::Type::Count]{ true };
+
 	char				Console::s_pInputBuffer[256];
 	Console::CommandMap	Console::s_mapCommands;
 	LogEntry			Console::s_ConsoleBuffer[MAX_ENTRY];
 	uint32_t			Console::s_uEntryIndex = 0;
 	ImGuiTextFilter		Console::s_Filter;
+	bool				Console::s_bNeedAutoScroll = true;
 
 
 	void Console::Init()
 	{
 		memset( s_pInputBuffer, 0, sizeof( s_pInputBuffer ) );
+		memset( s_BufferCountPerType, 0, sizeof( s_BufferCountPerType ) );
+		memset( s_BufferTypeDisplayed, true, sizeof( s_BufferTypeDisplayed ) );
 
 		RegisterCommand( "Test", []( const String& _args ) { Console::AddOutput( "Command Test with args" ); } );
 		RegisterCommand( "Close", []( const String& _args ) { Application::Get()->Close(); } );
 		RegisterCommand( "Exit", []( const String& _args ) { Application::Get()->Close(); } );
 	}
 
-	void Console::AddOutput( const String& _str, uint32_t _uColorRGBA /*= 0xFFFFFFFF*/, LogEntry::Type _eType /*= LogEntry::Type::Info*/ )
+	void Console::AddOutput( const String& _str, LogEntry::Type _eType /*= LogEntry::Type::Info*/ )
 	{
 		char pBuffer[4096];
 
@@ -45,7 +65,8 @@ namespace Plop
 		}
 		pBuffer[iCharCount] = 0;
 
-		s_ConsoleBuffer[s_uEntryIndex] = { _eType, pBuffer, _uColorRGBA | 0x000000FF };
+		s_BufferCountPerType[(int)_eType]++;
+		s_ConsoleBuffer[s_uEntryIndex] = { _eType, pBuffer };
 		s_uEntryIndex = (++s_uEntryIndex) % MAX_ENTRY;
 	}
 
@@ -67,6 +88,8 @@ namespace Plop
 		String sCommand = argsPos != String::npos ? sText.substr(0, argsPos ) : sText;
 		std::transform( sCommand.begin(), sCommand.end(), sCommand.begin(), ::toupper );
 
+		s_bNeedAutoScroll = true;
+
 		auto& it = s_mapCommands.find( sCommand );
 		if(it != s_mapCommands.end())
 		{
@@ -83,7 +106,48 @@ namespace Plop
 		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration;// | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 		if (ImGui::Begin( "Console", nullptr, windowFlags ))
 		{
-			s_Filter.Draw( "Filter (\"incl,-excl\") (\"error\")", 180 );
+			s_Filter.Draw( "Filter", 180 );
+			ImGui::SameLine();
+			ImGui::Spacing();
+			ImGui::SameLine();
+			ImGui::Checkbox( "Autoscroll", &s_bNeedAutoScroll );
+
+
+			for (int i=0; i < (int)LogEntry::Type::Count; ++i)
+			{
+				if (s_BufferCountPerType[i] == 0)
+					continue;
+
+
+				ImGui::SameLine();
+				int nb = s_BufferCountPerType[i];
+				ImGui::PushID( i );
+
+				if (s_BufferTypeDisplayed[i])
+				{
+					ImGui::PushStyleColor( ImGuiCol_Border, s_BufferTypeColors[i] );
+					ImGui::PushStyleColor( ImGuiCol_Button, s_BufferTypeColors[i + (int)LogEntry::Type::Count * 2] );
+				}
+				else
+				{
+					ImGui::PushStyleColor( ImGuiCol_Border, s_BufferTypeColors[i + (int)LogEntry::Type::Count * 2] );
+					ImGui::PushStyleColor( ImGuiCol_Button, 0x00000000 ); // transparent
+				}
+				ImGui::PushStyleColor( ImGuiCol_Text, s_BufferTypeColors[i] );
+				ImGui::PushStyleColor( ImGuiCol_ButtonHovered, s_BufferTypeColors[i + (int)LogEntry::Type::Count * 1] );
+				ImGui::PushStyleColor( ImGuiCol_ButtonActive, s_BufferTypeColors[i] );
+
+				ImGui::PushStyleVar( ImGuiStyleVar_FrameBorderSize, 1.0f );
+
+				static char pBuffer[128]{ 0 };
+				sprintf_s( pBuffer, "%s: %d", s_BufferTypeNames[i], s_BufferCountPerType[i] );
+
+				if (ImGui::Button( pBuffer ))
+					s_BufferTypeDisplayed[i] = !s_BufferTypeDisplayed[i];
+				ImGui::PopStyleVar();
+				ImGui::PopStyleColor(5);
+				ImGui::PopID();
+			}
 
 
 			const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -95,33 +159,48 @@ namespace Plop
 				const LogEntry& entry = s_ConsoleBuffer[i];
 				const char* pText = entry.sLog.c_str();
 
+				// filter type
+				if (!s_BufferTypeDisplayed[(int)entry.eType])
+					continue;
+
+				// filter text
 				if (!s_Filter.PassFilter( pText ))
 					continue;
 
-				ImU32 uColor = IM_COL32( (entry.uColor & 0xFF000000) >> 24, (entry.uColor & 0x00FF0000) >> 16, (entry.uColor & 0x0000FF00) >> 8, (entry.uColor & 0x000000FF) );
-				ImGui::PushStyleColor( ImGuiCol_Text, uColor );
-				ImGui::Text( pText );
-				//ImGui::TextUnformatted( pText );
+				ImGui::PushStyleColor( ImGuiCol_Text, s_BufferTypeColors[(int)entry.eType] );
+				//ImGui::Text( pText );
+				ImGui::TextUnformatted( pText );
 				ImGui::PopStyleColor();
 			}
 
-			if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+			ImGuiIO& io = ImGui::GetIO();
+
+			if (s_bNeedAutoScroll)
 				ImGui::SetScrollHereY( 1.0f );
 
 			ImGui::PopStyleVar();
 			ImGui::EndChild();
+
+			// deactive auto scroll
+			if (io.MouseWheel && ImGui::IsItemHovered())
+				s_bNeedAutoScroll = false;
+
+
 			ImGui::Separator();
 
 			bool bReclaimFocus = false;
-			ImGuiInputTextFlags textFlags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-			if (ImGui::InputText( "Input", s_pInputBuffer, IM_ARRAYSIZE( s_pInputBuffer ), textFlags, &Console::InputCallback, nullptr ))
+			ImGuiInputTextFlags textFlags = ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_EnterReturnsTrue |
+				ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory |
+				ImGuiInputTextFlags_NoHorizontalScroll;
+			ImGui::SetNextItemWidth( -1.f );
+			if (ImGui::InputText( "##Input", s_pInputBuffer, IM_ARRAYSIZE( s_pInputBuffer ), textFlags, &Console::InputCallback, nullptr ))
 			{
 				if (s_pInputBuffer[0])
 				{
 					if (ExecCommand( s_pInputBuffer ) == false)
 					{
 						String str = fmt::format( "Unknown command: {}", s_pInputBuffer );
-						AddOutput( str, COLOR_COMMAND, LogEntry::Type::Command );
+						AddOutput( str, LogEntry::Type::Command );
 					}
 				}
 				strcpy( s_pInputBuffer, "" );

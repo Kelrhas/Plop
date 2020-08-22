@@ -26,8 +26,7 @@ namespace Plop
 			fmt::v7::color color = fmt::color::white;
 
 			fmt::print( fg( color ), "{}\n", s );
-			uint32_t uColorRGBA = (((uint32_t)color) << 8) | 0x000000FF;
-			Console::AddOutput( s, uColorRGBA, LogEntry::Type::Info );
+			Console::AddOutput( s, LogEntry::Type::Info );
 		}
 		template<typename ... Args>
 		static void Assert	(const char* _pStr, Args&&..._args)
@@ -39,8 +38,7 @@ namespace Plop
 			fmt::v7::color color = fmt::color::purple;
 
 			fmt::print( fg( color ), "{}\n", s );
-			uint32_t uColorRGBA = (((uint32_t)color) << 8) | 0x000000FF;
-			Console::AddOutput( s, uColorRGBA, LogEntry::Type::Assert );
+			Console::AddOutput( s, LogEntry::Type::Assert );
 		}
 		template<typename ... Args>
 		static void Warn	(const char* _pStr, Args&&..._args)
@@ -52,8 +50,7 @@ namespace Plop
 			fmt::v7::color color = fmt::color::orange;
 
 			fmt::print( fg( color ), "{}\n", s );
-			uint32_t uColorRGBA = (((uint32_t)color) << 8) | 0x000000FF;
-			Console::AddOutput( s, uColorRGBA, LogEntry::Type::Warning );
+			Console::AddOutput( s, LogEntry::Type::Warning );
 		}
 		template<typename ... Args>
 		static void Error	(const char* _pStr, Args&&..._args)
@@ -65,8 +62,7 @@ namespace Plop
 			fmt::v7::color color = fmt::color::red;
 
 			fmt::print( fg( color ), "{}\n", s );
-			uint32_t uColorRGBA = (((uint32_t)color) << 8) | 0x000000FF;
-			Console::AddOutput( s, uColorRGBA, LogEntry::Type::Error );
+			Console::AddOutput( s, LogEntry::Type::Error );
 		}
 
 		static void Flush	();

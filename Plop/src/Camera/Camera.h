@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <glm/gtc/quaternion.hpp>
 
 namespace Plop

@@ -215,7 +215,7 @@ namespace Plop
 			return;
 
 		s_pWaitingWindow = this;
-		m_hWnd = CreateWindowEx(0, "MainWindow", "Test", windowStyle, windowSize.left, windowSize.top, windowSize.right - windowSize.left, windowSize.bottom - windowSize.top, nullptr, nullptr, hInstance, this);
+		m_hWnd = CreateWindowEx(0, "MainWindow", Application::Get()->GetName().c_str(), windowStyle, windowSize.left, windowSize.top, windowSize.right - windowSize.left, windowSize.bottom - windowSize.top, nullptr, nullptr, hInstance, this);
 		s_pWaitingWindow = nullptr;
 		if (!m_hWnd)
 			return;

@@ -39,13 +39,14 @@ namespace Plop
 		// IEventListener
 		virtual bool			OnEvent( Event& _event ) override;
 
-				void			Init();
-				void			Destroy();
+		virtual	void			Init();
+		virtual void			Destroy();
 				void			Close(); // user asked
 
 				void			Run();
 
 		virtual GameConfig*		CreateGameConfig();
+		virtual String			GetName() = 0;
 
 				Window&			GetWindow() const { return *m_xWindow; }
 

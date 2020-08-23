@@ -13,11 +13,17 @@ Plop::Application* Plop::CreateApplication()
 
 SampleApp::SampleApp()
 {
-	RegisterAppLayer(new SampleLayer());
-	RegisterAppLayer(new SampleLayer2D());
 }
 
 Plop::GameConfig* SampleApp::CreateGameConfig()
 {
 	return new SampleConfig();
+}
+
+void SampleApp::Init()
+{
+	Plop::Application::Init();
+
+	RegisterAppLayer( new SampleLayer() );
+	RegisterAppLayer( new SampleLayer2D() );
 }

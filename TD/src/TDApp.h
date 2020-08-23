@@ -10,5 +10,8 @@ class TDApp : public Plop::Application
 public:
 	TDApp();
 
-	Plop::GameConfig* CreateGameConfig() override;
+			Plop::GameConfig*	CreateGameConfig() override;
+	virtual	void				Init() override;
+
+	virtual String				GetName() override { return String( "Plop TD" ); }
 };

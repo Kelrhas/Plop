@@ -13,10 +13,16 @@ Plop::Application* Plop::CreateApplication()
 
 TDApp::TDApp()
 {
-	RegisterAppLayer(new WorldLayer());
 }
 
 Plop::GameConfig* TDApp::CreateGameConfig()
 {
 	return new TDConfig();
+}
+
+void TDApp::Init()
+{
+	Plop::Application::Init();
+
+	RegisterAppLayer( new WorldLayer() );
 }

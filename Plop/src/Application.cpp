@@ -88,7 +88,6 @@ namespace Plop
 
 	Application::Application()
 	{
-		Init();
 	}
 
 	Application::~Application()
@@ -139,7 +138,13 @@ namespace Plop
 		m_Config.pGameConfig = CreateGameConfig();
 		m_Config.Load();
 
-		m_xWindow = std::unique_ptr<Window>(Window::Create(m_Config.windows["Test"]));
+		//auto& it = m_Config.windows.find( GetName() );
+		//if (it == m_Config.windows.end())
+		//	m_Config.windows.   .insert( GetName(), WindowConfig() );
+		//
+		//m_xWindow = std::unique_ptr<Window>(Window::Create(it->second));
+		String sWindowName = GetName();
+		m_xWindow = std::unique_ptr<Window>( Window::Create( m_Config.windows[sWindowName] ) );
 		m_xWindow->Init();
 		m_xWindow->SetVSync( false );
 
@@ -235,5 +240,6 @@ namespace Plop
 int main(int argc, char** argv)
 {
 	Plop::Application* pApp = Plop::CreateApplication();
+	pApp->Init();
 	pApp->Run();
 }

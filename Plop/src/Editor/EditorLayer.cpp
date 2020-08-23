@@ -18,7 +18,6 @@ namespace Plop
 
 	void EditorLayer::OnRegistered()
 	{
-		REGISTER_COMPONENT( Name );
 		REGISTER_COMPONENT( Transform );
 		REGISTER_COMPONENT( SpriteRenderer );
 		REGISTER_COMPONENT( Camera );

@@ -83,8 +83,12 @@ public:
 				ImGui::TextUnformatted("Editing:");
 				ImGui::SameLine();
 
-				if (registry.valid(e)) {
-					ImGui::Text("ID: %d", entt::to_integral(e));
+				if (registry.valid(e))
+				{
+					if (registry.has<Plop::NameComponent>( e ))
+						ImGui::Text( registry.get<Plop::NameComponent>( e ).sName.c_str() );
+					else
+						ImGui::Text("ID: %d", entt::to_integral(e));
 				} else {
 					ImGui::Text("Invalid Entity");
 				}

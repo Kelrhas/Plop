@@ -4,7 +4,7 @@
 #include <entt.hpp>
 
 #include <Debug/Debug.h>
-#include <ECS/Level.h>
+#include <ECS/LevelBase.h>
 
 namespace Plop
 {
@@ -15,7 +15,7 @@ namespace Plop
 	public:
 
 		Entity() = default;
-		Entity( entt::entity _entityID, const LevelWeakPtr& _xLevel );
+		Entity( entt::entity _entityID, const LevelBaseWeakPtr& _xLevel );
 		Entity( const Entity& _other ) = delete;
 		Entity( Entity&& _other ) noexcept;
 
@@ -60,6 +60,6 @@ namespace Plop
 
 	private:
 		entt::entity	m_EntityId{ entt::null };
-		LevelWeakPtr	m_xLevel;
+		LevelBaseWeakPtr	m_xLevel;
 	};
 }

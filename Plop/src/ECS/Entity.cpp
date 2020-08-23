@@ -4,7 +4,7 @@
 
 namespace Plop
 {
-	Entity::Entity( entt::entity _entityID, const LevelWeakPtr& _xLevel )
+	Entity::Entity( entt::entity _entityID, const LevelBaseWeakPtr& _xLevel )
 		: m_EntityId( _entityID )
 		, m_xLevel( _xLevel )
 	{}

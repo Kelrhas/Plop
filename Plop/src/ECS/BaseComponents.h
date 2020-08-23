@@ -30,7 +30,8 @@ namespace Plop
 
 		operator glm::mat4() const { return mTransform; }
 
-		glm::vec3 GetPosition() { return mTransform[3]; }
+		glm::vec3 GetPosition() const { return mTransform[3]; }
+		void SetPosition( const glm::vec3& _vPos ) { mTransform[3] = glm::vec4( _vPos, mTransform[3][3] ); }
 
 		glm::mat4 mTransform = glm::identity<glm::mat4>();
 	};

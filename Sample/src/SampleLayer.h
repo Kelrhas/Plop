@@ -4,7 +4,7 @@
 #include <Camera/Camera2DController.h>
 #include <Renderer/Mesh.h>
 #include <Renderer/ParticleSystem.h>
-#include <ECS/Level.h>
+#include <ECS/LevelBase.h>
 #include <ECS/Entity.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,6 @@ private:
 	Plop::Entity				m_PlayerEntity;
 	Plop::ParticleSystem		m_particles;
 	Plop::TexturePtr			m_xSpritesheet;
-	Plop::LevelPtr				m_xLevel = nullptr;
+	Plop::LevelBasePtr			m_xLevel = nullptr;
 };
 

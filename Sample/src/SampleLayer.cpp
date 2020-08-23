@@ -86,7 +86,7 @@ void SampleLayer2D::OnRegistered()
 {
 	if (m_xLevel == nullptr)
 	{
-		m_xLevel = std::make_shared<Plop::Level>();
+		m_xLevel = std::make_shared<Plop::LevelBase>();
 		m_xLevel->Init();
 	}
 
@@ -97,7 +97,9 @@ void SampleLayer2D::OnRegistered()
 	}
 
 	Plop::Entity cameraEntity = m_xLevel->CreateEntity( "Camera" );
-	cameraEntity.AddComponent<Plop::CameraComponent>();
+	Plop::CameraComponent& cameraComp = cameraEntity.AddComponent<Plop::CameraComponent>();
+	cameraComp.xCamera = std::make_shared<Plop::Camera>();
+	cameraComp.xCamera->Init();
 
 	if (!m_PlayerEntity)
 	{
@@ -163,9 +165,7 @@ void SampleLayer2D::OnUnregistered()
 void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	PROFILING_FUNCTION();
-	
-	m_xLevel->Update( _timeStep );
-	/*
+
 	if (Plop::Input::IsMouseLeftPressed())
 	{
 		static Plop::ParticleData data;
@@ -182,6 +182,12 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 		m_particles.Spawn( data, 50 );
 	}
 
-	m_particles.Update( _timeStep );
-	*/
+	if (m_xLevel->BeforeUpdate())
+	{
+		m_xLevel->Update( _timeStep );
+
+		m_particles.Update( _timeStep );
+
+		m_xLevel->AfterUpdate();
+	}
 }

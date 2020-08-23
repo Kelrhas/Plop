@@ -4,6 +4,8 @@
 
 namespace Plop
 {
+	float TimeStep::s_fGameScale = 1.f;
+
 	TimeStep::TimeStep()
 	{
 #ifdef PLATFORM_WINDOWS

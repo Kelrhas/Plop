@@ -8,7 +8,7 @@
 #include <Application.h>
 #include <Editor/Console.h>
 #include <ECS/BaseComponents.h>
-#include <ECS/Level.h>
+#include <ECS/LevelBase.h>
 
 namespace Plop
 {
@@ -69,13 +69,13 @@ namespace Plop
 
 		if (ImGui::Begin( "Scene graph" ))
 		{
-			if (!Level::s_xCurrentLevel.expired())
+			if (!LevelBase::s_xCurrentLevel.expired())
 			{
-				LevelPtr xLevel = Level::s_xCurrentLevel.lock();
+				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 
 				auto& view = xLevel->m_ENTTRegistry.view<NameComponent>();
 				view.each( [this](entt::entity _e, const NameComponent& _comp) {
-					Entity e{ _e, Level::s_xCurrentLevel };
+					Entity e{ _e, LevelBase::s_xCurrentLevel };
 
 					if (ImGui::Selectable( _comp.sName.c_str(), m_SelectedEntity == e ))
 					{
@@ -88,9 +88,9 @@ namespace Plop
 
 		if (m_SelectedEntity)
 		{
-			if (!Level::s_xCurrentLevel.expired())
+			if (!LevelBase::s_xCurrentLevel.expired())
 			{
-				LevelPtr xLevel = Level::s_xCurrentLevel.lock();
+				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 				ENTTEditor.render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId );
 			}
 		}

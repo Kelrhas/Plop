@@ -13,12 +13,13 @@ namespace Plop
 
 		void Advance(); // platform dependent
 
-		float GetSystemDeltaTime() const { return m_fTime; }
-		float GetGameDeltaTime() const { return m_fTime * m_fGameScale; }
+		inline float GetSystemDeltaTime() const { return m_fTime; }
+		inline float GetGameDeltaTime() const { return m_fTime * s_fGameScale; }
 
 	private:
-		float m_fTime = 0.f;
-		float m_fGameScale = 1.f;
+				float m_fTime = 0.f;
+
+		static	float s_fGameScale;
 
 #ifdef PLATFORM_WINDOWS
 		LARGE_INTEGER m_clockFrequency;

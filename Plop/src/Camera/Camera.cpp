@@ -5,26 +5,26 @@
 
 namespace Plop
 {
-
-	Camera::Camera()
-	{
-
-	}
-
-	Camera::~Camera()
-	{
-
-	}
-
-	bool Camera::Init()
+	void Camera::Init()
 	{
 		SetAspectRatio( Application::Get()->GetWindow().GetAspectRatio() );
-		return true;
 	}
 
 	void Camera::SetAspectRatio( float _fAspectRatio )
 	{
 		m_fAspectRatio = _fAspectRatio;
+		UpdateProjectionMatrix();
+	}
+
+	void Camera::SetNear( float _fNear )
+	{
+		m_fNear = _fNear;
+		UpdateProjectionMatrix();
+	}
+
+	void Camera::SetFar( float _fFar )
+	{
+		m_fFar = _fFar;
 		UpdateProjectionMatrix();
 	}
 
@@ -46,7 +46,7 @@ namespace Plop
 
 	void Camera::SetPerspective()
 	{
-		if (!m_bIsOrtho)
+		if (m_bIsOrtho)
 		{
 			m_bIsOrtho = false;
 			UpdateProjectionMatrix();

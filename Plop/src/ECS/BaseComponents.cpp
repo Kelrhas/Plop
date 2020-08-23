@@ -68,6 +68,14 @@ namespace MM
 				if (ImGui::DragFloat( "FOV (°)", &fFOV, 0.1f, 10, 170 ))
 					comp.xCamera->SetPerspectiveFOV( glm::radians( fFOV ) );
 			}
+
+			float fNear = comp.xCamera->GetNear();
+			float fFar = comp.xCamera->GetFar();
+			if (ImGui::DragFloat( "Near", &fNear, 0.1f, 0.f, fFar ))
+				comp.xCamera->SetNear( fNear );
+
+			if (ImGui::DragFloat( "Far", &fFar, 0.1f, fNear, FLT_MAX ))
+				comp.xCamera->SetFar( fFar );
 		}
 		else
 		{

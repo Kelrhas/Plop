@@ -6,35 +6,40 @@
 
 #include <Debug/Debug.h>
 #include <Constants.h>
+#include <ECS/BaseComponents.h>
 #include <Events/EventDispatcher.h>
 #include <Input/Input.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
+#include <Renderer/ParticleSystem.h>
+#include <Renderer/Sprite.h>
 
 void WorldLayer::OnRegistered()
 {
-	Plop::EventDispatcher::RegisterListener(&m_CameraController);
+	m_xLevel = std::make_shared<Level>();
+	m_xLevel->Init();
 
-	m_CameraController.Init();
-	m_Level.Init();
+	Plop::Entity cameraEntity = m_xLevel->CreateEntity( "Camera" );
+	cameraEntity.GetComponent<Plop::TransformComponent>().SetPosition( glm::vec3( 3.7, 1.2, 0. ) );
+	Plop::CameraComponent& cameraComp = cameraEntity.AddComponent<Plop::CameraComponent>();
+	cameraComp.xCamera = std::make_shared<Plop::Camera>();
+	cameraComp.xCamera->Init();
 }
 
 void WorldLayer::OnUnregistered()
 {
-	Plop::EventDispatcher::UnregisterListener(&m_CameraController);
+	m_xLevel = nullptr;
 }
 
-void WorldLayer::OnUpdate(Plop::TimeStep& _timeStep)
+void WorldLayer::OnUpdate(Plop::TimeStep& _ts)
 {
 	PROFILING_FUNCTION();
 
-	m_CameraController.OnUpdate(_timeStep);
-
 	Plop::Renderer::Clear();
 
-	Plop::Renderer2D::PrepareScene( m_CameraController.GetCamera() );
-
-	m_Level.Draw();
-
-	Plop::Renderer2D::EndScene();
+	if (m_xLevel->BeforeUpdate())
+	{
+		m_xLevel->Update( _ts );
+		m_xLevel->AfterUpdate();
+	}
 }

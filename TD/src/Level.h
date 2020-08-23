@@ -1,18 +1,19 @@
 #pragma once
 
 #include <Renderer/Sprite.h>
+#include <ECS/LevelBase.h>
 
-class Level
+class Level : public Plop::LevelBase
 {
 public:
 	Level();
-	~Level();
+	virtual ~Level();
 
-	void				Init();
+	virtual void				Init() override;
+	virtual void				Update(Plop::TimeStep _ts) override;
 
-	void				LoadFromString( const char* _pLevel, uint32_t _uWidth, uint32_t _uHeight );
+			void				LoadFromString( const char* _pLevel, uint32_t _uWidth, uint32_t _uHeight );
 
-	void				Draw() const;
 
 private:
 	// TODO: handle chunks

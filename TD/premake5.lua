@@ -27,7 +27,10 @@ project "TD"
 		"../Plop/src/",
 		"../Externals/ImGui/",
 		"../Externals/glm/",
-		"../Externals/optick/include/"
+		"../Externals/optick/include/",
+		"../Externals/fmt/include/",
+		"../Externals/entt/",
+		"../Externals/imgui_entt_entity_editor/",
 	}
 
 	libdirs

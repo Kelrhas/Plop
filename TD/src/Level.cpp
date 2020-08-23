@@ -14,21 +14,55 @@ const char* testLevel =
 
 Level::Level()
 {
+
 }
 
 Level::~Level()
 {
-
+	if (m_ppSprites)
+	{
+		for (uint32_t x = 0; x < m_uWidth; ++x)
+		{
+			for (uint32_t y = 0; y < m_uHeight; ++y)
+			{
+				delete m_ppSprites[x][y];
+			}
+			delete[] m_ppSprites[x];
+		}
+		delete[] m_ppSprites;
+	}
 }
 
 void Level::Init()
 {
+	Plop::LevelBase::Init();
+
 	if (m_xSpritesheet == nullptr)
 	{
 		m_xSpritesheet = Plop::Texture::Create2D( "TD/assets/textures/tilesheet.png" );
 	}
 
 	LoadFromString( testLevel, 8, 5 );
+}
+
+void Level::Update( Plop::TimeStep _ts )
+{
+	PROFILING_FUNCTION();
+
+	// background first
+	for (uint32_t x = 0; x < m_uWidth; ++x)
+	{
+		for (uint32_t y = 0; y < m_uHeight; ++y)
+		{
+			Plop::Sprite* pSprite = m_ppSprites[x][y];
+			if (pSprite)
+			{
+				Plop::Renderer2D::DrawSprite( *pSprite, { x, m_uHeight - y - 1 }, { 1, 1 } );
+			}
+		}
+	}
+
+	Plop::LevelBase::Update(_ts);
 }
 
 void Level::LoadFromString( const char* _pLevel, uint32_t _uWidth, uint32_t _uHeight )
@@ -66,23 +100,6 @@ void Level::LoadFromString( const char* _pLevel, uint32_t _uWidth, uint32_t _uHe
 			}
 
 			m_ppSprites[x][y]->SetTexture( m_xSpritesheet );
-		}
-	}
-}
-
-void Level::Draw() const
-{
-	PROFILING_FUNCTION();
-
-	for (uint32_t x = 0; x < m_uWidth; ++x)
-	{
-		for (uint32_t y = 0; y < m_uHeight; ++y)
-		{
-			Plop::Sprite* pSprite = m_ppSprites[x][y];
-			if (pSprite)
-			{
-				Plop::Renderer2D::DrawSprite( { x, m_uHeight - y - 1 }, { 1, 1 }, *pSprite );
-			}
 		}
 	}
 }

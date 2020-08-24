@@ -15,6 +15,16 @@ namespace Plop
 		String sName;
 	};
 
+	struct GraphNodeComponent
+	{
+		// https://skypjack.github.io/2019-06-25-ecs-baf-part-4/
+		static const size_t MAX_CHILDREN = 8;
+
+		entt::entity parent{ entt::null };
+		std::array<entt::entity, MAX_CHILDREN> children{};
+		size_t nbChild = 0;
+	};
+
 	struct TransformComponent
 	{
 		TransformComponent() = default;

@@ -23,43 +23,26 @@ namespace Plop
 		Entity& operator =( const Entity& _other );
 		bool operator ==( const Entity& _other );
 
+		Entity												GetParent() const;
+		void												SetParent( Entity& _Parent );
 
-		template <class Comp, typename ...Args>
-		Comp& AddComponent(Args...args)
-		{
-			ASSERT( !m_xLevel.expired(), "No scene associated with entity" );
-			return m_xLevel.lock()->m_ENTTRegistry.emplace<Comp>( m_EntityId, std::forward<Args>( args )... );
-		}
+		std::vector<Entity>									GetChildren() const;
 
-		template <class Comp, typename ...Args>
-		void RemoveComponent()
-		{
-			ASSERT( !m_xLevel.expired(), "No scene associated with entity" );
-			return m_xLevel.lock()->m_ENTTRegistry.remove<Comp>( m_EntityId);
-		}
+		template <class Comp, typename ...Args>	Comp&		AddComponent( Args...args );
+		template <class Comp, typename ...Args>	void		RemoveComponent();
+		template <class Comp>					bool		HasComponent();
+		template <class Comp>					Comp&		GetComponent();
 
-		template <class Comp>
-		bool HasComponent()
-		{
-			if (m_xLevel.expired())
-				return false;
-
-			return m_xLevel.lock()->m_ENTTRegistry.has<Comp>( m_EntityId );
-		}
-
-		template <class Comp>
-		Comp& GetComponent()
-		{
-			ASSERT( !m_xLevel.expired(), "No scene associated with entity" );
-			ASSERT( HasComponent<Comp>(), "Entity does not have this component" );
-			return m_xLevel.lock()->m_ENTTRegistry.get<Comp>( m_EntityId );
-		}
-
-
-		void ImGuiDraw();
 
 	private:
+		void												AddChild( Entity& _Child );
+		void												RemoveChild( Entity& _Child );
+
+
 		entt::entity	m_EntityId{ entt::null };
 		LevelBaseWeakPtr	m_xLevel;
 	};
 }
+
+
+#include <ECS/Entity.inl>

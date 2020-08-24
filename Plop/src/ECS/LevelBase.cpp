@@ -71,6 +71,7 @@ namespace Plop
 		Entity e = { entityID, weak_from_this() };
 
 		e.AddComponent<NameComponent>( _sName );
+		e.AddComponent<GraphNodeComponent>();
 		e.AddComponent<TransformComponent>();
 
 		return e;

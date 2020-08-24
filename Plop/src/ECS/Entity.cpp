@@ -1,6 +1,7 @@
 #include "Plop_pch.h"
 #include "Entity.h"
 
+#include <ECS/BaseComponents.h>
 
 namespace Plop
 {
@@ -40,4 +41,109 @@ namespace Plop
 	{
 		return m_EntityId == _other.m_EntityId;
 	}
+
+	Entity Entity::GetParent() const
+	{
+		Entity parent(entt::null, m_xLevel);
+
+		if (m_EntityId != entt::null && !m_xLevel.expired())
+		{
+			auto& reg = m_xLevel.lock()->m_ENTTRegistry;
+			if (reg.valid( m_EntityId ))
+			{
+				auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+
+				parent.m_EntityId = graphNode.parent;
+			}
+		}
+
+		return parent;
+	}
+
+	void Entity::SetParent( Entity& _Parent )
+	{
+		ASSERT( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
+
+		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
+		if (reg.valid( m_EntityId ))
+		{
+			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+
+			Entity oldParent( graphNode.parent, m_xLevel );
+			if (oldParent != _Parent)
+			{
+				if (oldParent)
+				{
+					oldParent.RemoveChild( *this );
+				}
+				graphNode.parent = _Parent.m_EntityId;
+
+				if (_Parent)
+				{
+					_Parent.AddChild( *this );
+				}
+			}
+		}
+	}
+
+	std::vector<Entity> Entity::GetChildren() const
+	{
+		std::vector<Entity> vecChildren;
+
+		if (m_EntityId != entt::null && !m_xLevel.expired())
+		{
+			auto& reg = m_xLevel.lock()->m_ENTTRegistry;
+			if (reg.valid( m_EntityId ))
+			{
+				auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+
+				for (int i = 0; i < graphNode.nbChild; ++i)
+				{
+					vecChildren.emplace_back( graphNode.children[i], m_xLevel );
+				}
+			}
+		}
+
+		return vecChildren;
+	}
+
+#pragma region private
+
+	void Entity::AddChild( Entity& _Child )
+	{
+		ASSERT( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
+		ASSERT( _Child, "Invalid Entity for _Child" );
+
+		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
+		if (reg.valid( m_EntityId ))
+		{
+			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+			if (graphNode.nbChild + 1 < graphNode.MAX_CHILDREN)
+			{
+				graphNode.children[graphNode.nbChild++] = _Child.m_EntityId;
+			}
+		}
+	}
+
+	void Entity::RemoveChild( Entity& _Child )
+	{
+		ASSERT( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
+		ASSERT( _Child, "Invalid Entity for _Child" );
+
+		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
+		if (reg.valid( m_EntityId ))
+		{
+			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+			for (int i = 0; i < graphNode.nbChild; ++i)
+			{
+				if (graphNode.children[i] == _Child.m_EntityId)
+				{
+					graphNode.children[i] = std::move( graphNode.children[graphNode.nbChild - 1] );
+					graphNode.nbChild--;
+					break;
+				}
+			}
+		}
+	}
+#pragma endregion
 }

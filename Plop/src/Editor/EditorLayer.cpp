@@ -71,17 +71,71 @@ namespace Plop
 		{
 			if (!LevelBase::s_xCurrentLevel.expired())
 			{
+				static std::function<void( Entity& )> DrawEntity;
+				DrawEntity = [this]( Entity& _Entity ) {
+
+					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
+
+					String sName = _Entity.GetComponent<NameComponent>().sName;
+					if (ImGui::Selectable( sName.c_str(), m_SelectedEntity == _Entity ))
+					{
+						m_SelectedEntity = _Entity;
+					}
+
+					if (ImGui::BeginDragDropSource( ImGuiDragDropFlags_None ))
+					{
+						ImGui::SetDragDropPayload( "ReparentEntity", &_Entity.m_EntityId, sizeof( _Entity.m_EntityId ) );
+
+						ImGui::Text( sName.c_str() );
+						ImGui::EndDragDropSource();
+					}
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "ReparentEntity" ))
+						{
+							ASSERT( pPayload->DataSize == sizeof( entt::entity ), "Wrong Drag&Drop payload" );
+							Entity child( *(entt::entity*)pPayload->Data, _Entity.m_xLevel );
+
+							if (child.GetParent() != _Entity)
+								child.SetParent( _Entity );
+							else
+								child.SetParent( Entity{ entt::null, _Entity.m_xLevel } );
+						}
+						ImGui::EndDragDropTarget();
+					}
+
+					ImGui::PopID();
+
+					ImGui::Indent();
+					for (Entity& child : _Entity.GetChildren())
+					{
+						DrawEntity( child );
+					}
+					ImGui::Unindent();
+				};
+
+				ImGui::BeginChild( "GraphNodeList", ImVec2( 0, -ImGui::GetFrameHeightWithSpacing() ) );
+
 				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 
 				auto& view = xLevel->m_ENTTRegistry.view<NameComponent>();
-				view.each( [this](entt::entity _e, const NameComponent& _comp) {
-					Entity e{ _e, LevelBase::s_xCurrentLevel };
-
-					if (ImGui::Selectable( _comp.sName.c_str(), m_SelectedEntity == e ))
+				for( auto& e : view)
+				{
+					Entity entity{ e, LevelBase::s_xCurrentLevel };
+					Entity parent = entity.GetParent();
+					
+					// only draw those without parent, and each one will draw their children
+					if (!parent)
 					{
-						m_SelectedEntity = e;
+						DrawEntity( entity );
 					}
-				} );
+				}
+
+				ImGui::EndChild();
+				if (ImGui::Button( "New entity" ))
+				{
+					xLevel->CreateEntity();
+				}
 			}
 		}
 		ImGui::End();

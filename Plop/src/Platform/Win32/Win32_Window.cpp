@@ -51,7 +51,7 @@ namespace Plop
 				m_hWnd = _hWnd;
 
 				// prevent dpi scaling
-				SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+				SetProcessDpiAwarenessContext( DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE );
 
 				m_xRenderContext = RenderContext::Create();
 				m_xRenderContext->Init();
@@ -239,33 +239,36 @@ namespace Plop
 		DestroyWindow( m_hWnd );
 	}
 
-	void Win32_Window::Update(const TimeStep& _timeStep)
+	void Win32_Window::Update( const TimeStep& _timeStep )
 	{
 		PROFILING_FUNCTION();
 
 		// events
 		MSG message;
-		while (PeekMessage(&message, m_hWnd, 0, 0, PM_REMOVE))
+		while (PeekMessage( &message, m_hWnd, 0, 0, PM_REMOVE ))
 		{
-			TranslateMessage(&message);
-			DispatchMessage(&message);
+			TranslateMessage( &message );
+			DispatchMessage( &message );
 		}
 
 		// definitely quit if needed
-		while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
+		while (PeekMessage( &message, NULL, 0, 0, PM_REMOVE ))
 		{
 			if (message.message == WM_QUIT)
 			{
-				WindowCloseEvent event(*this);
+				WindowCloseEvent event( *this );
 				EventDispatcher::SendEvent( event );
 			}
 			else
 			{
-				TranslateMessage(&message);
-				DispatchMessage(&message);
+				TranslateMessage( &message );
+				DispatchMessage( &message );
 			}
 		}
+	}
 
+	void Win32_Window::SwapBuffers()
+	{
 		m_xRenderContext->Flush();
 	}
 

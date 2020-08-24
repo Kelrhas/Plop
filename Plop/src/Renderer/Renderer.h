@@ -73,6 +73,7 @@ namespace Plop
 		static RenderAPI*		s_pAPI;
 		static SceneData		s_SceneData;
 		static ShaderLibrary	s_shaderLibrary;
+		static FrameBufferPtr	s_xFramebuffer;
 	};
 
 	//////////////////////////////////////////////////////////////////////////
@@ -147,7 +148,6 @@ namespace Plop
 		static bool				s_bRendering2D;
 		static TexturePtr		s_xWhiteTex;
 		static ShaderPtr		s_xShader;
-		static FrameBufferPtr	s_xFramebuffer;
 		static VertexArrayPtr	s_xVertexArray;
 		static VertexBufferPtr	s_xVertexBuffer;
 		static IndexBufferPtr	s_xIndexBuffer;

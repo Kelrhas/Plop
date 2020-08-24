@@ -22,18 +22,27 @@ namespace Plop
 		uQuads = 0;
 	}
 
-	RenderAPI* Renderer::s_pAPI = new OpenGL_Renderer();
+	RenderAPI*			Renderer::s_pAPI = new OpenGL_Renderer();
 	Renderer::SceneData Renderer::s_SceneData;
-	ShaderLibrary Renderer::s_shaderLibrary;
+	ShaderLibrary		Renderer::s_shaderLibrary;
+	FrameBufferPtr		Renderer::s_xFramebuffer = nullptr;
 
 	void Renderer::Init()
 	{
 		s_pAPI->Init();
+
+		glm::uvec2 vViewportSize = Application::Get()->GetWindow().GetViewportSize();
+		if(!s_xFramebuffer)
+			s_xFramebuffer = FrameBuffer::Create( vViewportSize.x, vViewportSize.y );
 	}
 
 	void Renderer::OnResize(uint32_t _uWidth, uint32_t _uHeight)
 	{
 		s_pAPI->Resize(_uWidth, _uHeight);
+		if(s_xFramebuffer)
+			s_xFramebuffer->Resize( _uWidth, _uHeight );
+		else
+			s_xFramebuffer = FrameBuffer::Create( _uWidth, _uHeight );
 	}
 
 	void Renderer::PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix )
@@ -79,7 +88,6 @@ namespace Plop
 	bool							Renderer2D::s_bRendering2D = false;
 	TexturePtr						Renderer2D::s_xWhiteTex = nullptr;
 	ShaderPtr						Renderer2D::s_xShader = nullptr;
-	FrameBufferPtr					Renderer2D::s_xFramebuffer = nullptr;
 	VertexArrayPtr					Renderer2D::s_xVertexArray = nullptr;
 	VertexBufferPtr					Renderer2D::s_xVertexBuffer = nullptr;
 	IndexBufferPtr					Renderer2D::s_xIndexBuffer = nullptr;
@@ -110,8 +118,6 @@ namespace Plop
 		s_xShader->SetUniformIntArray( "u_textures", textures, MAX_TEX_UNIT );
 		delete[] textures;
 
-		glm::uvec2 vViewportSize = Application::Get()->GetWindow().GetViewportSize();
-		s_xFramebuffer = FrameBuffer::Create( vViewportSize.x, vViewportSize.y );
 
 		s_xVertexArray = VertexArray::Create();
 		s_xVertexArray->Bind();
@@ -130,14 +136,14 @@ namespace Plop
 	void Renderer2D::NewFrame()
 	{
 		s_sceneData.frameStat.Reset();
-		s_xFramebuffer->Bind();
+		Renderer::s_xFramebuffer->Bind();
 	}
 
 	void Renderer2D::EndFrame()
 	{
-		s_xFramebuffer->Unbind();
+		Renderer::s_xFramebuffer->Unbind();
 
-		Renderer::s_pAPI->DrawFrameBuffer( s_xFramebuffer );
+		Renderer::s_pAPI->DrawFrameBuffer( Renderer::s_xFramebuffer );
 	}
 
 	void Renderer2D::PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix )

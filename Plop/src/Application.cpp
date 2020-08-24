@@ -184,9 +184,14 @@ namespace Plop
 		{
 			PROFILING_FRAME("MainThread");
 
-			Renderer2D::NewFrame();
 
 			m_timeStep.Advance();
+
+			Input::Update( m_timeStep );
+			m_xWindow->Update( m_timeStep );
+
+
+			Renderer2D::NewFrame();
 			m_ImGuiLayer.NewFrame();
 
 			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
@@ -194,12 +199,10 @@ namespace Plop
 				pAppLayer->OnUpdate(m_timeStep);
 			}
 			
-			Input::Update( m_timeStep );
-			m_xWindow->Update(m_timeStep);
-
-			Renderer2D::EndFrame();
-
 			m_ImGuiLayer.EndFrame();
+			Renderer2D::EndFrame();
+			
+			m_xWindow->SwapBuffers();
 		}
 
 		m_xWindow->Destroy();

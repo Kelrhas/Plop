@@ -12,6 +12,8 @@ namespace Plop
 		virtual void Bind() override;
 		virtual void Unbind() override;
 
+		virtual void Resize( uint32_t _uWidth, uint32_t _uHeight ) override;
+
 		virtual uint32_t GetID() const override { return m_uID; }
 		virtual uint32_t GetColorID() const override { return m_uColorBuffer; }
 

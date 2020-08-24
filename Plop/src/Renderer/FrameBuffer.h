@@ -15,6 +15,8 @@ namespace Plop
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
 
+		virtual void Resize( uint32_t _uWidth, uint32_t _uHeight ) = 0;
+
 		virtual uint32_t GetID() const = 0;
 		virtual uint32_t GetColorID() const = 0;
 

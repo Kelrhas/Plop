@@ -28,6 +28,18 @@ namespace Plop
 		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	}
 
+	void OpenGL_FrameBuffer::Resize( uint32_t _uWidth, uint32_t _uHeight )
+	{
+		glDeleteTextures( 1, &m_uColorBuffer );
+		glDeleteTextures( 1, &m_uDepthBuffer );
+		glDeleteFramebuffers( 1, &m_uID );
+
+		m_uWidth = _uWidth;
+		m_uHeight = _uHeight;
+
+		Recreate();
+	}
+
 	void OpenGL_FrameBuffer::Recreate()
 	{
 		glCreateFramebuffers( 1, &m_uID );

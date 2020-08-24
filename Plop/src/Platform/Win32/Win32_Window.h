@@ -13,6 +13,7 @@ namespace Plop
 		virtual void		Init() override;
 		virtual void		Destroy() override;
 		virtual void		Update(const TimeStep& _timeStep) override;
+		virtual void		SwapBuffers() override;
 
 		virtual void		ToggleFullscreen() override;
 		virtual void		SetVSync(bool _bEnabled) override;

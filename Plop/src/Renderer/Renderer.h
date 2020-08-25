@@ -126,16 +126,13 @@ namespace Plop
 		static void				EndScene();
 
 
-		// TODO: rename DrawQuad, change arguments order and add a mat4 version
-		static void				DrawQuadColor( const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor );
-		//static void				DrawQuadColor( const glm::vec3& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor );
-		static void				DrawQuadColorRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vColor );
+		static void				DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize );
+		static void				DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad );
+		static void				DrawQuad( const glm::vec4& _vColor, const glm::mat4& _mTransform );
 
-
-		// TODO: rename DrawTexture, change arguments order and add a mat4 version
-		static void				DrawQuadTexture( const glm::vec2& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture, const glm::vec4& _vTint = glm::vec4( 1.f ) );
-		//static void				DrawQuadTexture( const glm::vec3& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture, const glm::vec4& _vTint = glm::vec4( 1.f ) );
-		static void				DrawQuadTextureRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const TexturePtr& _xTexture, const glm::vec4& _vTint = glm::vec4( 1.f ) );
+		static void				DrawTexture( const TexturePtr& _xTexture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint = glm::vec4( 1.f ) );
+		static void				DrawTexture( const TexturePtr& _xTexture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint = glm::vec4( 1.f ) );
+		static void				DrawTexture( const TexturePtr& _xTexture, const glm::mat4& _mTransform, const glm::vec4& _vTint = glm::vec4( 1.f ) );
 
 		static void				DrawSprite( const Sprite& _sprite, const glm::vec2& _vPos, const glm::vec2& _vSize = glm::vec2( 1.f ), float _fAngleRad = 0.f );
 		static void				DrawSprite( const Sprite& _sprite, const glm::mat4& _mTransform );

@@ -83,7 +83,7 @@ namespace Plop
 					p.vSize = p.fLifeRatio * (p.vSizeEnd - p.vSizeStart) + p.vSizeStart;
 					p.vColor = p.fLifeRatio * (p.vColorEnd - p.vColorStart) + p.vColorStart;
 
-					Renderer2D::DrawQuadColor( p.vPosition, p.vSize, p.vColor );
+					Renderer2D::DrawQuad( p.vColor, p.vPosition, p.vSize );
 				}
 
 				if (p.bActive)

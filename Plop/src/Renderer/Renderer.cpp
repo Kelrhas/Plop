@@ -162,7 +162,24 @@ namespace Plop
 		s_bRendering2D = false;
 	}
 
-	void Renderer2D::DrawQuadColor(const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vColor)
+	void Renderer2D::DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize )
+	{
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
+		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+
+		DrawQuad( _vColor, mTransform );
+	}
+
+	void Renderer2D::DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad )
+	{
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
+		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
+		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+
+		DrawQuad( _vColor, mTransform );
+	}
+
+	void Renderer2D::DrawQuad( const glm::vec4& _vColor, const glm::mat4& _mTransform )
 	{
 		PROFILING_FUNCTION();
 
@@ -172,8 +189,6 @@ namespace Plop
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
 			DrawBatch();
 
-		glm::vec2 vHalfSize( _vSize / 2.f );
-
 		Vertex v;
 		v.vColor = _vColor;
 
@@ -194,16 +209,16 @@ namespace Plop
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
 		v.vUV = glm::vec2( 0.f );
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
 		v.vUV.x = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
 		v.vUV.y = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
 		v.vUV.x = 0.f;
 		s_sceneData.vecVertices.push_back( v );
 
@@ -218,69 +233,24 @@ namespace Plop
 		++s_sceneData.uNbQuad;
 	}
 
-	void Renderer2D::DrawQuadColorRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vColor )
+	void Renderer2D::DrawTexture( const TexturePtr& _xTexture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
-		PROFILING_FUNCTION();
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
+		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
 
-		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+		DrawTexture( _xTexture, mTransform, _vTint );
+	}
 
-
-		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
-			DrawBatch();
-
+	void Renderer2D::DrawTexture( const TexturePtr& _xTexture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+	{
 		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
 		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
-		glm::vec2 vHalfSize( _vSize / 2.f );
+		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
 
-
-		Vertex v;
-		v.vColor = _vColor;
-
-		bool bTexFound = false;
-		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
-		{
-			if (s_sceneData.pTextureUnits[i]->Compare( *s_xWhiteTex ))
-			{
-				v.fTexUnit = (float)i;
-				bTexFound = true;
-				break;
-			}
-		}
-		if (!bTexFound)
-		{
-			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = s_xWhiteTex;
-			v.fTexUnit = (float)s_sceneData.uNbTex++;
-		}
-
-		v.vPosition = glm::vec3( -vHalfSize.x, -vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
-		v.vUV = glm::vec2( 0.f );
-		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( vHalfSize.x, -vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
-		v.vUV.x = 1.f;
-		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( vHalfSize.x, vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
-		v.vUV.y = 1.f;
-		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( -vHalfSize.x, vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
-		v.vUV.x = 0.f;
-		s_sceneData.vecVertices.push_back( v );
-
-
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
-
-		++s_sceneData.uNbQuad;
+		DrawTexture( _xTexture, mTransform, _vTint );
 	}
 
-	void Renderer2D::DrawQuadTexture( const glm::vec2& _vPos, const glm::vec2& _vSize, const TexturePtr& _xTexture, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+	void Renderer2D::DrawTexture( const TexturePtr& _xTexture, const glm::mat4& _mTransform, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
 		PROFILING_FUNCTION();
 
@@ -289,8 +259,6 @@ namespace Plop
 
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
 			DrawBatch();
-
-		glm::vec2 vHalfSize( _vSize / 2.f );
 
 		Vertex v;
 		v.vColor = _vTint;
@@ -311,77 +279,16 @@ namespace Plop
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
 		v.vUV = glm::vec2( 0.f );
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y - vHalfSize.y, 0.f );
+		v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
 		v.vUV.x = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x + vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
+		v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
 		v.vUV.y = 1.f;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( _vPos.x - vHalfSize.x, _vPos.y + vHalfSize.y, 0.f );
-		v.vUV.x = 0.f;
-		s_sceneData.vecVertices.push_back( v );
-
-
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
-		s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
-
-		++s_sceneData.uNbQuad;
-	}
-
-	void Renderer2D::DrawQuadTextureRotated( const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const TexturePtr& _xTexture, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
-	{
-		PROFILING_FUNCTION();
-
-		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
-
-
-		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
-			DrawBatch();
-
-		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
-		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
-		glm::vec2 vHalfSize( _vSize / 2.f );
-
-		Vertex v;
-		v.vColor = _vTint;
-
-		bool bTexFound = false;
-		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
-		{
-			if (s_sceneData.pTextureUnits[i]->Compare( *_xTexture ))
-			{
-				v.fTexUnit = (float)i;
-				bTexFound = true;
-				break;
-			}
-		}
-		if (!bTexFound)
-		{
-			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = _xTexture;
-			v.fTexUnit = (float)s_sceneData.uNbTex++;
-		}
-
-		v.vPosition = glm::vec3( -vHalfSize.x, -vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4(v.vPosition, 1.f);
-		v.vUV = glm::vec2( 0.f );
-		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( vHalfSize.x, -vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
-		v.vUV.x = 1.f;
-		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( vHalfSize.x, vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
-		v.vUV.y = 1.f;
-		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( -vHalfSize.x, vHalfSize.y, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
 		v.vUV.x = 0.f;
 		s_sceneData.vecVertices.push_back( v );
 
@@ -398,7 +305,6 @@ namespace Plop
 
 	void Renderer2D::DrawSprite( const Sprite& _sprite, const glm::vec2& _vPos, const glm::vec2& _vSize /*= glm::vec2( 1.f )*/, float _fAngleRad /*= 0.f*/ )
 	{
-
 		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
 		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
 		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
@@ -440,20 +346,16 @@ namespace Plop
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
-		v.vPosition = glm::vec3( -0.5f, -0.5f, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vPosition = mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
 		v.vUV = _sprite.GetUVMin();
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( 0.5f, -0.5f, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vPosition = mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
 		v.vUV.x = _sprite.GetUVMax().x;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( 0.5f, 0.5f, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vPosition = mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
 		v.vUV = _sprite.GetUVMax();
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = glm::vec3( -0.5f, 0.5f, 0.f );
-		v.vPosition = mTransform * glm::vec4( v.vPosition, 1.f );
+		v.vPosition = mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
 		v.vUV.x = _sprite.GetUVMin().x;
 		s_sceneData.vecVertices.push_back( v );
 

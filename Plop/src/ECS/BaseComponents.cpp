@@ -33,7 +33,7 @@ namespace MM
 		auto& comp = reg.get<Plop::SpriteRendererComponent>( e );
 		if (comp.xSprite)
 		{
-			ImGui::DragFloat4( "Tint", glm::value_ptr( comp.xSprite->GetTint() ), 0.1f );
+			ImGui::ColorPicker4( "Tint", glm::value_ptr( comp.xSprite->GetTint() ), ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHSV );
 		}
 		else
 		{
@@ -64,8 +64,8 @@ namespace MM
 			}
 			else
 			{
-				float fFOV = comp.xCamera->GetPerspectiveFOV();
-				if (ImGui::DragFloat( "FOV (°)", &fFOV, 0.1f, 10, 170 ))
+				float fFOV = glm::degrees( comp.xCamera->GetPerspectiveFOV() );
+				if (ImGui::DragFloat( "FOV(°)", &fFOV, 0.1f, 10, 170 ))
 					comp.xCamera->SetPerspectiveFOV( glm::radians( fFOV ) );
 			}
 

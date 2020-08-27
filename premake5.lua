@@ -55,6 +55,7 @@
 	characterset("MBCS") --Unicode
 
 include "Externals/imgui-premake"
+include "Externals/Box2D"
 
 
 project "Plop"
@@ -88,6 +89,7 @@ project "Plop"
 		"Externals/fmt/include/",
 		"Externals/entt/",
 		"Externals/imgui_entt_entity_editor/",
+		"Externals/Box2D/include/",
 	}
 	
 	libdirs {
@@ -98,6 +100,7 @@ project "Plop"
 		"Externals/glew/lib/glew32s.lib",
 		"ImGui",
 		"opengl32.lib",
+		"Box2D",
 	}
 		
 	defines {

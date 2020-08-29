@@ -177,7 +177,7 @@ namespace Plop
 				GLint iMaxLength = 0;
 				glGetShaderiv(uShader, GL_INFO_LOG_LENGTH, &iMaxLength);
 
-				GLchar* pLog = new GLchar[iMaxLength];
+				GLchar* pLog = NEW GLchar[iMaxLength];
 				glGetShaderInfoLog(uShader, iMaxLength, &iMaxLength, &pLog[0]);
 
 				Log::Error("Shader failed to compile: {}", pLog);
@@ -203,7 +203,7 @@ namespace Plop
 			GLint iMaxLength = 0;
 			glGetProgramiv(m_uProgram, GL_INFO_LOG_LENGTH, &iMaxLength);
 
-			GLchar* pLog = new GLchar[iMaxLength];
+			GLchar* pLog = NEW GLchar[iMaxLength];
 			glGetProgramInfoLog(m_uProgram, iMaxLength, &iMaxLength, &pLog[0]);
 
 			Log::Error("Program did not link: {}", pLog);

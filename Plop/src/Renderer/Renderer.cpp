@@ -22,7 +22,7 @@ namespace Plop
 		uQuads = 0;
 	}
 
-	RenderAPI*			Renderer::s_pAPI = new OpenGL_Renderer();
+	RenderAPI*			Renderer::s_pAPI = NEW OpenGL_Renderer();
 	Renderer::SceneData Renderer::s_SceneData;
 	ShaderLibrary		Renderer::s_shaderLibrary;
 	FrameBufferPtr		Renderer::s_xFramebuffer = nullptr;
@@ -103,7 +103,7 @@ namespace Plop
 	void Renderer2D::Init()
 	{
 		MAX_TEX_UNIT = Renderer::s_pAPI->GetMaxTextureUnit();
-		s_sceneData.pTextureUnits = new TexturePtr[MAX_TEX_UNIT];
+		s_sceneData.pTextureUnits = NEW TexturePtr[MAX_TEX_UNIT];
 
 		uint32_t uWhite = 0xFFFFFFFF;
 		s_xWhiteTex = Texture::Create2D( 1, 1, &uWhite );
@@ -112,7 +112,7 @@ namespace Plop
 		s_xShader->Bind();
 		s_xShader->SetUniformVec4( "u_color", glm::vec4( 1.f ) );
 
-		int* textures = new int[MAX_TEX_UNIT];
+		int* textures = NEW int[MAX_TEX_UNIT];
 		for (uint32_t i = 0; i < MAX_TEX_UNIT; ++i)
 			textures[i] = i;
 		s_xShader->SetUniformIntArray( "u_textures", textures, MAX_TEX_UNIT );

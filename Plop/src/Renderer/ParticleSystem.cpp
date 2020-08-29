@@ -16,7 +16,7 @@ namespace Plop
 	ParticleSystem::ParticleSystem()
 	{
 		m_iMaxNumberParticles = 500;
-		m_pParticles = new ParticleDataLive[m_iMaxNumberParticles];
+		m_pParticles = NEW ParticleDataLive[m_iMaxNumberParticles];
 	}
 
 

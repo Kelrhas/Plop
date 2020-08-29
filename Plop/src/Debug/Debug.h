@@ -1,16 +1,39 @@
 #pragma once
 
+#include <Config.h>
 #include <optick.h>
 
 #include <Debug/Log.h>
+
+
+#ifdef ENABLE_MEMORY_TRACKING
+void* operator new(size_t _Size);
+void* operator new(size_t _Size, const char* _pFile, const size_t _Line);
+void* operator new[]( size_t _Size );
+void* operator new[](size_t _Size, const char* _pFile, const size_t _Line);
+void operator delete(void* _Ptr);
+void operator delete(void* _Ptr, const char* _pFile, const size_t _Line);
+void operator delete[](void* _Ptr);
+void operator delete[](void* _Ptr, const char* _pFile, const size_t _Line);
+
+#define NEW new(__FILE__, __LINE__)
+#else
+#define NEW new
+#endif // ENABLE_MEMORY_TRACKING
 
 namespace Plop
 {
 	namespace Debug
 	{
+		void NewFrame();
+		void EndFrame();
+
+
 		void Assert_GL();
 
 		void TODO( const char* _pMessage = nullptr );
+
+		void ShowAllocationsWindow( bool* _bOpened = nullptr );
 	}
 }
 

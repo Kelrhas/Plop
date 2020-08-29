@@ -64,6 +64,9 @@ namespace Plop
 		if(m_bShowImGuiDemo)
 			ImGui::ShowDemoWindow( &m_bShowImGuiDemo );
 
+		if (m_bShowAllocations)
+			Debug::ShowAllocationsWindow( &m_bShowAllocations );
+
 		// TODO set docking to bottom
 		Console::Draw();
 
@@ -175,6 +178,13 @@ namespace Plop
 			if (ImGui::BeginMenu( "Help" ))
 			{
 				ImGui::MenuItem( "Show demo window", nullptr, &m_bShowImGuiDemo );
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu( "Debug" ))
+			{
+				ImGui::MenuItem( "Show allocations", nullptr, &m_bShowAllocations );
 
 				ImGui::EndMenu();
 			}

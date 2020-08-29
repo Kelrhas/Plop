@@ -314,7 +314,7 @@ namespace Plop
 
 	Window* Window::Create(WindowConfig& _config)
 	{
-		return new Win32_Window(_config);
+		return NEW Win32_Window(_config);
 	}
 
 }

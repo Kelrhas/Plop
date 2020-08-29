@@ -8,7 +8,7 @@
 
 Plop::Application* Plop::CreateApplication()
 {
-	return new SampleApp();
+	return NEW SampleApp();
 }
 
 SampleApp::SampleApp()
@@ -17,13 +17,13 @@ SampleApp::SampleApp()
 
 Plop::GameConfig* SampleApp::CreateGameConfig()
 {
-	return new SampleConfig();
+	return NEW SampleConfig();
 }
 
 void SampleApp::Init()
 {
 	Plop::Application::Init();
 
-	RegisterAppLayer( new SampleLayer() );
-	RegisterAppLayer( new SampleLayer2D() );
+	RegisterAppLayer( NEW SampleLayer() );
+	RegisterAppLayer( NEW SampleLayer2D() );
 }

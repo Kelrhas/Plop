@@ -184,6 +184,7 @@ namespace Plop
 		{
 			PROFILING_FRAME("MainThread");
 
+			Debug::NewFrame();
 
 			m_timeStep.Advance();
 
@@ -203,6 +204,7 @@ namespace Plop
 			Renderer2D::EndFrame();
 			
 			m_xWindow->SwapBuffers();
+			Debug::EndFrame();
 		}
 
 		m_xWindow->Destroy();
@@ -233,7 +235,7 @@ namespace Plop
 
 	GameConfig* Application::CreateGameConfig()
 	{
-		return new GameConfig();
+		return NEW GameConfig();
 	}
 }
 

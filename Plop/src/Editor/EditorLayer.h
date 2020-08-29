@@ -22,6 +22,7 @@ namespace Plop
 
 	private:
 		bool		m_bShowImGuiDemo = false;
+		bool		m_bShowAllocations = false;
 		Entity		m_SelectedEntity;
 	};
 }

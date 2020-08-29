@@ -24,10 +24,10 @@ namespace Plop
 
 				const String& GetName() const { return m_sName; }
 
-		virtual void SetUniformInt(const String& _sName, int _int) const = 0;
-		virtual void SetUniformIntArray( const String& _sName, int* _ints, uint32_t _uCount ) const = 0;
-		virtual void SetUniformVec4(const String& _sName, const glm::vec4& _vec) const = 0;
-		virtual void SetUniformMat4(const String& _sName, const glm::mat4& _mat) const = 0;
+		virtual void SetUniformInt( const char* _pName, int _int) const = 0;
+		virtual void SetUniformIntArray( const char* _pName, int* _ints, uint32_t _uCount ) const = 0;
+		virtual void SetUniformVec4( const char* _pName, const glm::vec4& _vec ) const = 0;
+		virtual void SetUniformMat4( const char* _pName, const glm::mat4& _mat ) const = 0;
 		
 
 		static String GetNameFromFile(const String& _sFile);

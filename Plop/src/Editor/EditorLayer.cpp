@@ -79,7 +79,7 @@ namespace Plop
 
 					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
 
-					String sName = _Entity.GetComponent<NameComponent>().sName;
+					String& sName = _Entity.GetComponent<NameComponent>().sName;
 					if (ImGui::Selectable( sName.c_str(), m_SelectedEntity == _Entity ))
 					{
 						m_SelectedEntity = _Entity;

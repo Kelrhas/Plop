@@ -134,6 +134,9 @@ namespace Plop
 		//if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
 		//	return;
 
+		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+			return;
+
 		String str("Opengl message: ");
 		str.append(message);
 

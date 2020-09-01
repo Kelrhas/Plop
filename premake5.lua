@@ -71,6 +71,7 @@ project "Plop"
 	files {
 		"%{prj.location}/src/**.h",
 		"%{prj.location}/src/**.cpp",
+		"%{prj.location}/src/**.inl",
 		"Externals/json/nlohmann_json.natvis",
 		"Externals/glm/util/*",
 		"Externals/stb/stb.cpp"

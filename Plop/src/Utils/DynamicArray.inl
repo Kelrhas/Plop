@@ -12,7 +12,7 @@ namespace Plop
 		m_Granularity = _Other.m_Granularity;
 
 		for (size_type i = 0; i < m_Size; ++i)
-			m_pData[i] = _Other[i];
+			new(&m_pData[i]) value_type( _Other[i] );
 	}
 
 	template<class value_type>
@@ -75,7 +75,7 @@ namespace Plop
 	void DynamicArray<value_type>::pop_back()
 	{
 		ASSERT( m_Size, "Array is empty" );
-		m_pData[m_Size--].~value_type();
+		m_pData[--m_Size].~value_type();
 	}
 
 	template<class value_type>

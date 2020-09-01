@@ -80,7 +80,7 @@ TEMPLATE_TEST_CASE( "StaticArray", "[data structure][StaticArray]", float, int, 
 	*/
 }
 
-TEMPLATE_PRODUCT_TEST_CASE( "Vector", "[data structure][DynamicArray]", (std::vector/*, DynamicArray*/), (float, int, /*std::string,*/ TestObject) )
+TEMPLATE_PRODUCT_TEST_CASE( "Vector", "[data structure][DynamicArray]", (std::vector, DynamicArray), (float, int, /*std::string,*/ TestObject) )
 {
 	TestType vec;
 
@@ -88,19 +88,29 @@ TEMPLATE_PRODUCT_TEST_CASE( "Vector", "[data structure][DynamicArray]", (std::ve
 	REQUIRE( vec.capacity() == 0 );
 	REQUIRE( vec.empty() == true );
 
-	vec.push_back( TestType::value_type() );
-	REQUIRE( vec.size() == 1 );
-
-	SECTION( "Adding" )
+	SECTION( "Adding & Removing" )
 	{
-		TestType::value_type t;
+		TestType::value_type t = TestType::value_type();
+		vec.push_back( 1 );
+		vec.push_back( 2 );
+		vec.push_back( 3 );
 		vec.push_back( t );
 		vec.emplace_back( (TestType::value_type)10 );
 
-		REQUIRE( vec.size() == 3 );
-		if(typeid(TestType::value_type) == typeid(TestObject))
-			REQUIRE( (int)*(TestObject*)&vec[2] == 10 );
+		REQUIRE( vec.size() == 5 );
+		REQUIRE( vec.front() == (TestType::value_type)1 );
+		REQUIRE( vec.back() == (TestType::value_type)10 );
+
+		vec.pop_back();
+		REQUIRE( vec.size() == 4 );
+		REQUIRE( vec.back() == TestType::value_type() );
+
+		vec.clear();
+		REQUIRE( vec.size() == 0 );
 	}
+
+	vec.push_back( TestType::value_type() );
+	REQUIRE( vec.size() == 1 );
 
 	SECTION( "Accessing" )
 	{
@@ -144,7 +154,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "Vector", "[data structure][DynamicArray]", (std::ve
 			REQUIRE( vec[i] == vecCopy[i] );
 	}
 
-	SECTION( "Iterators on const" )
+	/*SECTION( "Iterators on const" )
 	{
 		REQUIRE( vecCopy.size() == 6 );
 
@@ -163,5 +173,14 @@ TEMPLATE_PRODUCT_TEST_CASE( "Vector", "[data structure][DynamicArray]", (std::ve
 			i++;
 		}
 		REQUIRE( i == vecCopy.size() );
+	}*/
+
+	SECTION( "Moving vector" )
+	{
+		TestType vecMove = std::move(vec);
+		REQUIRE( vecMove.size() == 6 );
+		REQUIRE( vec.size() == 0 );
+		REQUIRE( vec.data() == nullptr );
+		REQUIRE( vec.data() != vecMove.data() );
 	}
 }

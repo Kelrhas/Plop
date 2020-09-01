@@ -89,6 +89,7 @@ project "Plop"
 		"Externals/fmt/include/",
 		"Externals/entt/",
 		"Externals/imgui_entt_entity_editor/",
+		"Externals/catch2/",
 	}
 	
 	libdirs {
@@ -104,4 +105,49 @@ project "Plop"
 	defines {
 		"PLOP_BUILD",
 		"GLEW_STATIC"
+	}
+
+project "UnitTests"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
+	
+	location "%{prj.name}"
+			
+	files {
+		"%{prj.location}/src/**.h",
+		"%{prj.location}/src/**.cpp",
+	}
+	
+	includedirs {
+		"Plop/src/",
+		--"Externals/json/",
+		--"Externals/glew/include",
+		--"Externals/ImGui/",
+		--"Externals/ImGui-premake/",
+		--"Externals/glm/",
+		--"Externals/stb/",
+		--"Externals/optick/include/",
+		--"Externals/fmt/include/",
+		--"Externals/entt/",
+		--"Externals/imgui_entt_entity_editor/",
+		"Externals/catch2/",
+	}
+	
+	libdirs {
+	}
+			
+	defines {
+		"UNIT_TEST_MODE"
+	}
+
+	libdirs {
+		"Externals/glew/lib/",
+		"Externals/optick/lib/x64/%{cfg.buildcfg}/", -- todo : #pragma comment(lib, ".\\Externals\\optick\\lib\\x64\\release\\OptickCore.lib")
+	}
+	
+	links {
+		"Plop",
+		"OptickCore.lib"
 	}

@@ -239,6 +239,7 @@ namespace Plop
 
 
 
+#ifndef UNIT_TEST_MODE
 
 int main(int argc, char** argv)
 {
@@ -246,3 +247,5 @@ int main(int argc, char** argv)
 	pApp->Init();
 	pApp->Run();
 }
+
+#endif

@@ -4,19 +4,20 @@ namespace Plop
 {
 	/* DynamicArray is a simple version of std::vector
 	 */
-	template<class value_type, size_t Size>
+	template<class T, size_t Size>
 	class StaticArray final
 	{
 		static_assert(Size > 0, "A StaticArray must have a positive Size");
 
+	public:
 		// Types
+		using value_type = T;
 		using size_type = size_t;
 		using pointer = value_type * ;
 		using const_pointer = const value_type *;
 		using reference = value_type & ;
 		using const_reference = const value_type &;
 
-	public:
 		// CTOR & DTOR
 		StaticArray() = default;
 		StaticArray( const StaticArray<value_type, Size>& _Other );
@@ -24,7 +25,7 @@ namespace Plop
 		~StaticArray() = default;
 
 		// Modifiers
-		void						fill( value_type&& _Element );
+		void						fill( const value_type& _Element );
 		
 		// Getters
 		constexpr bool				empty() const { return Size == 0; }
@@ -47,13 +48,13 @@ namespace Plop
 		{
 			friend class StaticArray<value_type, Size>;
 			
-			iterator& operator=( const iterator& )		{ dataRef = _Other.dataRef; index = _Other.index; return *this; }
-			bool operator==( const iterator& _Other )	{ ASSERT( &dataRef == &_Other.dataRef, "Iterators are not for the same StaticArray" ); return index == _Other.index; }
-			bool operator!=( const iterator& _Other )	{ return !(*this == _Other); }
-			iterator& operator++()						{ index++; return *this; }						// pre-increment
-			iterator operator++(int)					{ iterator it = *this; index++; return it; }	// post-increment
-			reference operator*() const					{ return dataRef[index]; }
-			pointer operator->() const					{ return &dataRef[index]; }
+			iterator& operator=( const iterator& )			{ dataRef = _Other.dataRef; index = _Other.index; return *this; }
+			bool operator==( const iterator& _Other ) const	{ ASSERT( &dataRef == &_Other.dataRef, "Iterators are not for the same StaticArray" ); return index == _Other.index; }
+			bool operator!=( const iterator& _Other ) const	{ return !(*this == _Other); }
+			iterator& operator++()							{ index++; return *this; }							// pre-increment
+			iterator operator++(int)						{ iterator it = *this; index++; return it; }		// post-increment
+			reference operator*() const						{ return dataRef[index]; }
+			pointer operator->() const						{ return &dataRef[index]; }
 
 		private:
 			iterator( StaticArray<value_type,Size>& _vecRef, size_type _Index = 0 ) : dataRef( _vecRef ), index( _Index ) {}
@@ -73,7 +74,7 @@ namespace Plop
 
 
 	private:
-		value_type		m_Data[Size];
+		value_type		m_pData[Size];
 	};
 }
 

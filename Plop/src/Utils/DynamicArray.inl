@@ -2,16 +2,10 @@
 namespace Plop
 {
 #pragma region CTOR & DTOR
-	template<class value_type>
-	DynamicArray<value_type>::DynamicArray()
-	{
-		Log::Info( "CTOR" );
-	}
 
 	template<class value_type>
 	DynamicArray<value_type>::DynamicArray( const DynamicArray<value_type>& _Other )
 	{
-		Log::Info( "COPY CTOR" );
 		Reallocate( _Other.m_Capacity );
 
 		m_Size = _Other.m_Size;
@@ -24,7 +18,6 @@ namespace Plop
 	template<class value_type>
 	DynamicArray<value_type>::DynamicArray( DynamicArray<value_type>&& _Other )
 	{
-		Log::Info( "MOVE CTOR" );
 		// move storage
 		m_pData = _Other.m_pData;
 		m_Capacity = _Other.m_Capacity;
@@ -40,7 +33,6 @@ namespace Plop
 	template<class value_type>
 	DynamicArray<value_type>::~DynamicArray()
 	{
-		Log::Info( "DTOR" );
 		for (size_type i = 0; i < m_Size; ++i)
 			m_pData[i].~value_type();
 
@@ -62,12 +54,21 @@ namespace Plop
 	}
 
 	template<class value_type>
+	void DynamicArray<value_type>::push_back( const value_type& _Element )
+	{
+		if (m_Size >= m_Capacity)
+			Reallocate( ComputeNewCapacity() );
+
+		new(&m_pData[m_Size++]) value_type( _Element );
+	}
+
+	template<class value_type>
 	void DynamicArray<value_type>::push_back( value_type&& _Element )
 	{
 		if (m_Size >= m_Capacity)
 			Reallocate( ComputeNewCapacity() );
 
-		m_pData[m_Size++] = std::move( _Element );
+		new(&m_pData[m_Size++]) value_type( std::move( _Element ) );
 	}
 
 	template<class value_type>
@@ -131,6 +132,18 @@ namespace Plop
 		return m_pData[m_Size - 1];
 	}
 
+	template<class value_type>
+	typename DynamicArray<value_type>::pointer DynamicArray<value_type>::data()
+	{
+		return m_pData;
+	}
+
+	template<class value_type>
+	typename DynamicArray<value_type>::const_pointer DynamicArray<value_type>::data() const
+	{
+		return m_pData;
+	}
+
 #pragma endregion
 
 #pragma region operators
@@ -153,8 +166,6 @@ namespace Plop
 	template<class value_type>
 	DynamicArray<value_type>& DynamicArray<value_type>::operator=( const DynamicArray<value_type>& _Other )
 	{
-		Log::Info( "COPY =" );
-
 		// delete current storage
 		for (size_type i = 0; i < m_Size; ++i)
 			m_pData[i].~value_type();
@@ -174,8 +185,6 @@ namespace Plop
 	template<class value_type>
 	DynamicArray<value_type>& DynamicArray<value_type>::operator=( DynamicArray<value_type>&& _Other )
 	{
-		Log::Info( "MOVE =" );
-
 		// delete current storage
 		for (size_type i = 0; i < m_Size; ++i)
 			m_pData[i].~value_type();

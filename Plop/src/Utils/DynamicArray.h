@@ -4,19 +4,20 @@ namespace Plop
 {
 	/* DynamicArray is a simple version of std::vector
 	 */
-	template<class value_type>
+	template<class T>
 	class DynamicArray final
 	{
+	public:
 		// Types
+		using value_type = T;
 		using size_type = size_t;
 		using pointer = value_type * ;
 		using const_pointer = const value_type * ;
 		using reference = value_type & ;
 		using const_reference = const value_type &;
 
-	public:
 		// CTOR & DTOR
-		DynamicArray();
+		DynamicArray() = default;
 		DynamicArray( const DynamicArray<value_type>& _Other );
 		DynamicArray( DynamicArray<value_type>&& _Other );
 		~DynamicArray();
@@ -25,6 +26,7 @@ namespace Plop
 		// Modifiers
 		template<typename...Args>
 		void						emplace_back( Args...args );
+		void						push_back( const value_type& _Element );
 		void						push_back( value_type&& _Element );
 		void						pop_back();
 		void						clear();
@@ -40,6 +42,8 @@ namespace Plop
 		const_reference				front() const;
 		reference					back();
 		const_reference				back() const;
+		pointer						data();
+		const_pointer				data() const;
 
 		// operators
 		reference					operator[](size_type _Index );

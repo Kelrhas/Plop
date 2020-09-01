@@ -5,6 +5,8 @@
 #include <ECS/Entity.h>
 #include <ECS/BaseComponents.h>
 
+#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
+
 namespace Plop
 {
 	LevelBaseWeakPtr LevelBase::s_xCurrentLevel;

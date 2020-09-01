@@ -1,7 +1,8 @@
 #pragma once
 
 #pragma warning(disable:4307) // https://github.com/skypjack/entt/issues/121
-#include <entt.hpp>
+#include <entt/entity/fwd.hpp>
+#include <entt/entity/registry.hpp>
 
 #include <TimeStep.h>
 

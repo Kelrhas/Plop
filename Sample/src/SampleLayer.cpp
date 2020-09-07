@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Assets/TextureLoader.h>
 #include <Debug/Debug.h>
 #include <Constants.h>
 #include <Events/EventDispatcher.h>
@@ -23,7 +24,6 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 	PROFILING_FUNCTION();
 
 	static Plop::MeshPtr xMesh = nullptr;
-	static Plop::TexturePtr xTex = nullptr;
 	if (xMesh == nullptr)
 	{
 		xMesh = std::make_shared<Plop::Mesh>();
@@ -57,7 +57,7 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 		xMesh->m_xShader->Bind();
 		xMesh->m_xShader->SetUniformVec4("u_color", glm::vec4(1.f));
 
-		xMesh->m_xTex = Plop::Texture::Create2D( "assets/textures/grass.png" );
+		xMesh->m_hTex = Plop::AssetLoader::GetTexture( "assets/textures/grass.png" );
 	}
 
 	Plop::Renderer::Clear();
@@ -91,9 +91,9 @@ void SampleLayer2D::OnRegistered()
 	}
 
 
-	if (m_xSpritesheet == nullptr)
+	if (!m_hSpritesheet)
 	{
-		m_xSpritesheet = Plop::Texture::Create2D( "assets/textures/tilesheet.png" );
+		m_hSpritesheet = Plop::AssetLoader::GetTexture( "assets/textures/tilesheet.png" );
 	}
 
 	Plop::Entity cameraEntity = m_xLevel->CreateEntity( "Camera" );
@@ -108,8 +108,7 @@ void SampleLayer2D::OnRegistered()
 
 		Plop::SpriteRendererComponent& renderer = m_PlayerEntity.AddComponent<Plop::SpriteRendererComponent>();
 
-		renderer.xSprite = std::make_shared<Plop::Sprite>();
-		renderer.xSprite->SetTexture( m_xSpritesheet );
+		renderer.xSprite->SetTextureHandle( m_hSpritesheet );
 		renderer.xSprite->SetSpriteIndex( { 18, 1 }, { 23, 13 } );
 		renderer.xSprite->SetSpriteIndex( { 0, 0 }, { 23, 13 }, { 9, 1 } );
 
@@ -149,8 +148,8 @@ void SampleLayer2D::OnRegistered()
 		m_xTowerMesh->m_xShader->Bind();
 		m_xTowerMesh->m_xShader->SetUniformVec4("u_color", glm::vec4(1.f));
 
-		m_xTowerMesh->m_xTex = Plop::Texture::Create2D("assets/textures/tower.png");
-		m_xTowerMesh->m_xTex->BindSlot( 1 );
+		m_xTowerMesh->m_hTex = Plop::AssetLoader::GetTexture("assets/textures/tower.png");
+		m_xTowerMesh->m_hTex->BindSlot( 1 );
 	}
 }
 

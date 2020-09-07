@@ -52,6 +52,8 @@ namespace Plop
 	struct SpriteRendererComponent
 	{
 		SpritePtr xSprite = nullptr;
+
+		SpriteRendererComponent();
 	};
 
 	struct CameraComponent

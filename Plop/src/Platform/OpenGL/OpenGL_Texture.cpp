@@ -45,9 +45,11 @@ namespace Plop
 		glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, m_eDataFormat, GL_UNSIGNED_BYTE, pData );
 
 		stbi_image_free( pData );
+
+		m_sName = _sFile;
 	}
 
-	OpenGL_Texture2D::OpenGL_Texture2D( uint32_t _uWidth, uint32_t _uHeight, void* _pData )
+	OpenGL_Texture2D::OpenGL_Texture2D( uint32_t _uWidth, uint32_t _uHeight, FlagsType _eFlags, void* _pData, const String& _sName /*= ""*/ )
 		: Texture2D()
 	{
 		m_uWidth = _uWidth;
@@ -62,8 +64,16 @@ namespace Plop
 		glTextureParameteri( m_uID, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		glTextureParameteri( m_uID, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
-		glTextureParameteri( m_uID, GL_TEXTURE_WRAP_S, GL_CLAMP );
-		glTextureParameteri( m_uID, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		if (_eFlags & (FlagsType)Flags::UV_REPEAT)
+		{
+			glTextureParameteri( m_uID, GL_TEXTURE_WRAP_S, GL_REPEAT );
+			glTextureParameteri( m_uID, GL_TEXTURE_WRAP_T, GL_REPEAT );
+		}
+		else
+		{
+			glTextureParameteri( m_uID, GL_TEXTURE_WRAP_S, GL_CLAMP );
+			glTextureParameteri( m_uID, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		}
 		
 		if (_pData)
 			glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, m_eDataFormat, GL_UNSIGNED_BYTE, _pData );
@@ -84,7 +94,7 @@ namespace Plop
 		glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, m_eDataFormat, GL_UNSIGNED_BYTE, _pData );
 	}
 
-	bool OpenGL_Texture2D::Compare( const Texture& _other )
+	bool OpenGL_Texture2D::Compare( const Texture& _other ) const
 	{
 		return m_uID == ((OpenGL_Texture2D&)_other).m_uID;
 	}

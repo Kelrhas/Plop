@@ -13,8 +13,9 @@ namespace Plop
 		Sprite() = default;
 		~Sprite() = default;
 
-				void				SetTexture( const TexturePtr& _xTexture );
-				const TexturePtr&	GetTexture() const { return m_xTexture; }
+				void				SetTextureHandle( const TextureHandle& _hTexture );
+				const TextureHandle&GetTextureHandle() const { return m_hTexture; }
+				const Texture&		GetTexture() const { return m_hTexture.get(); }
 
 				const glm::uvec2&	GetSize() const { return m_vSize; }
 
@@ -28,7 +29,7 @@ namespace Plop
 				glm::vec4&			GetTint() { return m_vTint; }
 
 	private:
-		TexturePtr		m_xTexture = nullptr;
+		TextureHandle	m_hTexture;
 		glm::uvec2		m_vSize = glm::uvec2( 1 );
 		glm::vec2		m_vUVMin = glm::vec2( 0.f );
 		glm::vec2		m_vUVMax = glm::vec2( 1.f );

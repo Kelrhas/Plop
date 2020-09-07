@@ -15,7 +15,7 @@ namespace Plop
 		ShaderPtr		m_xShader = nullptr;
 		VertexArrayPtr	m_xVertexArray = nullptr;
 		glm::mat4		m_mTransform = glm::identity<glm::mat4>();
-		TexturePtr		m_xTex = nullptr;
+		TextureHandle	m_hTex;
 		int				m_iTexSlot = 0;
 	};
 }

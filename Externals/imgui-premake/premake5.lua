@@ -24,7 +24,8 @@ project "ImGui"
 	
 	includedirs
 	{
-		"%{prj.location}"
+		"%{prj.location}",
+		"%{prj.location}/../glm"
 	}
 
 	defines

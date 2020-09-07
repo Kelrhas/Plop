@@ -3,9 +3,9 @@
 
 namespace Plop
 {
-	void Sprite::SetTexture( const TexturePtr& _xTexture )
+	void Sprite::SetTextureHandle( const TextureHandle& _hTexture )
 	{
-		m_xTexture = _xTexture;
+		m_hTexture = _hTexture;
 	}
 
 	void Sprite::SetUV( const glm::vec2& _vUVMin, const glm::vec2& _vUVMax )

@@ -66,10 +66,10 @@ namespace Plop
 		_xMesh->m_xShader->SetUniformMat4("u_mViewProjection", s_SceneData.mVPMatrix ); // will have to move into scene prepare command
 
 		_xMesh->m_xShader->SetUniformMat4("u_mModel", _xMesh->m_mTransform);
-		if (_xMesh->m_xTex)
+		if (_xMesh->m_hTex)
 		{
 			_xMesh->m_xShader->SetUniformInt( "u_tDiffuse", 0 );
-			_xMesh->m_xTex->BindSlot( 0 );
+			_xMesh->m_hTex->BindSlot( 0 );
 		}
 
 		_xMesh->m_xVertexArray->Bind();
@@ -87,6 +87,7 @@ namespace Plop
 	uint32_t						Renderer2D::MAX_TEX_UNIT = 32;
 	bool							Renderer2D::s_bRendering2D = false;
 	TexturePtr						Renderer2D::s_xWhiteTex = nullptr;
+	TexturePtr						Renderer2D::s_xCheckerTex = nullptr;
 	ShaderPtr						Renderer2D::s_xShader = nullptr;
 	VertexArrayPtr					Renderer2D::s_xVertexArray = nullptr;
 	VertexBufferPtr					Renderer2D::s_xVertexBuffer = nullptr;
@@ -103,10 +104,12 @@ namespace Plop
 	void Renderer2D::Init()
 	{
 		MAX_TEX_UNIT = Renderer::s_pAPI->GetMaxTextureUnit();
-		s_sceneData.pTextureUnits = new TexturePtr[MAX_TEX_UNIT];
+		s_sceneData.pTextureUnits = new const Texture*[MAX_TEX_UNIT];
 
 		uint32_t uWhite = 0xFFFFFFFF;
-		s_xWhiteTex = Texture::Create2D( 1, 1, &uWhite );
+		s_xWhiteTex = Texture::Create2D( 1, 1, (Texture::FlagsType)Texture::Flags::NONE, &uWhite, "white" );
+		uint32_t checker[4] = { 0xAAAAAAFF, 0x333333FF, 0x333333FF, 0xAAAAAAFF };
+		s_xCheckerTex = Texture::Create2D( 2, 2, (Texture::FlagsType)Texture::Flags::UV_REPEAT, &checker, "checker" );
 
 		s_xShader = Plop::Renderer::LoadShader( "data/shaders/textured.glsl" );
 		s_xShader->Bind();
@@ -205,7 +208,7 @@ namespace Plop
 		}
 		if (!bTexFound)
 		{
-			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = s_xWhiteTex;
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = s_xWhiteTex.get();
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
@@ -233,24 +236,24 @@ namespace Plop
 		++s_sceneData.uNbQuad;
 	}
 
-	void Renderer2D::DrawTexture( const TexturePtr& _xTexture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+	void Renderer2D::DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
 		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
 		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
 
-		DrawTexture( _xTexture, mTransform, _vTint );
+		DrawTexture( _Texture, mTransform, _vTint );
 	}
 
-	void Renderer2D::DrawTexture( const TexturePtr& _xTexture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+	void Renderer2D::DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
 		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
 		mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
 		mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
 
-		DrawTexture( _xTexture, mTransform, _vTint );
+		DrawTexture( _Texture, mTransform, _vTint );
 	}
 
-	void Renderer2D::DrawTexture( const TexturePtr& _xTexture, const glm::mat4& _mTransform, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+	void Renderer2D::DrawTexture( const Texture& _Texture, const glm::mat4& _mTransform, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
 	{
 		PROFILING_FUNCTION();
 
@@ -266,7 +269,7 @@ namespace Plop
 		bool bTexFound = false;
 		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
 		{
-			if (s_sceneData.pTextureUnits[i]->Compare( *_xTexture ))
+			if (s_sceneData.pTextureUnits[i]->Compare( _Texture ))
 			{
 				v.fTexUnit = (float)i;
 				bTexFound = true;
@@ -275,7 +278,7 @@ namespace Plop
 		}
 		if (!bTexFound)
 		{
-			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = _xTexture;
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = &_Texture;
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 
@@ -317,8 +320,7 @@ namespace Plop
 		PROFILING_FUNCTION();
 
 		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
-		ASSERT( _sprite.GetTexture() != nullptr, "Sprite does not have a texture binded" );
-		if (!_sprite.GetTexture())
+		if (!_sprite.GetTextureHandle())
 			return;
 
 
@@ -333,7 +335,7 @@ namespace Plop
 		bool bTexFound = false;
 		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
 		{
-			if (s_sceneData.pTextureUnits[i]->Compare( *_sprite.GetTexture() ))
+			if (s_sceneData.pTextureUnits[i]->Compare( _sprite.GetTexture() ))
 			{
 				v.fTexUnit = (float)i;
 				bTexFound = true;
@@ -342,7 +344,7 @@ namespace Plop
 		}
 		if (!bTexFound)
 		{
-			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = _sprite.GetTexture();
+			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = &_sprite.GetTexture();
 			v.fTexUnit = (float)s_sceneData.uNbTex++;
 		}
 

@@ -8,6 +8,8 @@ namespace Plop
 {
 	namespace Debug
 	{
+		bool bBreakOnAssert = true;
+
 		void Assert_GL()
 		{
 #ifndef _MASTER
@@ -20,7 +22,7 @@ namespace Plop
 					case GL_INVALID_VALUE:		// 1281
 					case GL_INVALID_OPERATION:	// 1282
 					default:
-						__debugbreak();
+						BREAK();
 				}
 				iGLError = glGetError();
 			}
@@ -34,7 +36,7 @@ namespace Plop
 				Plop::Log::Info( "TODO:\t{}", _pMessage );
 			static bool bIgnore = false;
 			if (!bIgnore)
-				__debugbreak();
+				BREAK();
 #endif
 		}
 	}

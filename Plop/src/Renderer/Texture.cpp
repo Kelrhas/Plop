@@ -6,21 +6,11 @@
 
 namespace Plop
 {
-	TexturePtr Texture::Create2D( const String& _sFile )
+	TexturePtr Texture::Create2D( uint32_t _uWidth, uint32_t _uHeight, FlagsType _eFlags, void* _pData, const String& _sName /*= ""*/ )
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL:		return std::make_shared<OpenGL_Texture2D>(_sFile);
-		}
-		ASSERT( false, "Render API not supported" );
-		return nullptr;
-	}
-
-	TexturePtr Texture::Create2D( uint32_t _uWidth, uint32_t _uHeight, void* _pData )
-	{
-		switch (Renderer::GetAPI())
-		{
-			case RenderAPI::API::OPENGL:		return std::make_shared<OpenGL_Texture2D>( _uWidth, _uHeight, _pData );
+			case RenderAPI::API::OPENGL:		return std::make_shared<OpenGL_Texture2D>( _uWidth, _uHeight, _eFlags, _pData, _sName );
 		}
 		ASSERT( false, "Render API not supported" );
 		return nullptr;

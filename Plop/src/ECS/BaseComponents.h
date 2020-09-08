@@ -1,9 +1,12 @@
 #pragma once
 
+#include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
+#include <imgui_entt_entity_editor.hpp>
+
 #include <Renderer/Sprite.h>
 #include <Camera/Camera.h>
 
-#include <imgui_entt_entity_editor.hpp>
 
 namespace Plop
 {
@@ -49,6 +52,8 @@ namespace Plop
 	struct SpriteRendererComponent
 	{
 		SpritePtr xSprite = nullptr;
+
+		SpriteRendererComponent();
 	};
 
 	struct CameraComponent

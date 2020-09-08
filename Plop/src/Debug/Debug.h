@@ -25,9 +25,10 @@ namespace Plop
 {
 	namespace Debug
 	{
+		extern bool bBreakOnAssert;
+
 		void NewFrame();
 		void EndFrame();
-
 
 		void Assert_GL();
 
@@ -51,9 +52,9 @@ namespace Plop
 
 #ifndef _MASTER
 #define BREAK() __debugbreak()
-#define ASSERT(action, ...) {bool b = (action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); BREAK(); }}
-#define VERIFY(action, ...) {bool b = (action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); BREAK(); }}
-#define VERIFY_NO_MSG(action) {bool b = (action); if(!b){ BREAK(); }}
+#define ASSERT(action, ...) {bool b = (action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
+#define VERIFY(action, ...) {bool b = (action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
+#define VERIFY_NO_MSG(action) {bool b = (action); if(!b){ if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
 #define EXCEPTION(action, ...) {bool b = (action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK(); }}
 #else
 #define BREAK() do{}while(0)

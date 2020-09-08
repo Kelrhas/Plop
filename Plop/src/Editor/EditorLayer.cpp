@@ -2,6 +2,7 @@
 #include "EditorLayer.h"
 
 #include <imgui.h>
+#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 #include <imgui_entt_entity_editor.hpp>
 
 

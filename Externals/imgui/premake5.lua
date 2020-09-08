@@ -4,7 +4,7 @@ project "ImGui"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
-	location "../imgui/"
+	location "."
 	
 	files
 	{
@@ -18,13 +18,15 @@ project "ImGui"
 		"%{prj.location}/imstb_rectpack.h",
 		"%{prj.location}/imstb_textedit.h",
 		"%{prj.location}/imstb_truetype.h",
+		"%{prj.location}/misc/cpp/imgui_stdlib.cpp",
 		"%{prj.location}/misc/cpp/imgui_stdlib.h",
 		"%{prj.location}/misc/natvis/imgui.natvis"
 	}
 	
 	includedirs
 	{
-		"%{prj.location}"
+		"%{prj.location}",
+		"%{prj.location}/../glm", -- for glm::vec2 <-> ImVec2 conversion in imconfig
 	}
 
 	defines

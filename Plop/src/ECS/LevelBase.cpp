@@ -5,6 +5,8 @@
 #include <ECS/Entity.h>
 #include <ECS/BaseComponents.h>
 
+#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
+
 namespace Plop
 {
 	LevelBaseWeakPtr LevelBase::s_xCurrentLevel;
@@ -46,15 +48,23 @@ namespace Plop
 	void LevelBase::Update( TimeStep _ts )
 	{
 		auto& group = m_ENTTRegistry.group<TransformComponent, SpriteRendererComponent>();
-		for (auto entity : group)
+		for (auto entityID : group)
 		{
-			SpriteRendererComponent& renderer = group.get<SpriteRendererComponent>( entity );
+			SpriteRendererComponent& renderer = group.get<SpriteRendererComponent>( entityID );
 			if (!renderer.xSprite)
 				continue;
 
-			TransformComponent& transform = group.get<TransformComponent>( entity );
+			TransformComponent& transform = group.get<TransformComponent>( entityID );
+			
+			Entity entity{ entityID, GetCurrentLevel() };
+			glm::mat4 mTransform = transform.mTransform;
+			while (entity = entity.GetParent())
+			{
+				mTransform *= entity.GetComponent<TransformComponent>().mTransform;
+			}
 
-			Renderer2D::DrawSprite( *renderer.xSprite, transform.mTransform );
+
+			Renderer2D::DrawSprite( *renderer.xSprite, mTransform );
 		}
 	}
 

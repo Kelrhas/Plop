@@ -54,7 +54,7 @@
 
 	characterset("MBCS") --Unicode
 
-include "Externals/imgui-premake"
+include "Externals/imgui"
 
 
 project "Plop"
@@ -81,7 +81,6 @@ project "Plop"
 		"Externals/json/",
 		"Externals/glew/include",
 		"Externals/ImGui/",
-		"Externals/ImGui-premake/",
 		"Externals/glm/",
 		"Externals/stb/",
 		"Externals/optick/include/",

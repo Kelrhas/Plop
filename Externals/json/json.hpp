@@ -15536,10 +15536,14 @@ class serializer
 
                 if (pretty_print)
                 {
-                    o->write_characters("[\n", 2);
+                    bool isObject = val.m_value.array->front().m_type == value_t::object;
+                    if (isObject)
+                        o->write_characters("[\n", 2);
+                    else
+                        o->write_characters("[", 1);
 
                     // variable to hold indentation for recursive calls
-                    const auto new_indent = current_indent + indent_step;
+                    const auto new_indent = isObject ? current_indent + indent_step : 0;
                     if (JSON_HEDLEY_UNLIKELY(indent_string.size() < new_indent))
                     {
                         indent_string.resize(indent_string.size() * 2, ' ');
@@ -15551,7 +15555,10 @@ class serializer
                     {
                         o->write_characters(indent_string.c_str(), new_indent);
                         dump(*i, true, ensure_ascii, indent_step, new_indent);
-                        o->write_characters(",\n", 2);
+                        if(i->m_type == value_t::object)
+                            o->write_characters(",\n", 2);
+                        else
+                            o->write_characters(",", 1);
                     }
 
                     // last element

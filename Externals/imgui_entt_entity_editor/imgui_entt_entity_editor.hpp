@@ -93,9 +93,9 @@ public:
 					ImGui::Text("Invalid Entity");
 				}
 
-				if (ImGui::Button("New Entity")) {
+				/*if (ImGui::Button("New Entity")) {
 					e = registry.create();
-				}
+				}*/
 
 				ImGui::Separator();
 

@@ -8,6 +8,10 @@
 #include <entt/entity/fwd.hpp>
 #include <imgui.h>
 
+#include <json.hpp>
+
+using json = nlohmann::json;
+
 namespace MM {
 
 template <class Component, class EntityType>
@@ -25,6 +29,21 @@ void ComponentRemoveAction(entt::basic_registry<EntityType>& registry, EntityTyp
 	registry.template remove<Component>(entity);
 }
 
+template <class Component, class EntityType>
+json ComponentToJson( entt::basic_registry<EntityType>& registry, EntityType entity )
+{
+	json j;
+	j.push_back( "NO SERIALISATION" );
+	return j;
+}
+
+template <class Component, class EntityType>
+void ComponentFromJson( entt::basic_registry<EntityType>& registry, EntityType entity, const json& _j )
+{
+	if (!registry.has<Component>( entity ))
+		registry.emplace<Component>( entity );
+}
+
 template <class EntityType>
 class EntityEditor {
 public:
@@ -32,13 +51,17 @@ public:
 
 	struct ComponentInfo {
 		using Callback = std::function<void(Registry&, EntityType)>;
+		using CallbackToJson = std::function<json(Registry&, EntityType)>;
+		using CallbackFromJson = std::function<void(Registry&, EntityType, const json&)>;
 		std::string name;
 		Callback widget, create, destroy;
+		CallbackToJson tojson;
+		CallbackFromJson fromjson;
 	};
 
 	bool show_window = true;
 
-private:
+//private:
 	using ComponentTypeID = ENTT_ID_TYPE;
 
 	std::map<ComponentTypeID, ComponentInfo> component_infos;
@@ -67,6 +90,8 @@ public:
 			widget,
 			ComponentAddAction<Component, EntityType>,
 			ComponentRemoveAction<Component, EntityType>,
+			ComponentToJson<Component, EntityType>,
+			ComponentFromJson<Component, EntityType>,
 		});
 	}
 

@@ -22,3 +22,4 @@ Config.json
 *.sln
 premake 2017.bat
 imgui.ini
+log.txt

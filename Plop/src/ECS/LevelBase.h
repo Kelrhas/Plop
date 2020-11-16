@@ -1,5 +1,8 @@
 #pragma once
 
+#include <json.hpp>
+using json = nlohmann::json;
+
 #pragma warning(disable:4307) // https://github.com/skypjack/entt/issues/121
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
@@ -37,6 +40,13 @@ namespace Plop
 
 				entt::registry& GetEntityRegistry() { return m_ENTTRegistry; }
 				const entt::registry& GetEntityRegistry() const { return m_ENTTRegistry; }
+
+
+				void MakeCurrent();
+				void Save();
+				bool Load();
+				virtual json ToJson();
+				virtual void FromJson(const json& _j);
 
 
 		static LevelBaseWeakPtr GetCurrentLevel() { return s_xCurrentLevel; }

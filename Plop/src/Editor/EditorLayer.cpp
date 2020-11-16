@@ -10,6 +10,7 @@
 #include <Editor/Console.h>
 #include <ECS/BaseComponents.h>
 #include <ECS/LevelBase.h>
+#include <Input/Input.h>
 
 namespace Plop
 {
@@ -168,6 +169,22 @@ namespace Plop
 		{
 			if (ImGui::BeginMenu( "File" ))
 			{
+				if (ImGui::MenuItem( "New level", nullptr, nullptr, false ))
+				{
+				}
+
+				if (ImGui::MenuItem( "Open level", "Ctrl + O" ))
+				{
+					auto xLevel = Application::Get()->CreateNewLevel();
+					xLevel->MakeCurrent();
+					xLevel->Load();
+				}
+
+				if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+				{
+					LevelBase::GetCurrentLevel().lock()->Save();
+				}
+
 				if (ImGui::MenuItem( "Close" ))
 				{
 					Application::Get()->Close();
@@ -191,6 +208,51 @@ namespace Plop
 			}
 
 			ImGui::EndMenuBar();
+		}
+
+		// shortcuts for ImGui menus
+		if (Input::IsKeyDown( KeyCode::KEY_Control ))
+		{
+			if (Input::IsKeyDown( KeyCode::KEY_O ))
+			{
+				auto xLevel = Application::Get()->CreateNewLevel();
+				xLevel->MakeCurrent();
+				xLevel->Load();
+			}
+			if (Input::IsKeyDown( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
+				LevelBase::GetCurrentLevel().lock()->Save();
+		}
+	}
+
+
+	json EditorLayer::GetJsonEntity( const Entity& _entity )
+	{
+		json j;
+		entt::entity entityID = _entity.m_EntityId;
+		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
+
+		for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
+		{
+			if (ENTTEditor.entityHasComponent( reg, entityID, component_type_id ))
+			{
+				j[ci.name] = ci.tojson(reg, entityID);
+			}
+		}
+
+		return j;
+	}
+
+	void EditorLayer::SetJsonEntity( const Entity& _entity, const json& _j )
+	{
+		entt::entity entityID = _entity.m_EntityId;
+		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
+
+		for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
+		{
+			if (_j.contains( ci.name ))
+			{
+				ci.fromjson( reg, entityID, _j[ci.name] );
+			}
 		}
 	}
 }

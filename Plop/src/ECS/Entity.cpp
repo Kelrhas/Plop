@@ -2,6 +2,8 @@
 #include "Entity.h"
 
 #include <ECS/BaseComponents.h>
+#include <Utils/JsonTypes.h>
+#include <Editor/EditorLayer.h>
 
 namespace Plop
 {
@@ -105,6 +107,38 @@ namespace Plop
 		}
 
 		return vecChildren;
+	}
+
+	void to_json( json& j, const Entity& e ) {
+		j = e.ToJson();
+	}
+
+	json Entity::ToJson() const
+	{
+		json j = EditorLayer::GetJsonEntity( *this );
+
+		j["Name"] = GetComponent<NameComponent>().sName;
+		j["Children"] = GetChildren();
+
+		return j;
+	}
+
+	void Entity::FromJson( const json& _jEntity )
+	{
+		GetComponent<NameComponent>().sName = _jEntity["Name"];
+
+		if (_jEntity.contains( "Children" ))
+		{
+			LevelBasePtr xLevel = LevelBase::GetCurrentLevel().lock();
+			ASSERT( xLevel != nullptr, "No current level" );
+			for (auto& j : _jEntity["Children"])
+			{
+				Entity e = xLevel->CreateEntity();
+				e.SetParent( *this );
+				e.FromJson( j );
+			}
+		}
+		EditorLayer::SetJsonEntity( *this, _jEntity );
 	}
 
 #pragma region private

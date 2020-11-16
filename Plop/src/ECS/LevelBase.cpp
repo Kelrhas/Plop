@@ -1,6 +1,10 @@
 #include "Plop_pch.h"
 #include "LevelBase.h"
 
+#include <fstream>
+#include <filesystem>
+
+#include <Application.h>
 #include <Renderer/Renderer.h>
 #include <ECS/Entity.h>
 #include <ECS/BaseComponents.h>
@@ -17,11 +21,11 @@ namespace Plop
 
 	void LevelBase::Init()
 	{
-		s_xCurrentLevel = weak_from_this();
 	}
 
 	void LevelBase::Shutdown()
 	{
+		m_ENTTRegistry.clear();
 	}
 
 	bool LevelBase::BeforeUpdate()
@@ -33,7 +37,7 @@ namespace Plop
 		{
 			auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
 			xCurrentCamera = camera.xCamera;
-			mViewMatrix = glm::inverse( transform.mTransform );
+			mViewMatrix = glm::inverse( transform.GetMatrix() );
 		}
 
 		if (xCurrentCamera)
@@ -56,14 +60,12 @@ namespace Plop
 
 			TransformComponent& transform = group.get<TransformComponent>( entityID );
 			
-			Entity entity{ entityID, GetCurrentLevel() };
-			glm::mat4 mTransform = transform.mTransform;
+			Entity entity{ entityID, weak_from_this() };
+			glm::mat4 mTransform = transform.GetMatrix();
 			while (entity = entity.GetParent())
 			{
-				mTransform *= entity.GetComponent<TransformComponent>().mTransform;
+				mTransform *= entity.GetComponent<TransformComponent>().GetMatrix();
 			}
-
-
 			Renderer2D::DrawSprite( *renderer.xSprite, mTransform );
 		}
 	}
@@ -85,5 +87,75 @@ namespace Plop
 		e.AddComponent<TransformComponent>();
 
 		return e;
+	}
+
+	void LevelBase::MakeCurrent()
+	{
+		s_xCurrentLevel = weak_from_this();
+	}
+
+	void LevelBase::Save()
+	{
+		// TODO: Save file browser if not yet saved
+		std::filesystem::path filePath( "Sample/data/levels/test.json" );
+		std::filesystem::create_directories( filePath.parent_path() );
+		std::ofstream levelFile( filePath, std::ios::out | std::ios::trunc );
+		if (levelFile.is_open())
+		{
+			json jLevel = this->ToJson();
+
+			levelFile << jLevel.dump( 2 );
+		}
+	}
+
+	bool LevelBase::Load()
+	{
+		String sLevel = "Sample/data/levels/test.json";
+		std::ifstream levelFile( sLevel.c_str(), std::ios::in );
+		if (levelFile.is_open())
+		{
+			Application::GetConfig().sLastLevelActive = sLevel;
+
+			Shutdown();
+			Init();
+
+			json jLevel = this->ToJson();
+
+			levelFile >> jLevel;
+
+			FromJson( jLevel );
+
+			return true;
+		}
+
+		return false;
+	}
+
+	json LevelBase::ToJson()
+	{
+		json j;
+
+		m_ENTTRegistry.each( [&j, this]( entt::entity _entityID ) {
+			Entity entity{ _entityID, weak_from_this() };
+			if (!entity.GetParent())
+			{
+				String& sName = entity.GetComponent<NameComponent>().sName;
+				j["entities"].push_back( entity.ToJson() );
+			}
+		});
+
+		return j;
+	}
+
+	void LevelBase::FromJson( const json& _j )
+	{
+		if (_j.contains( "entities" ))
+		{
+			for (auto j : _j["entities"])
+			{
+				Entity e = CreateEntity();
+				e.FromJson( j );
+			}
+		}
 	}
 }

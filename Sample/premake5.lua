@@ -22,6 +22,7 @@ project "Sample"
 	{
 		"src/",
 		"../Plop/src/",
+		"../Externals/json/",
 		"../Externals/ImGui/",
 		"../Externals/glm/",
 		"../Externals/optick/include/",

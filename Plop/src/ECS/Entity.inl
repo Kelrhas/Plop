@@ -16,7 +16,7 @@ namespace Plop
 	}
 
 	template <class Comp>
-	bool Entity::HasComponent()
+	bool Entity::HasComponent() const
 	{
 		if (m_xLevel.expired())
 			return false;
@@ -25,7 +25,7 @@ namespace Plop
 	}
 
 	template <class Comp>
-	Comp& Entity::GetComponent()
+	Comp& Entity::GetComponent() const
 	{
 		ASSERT( !m_xLevel.expired(), "No scene associated with entity" );
 		ASSERT( HasComponent<Comp>(), "Entity does not have this component" );

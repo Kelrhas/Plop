@@ -33,10 +33,6 @@ public:
 	virtual uint8_t GetPriority() const override { return 20; }
 
 private:
-	Plop::MeshPtr				m_xTowerMesh = nullptr;
-	Plop::Entity				m_PlayerEntity;
 	Plop::ParticleSystem		m_particles;
-	Plop::TextureHandle			m_hSpritesheet;
-	Plop::LevelBasePtr			m_xLevel = nullptr;
 };
 

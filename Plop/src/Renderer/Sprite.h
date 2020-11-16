@@ -18,6 +18,7 @@ namespace Plop
 				const Texture&		GetTexture() const { return m_hTexture.get(); }
 
 				const glm::uvec2&	GetSize() const { return m_vSize; }
+				void				SetSize( const glm::vec2& _vSize ) { m_vSize = _vSize; }
 
 				void				SetUV( const glm::vec2& _vUVMin, const glm::vec2& _vUVMax );
 				void				SetSpriteIndex( const glm::uvec2& _vSpriteIndex, const glm::uvec2& _vSpriteSheetCount, const glm::uvec2& _vSpriteSize = { 1, 1 } );

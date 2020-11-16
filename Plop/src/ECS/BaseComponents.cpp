@@ -6,9 +6,22 @@
 #include <Application.h>
 #include <Assets/TextureLoader.h>
 #include <Renderer/Texture.h>
+#include <Utils/JsonTypes.h>
+#include <Camera/Camera.h>
 
 namespace Plop
 {
+	glm::mat4 TransformComponent::GetMatrix() const
+	{
+		glm::mat4 mRot = glm::rotate( glm::identity<glm::mat4>(), vRotation.x, glm::vec3( 1.f, 0.f, 0.f ) ) *
+			glm::rotate( glm::identity<glm::mat4>(), vRotation.y, glm::vec3( 0.f, 1.f, 0.f ) ) *
+			glm::rotate( glm::identity<glm::mat4>(), vRotation.z, glm::vec3( 0.f, 0.f, 1.f ) );
+		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), vPosition );
+		mTransform = mTransform * mRot;
+		mTransform = glm::scale( mTransform, vScale );
+		return mTransform;
+	}
+
 	SpriteRendererComponent::SpriteRendererComponent()
 	{
 		xSprite = std::make_shared<Plop::Sprite>();
@@ -18,21 +31,47 @@ namespace Plop
 namespace MM
 {
 	template <>
-	void ComponentEditorWidget<Plop::NameComponent>( entt::registry& reg, entt::registry::entity_type e )
+	json ComponentToJson<Plop::NameComponent>( entt::registry& reg, entt::registry::entity_type e )
 	{
 		auto& comp = reg.get<Plop::NameComponent>( e );
-		ImGui::Text( comp.sName.c_str() );
+		return json( comp.sName );
 	}
+
 
 	template <>
 	void ComponentEditorWidget<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e )
 	{
 		auto& comp = reg.get<Plop::TransformComponent>( e );
-		ImGui::DragFloat4( "0", &comp.mTransform[0].x, 0.1f );
-		ImGui::DragFloat4( "1", &comp.mTransform[1].x, 0.1f );
-		ImGui::DragFloat4( "2", &comp.mTransform[2].x, 0.1f );
-		ImGui::DragFloat4( "3", &comp.mTransform[3].x, 0.1f );
+		ImGui::DragFloat3( "Pos", glm::value_ptr( comp.vPosition ), 0.1f );
+		glm::vec3 vRot = glm::degrees( comp.vRotation );
+		if (ImGui::DragFloat3( "Rot", glm::value_ptr( vRot ) ))
+			comp.vRotation = glm::radians( vRot );
+		ImGui::DragFloat3( "Sca", glm::value_ptr( comp.vScale ), 0.1f, 0.01f );
 	}
+
+	template <>
+	json ComponentToJson<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::TransformComponent>( e );
+		json j;
+		j["Position"] = comp.vPosition;
+		j["Rotation"] = comp.vRotation;
+		j["Scale"] = comp.vScale;
+		return j;
+	}
+
+	template<>
+	void ComponentFromJson<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	{
+		auto& comp = reg.get_or_emplace<Plop::TransformComponent>( e );
+		if(_j.contains("Position"))
+			comp.vPosition = _j["Position"];
+		if(_j.contains("Rotation"))
+			comp.vScale = _j["Rotation"];
+		if(_j.contains("Scale"))
+			comp.vScale = _j["Scale"];
+	}
+
 
 	template <>
 	void ComponentEditorWidget<Plop::SpriteRendererComponent>( entt::registry& reg, entt::registry::entity_type e )
@@ -139,6 +178,42 @@ namespace MM
 	}
 
 	template <>
+	json ComponentToJson<Plop::SpriteRendererComponent>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::SpriteRendererComponent>( e );
+		json j;
+		if (comp.xSprite)
+		{
+			if (comp.xSprite->GetTextureHandle())
+			{
+				j["texture"] = comp.xSprite->GetTextureHandle()->GetName();
+			}
+			j["uvmin"] = comp.xSprite->GetUVMin();
+			j["uvmax"] = comp.xSprite->GetUVMax();
+			j["tint"] = comp.xSprite->GetTint();
+			j["size"] = comp.xSprite->GetSize();
+		}
+		return j;
+	}
+
+	template<>
+	void ComponentFromJson<Plop::SpriteRendererComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	{
+		auto& comp = reg.get_or_emplace<Plop::SpriteRendererComponent>( e );
+		ASSERT( (bool)comp.xSprite, "SpritePtr should be created in component CTOR" );
+		
+		if (comp.xSprite)
+		{
+			auto hTex = Plop::AssetLoader::GetTexture( _j["texture"] );
+			comp.xSprite->SetTextureHandle( hTex );
+			comp.xSprite->SetUV( _j["uvmin"], _j["uvmax"] );
+			comp.xSprite->SetTint( _j["tint"] );
+			comp.xSprite->SetSize( _j["size"] );
+		}
+	}
+
+
+	template <>
 	void ComponentEditorWidget<Plop::CameraComponent>( entt::registry& reg, entt::registry::entity_type e )
 	{
 		auto& comp = reg.get<Plop::CameraComponent>( e );
@@ -162,7 +237,8 @@ namespace MM
 			else
 			{
 				float fFOV = glm::degrees( comp.xCamera->GetPerspectiveFOV() );
-				if (ImGui::DragFloat( "FOV(°)", &fFOV, 0.1f, 10, 170 ))
+				//if (ImGui::DragFloat( "FOV(°)", &fFOV, 0.1f, 10, 170 )) // no ° symbol in ImGui font
+				if (ImGui::DragFloat( "FOV(deg)", &fFOV, 0.1f, 10, 170 ))
 					comp.xCamera->SetPerspectiveFOV( glm::radians( fFOV ) );
 			}
 
@@ -191,4 +267,42 @@ namespace MM
 			}
 		}
 	}
+
+	template <>
+	json ComponentToJson<Plop::CameraComponent>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::CameraComponent>( e );
+		json j;
+		if (comp.xCamera)
+		{
+			j["ortho"] = comp.xCamera->IsOrthographic();
+			j["near"] = comp.xCamera->GetNear();
+			j["far"] = comp.xCamera->GetFar();
+			j["orthoSize"] = comp.xCamera->GetOrthographicSize();
+			j["perspFOV"] = comp.xCamera->GetPerspectiveFOV();
+		}
+		return j;
+	}
+
+	template<>
+	void ComponentFromJson<Plop::CameraComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	{
+		auto& comp = reg.get_or_emplace<Plop::CameraComponent>( e );
+		if (!comp.xCamera)
+		{
+			comp.xCamera = std::make_shared<Plop::Camera>();
+			comp.xCamera->Init();
+		}
+
+		comp.xCamera->SetOrthographicSize( _j["orthoSize"] );
+		comp.xCamera->SetPerspectiveFOV( _j["perspFOV"] );
+		if(_j["ortho"] == true)
+			comp.xCamera->SetOrthographic();
+		else
+			comp.xCamera->SetPerspective();
+
+		comp.xCamera->SetNear( _j["near"] );
+		comp.xCamera->SetFar( _j["far"] );
+	}
+
 }

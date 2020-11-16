@@ -22,6 +22,7 @@ namespace Plop
 		static const char* CONFIG_FILE_NAME;
 
 		std::unordered_map<String, WindowConfig> windows;
+		String sLastLevelActive;
 
 		GameConfig* pGameConfig = nullptr;
 
@@ -55,6 +56,10 @@ namespace Plop
 				void			UnregisterAppLayer(ApplicationLayer* _pLayer);
 
 
+				// Level
+		virtual LevelBasePtr	CreateNewLevel();
+
+
 		static Application*		Get() { return s_pInstance; }
 		static Config&			GetConfig() { return s_pInstance->m_Config; }
 		static TimeStep&		GetTimeStep() { return s_pInstance->m_timeStep; }
@@ -74,6 +79,8 @@ namespace Plop
 		{
 			return _pLayerA->GetPriority() < _pLayerB->GetPriority();
 		}
+
+				std::vector<LevelBasePtr>	m_vecLoadedLevel;
 	};
 
 

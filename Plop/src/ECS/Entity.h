@@ -30,8 +30,12 @@ namespace Plop
 
 		template <class Comp, typename ...Args>	Comp&		AddComponent( Args...args );
 		template <class Comp, typename ...Args>	void		RemoveComponent();
-		template <class Comp>					bool		HasComponent();
-		template <class Comp>					Comp&		GetComponent();
+		template <class Comp>					bool		HasComponent() const;
+		template <class Comp>					Comp&		GetComponent() const;
+
+
+		virtual nlohmann::json								ToJson() const;
+		virtual void										FromJson(const nlohmann::json& _jEntity );
 
 
 	private:

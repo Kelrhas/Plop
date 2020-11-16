@@ -19,6 +19,8 @@ namespace Plop
 
 
 				void ShowMenuBar();
+		static json GetJsonEntity( const Entity& _entity );
+		static void SetJsonEntity( const Entity& _entity, const json& _j );
 
 	private:
 		bool		m_bShowImGuiDemo = false;

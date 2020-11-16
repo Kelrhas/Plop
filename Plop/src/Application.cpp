@@ -20,7 +20,7 @@ namespace Plop
 
 	const char* Config::CONFIG_FILE_NAME = "Config.json";
 
-	void to_json(nlohmann::json& j, const WindowConfig& _config)
+	void to_json( nlohmann::json& j, const WindowConfig& _config )
 	{
 		j = nlohmann::json
 		{
@@ -32,38 +32,40 @@ namespace Plop
 		};
 	}
 
-	void to_json(nlohmann::json& j, const Config& _config)
+	void to_json( nlohmann::json& j, const Config& _config )
 	{
 		j = nlohmann::json
 		{
+			{"lastLevel", _config.sLastLevelActive},
 			{"windows", _config.windows}
 		};
 	}
 
-	void from_json(const nlohmann::json& j, WindowConfig& _config)
+	void from_json( const nlohmann::json& j, WindowConfig& _config )
 	{
-		if (j.contains("width")) j.at("width").get_to(_config.uWidth);
-		if (j.contains("height")) j.at("height").get_to(_config.uHeight);
-		if (j.contains("pos x")) j.at("pos x").get_to(_config.uPosX);
-		if (j.contains("pos y")) j.at("pos y").get_to(_config.uPosY);
-		if (j.contains("fullscreen")) j.at("fullscreen").get_to(_config.bFullscreen);
+		if (j.contains( "width" )) j.at( "width" ).get_to( _config.uWidth );
+		if (j.contains( "height" )) j.at( "height" ).get_to( _config.uHeight );
+		if (j.contains( "pos x" )) j.at( "pos x" ).get_to( _config.uPosX );
+		if (j.contains( "pos y" )) j.at( "pos y" ).get_to( _config.uPosY );
+		if (j.contains( "fullscreen" )) j.at( "fullscreen" ).get_to( _config.bFullscreen );
 	}
 
-	void from_json(const nlohmann::json& j, Config& _config)
+	void from_json( const nlohmann::json& j, Config& _config )
 	{
-		if (j.contains("windows")) j.at("windows").get_to(_config.windows);
+		if (j.contains( "lastLevel" )) j.at( "lastLevel" ).get_to( _config.sLastLevelActive );
+		if (j.contains( "windows" )) j.at( "windows" ).get_to( _config.windows );
 	}
 
 
 	void Config::Load()
 	{
 		using json = nlohmann::json;
-		std::ifstream configFile(Config::CONFIG_FILE_NAME, std::ios::in);
+		std::ifstream configFile( Config::CONFIG_FILE_NAME, std::ios::in );
 		if (configFile.is_open())
 		{
 			json config;
 			configFile >> config;
-			config.get_to(*this);
+			config.get_to( *this );
 		}
 	}
 
@@ -71,12 +73,12 @@ namespace Plop
 	{
 		using json = nlohmann::json;
 
-		std::ofstream configFile(Config::CONFIG_FILE_NAME, std::ios::out);
+		std::ofstream configFile( Config::CONFIG_FILE_NAME, std::ios::out );
 		if (configFile.is_open())
 		{
 			json config = *this;
-			
-			configFile << config.dump(1, '\t', true);
+
+			configFile << config.dump( 1, '\t', true );
 		}
 	}
 
@@ -113,7 +115,7 @@ namespace Plop
 			case EventType::WindowSizeEvent:
 			{
 				WindowSizeEvent& sizeEvent = (WindowSizeEvent&)_event;
-				Renderer::OnResize(sizeEvent.iNewWidth, sizeEvent.iNewHeight);
+				Renderer::OnResize( sizeEvent.iNewWidth, sizeEvent.iNewHeight );
 			}
 			break;
 		}
@@ -124,7 +126,7 @@ namespace Plop
 	void Application::Init()
 	{
 		Console::Init();
-		VERIFY(Log::Init(), "Log did not init properly");
+		VERIFY( Log::Init(), "Log did not init properly" );
 
 		PROFILING_INIT();
 
@@ -148,22 +150,37 @@ namespace Plop
 		m_xWindow->Init();
 		m_xWindow->SetVSync( false );
 
-		Input::Init(m_xWindow->GetNativeWindow());
+		Input::Init( m_xWindow->GetNativeWindow() );
 
 		Renderer::Init();
 		Renderer2D::Init();
 
-		m_Config.Save();
-
 		m_timeStep.Advance();
-		RegisterAppLayer(&m_ImGuiLayer);
-		RegisterAppLayer(&m_EditorLayer );
+		RegisterAppLayer( &m_ImGuiLayer );
+		RegisterAppLayer( &m_EditorLayer );
+
+		if (!m_Config.sLastLevelActive.empty())
+		{
+			auto xLevel = std::make_shared<Plop::LevelBase>();
+			xLevel->MakeCurrent();
+			if (xLevel->Load())
+			{
+				m_vecLoadedLevel.push_back( xLevel );
+			}
+			else
+			{
+				m_Config.sLastLevelActive.clear();
+			}
+
+		}
+
+		m_Config.Save();
 	}
 
 	void Application::Destroy()
 	{
-		UnregisterAppLayer(&m_EditorLayer );
-		UnregisterAppLayer(&m_ImGuiLayer);
+		UnregisterAppLayer( &m_EditorLayer );
+		UnregisterAppLayer( &m_ImGuiLayer );
 
 		EventDispatcher::UnregisterListener( this );
 
@@ -182,7 +199,7 @@ namespace Plop
 
 		while (m_bRunning)
 		{
-			PROFILING_FRAME("MainThread");
+			PROFILING_FRAME( "MainThread" );
 
 			Debug::NewFrame();
 
@@ -195,14 +212,24 @@ namespace Plop
 			Renderer2D::NewFrame();
 			m_ImGuiLayer.NewFrame();
 
+			auto xLevel = LevelBase::GetCurrentLevel().lock();
+			if (xLevel)
+				xLevel->BeforeUpdate();
+
 			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
 			{
-				pAppLayer->OnUpdate(m_timeStep);
+				pAppLayer->OnUpdate( m_timeStep );
 			}
-			
+
+			if (xLevel)
+			{
+				xLevel->Update( m_timeStep );
+				xLevel->AfterUpdate();
+			}
+
 			m_ImGuiLayer.EndFrame();
 			Renderer2D::EndFrame();
-			
+
 			m_xWindow->SwapBuffers();
 			Debug::EndFrame();
 		}
@@ -210,15 +237,15 @@ namespace Plop
 		m_xWindow->Destroy();
 	}
 
-	void Application::RegisterAppLayer(ApplicationLayer* _pLayer)
+	void Application::RegisterAppLayer( ApplicationLayer* _pLayer )
 	{
-		m_vecAppLayers.push_back(_pLayer);
-		std::sort(m_vecAppLayers.begin(), m_vecAppLayers.end(), _SortAppLayer);
+		m_vecAppLayers.push_back( _pLayer );
+		std::sort( m_vecAppLayers.begin(), m_vecAppLayers.end(), _SortAppLayer );
 
 		_pLayer->OnRegistered();
 	}
 
-	void Application::UnregisterAppLayer(ApplicationLayer* _pLayer)
+	void Application::UnregisterAppLayer( ApplicationLayer* _pLayer )
 	{
 		for (int i = 0; i < m_vecAppLayers.size(); ++i)
 		{
@@ -228,9 +255,16 @@ namespace Plop
 				m_vecAppLayers.pop_back();
 			}
 		}
-		std::sort(m_vecAppLayers.begin(), m_vecAppLayers.end(), _SortAppLayer);
+		std::sort( m_vecAppLayers.begin(), m_vecAppLayers.end(), _SortAppLayer );
 
 		_pLayer->OnUnregistered();
+	}
+
+	LevelBasePtr Application::CreateNewLevel()
+	{
+		LevelBasePtr xLevel = std::make_shared<LevelBase>();
+		m_vecLoadedLevel.push_back( xLevel );
+		return xLevel;
 	}
 
 	GameConfig* Application::CreateGameConfig()
@@ -242,7 +276,7 @@ namespace Plop
 
 
 
-int main(int argc, char** argv)
+int main( int argc, char** argv )
 {
 	Plop::Application* pApp = Plop::CreateApplication();
 	pApp->Init();

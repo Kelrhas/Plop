@@ -1,0 +1,69 @@
+{
+  "entities": [
+    {
+      "Children": [
+        {
+          "Children": [],
+          "Name": "Shadow",
+          "SpriteRenderer": {
+            "size": [1,1],
+            "texture": "assets/textures/tilesheet.png",
+            "tint": [1.0,1.0,1.0,1.0],
+            "uvmax": [0.8260869383811951,0.07692307978868484],
+            "uvmin": [0.782608687877655,0.0]
+          },
+          "Transform": {
+            "Position": [-0.10000000149011612,-0.10000000149011612,-0.10000000149011612],
+            "Rotation": [0.0,0.0,0.0],
+            "Scale": [1.0,1.0,1.0]
+          }
+        }
+      ],
+      "Name": "Player",
+      "SpriteRenderer": {
+        "size": [1,1],
+        "texture": "assets/textures/tilesheet.png",
+        "tint": [1.0,1.0,1.0,1.0],
+        "uvmax": [0.8260869383811951,0.1538461595773697],
+        "uvmin": [0.782608687877655,0.07692307978868484]
+      },
+      "Transform": {
+        "Position": [-2.5,0.20000000298023224,-1.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Camera": {
+        "far": 10.0,
+        "near": 0.0,
+        "ortho": true,
+        "orthoSize": 5.300000190734863,
+        "perspFOV": 1.1344640254974365
+      },
+      "Children": [],
+      "Name": "Camera",
+      "Transform": {
+        "Position": [0.0,0.0,0.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Children": [],
+      "Name": "Background",
+      "SpriteRenderer": {
+        "size": [1,1],
+        "texture": "assets/textures/grass.png",
+        "tint": [1.0,1.0,1.0,1.0],
+        "uvmax": [1.0,1.0],
+        "uvmin": [0.0,0.0]
+      },
+      "Transform": {
+        "Position": [0.0,0.0,-9.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [5.0,5.0,1.0]
+      }
+    }
+  ]
+}

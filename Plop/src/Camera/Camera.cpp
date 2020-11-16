@@ -73,7 +73,6 @@ namespace Plop
 		}
 		else
 		{
-			Debug::TODO("Check this");
 			m_mProjectionMatrix = glm::perspective( m_fPersFOV, m_fAspectRatio, m_fNear, m_fFar );
 		}
 	}

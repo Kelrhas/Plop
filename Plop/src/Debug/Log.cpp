@@ -3,8 +3,13 @@
 
 namespace Plop
 {
+	const char* LOG_FILE = "log.txt";
+	std::ofstream s_LogFile;
+
 	bool Log::Init()
 	{
+		s_LogFile.open( LOG_FILE, std::ios::out );
+
 		Info("Info");
 		Assert("Assert");
 		Warn("Warn");
@@ -13,8 +18,19 @@ namespace Plop
 		return true;
 	}
 
-	void Log::Flush()
+
+	void Log::LogToFile( const String& _str )
 	{
-		// TODO flush the file if we have one still open
+		if (s_LogFile)
+		{
+			s_LogFile << _str << std::endl;
+		}
+	}
+
+	void Log::FlushFile()
+	{
+		// flush the file if we have one still open
+		if (s_LogFile)
+			s_LogFile.flush();
 	}
 }

@@ -60,5 +60,5 @@ namespace Plop
 #define BREAK() do{}while(0)
 #define ASSERT(action, ...) do{}while(0)
 #define VERIFY(action, ...) do{(action)}while(0)
-#define EXCEPTION(action, ...) {bool b = (action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); Log::Flush(); }} // we flush to be sure that we have the log in the file before a possible crash
+#define EXCEPTION(action, ...) {bool b = (action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); }}
 #endif

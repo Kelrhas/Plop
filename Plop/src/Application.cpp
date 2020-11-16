@@ -232,6 +232,8 @@ namespace Plop
 
 			m_xWindow->SwapBuffers();
 			Debug::EndFrame();
+
+			Log::FlushFile();
 		}
 
 		m_xWindow->Destroy();

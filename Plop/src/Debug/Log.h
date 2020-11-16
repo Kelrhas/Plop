@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -27,6 +29,7 @@ namespace Plop
 
 			fmt::print( fg( color ), "{}\n", s );
 			Console::AddOutput( s, LogEntry::Type::Info );
+			LogToFile( s );
 		}
 		template<typename ... Args>
 		static void Assert	(const char* _pStr, Args&&..._args)
@@ -39,6 +42,8 @@ namespace Plop
 
 			fmt::print( fg( color ), "{}\n", s );
 			Console::AddOutput( s, LogEntry::Type::Assert );
+			LogToFile( s );
+			FlushFile(); // we flush to be sure that we have the log in the file before a possible crash
 		}
 		template<typename ... Args>
 		static void Warn	(const char* _pStr, Args&&..._args)
@@ -51,6 +56,7 @@ namespace Plop
 
 			fmt::print( fg( color ), "{}\n", s );
 			Console::AddOutput( s, LogEntry::Type::Warning );
+			LogToFile( s );
 		}
 		template<typename ... Args>
 		static void Error	(const char* _pStr, Args&&..._args)
@@ -63,9 +69,13 @@ namespace Plop
 
 			fmt::print( fg( color ), "{}\n", s );
 			Console::AddOutput( s, LogEntry::Type::Error );
+			LogToFile( s );
+			FlushFile(); // we flush to be sure that we have the log in the file before a possible crash
 		}
 
-		static void Flush	();
+
+		static void LogToFile( const String& _str );
+		static void FlushFile();
 
 	private:
 	};

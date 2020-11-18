@@ -19,3 +19,18 @@ namespace Plop
 	};
 }
 
+
+namespace ImGui
+{
+	enum class FontWeight
+	{
+		LIGHT,
+		REGULAR,
+		ITALIC,
+		BOLD,
+	};
+
+	void PushFontWeight( FontWeight eWeight );
+	void PopFontWeight();
+}
+

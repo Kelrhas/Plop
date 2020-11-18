@@ -21,6 +21,12 @@ namespace Plop
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
+		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Light.ttf", 18.f );
+		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Regular.ttf", 18.f );
+		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Italic.ttf", 18.f );
+		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Bold.ttf", 18.f );
+		io.FontDefault = io.Fonts->Fonts[(int)ImGui::FontWeight::REGULAR];
+
 		ImGui::StyleColorsDark();
 		ImGui_ImplWin32_Init( Application::Get()->GetWindow().GetNativeWindow(), Application::Get()->GetWindow().GetRenderContext()->GetNativeContext ());
 		ImGui_ImplOpenGL3_Init();
@@ -64,5 +70,18 @@ namespace Plop
 			ImGui::RenderPlatformWindowsDefault();
 			Application::Get()->GetWindow().GetRenderContext()->SetCurrent();
 		}
+	}
+}
+
+namespace ImGui
+{
+	void PushFontWeight( FontWeight eWeight )
+	{
+		PushFont( GetIO().Fonts->Fonts[(int)eWeight] );
+	}
+
+	void PopFontWeight()
+	{
+		PopFont();
 	}
 }

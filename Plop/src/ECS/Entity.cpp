@@ -22,6 +22,12 @@ namespace Plop
 		_other.m_xLevel.reset(); 
 	}
 
+	void Entity::Reset()
+	{
+		m_EntityId = entt::null;
+		m_xLevel.reset();
+	}
+
 
 	Entity::operator bool() const
 	{

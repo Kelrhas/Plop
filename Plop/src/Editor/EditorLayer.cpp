@@ -176,6 +176,7 @@ namespace Plop
 				if (ImGui::MenuItem( "Open level", "Ctrl + O" ))
 				{
 					auto xLevel = Application::Get()->CreateNewLevel();
+					m_SelectedEntity.Reset();
 					xLevel->MakeCurrent();
 					xLevel->Load();
 				}
@@ -216,6 +217,7 @@ namespace Plop
 			if (Input::IsKeyDown( KeyCode::KEY_O ))
 			{
 				auto xLevel = Application::Get()->CreateNewLevel();
+				m_SelectedEntity.Reset();
 				xLevel->MakeCurrent();
 				xLevel->Load();
 			}

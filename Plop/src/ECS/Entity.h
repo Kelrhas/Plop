@@ -19,6 +19,8 @@ namespace Plop
 		Entity( const Entity& _other ) = delete;
 		Entity( Entity&& _other ) noexcept;
 
+		void												Reset();
+
 		operator bool() const;
 		Entity& operator =( const Entity& _other );
 		bool operator ==( const Entity& _other );

@@ -96,8 +96,8 @@ namespace Plop
 
 	void LevelBase::Save()
 	{
-		// TODO: Save file browser if not yet saved
-		std::filesystem::path filePath( "Sample/data/levels/test.json" );
+		// TODO: open Save file browser if not yet saved
+		std::filesystem::path filePath( "Sample/data/levels/test.level" );
 		std::filesystem::create_directories( filePath.parent_path() );
 		std::ofstream levelFile( filePath, std::ios::out | std::ios::trunc );
 		if (levelFile.is_open())
@@ -110,7 +110,7 @@ namespace Plop
 
 	bool LevelBase::Load()
 	{
-		String sLevel = "Sample/data/levels/test.json";
+		String sLevel = "Sample/data/levels/test.level";
 		std::ifstream levelFile( sLevel.c_str(), std::ios::in );
 		if (levelFile.is_open())
 		{

@@ -1,10 +1,27 @@
 {
   "entities": [
     {
+      "Camera": {
+        "far": 10.0,
+        "near": 0.0,
+        "ortho": true,
+        "orthoSize": 5.300000190734863,
+        "perspFOV": 1.1344640254974365
+      },
+      "Children": [],
+      "HintID": 3,
+      "Name": "Camera",
+      "Transform": {
+        "Position": [0.0,0.0,0.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
       "Children": [
         {
           "Children": [],
-          "HintID": 3,
+          "HintID": 1,
           "Name": "Shadow",
           "SpriteRenderer": {
             "size": [1,1],
@@ -37,7 +54,7 @@
     },
     {
       "Children": [],
-      "HintID": 1,
+      "HintID": 0,
       "Name": "Background",
       "SpriteRenderer": {
         "size": [1,1],
@@ -50,23 +67,6 @@
         "Position": [0.0,0.0,-9.0],
         "Rotation": [0.0,0.0,0.0],
         "Scale": [5.0,5.0,1.0]
-      }
-    },
-    {
-      "Camera": {
-        "far": 10.0,
-        "near": 0.0,
-        "ortho": true,
-        "orthoSize": 5.300000190734863,
-        "perspFOV": 1.1344640254974365
-      },
-      "Children": [],
-      "HintID": 0,
-      "Name": "Camera",
-      "Transform": {
-        "Position": [0.0,0.0,0.0],
-        "Rotation": [0.0,0.0,0.0],
-        "Scale": [1.0,1.0,1.0]
       }
     }
   ]

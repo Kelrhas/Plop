@@ -92,6 +92,18 @@ namespace Plop
 		return e;
 	}
 
+	Entity LevelBase::CreateEntityWithHint( entt::entity _id )
+	{
+		entt::entity entityID = m_ENTTRegistry.create( _id );
+		Entity e = { entityID, weak_from_this() };
+
+		e.AddComponent<NameComponent>();
+		e.AddComponent<GraphNodeComponent>();
+		e.AddComponent<TransformComponent>();
+
+		return e;
+	}
+
 	void LevelBase::DestroyEntity( Entity& _entity )
 	{
 		EventDispatcher::SendEvent( EntityDestroyedEvent( _entity ) );
@@ -170,7 +182,7 @@ namespace Plop
 		{
 			for (auto j : _j["entities"])
 			{
-				Entity e = CreateEntity();
+				Entity e = CreateEntityWithHint( j["HintID"] );
 				e.FromJson( j );
 			}
 		}

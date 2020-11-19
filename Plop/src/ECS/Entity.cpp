@@ -128,6 +128,7 @@ namespace Plop
 	{
 		json j = EditorLayer::GetJsonEntity( *this );
 
+		j["HintID"] = m_EntityId;
 		j["Name"] = GetComponent<NameComponent>().sName;
 		j["Children"] = GetChildren();
 

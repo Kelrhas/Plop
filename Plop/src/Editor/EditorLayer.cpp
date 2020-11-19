@@ -11,6 +11,8 @@
 #include <ECS/BaseComponents.h>
 #include <ECS/LevelBase.h>
 #include <Input/Input.h>
+#include <Events/EventDispatcher.h>
+#include <Events/EntityEvent.h>
 
 namespace Plop
 {
@@ -23,11 +25,13 @@ namespace Plop
 		REGISTER_COMPONENT( Transform );
 		REGISTER_COMPONENT( SpriteRenderer );
 		REGISTER_COMPONENT( Camera );
+
+		EventDispatcher::RegisterListener( this );
 	}
 
 	void EditorLayer::OnUnregistered()
 	{
-
+		EventDispatcher::UnregisterListener( this );
 	}
 
 	void EditorLayer::OnUpdate( TimeStep& _timeStep )
@@ -76,6 +80,7 @@ namespace Plop
 		{
 			if (!LevelBase::s_xCurrentLevel.expired())
 			{
+				static Entity entityToDestroy;
 				static std::function<void( Entity& )> DrawEntity;
 				DrawEntity = [this]( Entity& _Entity ) {
 
@@ -87,26 +92,42 @@ namespace Plop
 						m_SelectedEntity = _Entity;
 					}
 
-					if (ImGui::BeginDragDropSource( ImGuiDragDropFlags_None ))
+					if (ImGui::BeginPopupContextItem( "EntityContextMenu" ))
 					{
-						ImGui::SetDragDropPayload( "ReparentEntity", &_Entity.m_EntityId, sizeof( _Entity.m_EntityId ) );
-
-						ImGui::Text( sName.c_str() );
-						ImGui::EndDragDropSource();
-					}
-					if (ImGui::BeginDragDropTarget())
-					{
-						if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "ReparentEntity" ))
+						if (ImGui::Selectable( "New entity" ))
 						{
-							ASSERT( pPayload->DataSize == sizeof( entt::entity ), "Wrong Drag&Drop payload" );
-							Entity child( *(entt::entity*)pPayload->Data, _Entity.m_xLevel );
-
-							if (child.GetParent() != _Entity)
-								child.SetParent( _Entity );
-							else
-								child.SetParent( Entity{ entt::null, _Entity.m_xLevel } );
+							LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+							Entity e = xLevel->CreateEntity();
+							e.SetParent( _Entity );
 						}
-						ImGui::EndDragDropTarget();
+						if (ImGui::Selectable( "Delete entity" ))
+							entityToDestroy = _Entity;
+
+						ImGui::EndPopup();
+					}
+					else
+					{
+						if (ImGui::BeginDragDropSource( ImGuiDragDropFlags_None ))
+						{
+							ImGui::SetDragDropPayload( "ReparentEntity", &_Entity.m_EntityId, sizeof( _Entity.m_EntityId ) );
+
+							ImGui::Text( sName.c_str() );
+							ImGui::EndDragDropSource();
+						}
+						if (ImGui::BeginDragDropTarget())
+						{
+							if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "ReparentEntity" ))
+							{
+								ASSERT( pPayload->DataSize == sizeof( entt::entity ), "Wrong Drag&Drop payload" );
+								Entity child( *(entt::entity*)pPayload->Data, _Entity.m_xLevel );
+
+								if (child.GetParent() != _Entity)
+									child.SetParent( _Entity );
+								else
+									child.SetParent( Entity{ entt::null, _Entity.m_xLevel } );
+							}
+							ImGui::EndDragDropTarget();
+						}
 					}
 
 					ImGui::PopID();
@@ -136,6 +157,12 @@ namespace Plop
 					}
 				}
 
+				if (entityToDestroy)
+				{
+					LevelBase::s_xCurrentLevel.lock()->DestroyEntity( entityToDestroy );
+					entityToDestroy.Reset();
+				}
+
 				ImGui::EndChild();
 				if (ImGui::Button( "New entity" ))
 				{
@@ -159,6 +186,15 @@ namespace Plop
 
 	bool EditorLayer::OnEvent( Event& _event )
 	{
+		if (_event.GetEventType() == EventType::EntityDestroyedEvent)
+		{
+			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
+			if (m_SelectedEntity == entityEvent.entity)
+			{
+				m_SelectedEntity.Reset();
+			}
+		}
+
 		return false;
 	}
 

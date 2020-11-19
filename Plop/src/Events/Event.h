@@ -9,7 +9,9 @@ namespace Plop
 		None,
 		WindowCloseEvent,
 		WindowMoveEvent,
-		WindowSizeEvent
+		WindowSizeEvent,
+
+		EntityDestroyedEvent,
 	};
 
 #define MACRO_EVENT_TYPE(type) \

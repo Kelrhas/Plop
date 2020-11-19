@@ -36,6 +36,7 @@ namespace Plop
 				void AfterUpdate();				// close the rendering
 
 				Entity CreateEntity( const String& _sName = "New Entity" );
+				void DestroyEntity( Entity& _entity );
 
 
 				entt::registry& GetEntityRegistry() { return m_ENTTRegistry; }

@@ -50,6 +50,11 @@ namespace Plop
 		return m_EntityId == _other.m_EntityId;
 	}
 
+	bool Entity::operator!=( const Entity& _other )
+	{
+		return !operator==(_other);
+	}
+
 	Entity Entity::GetParent() const
 	{
 		Entity parent(entt::null, m_xLevel);

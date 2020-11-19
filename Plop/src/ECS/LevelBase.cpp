@@ -9,6 +9,9 @@
 #include <ECS/Entity.h>
 #include <ECS/BaseComponents.h>
 
+#include <Events/EventDispatcher.h>
+#include <Events/EntityEvent.h>
+
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
 namespace Plop
@@ -87,6 +90,20 @@ namespace Plop
 		e.AddComponent<TransformComponent>();
 
 		return e;
+	}
+
+	void LevelBase::DestroyEntity( Entity& _entity )
+	{
+		EventDispatcher::SendEvent( EntityDestroyedEvent( _entity ) );
+
+		_entity.SetParent( Entity() );
+
+		std::vector<Entity> vecChildren = _entity.GetChildren();
+		for (Entity& e : vecChildren)
+		{
+			DestroyEntity( std::move(e) );
+		}
+		m_ENTTRegistry.destroy( _entity );
 	}
 
 	void LevelBase::MakeCurrent()

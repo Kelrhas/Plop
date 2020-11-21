@@ -30,6 +30,18 @@ void ComponentRemoveAction(entt::basic_registry<EntityType>& registry, EntityTyp
 }
 
 template <class Component, class EntityType>
+void ComponentDuplicateAction( entt::basic_registry<EntityType>& registry, EntityType entitySrc, EntityType entityDest )
+{
+	if (registry.has<Component>( entitySrc ))
+	{
+		auto& compDest = registry.template get_or_emplace<Component>( entityDest );
+		auto& compSrc = registry.template get<Component>( entitySrc );
+		compDest = compSrc;
+		int a = 10;
+	}
+}
+
+template <class Component, class EntityType>
 json ComponentToJson( entt::basic_registry<EntityType>& registry, EntityType entity )
 {
 	json j;
@@ -51,10 +63,12 @@ public:
 
 	struct ComponentInfo {
 		using Callback = std::function<void(Registry&, EntityType)>;
+		using CallbackDuplicate = std::function<void(Registry&, EntityType, EntityType)>;
 		using CallbackToJson = std::function<json(Registry&, EntityType)>;
 		using CallbackFromJson = std::function<void(Registry&, EntityType, const json&)>;
 		std::string name;
 		Callback widget, create, destroy;
+		CallbackDuplicate duplicate;
 		CallbackToJson tojson;
 		CallbackFromJson fromjson;
 	};
@@ -90,6 +104,7 @@ public:
 			widget,
 			ComponentAddAction<Component, EntityType>,
 			ComponentRemoveAction<Component, EntityType>,
+			ComponentDuplicateAction<Component, EntityType>,
 			ComponentToJson<Component, EntityType>,
 			ComponentFromJson<Component, EntityType>,
 		});

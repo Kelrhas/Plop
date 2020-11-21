@@ -48,13 +48,16 @@ namespace Plop
 
 	struct SpriteRendererComponent
 	{
-		SpritePtr xSprite = nullptr;
-
 		SpriteRendererComponent();
+		SpriteRendererComponent& operator=( const SpriteRendererComponent& _other ); 
+
+		SpritePtr xSprite = nullptr;
 	};
 
 	struct CameraComponent
 	{
+		CameraComponent& operator=( const CameraComponent& _other );
+
 		CameraPtr xCamera = nullptr;
 	};
 }

@@ -20,6 +20,7 @@ namespace Plop
 		const glm::mat4&			GetProjectionMatrix() const { return m_mProjectionMatrix; }
 
 				void				SetAspectRatio(float _fAspectRatio);
+				float				GetAspectRatio() const { return m_fAspectRatio; }
 
 				void				SetNear( float _fNear );
 				float				GetNear() const { return m_fNear; }
@@ -46,6 +47,8 @@ namespace Plop
 				float				m_fAspectRatio = 1.f;
 				float				m_fNear = 0.f;
 				float				m_fFar = 1.f;
+				// wherever you are
+
 				bool				m_bIsOrtho = true;
 
 				float				m_fOrthoSize = 10.f;

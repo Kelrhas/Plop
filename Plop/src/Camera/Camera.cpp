@@ -39,7 +39,6 @@ namespace Plop
 
 	void Camera::SetOrthographicSize( float _fSize )
 	{
-		m_bIsOrtho = true;
 		m_fOrthoSize = _fSize;
 		UpdateProjectionMatrix();
 	}
@@ -55,7 +54,6 @@ namespace Plop
 
 	void Camera::SetPerspectiveFOV( float _fFOV )
 	{
-		m_bIsOrtho = false;
 		m_fPersFOV = _fFOV;
 		UpdateProjectionMatrix();
 	}

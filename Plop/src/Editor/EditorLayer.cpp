@@ -100,6 +100,20 @@ namespace Plop
 							Entity e = xLevel->CreateEntity();
 							e.SetParent( _Entity );
 						}
+						if (ImGui::Selectable( "Duplicate entity" ))
+						{
+							LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+							Entity dupEntity = xLevel->CreateEntity();
+							dupEntity.SetParent( _Entity.GetParent() );
+
+							entt::registry& reg = xLevel->m_ENTTRegistry;
+
+							for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
+							{
+								ci.duplicate( reg, _Entity, dupEntity );
+							}
+
+						}
 						if (ImGui::Selectable( "Delete entity" ))
 							entityToDestroy = _Entity;
 

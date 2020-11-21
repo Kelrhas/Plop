@@ -26,6 +26,28 @@ namespace Plop
 	{
 		xSprite = std::make_shared<Plop::Sprite>();
 	}
+
+	SpriteRendererComponent& SpriteRendererComponent::operator=( const SpriteRendererComponent& _other )
+	{
+		xSprite = _other.xSprite;
+		return *this;
+	}
+
+	CameraComponent& CameraComponent::operator=( const CameraComponent& _other )
+	{
+		xCamera = std::make_shared<Camera>();
+		xCamera->Init();
+		if (_other.xCamera->IsOrthographic())
+			xCamera->SetOrthographic();
+		else
+			xCamera->SetPerspective();
+		xCamera->SetAspectRatio( _other.xCamera->GetAspectRatio() );
+		xCamera->SetNear( _other.xCamera->GetNear() );
+		xCamera->SetFar( _other.xCamera->GetFar() );
+		xCamera->SetOrthographicSize( _other.xCamera->GetOrthographicSize() );
+		xCamera->SetPerspectiveFOV( _other.xCamera->GetPerspectiveFOV() );
+		return *this;
+	}
 }
 
 namespace MM

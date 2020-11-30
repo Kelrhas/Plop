@@ -54,12 +54,15 @@ namespace Plop
 
 	void LevelBase::Update( TimeStep _ts )
 	{
+
+		std::vector<std::pair<SpritePtr, glm::mat4>> vecSpriteMat;
 		auto& group = m_ENTTRegistry.group<TransformComponent, SpriteRendererComponent>();
 		for (auto entityID : group)
 		{
 			SpriteRendererComponent& renderer = group.get<SpriteRendererComponent>( entityID );
 			if (!renderer.xSprite)
 				continue;
+
 
 			TransformComponent& transform = group.get<TransformComponent>( entityID );
 			
@@ -69,7 +72,18 @@ namespace Plop
 			{
 				mTransform *= entity.GetComponent<TransformComponent>().GetMatrix();
 			}
-			Renderer2D::DrawSprite( *renderer.xSprite, mTransform );
+
+			vecSpriteMat.push_back( std::make_pair(renderer.xSprite, mTransform) );
+		}
+
+		std::sort( vecSpriteMat.begin(), vecSpriteMat.end(), []( std::pair<SpritePtr, glm::mat4>& _pair1, std::pair<SpritePtr, glm::mat4>& _pair2 )
+		{
+			return _pair1.second[3][2] < _pair2.second[3][2];
+		} );
+
+		for (std::pair<SpritePtr, glm::mat4>& _pair : vecSpriteMat)
+		{
+			Renderer2D::DrawSprite( *_pair.first, _pair.second );
 		}
 	}
 

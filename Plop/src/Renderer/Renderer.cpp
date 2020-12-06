@@ -104,7 +104,7 @@ namespace Plop
 	void Renderer2D::Init()
 	{
 		MAX_TEX_UNIT = Renderer::s_pAPI->GetMaxTextureUnit();
-		s_sceneData.pTextureUnits = new const Texture*[MAX_TEX_UNIT];
+		s_sceneData.pTextureUnits = NEW const Texture*[MAX_TEX_UNIT];
 
 		uint32_t uWhite = 0xFFFFFFFF;
 		s_xWhiteTex = Texture::Create2D( 1, 1, (Texture::FlagsType)Texture::Flags::NONE, &uWhite, "white" );

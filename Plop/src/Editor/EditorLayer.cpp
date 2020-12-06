@@ -56,18 +56,18 @@ namespace Plop
 
 		ImGui::Begin( "Editor", nullptr, windowFlags );
 
-		ImGui::PopStyleVar(3);
+		ImGui::PopStyleVar( 3 );
 
 		static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
 		static ImGuiID id = ImGui::GetID( "Editor" );
-		ImGui::DockSpace( id, ImVec2(0, 0), flags );
+		ImGui::DockSpace( id, ImVec2( 0, 0 ), flags );
 
 		ShowMenuBar();
 
 
 		// we can draw editor windows here
 
-		if(m_bShowImGuiDemo)
+		if (m_bShowImGuiDemo)
 			ImGui::ShowDemoWindow( &m_bShowImGuiDemo );
 
 		if (m_bShowAllocations)
@@ -149,11 +149,11 @@ namespace Plop
 				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 
 				auto& view = xLevel->m_ENTTRegistry.view<NameComponent>();
-				for( auto& e : view)
+				for (auto& e : view)
 				{
 					Entity entity{ e, LevelBase::s_xCurrentLevel };
 					Entity parent = entity.GetParent();
-					
+
 					// only draw those without parent, and each one will draw their children
 					if (!parent)
 					{
@@ -218,12 +218,12 @@ namespace Plop
 					auto xLevel = Application::Get()->CreateNewLevel();
 					m_SelectedEntity.Reset();
 					xLevel->MakeCurrent();
-					xLevel->Load();
+					xLevel->Load( "data/level/test.level" );
 				}
 
 				if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
 				{
-					LevelBase::GetCurrentLevel().lock()->Save();
+					LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
 				}
 
 				if (ImGui::MenuItem( "Close" ))
@@ -259,10 +259,10 @@ namespace Plop
 				auto xLevel = Application::Get()->CreateNewLevel();
 				m_SelectedEntity.Reset();
 				xLevel->MakeCurrent();
-				xLevel->Load();
+				xLevel->Load( "data/level/test.level" );
 			}
 			if (Input::IsKeyDown( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
-				LevelBase::GetCurrentLevel().lock()->Save();
+				LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
 		}
 	}
 
@@ -277,7 +277,7 @@ namespace Plop
 		{
 			if (ENTTEditor.entityHasComponent( reg, entityID, component_type_id ))
 			{
-				j[ci.name] = ci.tojson(reg, entityID);
+				j[ci.name] = ci.tojson( reg, entityID );
 			}
 		}
 

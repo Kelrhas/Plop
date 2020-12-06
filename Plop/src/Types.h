@@ -1,8 +1,10 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 
 using String		= std::string;
+using StringPath	= std::filesystem::path;
 using U8			= uint8_t;
 using U16			= uint16_t;
 using U32			= uint32_t;

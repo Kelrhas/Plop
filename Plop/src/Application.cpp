@@ -60,7 +60,7 @@ namespace Plop
 	void Config::Load()
 	{
 		using json = nlohmann::json;
-		std::ifstream configFile( Config::CONFIG_FILE_NAME, std::ios::in );
+		std::ifstream configFile( Application::Get()->GetRootDirectory() / Config::CONFIG_FILE_NAME, std::ios::in );
 		if (configFile.is_open())
 		{
 			json config;
@@ -73,7 +73,7 @@ namespace Plop
 	{
 		using json = nlohmann::json;
 
-		std::ofstream configFile( Config::CONFIG_FILE_NAME, std::ios::out );
+		std::ofstream configFile( Application::Get()->GetRootDirectory() / Config::CONFIG_FILE_NAME, std::ios::out );
 		if (configFile.is_open())
 		{
 			json config = *this;
@@ -125,15 +125,14 @@ namespace Plop
 
 	void Application::Init()
 	{
+		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
+		s_pInstance = this;
+
 		Console::Init();
 		VERIFY( Log::Init(), "Log did not init properly" );
 
 		PROFILING_INIT();
 
-
-		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
-
-		s_pInstance = this;
 
 		EventDispatcher::RegisterListener( this );
 
@@ -159,15 +158,12 @@ namespace Plop
 		RegisterAppLayer( &m_ImGuiLayer );
 		RegisterAppLayer( &m_EditorLayer );
 
+		auto xLevel = std::make_shared<Plop::LevelBase>();
+		xLevel->MakeCurrent();
+		m_vecLoadedLevel.push_back( xLevel );
 		if (!m_Config.sLastLevelActive.empty())
 		{
-			auto xLevel = std::make_shared<Plop::LevelBase>();
-			xLevel->MakeCurrent();
-			if (xLevel->Load())
-			{
-				m_vecLoadedLevel.push_back( xLevel );
-			}
-			else
+			if (!xLevel->Load( m_Config.sLastLevelActive ))
 			{
 				m_Config.sLastLevelActive.clear();
 			}
@@ -262,9 +258,10 @@ namespace Plop
 		_pLayer->OnUnregistered();
 	}
 
+
 	LevelBasePtr Application::CreateNewLevel()
 	{
-		LevelBasePtr xLevel = std::make_shared<LevelBase>();
+		LevelBasePtr xLevel = CreateNewLevelPrivate();
 		m_vecLoadedLevel.push_back( xLevel );
 		return xLevel;
 	}
@@ -273,6 +270,13 @@ namespace Plop
 	{
 		return NEW GameConfig();
 	}
+
+	LevelBasePtr Application::CreateNewLevelPrivate()
+	{
+		LevelBasePtr xLevel = std::make_shared<LevelBase>();
+		return xLevel;
+	}
+
 }
 
 

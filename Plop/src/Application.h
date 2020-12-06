@@ -45,9 +45,8 @@ namespace Plop
 				void			Close(); // user asked
 
 				void			Run();
-
-		virtual GameConfig*		CreateGameConfig();
-		virtual String			GetName() = 0;
+		virtual String			GetName() const = 0;
+		virtual StringPath		GetRootDirectory() const = 0;
 
 				Window&			GetWindow() const { return *m_xWindow; }
 
@@ -57,7 +56,7 @@ namespace Plop
 
 
 				// Level
-		virtual LevelBasePtr	CreateNewLevel();
+				LevelBasePtr	CreateNewLevel();
 
 
 		static Application*		Get() { return s_pInstance; }
@@ -65,8 +64,11 @@ namespace Plop
 		static TimeStep&		GetTimeStep() { return s_pInstance->m_timeStep; }
 
 	private:
-		static Application*		s_pInstance;
 
+		virtual GameConfig*		CreateGameConfig();
+		virtual LevelBasePtr	CreateNewLevelPrivate();
+
+		static Application*		s_pInstance;
 				Config			m_Config;
 				std::unique_ptr<Window> m_xWindow;
 				TimeStep		m_timeStep;

@@ -13,5 +13,6 @@ public:
 			Plop::GameConfig*	CreateGameConfig() override;
 	virtual	void				Init() override;
 
-	virtual String				GetName() override { return String("Sample"); }
+	virtual String				GetName() const override { return String("Sample"); }
+	virtual StringPath			GetRootDirectory() const override { return StringPath( "Sample" ); }
 };

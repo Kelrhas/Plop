@@ -1,6 +1,8 @@
 #include "Plop_pch.h"
 #include "Log.h"
 
+#include "Application.h"
+
 namespace Plop
 {
 	const char* LOG_FILE = "log.txt";
@@ -8,7 +10,7 @@ namespace Plop
 
 	bool Log::Init()
 	{
-		s_LogFile.open( LOG_FILE, std::ios::out );
+		s_LogFile.open( Application::Get()->GetRootDirectory() / LOG_FILE, std::ios::out );
 
 		Info("Info");
 		Assert("Assert");

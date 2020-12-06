@@ -137,10 +137,10 @@ namespace Plop
 		s_xCurrentLevel = weak_from_this();
 	}
 
-	void LevelBase::Save()
+	void LevelBase::Save( const StringPath& _path )
 	{
 		// TODO: open Save file browser if not yet saved
-		std::filesystem::path filePath( "Sample/data/levels/test.level" );
+		std::filesystem::path filePath( Application::Get()->GetRootDirectory() / _path );
 		std::filesystem::create_directories( filePath.parent_path() );
 		std::ofstream levelFile( filePath, std::ios::out | std::ios::trunc );
 		if (levelFile.is_open())
@@ -151,13 +151,13 @@ namespace Plop
 		}
 	}
 
-	bool LevelBase::Load()
+	bool LevelBase::Load( const StringPath& _path )
 	{
-		String sLevel = "Sample/data/levels/test.level";
+		StringPath sLevel = Application::Get()->GetRootDirectory() / _path;
 		std::ifstream levelFile( sLevel.c_str(), std::ios::in );
 		if (levelFile.is_open())
 		{
-			Application::GetConfig().sLastLevelActive = sLevel;
+			Application::GetConfig().sLastLevelActive = sLevel.string();
 
 			Shutdown();
 			Init();

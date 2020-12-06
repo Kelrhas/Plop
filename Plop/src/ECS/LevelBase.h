@@ -45,8 +45,8 @@ namespace Plop
 
 
 				void MakeCurrent();
-				void Save();
-				bool Load();
+				void Save( const StringPath& _path );
+				bool Load( const StringPath& _path );
 				virtual json ToJson();
 				virtual void FromJson(const json& _j);
 

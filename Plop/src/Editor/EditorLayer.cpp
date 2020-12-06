@@ -102,17 +102,7 @@ namespace Plop
 						}
 						if (ImGui::Selectable( "Duplicate entity" ))
 						{
-							LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
-							Entity dupEntity = xLevel->CreateEntity();
-							dupEntity.SetParent( _Entity.GetParent() );
-
-							entt::registry& reg = xLevel->m_ENTTRegistry;
-
-							for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
-							{
-								ci.duplicate( reg, _Entity, dupEntity );
-							}
-
+							DuplicateEntity( _Entity );
 						}
 						if (ImGui::Selectable( "Delete entity" ))
 							entityToDestroy = _Entity;
@@ -306,5 +296,28 @@ namespace Plop
 				ci.fromjson( reg, entityID, _j[ci.name] );
 			}
 		}
+	}
+
+	Entity EditorLayer::DuplicateEntity( const Entity& _entity )
+	{
+		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+		const String& sName = _entity.GetComponent<NameComponent>().sName;
+		Entity dupEntity = xLevel->CreateEntity( sName );
+		dupEntity.SetParent( _entity.GetParent() );
+
+		entt::registry& reg = xLevel->m_ENTTRegistry;
+
+		for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
+		{
+			ci.duplicate( reg, _entity, dupEntity );
+		}
+
+		for (const Entity& _child : _entity.GetChildren())
+		{
+			Entity dupChild = DuplicateEntity( _child );
+			dupChild.SetParent( dupEntity );
+		}
+
+		return dupEntity;
 	}
 }

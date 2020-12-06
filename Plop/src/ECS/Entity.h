@@ -25,7 +25,7 @@ namespace Plop
 		Entity& operator =( const Entity& _other );
 		bool operator ==( const Entity& _other );
 		bool operator !=( const Entity& _other );
-		operator entt::entity() { return m_EntityId; }
+		operator entt::entity() const { return m_EntityId; }
 
 		Entity												GetParent() const;
 		void												SetParent( Entity& _Parent );

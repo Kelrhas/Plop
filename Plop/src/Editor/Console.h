@@ -32,7 +32,7 @@ namespace Plop
 		static void					AddOutput( const String& _str, LogEntry::Type _eType = LogEntry::Type::Info );
 		
 		static void					RegisterCommand( const char* _pCommand, std::function<void( const String& )> _callback );
-		static bool					ExecCommand( const char* _pText );
+		static bool					ExecCommand( const String& _sText );
 
 		static void					Draw();
 
@@ -42,7 +42,8 @@ namespace Plop
 
 		static int					InputCallback( ImGuiInputTextCallbackData* _pData );
 
-		static char					s_pInputBuffer[256];
+		static bool					s_bDrawConsole;
+		static String				s_sInputBuffer;
 		static CommandMap			s_mapCommands;
 		static LogEntry				s_ConsoleBuffer[MAX_ENTRY];
 		static uint32_t				s_uEntryIndex;

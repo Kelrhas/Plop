@@ -1,6 +1,7 @@
 #pragma once
 
 // for binded action, see https://github.com/depp/keycode/
+// we really need to use ScanCode (physical place on the keyboard) instead of virtual keys (mapped keys depending on layout)
 
 #define MAX_INPUT_KEYS 256
 
@@ -114,6 +115,8 @@ namespace Plop
 		KEY_RightControl = VK_RCONTROL,
 		KEY_RightShift = VK_RSHIFT,
 		KEY_RightAlt = VK_RMENU,
-		KEY_Comma = VK_OEM_COMMA
+		KEY_Comma = VK_OEM_COMMA,
+		// [...]
+		KEY_OEM7 = VK_OEM_7, // ²
 	};
 }

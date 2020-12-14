@@ -31,5 +31,12 @@ namespace Plop
 		bool		m_bShowImGuiDemo = false;
 		bool		m_bShowAllocations = false;
 		Entity		m_SelectedEntity;
+
+
+		enum class EditMode
+		{
+			NONE,
+			RENAMING_ENTITY,
+		} m_eEditMode = EditMode::NONE;
 	};
 }

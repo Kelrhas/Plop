@@ -2,6 +2,7 @@
 #include "EditorLayer.h"
 
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 #include <imgui_entt_entity_editor.hpp>
 
@@ -14,8 +15,15 @@
 #include <Events/EventDispatcher.h>
 #include <Events/EntityEvent.h>
 
+
 namespace Plop
 {
+	namespace Private
+	{
+		// Renaming
+		static String sNewName;
+	}
+
 	::MM::EntityEditor<entt::entity> ENTTEditor;
 
 #define REGISTER_COMPONENT(comp) ENTTEditor.registerComponent<comp##Component>( #comp )
@@ -87,9 +95,32 @@ namespace Plop
 					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
 
 					String& sName = _Entity.GetComponent<NameComponent>().sName;
-					if (ImGui::Selectable( sName.c_str(), m_SelectedEntity == _Entity ))
+					if (m_eEditMode == EditMode::RENAMING_ENTITY && _Entity == m_SelectedEntity)
 					{
-						m_SelectedEntity = _Entity;
+						ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { 0, 0 } );
+						ImGui::SetItemDefaultFocus();
+						if (ImGui::InputText( "##RenameEntity", &Private::sNewName, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll ))
+						{
+							sName = Private::sNewName;
+							m_eEditMode = EditMode::NONE;
+						}
+
+						if (ImGui::IsKeyPressed( ImGui::GetKeyIndex(ImGuiKey_Escape) ) || // ask imgui as it captures the input from Input::
+							!ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows ) ||
+							ImGui::IsItemDeactivated())
+						{
+							m_eEditMode = EditMode::NONE;
+						}
+
+						ImGui::PopStyleVar();
+					}
+					else
+					{
+						if (ImGui::Selectable( sName.c_str(), m_SelectedEntity == _Entity ))
+						{
+							m_SelectedEntity = _Entity;
+							m_eEditMode = EditMode::NONE;
+						}
 					}
 
 					if (ImGui::BeginPopupContextItem( "EntityContextMenu" ))
@@ -263,6 +294,15 @@ namespace Plop
 			}
 			if (Input::IsKeyDown( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
 				LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
+		}
+
+		if (m_SelectedEntity)
+		{
+			if (m_eEditMode == EditMode::NONE && Input::IsKeyPressed( KeyCode::KEY_F2 ))
+			{
+				Private::sNewName = m_SelectedEntity.GetComponent<NameComponent>().sName;
+				m_eEditMode = EditMode::RENAMING_ENTITY;
+			}
 		}
 	}
 

@@ -166,7 +166,7 @@ namespace Plop
 			Shutdown();
 			Init();
 
-			json jLevel = this->ToJson();
+			json jLevel;
 
 			levelFile >> jLevel;
 

@@ -88,7 +88,6 @@ namespace Plop
 
 	Application* Application::s_pInstance = nullptr;
 
-	Application::Application()
 	Application::Application(const StringVec& _Arguments )
 	{
 		for (const String& sArg : _Arguments)
@@ -292,7 +291,6 @@ namespace Plop
 
 int main( int argc, char** argv )
 {
-	Plop::Application* pApp = Plop::CreateApplication();
 
 	StringVec vecArguments;
 	vecArguments.reserve( argc - 1 );

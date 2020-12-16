@@ -141,6 +141,7 @@ namespace Plop
 	{
 		// TODO: open Save file browser if not yet saved
 		std::filesystem::path filePath( Application::Get()->GetRootDirectory() / _path );
+		StringPath filePath = Application::Get()->GetRootDirectory() / _path;
 		std::filesystem::create_directories( filePath.parent_path() );
 		std::ofstream levelFile( filePath, std::ios::out | std::ios::trunc );
 		if (levelFile.is_open())
@@ -148,6 +149,9 @@ namespace Plop
 			json jLevel = this->ToJson();
 
 			levelFile << jLevel.dump( 2 );
+
+			Application::GetConfig().sLastLevelActive = _path.string();
+			Application::GetConfig().Save();
 		}
 	}
 
@@ -155,9 +159,13 @@ namespace Plop
 	{
 		StringPath sLevel = Application::Get()->GetRootDirectory() / _path;
 		std::ifstream levelFile( sLevel.c_str(), std::ios::in );
+		StringPath filePath = Application::Get()->GetRootDirectory() / _path;
+		std::ifstream levelFile( filePath, std::ios::in );
 		if (levelFile.is_open())
 		{
 			Application::GetConfig().sLastLevelActive = sLevel.string();
+			Application::GetConfig().sLastLevelActive = _path.string();
+			Application::GetConfig().Save();
 
 			Shutdown();
 			Init();

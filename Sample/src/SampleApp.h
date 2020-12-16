@@ -8,7 +8,8 @@ struct SampleConfig : public Plop::GameConfig
 class SampleApp : public Plop::Application
 {
 public:
-	SampleApp();
+	SampleApp( const StringVec& _Arguments );
+	SampleApp( const SampleApp& ) = delete;
 
 			Plop::GameConfig*	CreateGameConfig() override;
 	virtual	void				Init() override;

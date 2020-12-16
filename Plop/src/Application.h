@@ -34,7 +34,9 @@ namespace Plop
 	class Application : public IEventListener
 	{
 	public:
-		Application();
+		Application(const StringVec& _Arguments );
+		Application( const Application& ) = delete;
+		Application( Application&& ) = delete;
 		virtual ~Application();
 
 		// IEventListener
@@ -73,6 +75,11 @@ namespace Plop
 				std::unique_ptr<Window> m_xWindow;
 				TimeStep		m_timeStep;
 				bool			m_bRunning = true;
+#ifdef _MASTER
+				bool			m_bEditorMode = false;
+#else
+				bool			m_bEditorMode = true;
+#endif
 
 				std::vector<ApplicationLayer*> m_vecAppLayers;
 				ImGuiLayer		m_ImGuiLayer;
@@ -86,6 +93,6 @@ namespace Plop
 	};
 
 
-	Application* CreateApplication();
+	Application* CreateApplication( const StringVec& _Arguments );
 }
 

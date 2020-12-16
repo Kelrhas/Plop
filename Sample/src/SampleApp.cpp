@@ -6,12 +6,13 @@
 #include <SampleLayer.h>
 
 
-Plop::Application* Plop::CreateApplication()
+Plop::Application* Plop::CreateApplication(const StringVec& _Arguments)
 {
-	return NEW SampleApp();
+	return NEW SampleApp( _Arguments );
 }
 
-SampleApp::SampleApp()
+SampleApp::SampleApp( const StringVec& _Arguments )
+	: Application( _Arguments )
 {
 }
 

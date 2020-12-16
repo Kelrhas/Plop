@@ -89,7 +89,15 @@ namespace Plop
 	Application* Application::s_pInstance = nullptr;
 
 	Application::Application()
+	Application::Application(const StringVec& _Arguments )
 	{
+		for (const String& sArg : _Arguments)
+		{
+			if (sArg == "-editor")
+				m_bEditorMode = true;
+			if (sArg == "-noeditor")
+				m_bEditorMode = false;
+		}
 	}
 
 	Application::~Application()
@@ -285,6 +293,15 @@ namespace Plop
 int main( int argc, char** argv )
 {
 	Plop::Application* pApp = Plop::CreateApplication();
+
+	StringVec vecArguments;
+	vecArguments.reserve( argc - 1 );
+	for (int i = 1; i < argc; ++i)
+	{
+		vecArguments.push_back( argv[i] );
+	}
+
+	Plop::Application* pApp = Plop::CreateApplication( vecArguments );
 	pApp->Init();
 	pApp->Run();
 }

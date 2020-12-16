@@ -4,6 +4,7 @@
 #include <filesystem>
 
 using String		= std::string;
+using StringVec		= std::vector<String>;
 using StringPath	= std::filesystem::path;
 using U8			= uint8_t;
 using U16			= uint16_t;

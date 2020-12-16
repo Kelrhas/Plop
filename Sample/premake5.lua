@@ -30,15 +30,19 @@ project "Sample"
 		"../Externals/entt/",
 		"../Externals/imgui_entt_entity_editor/",
 	}
-
-	libdirs
-	{
-		"../Externals/optick/lib/x64/%{cfg.buildcfg}/"
-	}
 	
 	links
 	{
-		"Plop",
-		"OptickCore.lib"
+		"Plop"
 	}
+	
+	filter "configurations:not Master"
+		libdirs
+		{
+			"../Externals/optick/lib/x64/%{cfg.buildcfg}/"
+		}
+		links
+		{
+			"OptickCore.lib"
+		}
 	

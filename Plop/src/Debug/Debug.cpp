@@ -9,7 +9,8 @@
 #include <Debug/MemoryTrack.hpp>
 
 
-
+#ifndef _MASTER
+// https://stackoverflow.com/q/350323
 #include <atlbase.h>
 //-----------------------------------------------------------------------
 // This code is blatently stolen from http://benbuck.com/archives/13
@@ -74,7 +75,9 @@ bool visual_studio_open_file( char const* filename, unsigned int line )
 
 	return true;
 }
-
+#else
+bool visual_studio_open_file( char const* filename, unsigned int line ) { return false; }
+#endif
 
 
 namespace Plop

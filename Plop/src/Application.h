@@ -31,6 +31,9 @@ namespace Plop
 		void		Save() const;
 	};
 
+
+#define REGISTER_COMPONENT(comp) m_EditorLayer.RegisterComponent<comp##Component>( #comp )
+
 	class Application : public IEventListener
 	{
 	public:

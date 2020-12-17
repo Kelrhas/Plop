@@ -31,6 +31,16 @@ namespace Plop
 		m_ENTTRegistry.clear();
 	}
 
+	void LevelBase::StartFromEditor()
+	{
+
+	}
+
+	void LevelBase::StopToEditor()
+	{
+
+	}
+
 	bool LevelBase::BeforeUpdate()
 	{
 		CameraPtr xCurrentCamera = nullptr;

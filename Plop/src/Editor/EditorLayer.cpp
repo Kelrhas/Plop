@@ -24,16 +24,20 @@ namespace Plop
 		static String sNewName;
 	}
 
-	::MM::EntityEditor<entt::entity> ENTTEditor;
+	::MM::EntityEditor<entt::entity>* EditorLayer::s_pENTTEditor = nullptr;
 
-#define REGISTER_COMPONENT(comp) ENTTEditor.registerComponent<comp##Component>( #comp )
+	EditorLayer::EditorLayer()
+	{
+		s_pENTTEditor = NEW ::MM::EntityEditor<entt::entity>;
+	}
+
+	EditorLayer::~EditorLayer()
+	{
+		delete s_pENTTEditor;
+	}
 
 	void EditorLayer::OnRegistered()
 	{
-		REGISTER_COMPONENT( Transform );
-		REGISTER_COMPONENT( SpriteRenderer );
-		REGISTER_COMPONENT( Camera );
-
 		EventDispatcher::RegisterListener( this );
 	}
 
@@ -84,6 +88,155 @@ namespace Plop
 		// TODO set docking to bottom
 		Console::Draw();
 
+		if (m_bLevelPlaying == false)
+		{
+			ShowSceneGraph();
+
+			if (m_SelectedEntity)
+			{
+				if (!LevelBase::s_xCurrentLevel.expired())
+				{
+					LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+					s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId );
+				}
+			}
+		}
+
+		ImGui::End(); // Begin("Editor")
+	}
+
+	bool EditorLayer::OnEvent( Event& _event )
+	{
+		if (_event.GetEventType() == EventType::EntityDestroyedEvent)
+		{
+			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
+			if (m_SelectedEntity == entityEvent.entity)
+			{
+				m_SelectedEntity.Reset();
+			}
+		}
+
+		return false;
+	}
+
+
+
+	json EditorLayer::GetJsonEntity( const Entity& _entity )
+	{
+		json j;
+		entt::entity entityID = _entity.m_EntityId;
+		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
+
+		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
+		{
+			if (s_pENTTEditor->entityHasComponent( reg, entityID, component_type_id ))
+			{
+				j[ci.name] = ci.tojson( reg, entityID );
+			}
+		}
+
+		return j;
+	}
+
+	void EditorLayer::SetJsonEntity( const Entity& _entity, const json& _j )
+	{
+		entt::entity entityID = _entity.m_EntityId;
+		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
+
+		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
+		{
+			if (_j.contains( ci.name ))
+			{
+				ci.fromjson( reg, entityID, _j[ci.name] );
+			}
+		}
+	}
+
+	void EditorLayer::ShowMenuBar()
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu( "File" ))
+			{
+				if (ImGui::MenuItem( "New level", nullptr, nullptr, false ))
+				{
+				}
+
+				if (ImGui::MenuItem( "Open level", "Ctrl + O" ))
+				{
+					auto xLevel = Application::Get()->CreateNewLevel();
+					m_SelectedEntity.Reset();
+					xLevel->MakeCurrent();
+					xLevel->Load( "data/level/test.level" );
+				}
+
+				if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+				{
+					LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
+				}
+
+				if (ImGui::MenuItem( "Close" ))
+				{
+					Application::Get()->Close();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu( "Help" ))
+			{
+				ImGui::MenuItem( "Show demo window", nullptr, &m_bShowImGuiDemo );
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu( "Debug" ))
+			{
+				ImGui::MenuItem( "Show allocations", nullptr, &m_bShowAllocations );
+
+				ImGui::EndMenu();
+			}
+
+			if (m_bLevelPlaying)
+			{
+				if (ImGui::MenuItem( "Stop" ))
+					StopLevel();
+			}
+			else
+			{
+				if (ImGui::MenuItem( "Play" ))
+					PlayLevel();
+			}
+
+			ImGui::EndMenuBar();
+		}
+
+		// shortcuts for ImGui menus
+		if (Input::IsKeyDown( KeyCode::KEY_Control ))
+		{
+			if (Input::IsKeyDown( KeyCode::KEY_O ))
+			{
+				auto xLevel = Application::Get()->CreateNewLevel();
+				m_SelectedEntity.Reset();
+				xLevel->MakeCurrent();
+				xLevel->Load( "data/level/test.level" );
+			}
+			if (Input::IsKeyDown( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
+				LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
+		}
+
+		if (m_SelectedEntity)
+		{
+			if (m_eEditMode == EditMode::NONE && Input::IsKeyPressed( KeyCode::KEY_F2 ))
+			{
+				Private::sNewName = m_SelectedEntity.GetComponent<NameComponent>().sName;
+				m_eEditMode = EditMode::RENAMING_ENTITY;
+			}
+		}
+	}
+
+	void EditorLayer::ShowSceneGraph()
+	{
 		if (ImGui::Begin( "Scene graph" ))
 		{
 			if (!LevelBase::s_xCurrentLevel.expired())
@@ -105,7 +258,7 @@ namespace Plop
 							m_eEditMode = EditMode::NONE;
 						}
 
-						if (ImGui::IsKeyPressed( ImGui::GetKeyIndex(ImGuiKey_Escape) ) || // ask imgui as it captures the input from Input::
+						if (ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Escape ) ) || // ask imgui as it captures the input from Input::
 							!ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows ) ||
 							ImGui::IsItemDeactivated())
 						{
@@ -207,135 +360,20 @@ namespace Plop
 		}
 		ImGui::End();
 
-		if (m_SelectedEntity)
-		{
-			if (!LevelBase::s_xCurrentLevel.expired())
-			{
-				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
-				ENTTEditor.render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId );
-			}
-		}
-
-		ImGui::End();
 	}
 
-	bool EditorLayer::OnEvent( Event& _event )
+	void EditorLayer::PlayLevel()
 	{
-		if (_event.GetEventType() == EventType::EntityDestroyedEvent)
-		{
-			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
-			if (m_SelectedEntity == entityEvent.entity)
-			{
-				m_SelectedEntity.Reset();
-			}
-		}
-
-		return false;
+		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+		xLevel->StartFromEditor();
+		m_bLevelPlaying = true;
 	}
 
-
-	void EditorLayer::ShowMenuBar()
+	void EditorLayer::StopLevel()
 	{
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu( "File" ))
-			{
-				if (ImGui::MenuItem( "New level", nullptr, nullptr, false ))
-				{
-				}
-
-				if (ImGui::MenuItem( "Open level", "Ctrl + O" ))
-				{
-					auto xLevel = Application::Get()->CreateNewLevel();
-					m_SelectedEntity.Reset();
-					xLevel->MakeCurrent();
-					xLevel->Load( "data/level/test.level" );
-				}
-
-				if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
-				{
-					LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
-				}
-
-				if (ImGui::MenuItem( "Close" ))
-				{
-					Application::Get()->Close();
-				}
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu( "Help" ))
-			{
-				ImGui::MenuItem( "Show demo window", nullptr, &m_bShowImGuiDemo );
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu( "Debug" ))
-			{
-				ImGui::MenuItem( "Show allocations", nullptr, &m_bShowAllocations );
-
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndMenuBar();
-		}
-
-		// shortcuts for ImGui menus
-		if (Input::IsKeyDown( KeyCode::KEY_Control ))
-		{
-			if (Input::IsKeyDown( KeyCode::KEY_O ))
-			{
-				auto xLevel = Application::Get()->CreateNewLevel();
-				m_SelectedEntity.Reset();
-				xLevel->MakeCurrent();
-				xLevel->Load( "data/level/test.level" );
-			}
-			if (Input::IsKeyDown( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
-				LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
-		}
-
-		if (m_SelectedEntity)
-		{
-			if (m_eEditMode == EditMode::NONE && Input::IsKeyPressed( KeyCode::KEY_F2 ))
-			{
-				Private::sNewName = m_SelectedEntity.GetComponent<NameComponent>().sName;
-				m_eEditMode = EditMode::RENAMING_ENTITY;
-			}
-		}
-	}
-
-
-	json EditorLayer::GetJsonEntity( const Entity& _entity )
-	{
-		json j;
-		entt::entity entityID = _entity.m_EntityId;
-		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
-
-		for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
-		{
-			if (ENTTEditor.entityHasComponent( reg, entityID, component_type_id ))
-			{
-				j[ci.name] = ci.tojson( reg, entityID );
-			}
-		}
-
-		return j;
-	}
-
-	void EditorLayer::SetJsonEntity( const Entity& _entity, const json& _j )
-	{
-		entt::entity entityID = _entity.m_EntityId;
-		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
-
-		for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
-		{
-			if (_j.contains( ci.name ))
-			{
-				ci.fromjson( reg, entityID, _j[ci.name] );
-			}
-		}
+		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+		xLevel->StopToEditor();
+		m_bLevelPlaying = false;
 	}
 
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )
@@ -347,7 +385,7 @@ namespace Plop
 
 		entt::registry& reg = xLevel->m_ENTTRegistry;
 
-		for (auto& [component_type_id, ci] : ENTTEditor.component_infos)
+		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
 		{
 			ci.duplicate( reg, _entity, dupEntity );
 		}

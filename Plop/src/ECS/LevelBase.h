@@ -31,6 +31,9 @@ namespace Plop
 		virtual void Init();
 		virtual void Shutdown();
 
+		virtual void StartFromEditor();
+		virtual void StopToEditor();
+
 				bool BeforeUpdate();			// prepare the rendering
 		virtual	void Update( TimeStep _ts );	// update & submit rendering
 				void AfterUpdate();				// close the rendering

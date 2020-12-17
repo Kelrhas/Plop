@@ -1,17 +1,17 @@
 #include "Plop_pch.h"
-#include <PlopInclude.h>
+#include "PlopInclude.h"
 
 #include <fstream>
 
 #include <json.hpp>
 
-#include <Input/Input.h>
-#include <Debug/Debug.h>
-#include <Debug/Log.h>
-#include <Events/EventDispatcher.h>
-#include <Events/WindowEvent.h>
-
-#include <Renderer/Renderer.h>
+#include "Input/Input.h"
+#include "Debug/Debug.h"
+#include "Debug/Log.h"
+#include "Events/EventDispatcher.h"
+#include "Events/WindowEvent.h"
+#include "ECS/BaseComponents.h"
+#include "Renderer/Renderer.h"
 
 namespace Plop
 {
@@ -163,7 +163,12 @@ namespace Plop
 
 		m_timeStep.Advance();
 		RegisterAppLayer( &m_ImGuiLayer );
-		RegisterAppLayer( &m_EditorLayer );
+		if(m_bEditorMode)
+			RegisterAppLayer( &m_EditorLayer );
+
+		REGISTER_COMPONENT( Transform );
+		REGISTER_COMPONENT( SpriteRenderer );
+		REGISTER_COMPONENT( Camera );
 
 		auto xLevel = std::make_shared<Plop::LevelBase>();
 		xLevel->MakeCurrent();

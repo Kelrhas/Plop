@@ -16,6 +16,11 @@
 		"FatalWarnings",
 		"ShadowedVariables"
 	}
+	
+	-- #import is not compatible with /MP
+	filter { "files:**/Debug/Debug.cpp" }
+		buildoptions "/MP1"
+	filter {}
 
 	defines { "_CRT_SECURE_NO_WARNINGS"	}
 

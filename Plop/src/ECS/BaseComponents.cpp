@@ -229,8 +229,11 @@ namespace MM
 		
 		if (comp.xSprite)
 		{
-			auto hTex = Plop::AssetLoader::GetTexture( _j["texture"] );
-			comp.xSprite->SetTextureHandle( hTex );
+			if (_j.contains( "texture" ))
+			{
+				auto hTex = Plop::AssetLoader::GetTexture( _j["texture"] );
+				comp.xSprite->SetTextureHandle( hTex );
+			}
 			comp.xSprite->SetUV( _j["uvmin"], _j["uvmax"] );
 			comp.xSprite->SetTint( _j["tint"] );
 			comp.xSprite->SetSize( _j["size"] );

@@ -175,7 +175,11 @@ namespace Plop
 		m_vecLoadedLevel.push_back( xLevel );
 		if (!m_Config.sLastLevelActive.empty())
 		{
-			if (!xLevel->Load( m_Config.sLastLevelActive ))
+			if (xLevel->Load( m_Config.sLastLevelActive ))
+			{
+				m_EditorLayer.m_sCurrentLevel = m_Config.sLastLevelActive;
+			}
+			else
 			{
 				m_Config.sLastLevelActive.clear();
 			}

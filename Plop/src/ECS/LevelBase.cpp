@@ -149,8 +149,7 @@ namespace Plop
 
 	void LevelBase::Save( const StringPath& _path )
 	{
-		// TODO: open Save file browser if not yet saved
-		StringPath filePath = Application::Get()->GetRootDirectory() / _path;
+		StringPath filePath = _path.is_absolute() ? _path : Application::Get()->GetRootDirectory() / _path;
 		std::filesystem::create_directories( filePath.parent_path() );
 		std::ofstream levelFile( filePath, std::ios::out | std::ios::trunc );
 		if (levelFile.is_open())
@@ -166,7 +165,7 @@ namespace Plop
 
 	bool LevelBase::Load( const StringPath& _path )
 	{
-		StringPath filePath = Application::Get()->GetRootDirectory() / _path;
+		StringPath filePath = _path.is_absolute() ? _path : Application::Get()->GetRootDirectory() / _path;
 		std::ifstream levelFile( filePath, std::ios::in );
 		if (levelFile.is_open())
 		{

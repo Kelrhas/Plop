@@ -7,13 +7,14 @@
 #include <imgui_entt_entity_editor.hpp>
 
 
-#include <Application.h>
-#include <Editor/Console.h>
-#include <ECS/BaseComponents.h>
-#include <ECS/LevelBase.h>
-#include <Input/Input.h>
-#include <Events/EventDispatcher.h>
-#include <Events/EntityEvent.h>
+#include "Application.h"
+#include "Editor/Console.h"
+#include "ECS/BaseComponents.h"
+#include "ECS/LevelBase.h"
+#include "Input/Input.h"
+#include "Events/EventDispatcher.h"
+#include "Events/EntityEvent.h"
+#include "Utils/OSDialogs.h"
 
 
 namespace Plop
@@ -88,6 +89,7 @@ namespace Plop
 		// TODO set docking to bottom
 		Console::Draw();
 
+
 		if (m_bLevelPlaying == false)
 		{
 			ShowSceneGraph();
@@ -158,27 +160,29 @@ namespace Plop
 		{
 			if (ImGui::BeginMenu( "File" ))
 			{
-				if (ImGui::MenuItem( "New level", nullptr, nullptr, false ))
+				if (ImGui::MenuItem( "New level", "Ctrl + N", nullptr ))
+					NewLevel();
+
+				if (ImGui::MenuItem( "Open ...", "Ctrl + O" ))
+					OpenLevel();
+
+				if (m_sCurrentLevel.empty())
 				{
+					if (ImGui::MenuItem( "Save ...", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+						SaveLevelAs();
+				}
+				else
+				{
+					if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+						SaveLevel();
+
+					if (ImGui::MenuItem( "Save as ...", "Ctrl + Shift + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+						SaveLevelAs();
 				}
 
-				if (ImGui::MenuItem( "Open level", "Ctrl + O" ))
-				{
-					auto xLevel = Application::Get()->CreateNewLevel();
-					m_SelectedEntity.Reset();
-					xLevel->MakeCurrent();
-					xLevel->Load( "data/level/test.level" );
-				}
-
-				if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
-				{
-					LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
-				}
-
-				if (ImGui::MenuItem( "Close" ))
-				{
+				ImGui::Separator();
+				if (ImGui::MenuItem( "Exit" ))
 					Application::Get()->Close();
-				}
 
 				ImGui::EndMenu();
 			}
@@ -212,17 +216,21 @@ namespace Plop
 		}
 
 		// shortcuts for ImGui menus
-		if (Input::IsKeyDown( KeyCode::KEY_Control ))
+		bool bControlDown = Input::IsKeyDown( KeyCode::KEY_Control );
+		bool bShiftDown = Input::IsKeyDown( KeyCode::KEY_Shift );
+		if (bControlDown)
 		{
-			if (Input::IsKeyDown( KeyCode::KEY_O ))
+			if (Input::IsKeyPressed( KeyCode::KEY_N ))
+				NewLevel();
+			if (Input::IsKeyPressed( KeyCode::KEY_O ))
+				OpenLevel();
+			if (Input::IsKeyPressed( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
 			{
-				auto xLevel = Application::Get()->CreateNewLevel();
-				m_SelectedEntity.Reset();
-				xLevel->MakeCurrent();
-				xLevel->Load( "data/level/test.level" );
+				if (bShiftDown || m_sCurrentLevel.empty())
+					SaveLevelAs();
+				else
+					SaveLevel();
 			}
-			if (Input::IsKeyDown( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
-				LevelBase::GetCurrentLevel().lock()->Save( "data/level/test.level" );
 		}
 
 		if (m_SelectedEntity)
@@ -360,6 +368,48 @@ namespace Plop
 		}
 		ImGui::End();
 
+	}
+
+	void EditorLayer::NewLevel()
+	{
+		auto xLevel = Application::Get()->CreateNewLevel();
+		m_SelectedEntity.Reset();
+		xLevel->MakeCurrent();
+		m_sCurrentLevel.clear();
+	}
+
+	void EditorLayer::OpenLevel()
+	{
+		StringPath sLevelPath;
+		if (Dialog::OpenFile( sLevelPath, Dialog::LEVEL_FILTER ))
+		{
+			auto xLevel = Application::Get()->CreateNewLevel();
+			m_SelectedEntity.Reset();
+			xLevel->MakeCurrent();
+			xLevel->Load( sLevelPath );
+			m_sCurrentLevel = sLevelPath;
+		}
+	}
+
+	void EditorLayer::SaveLevel()
+	{
+		if(!m_sCurrentLevel.empty())
+			LevelBase::GetCurrentLevel().lock()->Save( m_sCurrentLevel );
+	}
+
+	void EditorLayer::SaveLevelAs()
+	{
+		StringPath sLevelPath;
+		if (Dialog::SaveFile( sLevelPath, Dialog::LEVEL_FILTER ))
+		{
+			// check for extension
+			if (sLevelPath.extension() != ".lvl")
+				sLevelPath += ".lvl";
+
+
+			LevelBase::GetCurrentLevel().lock()->Save( sLevelPath );
+			m_sCurrentLevel = sLevelPath;
+		}
 	}
 
 	void EditorLayer::PlayLevel()

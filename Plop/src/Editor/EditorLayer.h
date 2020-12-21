@@ -43,6 +43,10 @@ namespace Plop
 
 				void		ShowMenuBar();
 				void		ShowSceneGraph();
+				void		NewLevel();
+				void		OpenLevel();
+				void		SaveLevel();
+				void		SaveLevelAs();
 				void		PlayLevel();
 				void		StopLevel();
 
@@ -61,7 +65,8 @@ namespace Plop
 		bool				m_bShowAllocations = false;
 		bool				m_bLevelPlaying = false;
 		Entity				m_SelectedEntity;
-		EditMode m_eEditMode = EditMode::NONE;
+		EditMode			m_eEditMode = EditMode::NONE;
+		StringPath			m_sCurrentLevel;
 		
 		
 		static ::MM::EntityEditor<entt::entity>* s_pENTTEditor;

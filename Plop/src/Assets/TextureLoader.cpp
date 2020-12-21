@@ -3,8 +3,9 @@
 
 #include <entt/entt.hpp>
 
-#include <Renderer/Renderer.h>
-#include <Platform/OpenGL/OpenGL_Texture.h>
+#include "Utils/OSDialogs.h"
+#include "Renderer/Renderer.h"
+#include "Platform/OpenGL/OpenGL_Texture.h"
 
 namespace Plop
 {
@@ -25,7 +26,7 @@ namespace Plop
 
 	TextureHandle AssetLoader::GetTexture( const String& _sFilename )
 	{
-		return s_CacheTexture.load<TextureLoader>( entt::hashed_string(_sFilename.c_str()), _sFilename );
+		return s_CacheTexture.load<TextureLoader>( entt::hashed_string( _sFilename.c_str()), _sFilename );
 	}
 
 	TextureHandle AssetLoader::PickTextureFromCache()
@@ -42,7 +43,7 @@ namespace Plop
 			static bool bCheckerBg = true;
 			ImGui::Checkbox( "Checker background", &bCheckerBg );
 
-			ImGui::BeginChild( ""/*, ImVec2( 0, -ImGui::GetFrameHeightWithSpacing() )*/ );
+			ImGui::BeginChild( "", ImVec2( 0, -ImGui::GetFrameHeightWithSpacing() ) );
 
 			ImGuiStyle& style = ImGui::GetStyle();
 			float fContentWidth = ImGui::GetContentRegionAvail().x - style.ItemSpacing.x;
@@ -89,6 +90,15 @@ namespace Plop
 				} );
 
 			ImGui::EndChild();
+
+			if (ImGui::Button( "Load from file" ))
+			{
+				StringPath filePath;
+				if (Dialog::OpenFile( filePath, Dialog::IMAGE_FILTER ))
+				{
+					hNewTexture = GetTexture( filePath.string() );
+				}
+			}
 
 			if (hNewTexture)
 			{

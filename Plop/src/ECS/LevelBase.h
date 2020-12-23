@@ -50,8 +50,8 @@ namespace Plop
 				void MakeCurrent();
 				void Save( const StringPath& _path );
 				bool Load( const StringPath& _path );
-				virtual json ToJson();
-				virtual void FromJson(const json& _j);
+		virtual json ToJson();
+		virtual void FromJson(const json& _j);
 
 
 		static LevelBaseWeakPtr GetCurrentLevel() { return s_xCurrentLevel; }
@@ -59,9 +59,9 @@ namespace Plop
 
 	protected:
 		static LevelBaseWeakPtr s_xCurrentLevel;
+		entt::registry	m_ENTTRegistry;
 
 	private:
-		entt::registry	m_ENTTRegistry;
 		bool			m_bRendering = false;
 
 	};

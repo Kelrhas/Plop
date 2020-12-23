@@ -166,11 +166,10 @@ namespace Plop
 		if(m_bEditorMode)
 			RegisterAppLayer( &m_EditorLayer );
 
-		REGISTER_COMPONENT( Transform );
-		REGISTER_COMPONENT( SpriteRenderer );
-		REGISTER_COMPONENT( Camera );
+		RegisterMandatoryComponents();
+		RegisterComponents();
 
-		auto xLevel = std::make_shared<Plop::LevelBase>();
+		auto xLevel = CreateNewLevel();
 		xLevel->MakeCurrent();
 		m_vecLoadedLevel.push_back( xLevel );
 		if (!m_Config.sLastLevelActive.empty())
@@ -291,6 +290,13 @@ namespace Plop
 	{
 		LevelBasePtr xLevel = std::make_shared<LevelBase>();
 		return xLevel;
+	}
+
+	void Application::RegisterMandatoryComponents()
+	{
+		REGISTER_COMPONENT( Transform );
+		REGISTER_COMPONENT( SpriteRenderer );
+		REGISTER_COMPONENT( Camera );
 	}
 
 }

@@ -32,7 +32,7 @@ namespace Plop
 	};
 
 
-#define REGISTER_COMPONENT(comp) m_EditorLayer.RegisterComponent<comp##Component>( #comp )
+#define REGISTER_COMPONENT(comp) RegisterComponent<comp##Component>( #comp )
 
 	class Application : public IEventListener
 	{
@@ -68,10 +68,22 @@ namespace Plop
 		static Config&			GetConfig() { return s_pInstance->m_Config; }
 		static TimeStep&		GetTimeStep() { return s_pInstance->m_timeStep; }
 
+
+	protected:
+		template<typename Comp>
+				void			RegisterComponent( const char* _pName )
+				{
+					m_EditorLayer.RegisterComponent<Comp>( _pName );
+				}
+
+
 	private:
 
 		virtual GameConfig*		CreateGameConfig();
 		virtual LevelBasePtr	CreateNewLevelPrivate();
+				void			RegisterMandatoryComponents();
+		virtual void			RegisterComponents() {}
+
 
 		static Application*		s_pInstance;
 				Config			m_Config;

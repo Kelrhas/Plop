@@ -1,0 +1,12 @@
+#pragma once
+
+#include <ECS/LevelBase.h>
+
+class SampleLevel : public Plop::LevelBase
+{
+public:
+
+	virtual	void Update( Plop::TimeStep _ts ) override;
+
+private:
+};

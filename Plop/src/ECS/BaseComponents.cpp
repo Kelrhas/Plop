@@ -3,11 +3,11 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <Application.h>
-#include <Assets/TextureLoader.h>
-#include <Renderer/Texture.h>
-#include <Utils/JsonTypes.h>
-#include <Camera/Camera.h>
+#include "Application.h"
+#include "Assets/TextureLoader.h"
+#include "Renderer/Texture.h"
+#include "Utils/JsonTypes.h"
+#include "Camera/Camera.h"
 
 namespace Plop
 {

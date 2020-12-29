@@ -89,7 +89,7 @@ namespace MM
 		auto& comp = reg.get<Plop::TransformComponent>( e );
 		ImGui::DragFloat3( "Pos", glm::value_ptr( comp.vPosition ), 0.1f );
 		ImGui::SameLine( ImGui::GetWindowContentRegionMax().x - fResetBtnWidth );
-		if (ImGui::SmallButton( "X" ))
+		if (ImGui::SmallButton( "X##Pos" ))
 			comp.vPosition = VEC3_0;
 		ImGui::Custom::Tooltip( "Reset" );
 
@@ -97,14 +97,14 @@ namespace MM
 		if (ImGui::DragFloat3( "Rot", glm::value_ptr( vRot ) ))
 			comp.vRotation = glm::radians( vRot );
 		ImGui::SameLine( ImGui::GetWindowContentRegionMax().x - fResetBtnWidth );
-		if (ImGui::SmallButton( "X" ))
+		if (ImGui::SmallButton( "X##Rot" ))
 			comp.vRotation = VEC3_0;
 		ImGui::Custom::Tooltip( "Reset" );
 
 		ImGui::DragFloat3( "Sca", glm::value_ptr( comp.vScale ), 0.1f, 0.01f );
 		ImGui::SameLine( ImGui::GetWindowContentRegionMax().x - fResetBtnWidth );
-		if (ImGui::SmallButton( "X" ))
-			comp.vRotation = VEC3_1;
+		if (ImGui::SmallButton( "X##Sca" ))
+			comp.vScale = VEC3_1;
 		ImGui::Custom::Tooltip( "Reset" );
 	}
 

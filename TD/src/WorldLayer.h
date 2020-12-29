@@ -2,7 +2,7 @@
 
 #include <ApplicationLayer.h>
 
-#include <Level.h>
+#include "TDLevel.h"
 
 //////////////////////////////////////////////////////////////////////////
 // WorldLayer
@@ -16,6 +16,5 @@ public:
 	virtual uint8_t GetPriority() const override { return 20; }
 
 private:
-	Plop::LevelBasePtr				m_xLevel;
 };
 

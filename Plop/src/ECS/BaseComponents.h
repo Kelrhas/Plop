@@ -37,6 +37,8 @@ namespace Plop
 
 
 		glm::mat4 GetMatrix() const;
+		float Distance2D( const TransformComponent& _other ) const;
+		float Distance2DSquare( const TransformComponent& _other ) const;
 
 		operator glm::mat4() const { return GetMatrix(); }
 		operator glm::quat() const { return glm::quat( vRotation ); }

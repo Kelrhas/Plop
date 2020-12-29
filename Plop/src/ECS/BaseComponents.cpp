@@ -23,6 +23,22 @@ namespace Plop
 		return mTransform;
 	}
 
+	float TransformComponent::Distance2D( const TransformComponent& _other ) const
+	{
+		glm::vec2 vThisPos = vPosition;
+		glm::vec2 vOtherPos = _other.vPosition;
+
+		return glm::distance( vThisPos, vOtherPos );
+	}
+
+	float TransformComponent::Distance2DSquare( const TransformComponent& _other ) const
+	{
+		glm::vec2 vThisPos = vPosition;
+		glm::vec2 vOtherPos = _other.vPosition;
+
+		return glm::distance2( vThisPos, vOtherPos );
+	}
+
 	SpriteRendererComponent::SpriteRendererComponent()
 	{
 		xSprite = std::make_shared<Plop::Sprite>();

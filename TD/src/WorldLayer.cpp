@@ -16,19 +16,11 @@
 
 void WorldLayer::OnRegistered()
 {
-	m_xLevel = std::make_shared<Level>();
-	m_xLevel->Init();
 
-	Plop::Entity cameraEntity = m_xLevel->CreateEntity( "Camera" );
-	cameraEntity.GetComponent<Plop::TransformComponent>().SetPosition( glm::vec3( 3.7, 1.2, 0. ) );
-	Plop::CameraComponent& cameraComp = cameraEntity.AddComponent<Plop::CameraComponent>();
-	cameraComp.xCamera = std::make_shared<Plop::Camera>();
-	cameraComp.xCamera->Init();
 }
 
 void WorldLayer::OnUnregistered()
 {
-	m_xLevel = nullptr;
 }
 
 void WorldLayer::OnUpdate(Plop::TimeStep& _ts)
@@ -36,10 +28,4 @@ void WorldLayer::OnUpdate(Plop::TimeStep& _ts)
 	PROFILING_FUNCTION();
 
 	Plop::Renderer::Clear();
-
-	if (m_xLevel->BeforeUpdate())
-	{
-		m_xLevel->Update( _ts );
-		m_xLevel->AfterUpdate();
-	}
 }

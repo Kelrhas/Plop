@@ -1,0 +1,78 @@
+{
+  "entities": [
+    {
+      "Children": [],
+      "Enemy": {
+        "Life": 10.0
+      },
+      "HintID": 3,
+      "Name": "Enemy",
+      "SpriteRenderer": {
+        "size": [1,1],
+        "texture": "assets\\textures\\tilesheet.png",
+        "tint": [1.0,1.0,1.0,1.0],
+        "uvmax": [0.8260869383811951,0.23076924681663513],
+        "uvmin": [0.782608687877655,0.1538461595773697]
+      },
+      "Transform": {
+        "Position": [1.5,1.0,0.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Children": [],
+      "HintID": 2,
+      "Name": "Tower",
+      "SpriteRenderer": {
+        "size": [1,1],
+        "texture": "assets\\textures\\tilesheet.png",
+        "tint": [1.0,1.0,1.0,1.0],
+        "uvmax": [0.8695652484893799,0.23076924681663513],
+        "uvmin": [0.8260869979858398,0.1538461595773697]
+      },
+      "Tower": {
+        "Damage": 5.900000095367432
+      },
+      "Transform": {
+        "Position": [0.0,0.0,-0.30000001192092896],
+        "Rotation": [0.0,0.0,-0.9627462029457092],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Children": [],
+      "HintID": 1,
+      "Name": "Background",
+      "SpriteRenderer": {
+        "size": [1,1],
+        "texture": "assets\\textures\\tilesheet.png",
+        "tint": [1.0,1.0,1.0,1.0],
+        "uvmax": [0.08695652335882187,0.692307710647583],
+        "uvmin": [0.043478261679410934,0.6153846383094788]
+      },
+      "Transform": {
+        "Position": [0.0,0.0,-9.899999618530273],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [10.0,10.0,1.0]
+      }
+    },
+    {
+      "Camera": {
+        "far": 10.0,
+        "near": 0.0,
+        "ortho": true,
+        "orthoSize": 10.0,
+        "perspFOV": 1.1344640254974365
+      },
+      "Children": [],
+      "HintID": 0,
+      "Name": "Camera",
+      "Transform": {
+        "Position": [0.0,0.0,0.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    }
+  ]
+}

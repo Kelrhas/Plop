@@ -1,4 +1,5 @@
---workspace
+workspace "Plop"
+	startproject "Sample"
 	architecture "x86_64"
 
 	linkoptions {
@@ -59,53 +60,24 @@
 
 	characterset("MBCS") --Unicode
 
-include "Externals/imgui"
+--project "Premake"
+--	kind "Utility"
+--
+--	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
+--	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+--
+--	files
+--	{
+--		"%{wks.location}/**premake5.lua"
+--	}
+--
+--	postbuildmessage "Regenerating project files with Premake5!"
+--	postbuildcommands
+--	{
+--		"%{prj.location}bin/premake5 %{_ACTION} --file=\"%{wks.location}premake5.lua\""
+--	}
 
-
-project "Plop"
-	kind "StaticLib" --SharedLib
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
-	
-	location "%{prj.name}"
-	
-	pchheader "Plop_pch.h"
-	pchsource "%{prj.location}/src/Plop_pch.cpp"
-		
-	files {
-		"%{prj.location}/src/**.h",
-		"%{prj.location}/src/**.cpp",
-		"%{prj.location}/src/**.inl",
-		"Externals/json/nlohmann_json.natvis",
-		"Externals/glm/util/*",
-		"Externals/stb/stb.cpp"
-	}
-	
-	includedirs {
-		"%{prj.name}/src/",
-		"Externals/json/",
-		"Externals/glew/include",
-		"Externals/ImGui/",
-		"Externals/glm/",
-		"Externals/stb/",
-		"Externals/optick/include/",
-		"Externals/fmt/include/",
-		"Externals/entt/",
-		"Externals/imgui_entt_entity_editor/",
-	}
-	
-	libdirs {
-		"Externals/glew/lib/",
-	}
-
-	links {
-		"Externals/glew/lib/glew32s.lib",
-		"ImGui",
-		"opengl32.lib",
-	}
-		
-	defines {
-		"PLOP_BUILD",
-		"GLEW_STATIC"
-	}
+include "Externals/imgui"		-- imgui project
+include "Plop/"					-- engine project
+include "Sample/"				-- sample project
+include "TD/"					-- game project

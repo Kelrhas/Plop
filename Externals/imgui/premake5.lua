@@ -15,6 +15,10 @@ project "ImGui"
 		"%{prj.location}/imgui_draw.cpp",
 		"%{prj.location}/imgui_internal.h",
 		"%{prj.location}/imgui_widgets.cpp",
+		"%{prj.location}/imgui_impl_opengl3.cpp",
+		"%{prj.location}/imgui_impl_opengl3.h",
+		"%{prj.location}/imgui_custom.cpp",
+		"%{prj.location}/imgui_custom.h",
 		"%{prj.location}/imstb_rectpack.h",
 		"%{prj.location}/imstb_textedit.h",
 		"%{prj.location}/imstb_truetype.h",
@@ -23,15 +27,25 @@ project "ImGui"
 		"%{prj.location}/misc/natvis/imgui.natvis"
 	}
 	
+	filter "system:Windows"
+		files
+		{
+			"%{prj.location}/imgui_impl_win32.cpp",
+			"%{prj.location}/imgui_impl_win32.h",
+		}
+	filter {}
+	
 	includedirs
 	{
 		"%{prj.location}",
 		"%{prj.location}/../glm", -- for glm::vec2 <-> ImVec2 conversion in imconfig
+		"../glew/include",
 	}
 
 	defines
 	{
-		"_CRT_SECURE_NO_WARNINGS"
+		"_CRT_SECURE_NO_WARNINGS",
+		"IMGUI_IMPL_OPENGL_LOADER_GLEW"
 	}
 	
 		

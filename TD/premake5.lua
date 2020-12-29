@@ -1,7 +1,3 @@
-workspace "TD"
-	startproject "TD"
-
-include "../"
 
 project "TD"
 	kind "ConsoleApp" -- WindowedApp
@@ -25,6 +21,7 @@ project "TD"
 	{
 		"src/",
 		"../Plop/src/",
+		"../Externals/json/",
 		"../Externals/ImGui/",
 		"../Externals/glm/",
 		"../Externals/optick/include/",
@@ -41,6 +38,16 @@ project "TD"
 	links
 	{
 		"Plop",
-		"OptickCore.lib"
 	}
-	
+
+	filter "configurations:not Master"
+		libdirs
+		{
+			"../Externals/optick/lib/x64/%{cfg.buildcfg}/"
+		}
+		links
+		{
+			"OptickCore.lib"
+		}
+
+	filter {}

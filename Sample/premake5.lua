@@ -1,8 +1,4 @@
-workspace "Sample"
-	startproject "Sample"
 
-include "../"
-		
 project "Sample"
 	kind "ConsoleApp" -- WindowedApp
 	language "C++"
@@ -45,4 +41,5 @@ project "Sample"
 		{
 			"OptickCore.lib"
 		}
+	filter {}
 	

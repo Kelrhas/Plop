@@ -5,7 +5,7 @@ bin/*.pdb
 *.suo
 *.sdf
 *.obj
-*/enc_temp_folder/*
+enc_temp_folder/*
 
 *.bak
 

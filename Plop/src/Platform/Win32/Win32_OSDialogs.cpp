@@ -73,7 +73,7 @@ namespace Plop
 		ofn.lpstrInitialDir = sRootAbs.c_str();
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT | OFN_ENABLESIZING | OFN_NOCHANGEDIR | OFN_NONETWORKBUTTON | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT;
 
-		if (GetOpenFileName( &ofn ) == TRUE)
+		if (GetSaveFileName( &ofn ) == TRUE)
 		{
 			_sFilePath = ofn.lpstrFile;
 

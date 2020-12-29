@@ -41,6 +41,11 @@ namespace Plop
 
 	}
 
+	void LevelBase::UpdateInEditor( TimeStep _ts )
+	{
+		DrawSprites();
+	}
+
 	bool LevelBase::BeforeUpdate()
 	{
 		CameraPtr xCurrentCamera = nullptr;
@@ -64,37 +69,7 @@ namespace Plop
 
 	void LevelBase::Update( TimeStep _ts )
 	{
-
-		std::vector<std::pair<SpritePtr, glm::mat4>> vecSpriteMat;
-		auto& group = m_ENTTRegistry.group<TransformComponent, SpriteRendererComponent>();
-		for (auto entityID : group)
-		{
-			SpriteRendererComponent& renderer = group.get<SpriteRendererComponent>( entityID );
-			if (!renderer.xSprite)
-				continue;
-
-
-			TransformComponent& transform = group.get<TransformComponent>( entityID );
-			
-			Entity entity{ entityID, weak_from_this() };
-			glm::mat4 mTransform = transform.GetMatrix();
-			while (entity = entity.GetParent())
-			{
-				mTransform *= entity.GetComponent<TransformComponent>().GetMatrix();
-			}
-
-			vecSpriteMat.push_back( std::make_pair(renderer.xSprite, mTransform) );
-		}
-
-		std::sort( vecSpriteMat.begin(), vecSpriteMat.end(), []( std::pair<SpritePtr, glm::mat4>& _pair1, std::pair<SpritePtr, glm::mat4>& _pair2 )
-		{
-			return _pair1.second[3][2] < _pair2.second[3][2];
-		} );
-
-		for (std::pair<SpritePtr, glm::mat4>& _pair : vecSpriteMat)
-		{
-			Renderer2D::DrawSprite( *_pair.first, _pair.second );
-		}
+		DrawSprites();
 	}
 
 	void LevelBase::AfterUpdate()
@@ -212,6 +187,40 @@ namespace Plop
 				Entity e = CreateEntityWithHint( j["HintID"] );
 				e.FromJson( j );
 			}
+		}
+	}
+
+	void LevelBase::DrawSprites()
+	{
+		std::vector<std::pair<SpritePtr, glm::mat4>> vecSpriteMat;
+		auto& group = m_ENTTRegistry.group<TransformComponent, SpriteRendererComponent>();
+		for (auto entityID : group)
+		{
+			SpriteRendererComponent& renderer = group.get<SpriteRendererComponent>( entityID );
+			if (!renderer.xSprite)
+				continue;
+
+
+			TransformComponent& transform = group.get<TransformComponent>( entityID );
+
+			Entity entity{ entityID, weak_from_this() };
+			glm::mat4 mTransform = transform.GetMatrix();
+			while (entity = entity.GetParent())
+			{
+				mTransform *= entity.GetComponent<TransformComponent>().GetMatrix();
+			}
+
+			vecSpriteMat.push_back( std::make_pair( renderer.xSprite, mTransform ) );
+		}
+
+		std::sort( vecSpriteMat.begin(), vecSpriteMat.end(), []( std::pair<SpritePtr, glm::mat4>& _pair1, std::pair<SpritePtr, glm::mat4>& _pair2 )
+			{
+				return _pair1.second[3][2] < _pair2.second[3][2];
+			} );
+
+		for (std::pair<SpritePtr, glm::mat4>& _pair : vecSpriteMat)
+		{
+			Renderer2D::DrawSprite( *_pair.first, _pair.second );
 		}
 	}
 }

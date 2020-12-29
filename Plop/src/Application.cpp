@@ -232,9 +232,19 @@ namespace Plop
 				pAppLayer->OnUpdate( m_timeStep );
 			}
 
+
+
 			if (xLevel)
 			{
-				xLevel->Update( m_timeStep );
+				if (m_bRunning)
+				{
+					xLevel->Update( m_timeStep );
+				}
+				else if (m_bEditorMode)
+				{
+					xLevel->UpdateInEditor( m_timeStep );
+				}
+
 				xLevel->AfterUpdate();
 			}
 

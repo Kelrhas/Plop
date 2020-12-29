@@ -33,6 +33,7 @@ namespace Plop
 
 		virtual void StartFromEditor();
 		virtual void StopToEditor();
+		virtual	void UpdateInEditor( TimeStep _ts );
 
 				bool BeforeUpdate();			// prepare the rendering
 		virtual	void Update( TimeStep _ts );	// update & submit rendering
@@ -62,6 +63,9 @@ namespace Plop
 		entt::registry	m_ENTTRegistry;
 
 	private:
+
+				void	DrawSprites();
+
 		bool			m_bRendering = false;
 
 	};

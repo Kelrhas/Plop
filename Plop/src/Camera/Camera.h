@@ -45,7 +45,7 @@ namespace Plop
 				glm::mat4			m_mProjectionMatrix;
 
 				float				m_fAspectRatio = 1.f;
-				float				m_fNear = 0.f;
+				float				m_fNear = 0.1f;
 				float				m_fFar = 1.f;
 				// wherever you are
 

@@ -96,4 +96,5 @@ void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 		data.vColorEnd = glm::vec4( 1.f, 0.f, 0.f, 1.f );
 		m_particles.Spawn( data, 50 );
 	}
+	m_particles.Update( _timeStep );
 }

@@ -102,7 +102,8 @@ namespace Plop
 					if (!LevelBase::s_xCurrentLevel.expired())
 					{
 						LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
-						s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId );
+						if (!s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId ))
+							m_SelectedEntity = {};
 					}
 				}
 			}

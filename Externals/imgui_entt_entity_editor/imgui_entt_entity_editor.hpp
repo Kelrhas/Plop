@@ -116,7 +116,7 @@ public:
 		return registerComponent<Component>(name, ComponentEditorWidget<Component, EntityType>);
 	}
 
-	void render(Registry& registry, EntityType& e)
+	bool render(Registry& registry, EntityType& e)
 	{
 		if (show_window) {
 			if (ImGui::Begin("Entity Editor", &show_window)) {
@@ -190,6 +190,8 @@ public:
 			}
 			ImGui::End();
 		}
+
+		return show_window;
 	}
 };
 

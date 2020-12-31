@@ -375,6 +375,11 @@ namespace Plop
 
 	}
 
+	void EditorLayer::ShowGizmos()
+	{
+		// update the viewport size
+#ifdef IMGUI_HAS_VIEWPORT
+		ImVec2 vPosition = ImGui::GetMainViewport()->Pos;
 		ImVec2 vSize = ImGui::GetMainViewport()->Size;
 		ImGuizmo::SetRect( vPosition.x, vPosition.y, vSize.x, vSize.y );
 #else

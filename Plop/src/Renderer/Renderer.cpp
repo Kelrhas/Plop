@@ -320,9 +320,6 @@ namespace Plop
 		PROFILING_FUNCTION();
 
 		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
-		if (!_sprite.GetTextureHandle())
-			return;
-
 
 		glm::mat4 mTransform = glm::scale( _mTransform, glm::vec3( _sprite.GetSize(), 1.f ) );
 
@@ -335,17 +332,37 @@ namespace Plop
 		bool bTexFound = false;
 		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
 		{
-			if (s_sceneData.pTextureUnits[i]->Compare( _sprite.GetTexture() ))
+			if (_sprite.GetTextureHandle())
 			{
-				v.fTexUnit = (float)i;
-				bTexFound = true;
-				break;
+				if (s_sceneData.pTextureUnits[i]->Compare( _sprite.GetTexture() ))
+				{
+					v.fTexUnit = (float)i;
+					bTexFound = true;
+					break;
+				}
+			}
+			else // default to white texture
+			{
+				if (s_sceneData.pTextureUnits[i]->Compare( *s_xWhiteTex ))
+				{
+					v.fTexUnit = (float)i;
+					bTexFound = true;
+					break;
+				}
 			}
 		}
 		if (!bTexFound)
 		{
-			s_sceneData.pTextureUnits[s_sceneData.uNbTex] = &_sprite.GetTexture();
-			v.fTexUnit = (float)s_sceneData.uNbTex++;
+			if (_sprite.GetTextureHandle())
+			{
+				s_sceneData.pTextureUnits[s_sceneData.uNbTex] = &_sprite.GetTexture();
+				v.fTexUnit = (float)s_sceneData.uNbTex++;
+			}
+			else // default to white texture
+			{
+				s_sceneData.pTextureUnits[s_sceneData.uNbTex] = s_xWhiteTex.get();
+				v.fTexUnit = (float)s_sceneData.uNbTex++;
+			}
 		}
 
 		v.vPosition = mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );

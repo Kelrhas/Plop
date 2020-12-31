@@ -43,6 +43,8 @@ namespace Plop
 
 				void		ShowMenuBar();
 				void		ShowSceneGraph();
+				void		ShowGizmos();
+
 				void		NewLevel();
 				void		OpenLevel();
 				void		SaveLevel();

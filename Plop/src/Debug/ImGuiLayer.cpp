@@ -6,6 +6,7 @@
 
 #include <Application.h>
 #include <Imgui.h>
+#include <ImGuizmo.h>
 
 namespace Plop
 {
@@ -53,6 +54,7 @@ namespace Plop
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiLayer::EndFrame()

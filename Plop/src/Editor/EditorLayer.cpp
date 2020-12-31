@@ -2,6 +2,8 @@
 #include "EditorLayer.h"
 
 #include <imgui.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <ImGuizmo.h>
 #include <misc/cpp/imgui_stdlib.h>
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 #include <imgui_entt_entity_editor.hpp>
@@ -68,38 +70,40 @@ namespace Plop
 		ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
 
 		ImGui::Begin( "Editor", nullptr, windowFlags );
-
-		ImGui::PopStyleVar( 3 );
-
-		static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
-		static ImGuiID id = ImGui::GetID( "Editor" );
-		ImGui::DockSpace( id, ImVec2( 0, 0 ), flags );
-
-		ShowMenuBar();
-
-
-		// we can draw editor windows here
-
-		if (m_bShowImGuiDemo)
-			ImGui::ShowDemoWindow( &m_bShowImGuiDemo );
-
-		if (m_bShowAllocations)
-			Debug::ShowAllocationsWindow( &m_bShowAllocations );
-
-		// TODO set docking to bottom
-		Console::Draw();
-
-
-		if (m_bLevelPlaying == false)
 		{
-			ShowSceneGraph();
+			ImGui::PopStyleVar( 3 );
 
-			if (m_SelectedEntity)
+			static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
+			static ImGuiID id = ImGui::GetID( "Editor" );
+			ImGui::DockSpace( id, ImVec2( 0, 0 ), flags );
+
+			ShowMenuBar();
+
+
+			// we can draw editor windows here
+
+			if (m_bShowImGuiDemo)
+				ImGui::ShowDemoWindow( &m_bShowImGuiDemo );
+
+			if (m_bShowAllocations)
+				Debug::ShowAllocationsWindow( &m_bShowAllocations );
+
+			// TODO set docking to bottom
+			Console::Draw();
+
+
+			if (m_bLevelPlaying == false)
 			{
-				if (!LevelBase::s_xCurrentLevel.expired())
+				ShowGizmos();
+				ShowSceneGraph();
+
+				if (m_SelectedEntity)
 				{
-					LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
-					s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId );
+					if (!LevelBase::s_xCurrentLevel.expired())
+					{
+						LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+						s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId );
+					}
 				}
 			}
 		}
@@ -368,6 +372,73 @@ namespace Plop
 		}
 		ImGui::End();
 
+	}
+
+		ImVec2 vSize = ImGui::GetMainViewport()->Size;
+		ImGuizmo::SetRect( vPosition.x, vPosition.y, vSize.x, vSize.y );
+#else
+		ImVec2 vSize = ImGui::GetIO().DisplaySize;
+		ImGuizmo::SetRect( 0, 0, vSize.x, vSize.y );
+#endif
+
+		// get the current camera, TODO editor camera
+		CameraPtr xCurrentCamera = nullptr;
+		glm::mat4 mViewMatrix = glm::identity<glm::mat4>();
+		glm::mat4 mProjMatrix = glm::identity<glm::mat4>();
+		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+		if (xLevel)
+		{
+			auto& view = xLevel->GetEntityRegistry().view<CameraComponent, TransformComponent>();
+			for (auto entity : view)
+			{
+				auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
+				xCurrentCamera = camera.xCamera;
+				mViewMatrix = glm::inverse( transform.GetMatrix() );
+				mProjMatrix = camera.xCamera->GetProjectionMatrix();
+			}
+
+			if (xCurrentCamera)
+			{
+				if (m_SelectedEntity)
+				{
+					ImGuizmo::SetOrthographic( xCurrentCamera->IsOrthographic() );
+					glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetMatrix();
+					if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
+						ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr( mTransform ) ))
+					{
+						m_SelectedEntity.GetComponent<TransformComponent>().SetMatrix( mTransform );
+					}
+				}
+
+				if (false)
+				{
+					// TODO Position the view square correctly with the panels and fixed offsets from the top and right
+					// TODO actually make it work by decomposing the viewmatrix back to camera position/rotation
+					static float fXMul = 0.703f;
+					static float fYMul = 0.032f;
+
+#ifdef IMGUI_HAS_VIEWPORT
+					ImVec2 vPosition = ImGui::GetMainViewport()->Size;
+					vPosition.x *= fXMul;
+					vPosition.y *= fYMul;
+					vPosition.x += ImGui::GetMainViewport()->Pos.x;
+					vPosition.y += ImGui::GetMainViewport()->Pos.y;
+#else
+					ImVec2 vPosition = io.DisplaySize;
+					vPosition.x *= fXMul;
+					vPosition.y *= fYMul;
+#endif
+					ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), 1.f, vPosition, ImVec2( 128, 128 ), 0x10101010 );
+				}
+			}
+		}
+
+
+		if (false)
+		{
+			static const glm::mat4 mIdentity = glm::identity<glm::mat4>();
+			ImGuizmo::DrawGrid( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ), glm::value_ptr( mIdentity ), 10.f );
+		}
 	}
 
 	void EditorLayer::NewLevel()

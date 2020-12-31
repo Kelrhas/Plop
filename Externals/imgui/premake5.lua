@@ -24,7 +24,18 @@ project "ImGui"
 		"%{prj.location}/imstb_truetype.h",
 		"%{prj.location}/misc/cpp/imgui_stdlib.cpp",
 		"%{prj.location}/misc/cpp/imgui_stdlib.h",
-		"%{prj.location}/misc/natvis/imgui.natvis"
+		"%{prj.location}/misc/natvis/imgui.natvis",
+
+		-- ImGuizmo
+		"%{prj.location}/../imguizmo/ImCurveEdit.cpp",
+		"%{prj.location}/../imguizmo/ImCurveEdit.h",
+		"%{prj.location}/../imguizmo/ImGradient.cpp",
+		"%{prj.location}/../imguizmo/ImGradient.h",
+		"%{prj.location}/../imguizmo/ImGuizmo.cpp",
+		"%{prj.location}/../imguizmo/ImGuizmo.h",
+		"%{prj.location}/../imguizmo/ImSequencer.cpp",
+		"%{prj.location}/../imguizmo/ImSequencer.h",
+		"%{prj.location}/../imguizmo/ImZoomSlider.h",
 	}
 	
 	filter "system:Windows"

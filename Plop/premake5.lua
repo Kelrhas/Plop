@@ -25,6 +25,7 @@ project "Plop"
 		"../Externals/json/",
 		"../Externals/glew/include",
 		"../Externals/ImGui/",
+		"../Externals/ImGuizmo/",
 		"../Externals/glm/",
 		"../Externals/stb/",
 		"../Externals/optick/include/",

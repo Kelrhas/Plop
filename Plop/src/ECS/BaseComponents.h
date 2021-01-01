@@ -35,6 +35,7 @@ namespace Plop
 		{}
 
 
+		void SetMatrix( const glm::mat4& _m );
 		glm::mat4 GetMatrix() const;
 		float Distance2D( const TransformComponent& _other ) const;
 		float Distance2DSquare( const TransformComponent& _other ) const;

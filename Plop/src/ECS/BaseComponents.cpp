@@ -12,6 +12,11 @@
 
 namespace Plop
 {
+	void TransformComponent::SetMatrix( const glm::mat4& _m )
+	{
+		vPosition = _m[3];
+	}
+
 	glm::mat4 TransformComponent::GetMatrix() const
 	{
 		glm::mat4 mRot = glm::rotate( glm::identity<glm::mat4>(), vRotation.x, glm::vec3( 1.f, 0.f, 0.f ) ) *

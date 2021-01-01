@@ -8,7 +8,7 @@
 #include <fmt/format-inl.h>
 #include <fmt/color.h>
 
-#include <Editor/Console.h>
+#include "Editor/Console.h"
 
 namespace Plop
 {

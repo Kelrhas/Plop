@@ -164,6 +164,7 @@ namespace Plop
 		if (reg.valid( m_EntityId ))
 		{
 			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+			ASSERT( graphNode.nbChild + 1 < GraphNodeComponent::MAX_CHILDREN, "No room for another child" );
 			if (graphNode.nbChild + 1 < graphNode.MAX_CHILDREN)
 			{
 				graphNode.children[graphNode.nbChild++] = _Child.m_EntityId;

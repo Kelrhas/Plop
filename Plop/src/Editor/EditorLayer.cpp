@@ -99,11 +99,11 @@ namespace Plop
 				ShowGizmos();
 				ShowSceneGraph();
 
-				if (m_SelectedEntity)
+				if (m_SelectedEntity && !LevelBase::s_xCurrentLevel.expired())
 				{
-					if (!LevelBase::s_xCurrentLevel.expired())
+					LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+					if (m_SelectedEntity.m_xLevel.lock() == xLevel)
 					{
-						LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 						if (!s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId ))
 							m_SelectedEntity = {};
 					}
@@ -416,7 +416,7 @@ namespace Plop
 
 			if (xCurrentCamera)
 			{
-				if (m_SelectedEntity)
+				if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
 				{
 					ImGuizmo::SetOrthographic( xCurrentCamera->IsOrthographic() );
 					glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetMatrix();
@@ -518,6 +518,11 @@ namespace Plop
 	void EditorLayer::StopLevel()
 	{
 		m_eLevelState = LevelState::STOPPING;
+		// reset the selected entity if it was selected from the playing level
+		if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == m_xCloneLevel)
+		{
+			m_SelectedEntity = {};
+		}
 	}
 
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )

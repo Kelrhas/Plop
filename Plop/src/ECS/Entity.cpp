@@ -47,7 +47,7 @@ namespace Plop
 
 	bool Entity::operator==( const Entity& _other )
 	{
-		return m_EntityId == _other.m_EntityId;
+		return m_EntityId == _other.m_EntityId && (!m_xLevel.expired() && !_other.m_xLevel.expired() && m_xLevel.lock() == _other.m_xLevel.lock());
 	}
 
 	bool Entity::operator!=( const Entity& _other )

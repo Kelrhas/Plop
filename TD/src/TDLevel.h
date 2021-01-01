@@ -2,6 +2,7 @@
 
 #include <Renderer/Sprite.h>
 #include <ECS/LevelBase.h>
+#include <Renderer/ParticleSystem.h>
 
 class TDLevel : public Plop::LevelBase
 {
@@ -16,6 +17,7 @@ public:
 
 
 private:
+	Plop::ParticleSystem		m_particles;
 	// TODO: handle chunks
 	//Plop::TexturePtr	m_xSpritesheet = nullptr;
 	//uint32_t			m_uWidth = 0;

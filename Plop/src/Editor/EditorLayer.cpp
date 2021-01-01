@@ -7,6 +7,7 @@
 #include <misc/cpp/imgui_stdlib.h>
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 #include <imgui_entt_entity_editor.hpp>
+#include <entt/meta/meta.hpp>
 
 
 #include "Application.h"
@@ -92,7 +93,8 @@ namespace Plop
 			Console::Draw();
 
 
-			if (m_bLevelPlaying == false)
+			if (m_eLevelState == LevelState::EDITING ||
+				m_eLevelState == LevelState::PAUSED)
 			{
 				ShowGizmos();
 				ShowSceneGraph();
@@ -206,12 +208,21 @@ namespace Plop
 				ImGui::EndMenu();
 			}
 
-			if (m_bLevelPlaying)
+			if (m_eLevelState == LevelState::RUNNING)
 			{
+				if (ImGui::MenuItem( "Pause" ))
+					PauseLevel();
 				if (ImGui::MenuItem( "Stop" ))
 					StopLevel();
 			}
-			else
+			else if(m_eLevelState == LevelState::PAUSED)
+			{
+				if (ImGui::MenuItem( "Resume" ))
+					ResumeLevel();
+				if (ImGui::MenuItem( "Stop" ))
+					StopLevel();
+			}
+			else if(m_eLevelState == LevelState::EDITING)
 			{
 				if (ImGui::MenuItem( "Play" ))
 					PlayLevel();
@@ -491,16 +502,22 @@ namespace Plop
 
 	void EditorLayer::PlayLevel()
 	{
-		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
-		xLevel->StartFromEditor();
-		m_bLevelPlaying = true;
+		m_eLevelState = LevelState::STARTING;
+	}
+
+	void EditorLayer::PauseLevel()
+	{
+		m_eLevelState = LevelState::PAUSED;
+	}
+
+	void EditorLayer::ResumeLevel()
+	{
+		m_eLevelState = LevelState::RUNNING;
 	}
 
 	void EditorLayer::StopLevel()
 	{
-		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
-		xLevel->StopToEditor();
-		m_bLevelPlaying = false;
+		m_eLevelState = LevelState::STOPPING;
 	}
 
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )

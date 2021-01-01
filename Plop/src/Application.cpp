@@ -236,7 +236,7 @@ namespace Plop
 
 			if (xLevel)
 			{
-				if (m_bRunning)
+				if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::RUNNING)
 				{
 					xLevel->Update( m_timeStep );
 				}
@@ -255,6 +255,28 @@ namespace Plop
 			Debug::EndFrame();
 
 			Log::FlushFile();
+
+			if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::STARTING)
+			{
+				// TODO make async
+				if (m_EditorLayer.m_xCloneLevel == nullptr)
+					m_EditorLayer.m_xCloneLevel = Application::Get()->CreateNewLevel();
+
+				m_EditorLayer.m_xBackupLevel = xLevel;
+				m_EditorLayer.m_xCloneLevel->CopyFrom( xLevel );
+				m_EditorLayer.m_xCloneLevel->MakeCurrent();
+				m_EditorLayer.m_xCloneLevel->StartFromEditor();
+
+				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::RUNNING;
+			}
+			else if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::STOPPING)
+			{
+				// TODO make async
+				m_EditorLayer.m_xCloneLevel->StopToEditor();
+				m_EditorLayer.m_xBackupLevel->MakeCurrent();
+
+				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::EDITING;
+			}
 		}
 
 		m_xWindow->Destroy();
@@ -304,6 +326,8 @@ namespace Plop
 
 	void Application::RegisterMandatoryComponents()
 	{
+		REGISTER_COMPONENT_NO_EDITOR( Name );
+		REGISTER_COMPONENT_NO_EDITOR( GraphNode );
 		REGISTER_COMPONENT( Transform );
 		REGISTER_COMPONENT( SpriteRenderer );
 		REGISTER_COMPONENT( Camera );

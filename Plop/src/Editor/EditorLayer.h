@@ -1,8 +1,10 @@
 #pragma once
 
-#include <ApplicationLayer.h>
-#include <Events/IEventListener.h>
-#include <ECS/Entity.h>
+#include <entt/meta/factory.hpp>
+
+#include "ApplicationLayer.h"
+#include "Events/IEventListener.h"
+#include "ECS/Entity.h"
 
 namespace MM
 {
@@ -39,6 +41,14 @@ namespace Plop
 			NONE,
 			RENAMING_ENTITY,
 		};
+		enum class LevelState
+		{
+			EDITING,
+			STARTING, // for aync
+			RUNNING,
+			PAUSED,
+			STOPPING // for aync
+		};
 
 
 				void		ShowMenuBar();
@@ -50,13 +60,32 @@ namespace Plop
 				void		SaveLevel();
 				void		SaveLevelAs();
 				void		PlayLevel();
+				void		PauseLevel();
+				void		ResumeLevel();
 				void		StopLevel();
 
-		template<typename T>
+		template<typename Comp, bool RegisterEditor>
 				void		RegisterComponent( const char* _pName )
 		{
-			if(s_pENTTEditor)
-				s_pENTTEditor->registerComponent<T>( _pName );
+			if constexpr (RegisterEditor == std::true_type::value)
+			{
+				if (s_pENTTEditor)
+					s_pENTTEditor->registerComponent<Comp>( _pName );
+			}
+
+			auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
+			factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "clone"_hs );
+		}
+		template<typename Comp>
+		static	void		CloneRegistryComponents( entt::registry& _src, entt::registry& _dst )
+		{
+			auto view = _src.view<Comp>();
+			if constexpr (ENTT_IS_EMPTY( Comp )::value) {
+				_dst.insert<Comp>( view.data(), view.data() + view.size() );
+			}
+			else {
+				_dst.insert<Comp>( view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size() );
+			}
 		}
 
 		static	Entity		DuplicateEntity( const Entity& _entity );
@@ -65,7 +94,9 @@ namespace Plop
 
 		bool				m_bShowImGuiDemo = false;
 		bool				m_bShowAllocations = false;
-		bool				m_bLevelPlaying = false;
+		LevelBasePtr		m_xCloneLevel = nullptr; // used when we Play the current level
+		LevelBasePtr		m_xBackupLevel = nullptr;
+		LevelState			m_eLevelState = LevelState::EDITING;
 		Entity				m_SelectedEntity;
 		EditMode			m_eEditMode = EditMode::NONE;
 		StringPath			m_sCurrentLevel;

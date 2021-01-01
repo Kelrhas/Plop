@@ -12,8 +12,7 @@ namespace Plop
 {
 	struct NameComponent
 	{
-		NameComponent() = default;
-		NameComponent( const String& _sName ) : sName( _sName ) {}
+		NameComponent( const String& _sName = "Entity" ) : sName( _sName ) {}
 
 		String sName;
 	};

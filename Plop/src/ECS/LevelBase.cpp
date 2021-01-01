@@ -4,13 +4,15 @@
 #include <fstream>
 #include <filesystem>
 
-#include <Application.h>
-#include <Renderer/Renderer.h>
-#include <ECS/Entity.h>
-#include <ECS/BaseComponents.h>
+#include <entt/meta/resolve.hpp>
 
-#include <Events/EventDispatcher.h>
-#include <Events/EntityEvent.h>
+#include "Application.h"
+#include "Renderer/Renderer.h"
+#include "ECS/Entity.h"
+#include "ECS/BaseComponents.h"
+
+#include "Events/EventDispatcher.h"
+#include "Events/EntityEvent.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
@@ -160,6 +162,23 @@ namespace Plop
 		}
 
 		return false;
+	}
+
+	void LevelBase::CopyFrom( LevelBasePtr _xLevel )
+	{
+		auto& srcReg = _xLevel->m_ENTTRegistry;
+		auto& destReg = m_ENTTRegistry;
+
+		destReg.clear();
+		destReg.assign( srcReg.data(), srcReg.data() + srcReg.size() );
+
+		srcReg.visit( [&srcReg, &destReg]( auto _comp )
+			{
+				auto& type = entt::resolve_type( _comp );
+				auto& f = type.func( "clone"_hs );
+				f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
+			} );
+		m_bRendering = false;
 	}
 
 	json LevelBase::ToJson()

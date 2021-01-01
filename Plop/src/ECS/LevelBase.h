@@ -51,6 +51,7 @@ namespace Plop
 				void MakeCurrent();
 				void Save( const StringPath& _path );
 				bool Load( const StringPath& _path );
+		virtual void CopyFrom( LevelBasePtr _xLevel );
 		virtual json ToJson();
 		virtual void FromJson(const json& _j);
 

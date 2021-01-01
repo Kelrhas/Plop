@@ -32,12 +32,13 @@ namespace Plop
 	};
 
 
-#define REGISTER_COMPONENT(comp) RegisterComponent<comp##Component>( #comp )
+#define REGISTER_COMPONENT(comp) RegisterComponent<comp##Component, true>( #comp )
+#define REGISTER_COMPONENT_NO_EDITOR(comp) RegisterComponent<comp##Component, false>( #comp )
 
 	class Application : public IEventListener
 	{
 	public:
-		Application(const StringVec& _Arguments );
+		Application( const StringVec& _Arguments );
 		Application( const Application& ) = delete;
 		Application( Application&& ) = delete;
 		virtual ~Application();
@@ -70,10 +71,10 @@ namespace Plop
 
 
 	protected:
-		template<typename Comp>
+		template<typename Comp, bool RegisterEditor = true>
 				void			RegisterComponent( const char* _pName )
 				{
-					m_EditorLayer.RegisterComponent<Comp>( _pName );
+					m_EditorLayer.RegisterComponent<Comp, RegisterEditor>( _pName );
 				}
 
 

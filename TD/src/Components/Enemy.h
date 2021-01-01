@@ -5,7 +5,9 @@
 
 struct EnemyComponent
 {
-	float fLife;
+	float fLife = 1.f;
+
+	void Hit( float _fDamage );
 };
 
 namespace MM

@@ -1,7 +1,18 @@
 #include "TD_pch.h"
 #include "Enemy.h"
 
+#include <ECS/ECSHelper.h>
 
+void EnemyComponent::Hit( float _fDamage )
+{
+	fLife -= _fDamage;
+	if (fLife <= 0)
+	{
+		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
+		Plop::Entity owner = Plop::GetComponentOwner( xLevel, *this );
+		xLevel->GetEntityRegistry().destroy( owner );
+	}
+}
 
 namespace MM
 {

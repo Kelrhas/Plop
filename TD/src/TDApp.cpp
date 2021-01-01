@@ -4,8 +4,9 @@
 #include <Debug/Log.h>
 
 #include "WorldLayer.h"
-#include "Components/Tower.h"
+#include "Components/Bullet.h"
 #include "Components/Enemy.h"
+#include "Components/Tower.h"
 
 
 Plop::Application* Plop::CreateApplication( const StringVec& _Arguments )
@@ -38,4 +39,5 @@ void TDApp::RegisterComponents()
 {
 	REGISTER_COMPONENT( Tower );
 	REGISTER_COMPONENT( Enemy );
+	REGISTER_COMPONENT( Bullet );
 }

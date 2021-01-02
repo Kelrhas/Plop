@@ -4,6 +4,7 @@
 #ifdef _DEBUG
 #pragma optimize( "gt", on )
 //#define GLM_FORCE_MESSAGES
+#define GLM_FORCE_SWIZZLE
 #endif
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>

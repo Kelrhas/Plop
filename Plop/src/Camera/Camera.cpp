@@ -74,4 +74,24 @@ namespace Plop
 			m_mProjectionMatrix = glm::perspective( m_fPersFOV, m_fAspectRatio, m_fNear, m_fFar );
 		}
 	}
+
+	glm::vec3 Camera::GetWorldPosFromViewportPos( const glm::vec2& _vViewportPos, float _fWantedDepth )
+	{
+		glm::vec2 vNDCPos( 2 * _vViewportPos.x - 1.f, -2 * _vViewportPos.y + 1.f ); // inverse Y axis
+		return GetWorldPosFromNDCPos( vNDCPos, _fWantedDepth );
+	}
+
+	glm::vec3 Camera::GetWorldPosFromNDCPos( const glm::vec2& _vNDCPos, float _fWantedDepth )
+	{
+
+		const glm::mat4 mProjInv = glm::inverse( m_mProjectionMatrix );
+		const glm::vec4 vPos( _vNDCPos, 0.f, 1.f );
+
+		const glm::vec4 vTemp = mProjInv * vPos;
+		glm::vec3 vRes = vTemp.xyz;
+		vRes /= vTemp.w;
+		vRes.z = _fWantedDepth;
+
+		return vRes;
+	}
 }

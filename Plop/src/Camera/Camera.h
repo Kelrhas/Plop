@@ -7,6 +7,7 @@ namespace Plop
 {
 	class Camera;
 	using CameraPtr = std::shared_ptr<Camera>;
+	using CameraWeakPtr = std::weak_ptr<Camera>;
 
 	class Camera
 	{
@@ -18,6 +19,8 @@ namespace Plop
 		virtual void				Update() {}
 
 		const glm::mat4&			GetProjectionMatrix() const { return m_mProjectionMatrix; }
+		glm::vec3					GetWorldPosFromViewportPos( const glm::vec2& _vViewportPos, float _fWantedDepth );
+		glm::vec3					GetWorldPosFromNDCPos( const glm::vec2& _vNDCPos, float _fWantedDepth );
 
 				void				SetAspectRatio(float _fAspectRatio);
 				float				GetAspectRatio() const { return m_fAspectRatio; }

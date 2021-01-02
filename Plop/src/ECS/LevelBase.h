@@ -8,6 +8,7 @@ using json = nlohmann::json;
 #include <entt/entity/registry.hpp>
 
 #include <TimeStep.h>
+#include <Camera/Camera.h>
 
 namespace Plop
 {
@@ -62,6 +63,7 @@ namespace Plop
 	protected:
 		static LevelBaseWeakPtr s_xCurrentLevel;
 		entt::registry	m_ENTTRegistry;
+		CameraWeakPtr	m_xCurrentCamera;
 
 	private:
 

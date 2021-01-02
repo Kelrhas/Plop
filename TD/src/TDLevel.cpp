@@ -3,6 +3,7 @@
 
 #include <glm/gtx/component_wise.hpp>
 
+#include <Input/Input.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
 #include <ECS/BaseComponents.h>
@@ -31,6 +32,20 @@ void TDLevel::Init()
 void TDLevel::Update( Plop::TimeStep _ts )
 {
 	PROFILING_FUNCTION();
+
+
+	if (Plop::Input::IsMouseLeftPressed() && !m_xCurrentCamera.expired())
+	{
+		Plop::Entity newEnemy = CreateEntity( "Enemy" );
+		auto& enemyComp = newEnemy.AddComponent<EnemyComponent>();
+		enemyComp.fLife = 1.f;
+		auto& transform = newEnemy.GetComponent<Plop::TransformComponent>();
+		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorViewportPos(), transform.vPosition.z );
+		transform.vPosition = vMousePos;
+		transform.vScale = VEC3_1 * 0.2f;
+		auto& xSprite = newEnemy.AddComponent<Plop::SpriteRendererComponent>().xSprite;
+		xSprite->SetTint( COLOR_GREEN );
+	}
 
 	std::vector<std::tuple<Plop::Entity, EnemyComponent&, Plop::TransformComponent&>> vecEnemies;
 	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent>();

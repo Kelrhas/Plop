@@ -66,6 +66,8 @@ namespace Plop
 			m_bRendering = true;
 		}
 
+		m_xCurrentCamera = xCurrentCamera;
+
 		return m_bRendering;
 	}
 

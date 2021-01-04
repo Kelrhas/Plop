@@ -31,12 +31,34 @@ namespace Plop
 		}
 
 		template<>
+		glm::vec2 Next01<glm::vec2>()
+		{
+			glm::vec2 v;
+			v.x = NextFloat01();
+			v.y = NextFloat01();
+
+			return v;
+		}
+
+		template<>
 		glm::vec3 Next01<glm::vec3>()
 		{
 			glm::vec3 v;
 			v.x = NextFloat01();
 			v.y = NextFloat01();
 			v.z = NextFloat01();
+
+			return v;
+		}
+
+		template<>
+		glm::vec4 Next01<glm::vec4>()
+		{
+			glm::vec4 v;
+			v.x = NextFloat01();
+			v.y = NextFloat01();
+			v.z = NextFloat01();
+			v.w = NextFloat01();
 
 			return v;
 		}

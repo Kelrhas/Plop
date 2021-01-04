@@ -27,3 +27,4 @@ log.txt
 *.ilk
 *.exe.recipe
 *.FileListAbsolute.txt
+*.backup

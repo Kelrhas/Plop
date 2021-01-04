@@ -49,7 +49,7 @@ namespace Plop
 				--iNbParticle;
 			}
 
-			// for now do not spawn new particles
+			// for now do not expand the pool
 			if (iNbParticle == 0)
 				break;
 		}

@@ -51,7 +51,7 @@ namespace Plop
 		COMPILE_ASSERT( std::numeric_limits< double >::is_iec559, "Not using IEEE 754" );
 
 		// we need to set only the mantissa
-		uint32_t u = NextInt() & 0x007fffff | 0x04000000; // setting sign = 0, exponent = 10000000 (2^1) -> yields float between 2 and 4
+		uint32_t u = NextInt() & 0x007fffff | 0x40000000; // setting sign = 0, exponent = 10000000 (2^1) -> yields float between 2 and 4
 		float f;
 		memcpy( &f, &u, sizeof( u ) );
 		return f - 3.f;

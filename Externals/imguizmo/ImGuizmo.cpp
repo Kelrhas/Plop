@@ -866,7 +866,7 @@ namespace ImGuizmo
       ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
       ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
 #else
-      ImGui::SetNextWindowSize(io.DisplaySize);
+      ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
       ImGui::SetNextWindowPos(ImVec2(0, 0));
 #endif
 

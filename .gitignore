@@ -23,3 +23,7 @@ Config.json
 premake 2017.bat
 imgui.ini
 log.txt
+*.pdb
+*.ilk
+*.exe.recipe
+*.FileListAbsolute.txt

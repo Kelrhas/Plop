@@ -8,6 +8,7 @@
 
 #include "Application.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/ParticleSystem.h"
 #include "ECS/Entity.h"
 #include "ECS/BaseComponents.h"
 
@@ -35,12 +36,12 @@ namespace Plop
 
 	void LevelBase::StartFromEditor()
 	{
-
+		Init();
 	}
 
 	void LevelBase::StopToEditor()
 	{
-
+		Shutdown();
 	}
 
 	void LevelBase::UpdateInEditor( TimeStep _ts )
@@ -74,6 +75,7 @@ namespace Plop
 	void LevelBase::Update( TimeStep _ts )
 	{
 		DrawSprites();
+		DrawParticles( _ts );
 	}
 
 	void LevelBase::AfterUpdate()
@@ -242,6 +244,15 @@ namespace Plop
 		for (std::pair<SpritePtr, glm::mat4>& _pair : vecSpriteMat)
 		{
 			Renderer2D::DrawSprite( *_pair.first, _pair.second );
+		}
+	}
+
+	void LevelBase::DrawParticles( const TimeStep& _ts )
+	{
+		auto& view = m_ENTTRegistry.view<ParticleSystemComponent>();
+		for (auto [entityID, particleSystem] : view.proxy())
+		{
+			particleSystem.Update( _ts );
 		}
 	}
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <entt/entity/helper.hpp>
+#include "ECS/Entity.h"
+#include "ECS/LevelBase.h"
 
 
 namespace Plop

@@ -14,6 +14,8 @@
 #pragma optimize( "", off )
 #endif
 
+const glm::vec2 VEC2_0(0, 0);
+const glm::vec2 VEC2_1(1, 1);
 const glm::vec3 VEC3_0(0, 0, 0);
 const glm::vec3 VEC3_1(1, 1, 1);
 const glm::vec3 VEC3_X(1, 0, 0);

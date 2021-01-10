@@ -11,6 +11,7 @@
 #include "Events/EventDispatcher.h"
 #include "Events/WindowEvent.h"
 #include "ECS/BaseComponents.h"
+#include "Renderer/ParticleSystem.h"
 #include "Renderer/Renderer.h"
 
 namespace Plop
@@ -331,6 +332,7 @@ namespace Plop
 		REGISTER_COMPONENT( Transform );
 		REGISTER_COMPONENT( SpriteRenderer );
 		REGISTER_COMPONENT( Camera );
+		REGISTER_COMPONENT( ParticleSystem );
 	}
 
 }

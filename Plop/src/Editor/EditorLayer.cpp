@@ -15,6 +15,7 @@
 #include "ECS/BaseComponents.h"
 #include "ECS/LevelBase.h"
 #include "Input/Input.h"
+#include "Renderer/ParticleSystem.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
 #include "Utils/OSDialogs.h"
@@ -112,6 +113,14 @@ namespace Plop
 		}
 
 		ImGui::End(); // Begin("Editor")
+
+		if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
+		{
+			if (m_SelectedEntity.HasComponent<ParticleSystemComponent>())
+			{
+				m_SelectedEntity.GetComponent<ParticleSystemComponent>().Update( _timeStep );
+			}
+		}
 	}
 
 	bool EditorLayer::OnEvent( Event& _event )

@@ -274,7 +274,7 @@ namespace Plop::Particle
 
 	ParticleSystemComponent::ParticleUpdaterPtr UpdatePositionFromSpeed::Clone() const
 	{
-		ParticleSystemComponent::ParticleUpdaterPtr xUpdater = std::make_shared<UpdatePositionFromSpeed>();
+		UpdatePositionFromSpeedPtr xUpdater = std::make_shared<UpdatePositionFromSpeed>();
 		*xUpdater = *this;
 		return xUpdater;
 	}

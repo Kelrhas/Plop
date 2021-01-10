@@ -126,6 +126,6 @@ namespace Plop::Particle
 
 		float fAttenuation;
 	};
-	using SpawnRadialSpeedPtr = std::shared_ptr<SpawnRadialSpeed>;
+	using UpdatePositionFromSpeedPtr = std::shared_ptr<UpdatePositionFromSpeed>;
 
 }

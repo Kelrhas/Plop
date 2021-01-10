@@ -2,11 +2,97 @@
   "entities": [
     {
       "Children": [],
+      "HintID": 4,
+      "Name": "Particles",
+      "ParticleSystem": {
+        "AutoSpawnRate": 100.0,
+        "Spawners": [
+          {
+            "Lifetime": {
+              "Lifetime": 0.699999988079071,
+              "Variation": 0.0
+            }
+          },
+          {
+            "Shape:Circle": {
+              "Radius": 0.10000000149011612
+            }
+          },
+          {
+            "Color": {
+              "Color": [0.9749103784561157,0.2306239753961563,0.0,1.0]
+            }
+          },
+          {
+            "Size": {
+              "Size": [0.10000000149011612,0.10000000149011612]
+            }
+          },
+          {
+            "Speed:Radial": {
+              "Speed": 3.0
+            }
+          }
+        ],
+        "Updaters": [
+          {
+            "Position from speed": {
+              "Attenuation": 4.0
+            }
+          }
+        ]
+      },
+      "Transform": {
+        "Position": [-2.8204360008239746,-2.4127235412597656,0.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Children": [],
       "Enemy": {
         "Life": 10.0
       },
       "HintID": 3,
       "Name": "Enemy",
+      "ParticleSystem": {
+        "AutoSpawnRate": 0.0,
+        "Spawners": [
+          {
+            "Lifetime": {
+              "Lifetime": 0.30000001192092896,
+              "Variation": 0.0
+            }
+          },
+          {
+            "Shape:Disk": {
+              "Radius": 0.5
+            }
+          },
+          {
+            "Size": {
+              "Size": [0.10000000149011612,0.10000000149011612]
+            }
+          },
+          {
+            "Color": {
+              "Color": [1.0,0.0,0.0,1.0]
+            }
+          },
+          {
+            "Speed:Radial": {
+              "Speed": 2.0999999046325684
+            }
+          }
+        ],
+        "Updaters": [
+          {
+            "Position from speed": {
+              "Attenuation": 1.0
+            }
+          }
+        ]
+      },
       "SpriteRenderer": {
         "size": [1,1],
         "texture": "assets\\textures\\tilesheet.png",
@@ -15,7 +101,7 @@
         "uvmin": [0.782608687877655,0.1538461595773697]
       },
       "Transform": {
-        "Position": [3.263859272003174,3.215075969696045,-0.4000000059604645],
+        "Position": [3.006232500076294,3.092397928237915,-0.4000000059604645],
         "Rotation": [0.0,0.0,0.0],
         "Scale": [1.0,1.0,1.0]
       }
@@ -70,7 +156,7 @@
       "HintID": 0,
       "Name": "Camera",
       "Transform": {
-        "Position": [0.0,0.0,0.0],
+        "Position": [0.0,0.0,0.800000011920929],
         "Rotation": [0.0,0.0,0.0],
         "Scale": [1.0,1.0,1.0]
       }

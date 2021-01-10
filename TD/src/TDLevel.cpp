@@ -5,8 +5,10 @@
 
 #include <Input/Input.h>
 #include <Renderer/Renderer.h>
+#include <Renderer/ParticleSystem.h>
 #include <Renderer/Texture.h>
 #include <ECS/BaseComponents.h>
+#include <ECS/ParticleSpawners.h>
 
 #include "Components/Bullet.h"
 #include "Components/Enemy.h"
@@ -100,24 +102,10 @@ void TDLevel::Update( Plop::TimeStep _ts )
 			if (enemyTransform.Distance2DSquare(transform ) < 0.001f)
 			{
 				bDestroy = true;
+				auto& enemyParticles = bulletComp.target.GetComponent<Plop::ParticleSystemComponent>();
+				enemyParticles.Spawn( 20 );
+
 				auto& enemyComp = bulletComp.target.GetComponent<EnemyComponent>();
-
-				static Plop::ParticleData data;
-				{
-					data.fLifeTimeBase = 2.f;
-					data.vPositionVariationMin = glm::vec3( -0.5f );
-					data.vPositionVariationMax = glm::vec3( 0.5f );
-					data.vSizeStart = glm::vec2( 0.15f );
-					data.vSizeEnd = glm::vec2( 0.02f );
-					data.vSpeedStart = glm::vec3( 0.f, 1.f, 0.f );
-					data.vSpeedEnd = glm::vec3( 0.f, -1.f, 0.f );
-					data.vColorStart = glm::vec4( 1.f );
-					data.vColorEnd = glm::vec4( 1.f, 0.f, 0.f, 1.f );
-				}
-
-				data.vPositionBase = enemyTransform.vPosition;
-				m_particles.Spawn( data, 10 );
-
 				enemyComp.Hit( bulletComp.emitting.GetComponent<TowerComponent>().fDamage );
 			}
 		}
@@ -131,7 +119,12 @@ void TDLevel::Update( Plop::TimeStep _ts )
 			m_ENTTRegistry.destroy(entityID);
 	}
 
-	m_particles.Update( _ts );
-
 	Plop::LevelBase::Update( _ts );
+}
+
+void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
+{
+	Plop::LevelBase::UpdateInEditor( _ts );
+
+	//m_particlesBullet.Update( _ts );
 }

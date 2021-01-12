@@ -2,6 +2,7 @@
 #include "ParticleSystem.h"
 
 #include <imgui.h>
+#include <imgui_custom.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "ECS/BaseComponents.h"
@@ -251,14 +252,15 @@ namespace MM
 		float fSpawnRate = comp.GetAutoSpawnRate();
 		if (ImGui::DragFloat( "Auto spawn rate", &fSpawnRate, 0.1f, 0.f, 100000.f ))
 			comp.SetAutoSpawnRate( fSpawnRate );
+		
+		size_t iMaxParticle = comp.GetMaxNbParticles();
+		const int iNbChar = (int)std::log10( iMaxParticle ) + 1;
+		ImGui::Text( "%*llu/%llu alive particles", iNbChar, comp.GetNbActiveParticles(), iMaxParticle );
 
-		ImGui::Text( "%llu alive particles", comp.GetNbActiveParticles() );
-		static int iMaxParticle = (int)comp.GetMaxNbParticles();
-		ImGui::DragInt( "Max particles", &iMaxParticle, 10, 10 );
-		ImGui::SameLine();
-		if (ImGui::SmallButton( "Apply" ))
+		static size_t iNewSize = iMaxParticle;
+		if (ImGui::DragBufferSize( "Max particles", &iNewSize, iMaxParticle, 1.f, 0xFFFFFFFF ))
 		{
-			comp.SetMaxNbParticles( iMaxParticle );
+			comp.SetMaxNbParticles( iNewSize );
 		}
 
 		ImGui::Spacing();

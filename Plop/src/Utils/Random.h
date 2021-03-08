@@ -62,6 +62,12 @@ namespace Plop
 
 			return v;
 		}
+
+		template<typename T>
+		T Between( T min, T max )
+		{
+			return NextFloat01() * (max - min) + min;
+		}
 		
 	private:
 		uint64_t 	m_uSeed;

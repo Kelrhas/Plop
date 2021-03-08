@@ -2,6 +2,19 @@
   "entities": [
     {
       "Children": [],
+      "EnemySpawner": {
+        "Points": [[0.0,1.0],[0.5,0.5],[1.0,0.0]]
+      },
+      "HintID": 5,
+      "Name": "Spawner",
+      "Transform": {
+        "Position": [-4.119384765625,-3.8960421085357666,0.0],
+        "Rotation": [0.0,0.0,0.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Children": [],
       "HintID": 4,
       "Name": "Particles",
       "ParticleSystem": {

@@ -39,5 +39,6 @@ void TDApp::RegisterComponents()
 {
 	REGISTER_COMPONENT( Tower );
 	REGISTER_COMPONENT( Enemy );
+	REGISTER_COMPONENT( EnemySpawner );
 	REGISTER_COMPONENT( Bullet );
 }

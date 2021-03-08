@@ -112,6 +112,41 @@ namespace ImGui
 		return button_pushed;
 	}
 
+	void TextLabel( const char* label, const char* fmt, ... )
+	{
+		va_list args;
+		va_start( args, fmt );
+		TextLabelV( label, fmt, args );
+		va_end( args );
+	}
+
+	void TextLabelV( const char* label, const char* fmt, va_list args )
+	{
+		ImGuiWindow* window = GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+
+		ImGuiContext& g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const float w = CalcItemWidth();
+
+		const ImVec2 label_size = CalcTextSize( label, NULL, true );
+		const char* value_text_begin = &g.TempBuffer[0];
+		const char* value_text_end = value_text_begin + ImFormatStringV( g.TempBuffer, IM_ARRAYSIZE( g.TempBuffer ), fmt, args );
+		const ImVec2 value_text_size = CalcTextSize( value_text_begin, value_text_end );
+		const ImRect value_bb( window->DC.CursorPos + ImVec2(w - value_text_size.x, 0.f), window->DC.CursorPos + ImVec2( w, value_text_size.y + style.FramePadding.y * 2 ) );
+		const ImRect label_bb( window->DC.CursorPos, window->DC.CursorPos + ImVec2( w, label_size.y + style.FramePadding.y * 2 ) );
+		const ImRect total_bb( window->DC.CursorPos, window->DC.CursorPos + ImVec2( w + (label_size.x > 0.0f ? style.ItemInnerSpacing.x : 0.0f), style.FramePadding.y * 2 ) + label_size );
+		ItemSize( total_bb, style.FramePadding.y );
+		if (!ItemAdd( total_bb, 0 ))
+			return;
+
+		// Render
+		RenderTextClipped( value_bb.Min, value_bb.Max, value_text_begin, value_text_end, NULL, ImVec2( 0.0f, 0.f ) );
+		if (label_size.x > 0.0f)
+			RenderText( ImVec2( label_bb.Min.x, label_bb.Min.y + style.FramePadding.y ), label );
+	}
+
 	void PathCatmullCurve( ImDrawList* draw_list, const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, int num_segments /*= 12*/ )
 	{
 		draw_list->PathLineTo( p2 );

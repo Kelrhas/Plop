@@ -7,7 +7,6 @@
 #include <Debug/Debug.h>
 #include <Constants.h>
 #include <Events/EventDispatcher.h>
-#include <Input/Input.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
 #include <ECS/BaseComponents.h>
@@ -69,32 +68,13 @@ void SampleLayer::OnUpdate(Plop::TimeStep& _timeStep)
 
 void SampleLayer2D::OnRegistered()
 {
-	
 }
 
 void SampleLayer2D::OnUnregistered()
 {
-
 }
 
 void SampleLayer2D::OnUpdate(Plop::TimeStep& _timeStep)
 {
 	PROFILING_FUNCTION();
-
-	if (Plop::Input::IsMouseLeftPressed())
-	{
-		static Plop::ParticleData data;
-		data.fLifeTimeBase = 2.f;
-		data.vPositionBase = glm::vec3( 0.f );
-		data.vPositionVariationMin = glm::vec3( -0.5f );
-		data.vPositionVariationMax = glm::vec3( 0.5f );
-		data.vSizeStart = glm::vec2( 0.15f );
-		data.vSizeEnd = glm::vec2( 0.02f );
-		data.vSpeedStart = glm::vec3( 0.f, 1.f, 0.f );
-		data.vSpeedEnd = glm::vec3( 0.f, -1.f, 0.f );
-		data.vColorStart = glm::vec4( 1.f );
-		data.vColorEnd = glm::vec4( 1.f, 0.f, 0.f, 1.f );
-		m_particles.Spawn( data, 50 );
-	}
-	m_particles.Update( _timeStep );
 }

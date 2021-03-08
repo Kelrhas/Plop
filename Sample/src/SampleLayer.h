@@ -33,6 +33,5 @@ public:
 	virtual uint8_t GetPriority() const override { return 20; }
 
 private:
-	Plop::ParticleSystem		m_particles;
 };
 

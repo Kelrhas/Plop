@@ -1,12 +1,18 @@
 #include "Plop_pch.h"
 #include "Debug.h"
 
+#if PLATFORM_WINDOWS
+#include <psapi.h> // for PROCESS_MEMORY_COUNTERS
+#endif
+
 #include <map>
 
 #include <GL/glew.h>
-#include <Debug/Log.h>
+#include <imgui_custom.h>
 
-#include <Debug/MemoryTrack.hpp>
+#include "Debug/Log.h"
+#include "Debug/MemoryTrack.hpp"
+#include "Utils/StringUtils.h"
 
 
 #ifndef _MASTER
@@ -145,7 +151,7 @@ namespace Plop
 				}
 
 
-				ImGui::BeginChild( "AllocationList", ImVec2( 0, -ImGui::GetFrameHeightWithSpacing() * 6) );
+				ImGui::BeginChild( "AllocationList", ImVec2( 0, -ImGui::GetFrameHeightWithSpacing() * 9) );
 
 				std::map<size_t, AllocationLocation, std::greater<size_t>> mapAllocSorted;
 				for (auto& kv : s_GlobalAllocation.mapAllocationsSizes)
@@ -169,25 +175,40 @@ namespace Plop
 						//ASSERT( (size_t)res > 32, "Error while executing command: <{0}> returned {1}", buff, (size_t)res );
 #endif
 					}
-					std::ostringstream ssBytes;
-					ssBytes << uSize << " bytes";
-					ImVec2 vTextSize = ImGui::CalcTextSize( ssBytes.str().c_str() );
+					std::string sSize = Utils::SizeToString( uSize );
+					ImVec2 vTextSize = ImGui::CalcTextSize( sSize.c_str() );
 					ImGui::SameLine( ImGui::GetWindowContentRegionMax().x - vTextSize.x );
-					ImGui::Text( ssBytes.str().c_str() );
+					ImGui::Text( sSize.c_str() );
 				}
 				ImGui::EndChild();
 
 
 				ImGui::LabelText( "Frame Allocation (#)", "%llu", s_GlobalAllocation.uFrameNumberAllocation );
-				ImGui::LabelText( "Frame Allocation (bytes)", "%llu", s_GlobalAllocation.uFrameAllocation );
+				ImGui::LabelText( "Frame Allocation", "%s", Utils::SizeToString( s_GlobalAllocation.uFrameAllocation ).c_str() );
 				ImGui::LabelText( "Current Allocation (#)", "%llu", s_GlobalAllocation.uCurrentNumberAllocation );
-				ImGui::LabelText( "Current Allocation (bytes)", "%llu", s_GlobalAllocation.uCurrentAllocation );
+				ImGui::LabelText( "Current Allocation", "%s", Utils::SizeToString( s_GlobalAllocation.uCurrentAllocation ).c_str() );
 				ImGui::LabelText( "Total Allocation (#)", "%llu", s_GlobalAllocation.uTotalNumberAllocation );
-				ImGui::LabelText( "Total Allocation (bytes)", "%llu", s_GlobalAllocation.uTotalAllocation );
+				ImGui::LabelText( "Total Allocation", "%s", Utils::SizeToString( s_GlobalAllocation.uTotalAllocation ).c_str() );
+
+
+
 #else
 
 				ImGui::Text( "Memory tracking disabled" );
 #endif // ENABLE_MEMORY_TRACKING
+
+#ifdef PLATFORM_WINDOWS
+				PROCESS_MEMORY_COUNTERS ProcessMemoryCounters;
+				memset( &ProcessMemoryCounters, 0, sizeof( ProcessMemoryCounters ) );
+				ProcessMemoryCounters.cb = sizeof( ProcessMemoryCounters );
+				if (::GetProcessMemoryInfo( GetCurrentProcess(), &ProcessMemoryCounters, sizeof( ProcessMemoryCounters ) ))
+				{
+					ImGui::Separator();
+					ImGui::TextLabel( "OS working set", "%s", Utils::SizeToString( ProcessMemoryCounters.WorkingSetSize ).c_str() );
+					ImGui::TextLabel( "OS page file usage", "%s", Utils::SizeToString(ProcessMemoryCounters.PagefileUsage ).c_str() );
+					ImGui::TextLabel( "OS page fault count", "%s", Utils::SizeToString(ProcessMemoryCounters.PageFaultCount ).c_str() );
+				}
+#endif
 			}
 			ImGui::End();
 		}

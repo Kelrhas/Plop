@@ -33,6 +33,7 @@ namespace Plop
 		void Assert_GL();
 
 		void TODO( const char* _pMessage = nullptr );
+#define TODO_STATIC( message ) static_assert(false, message);
 
 		void ShowAllocationsWindow( bool* _bOpened = nullptr );
 	}

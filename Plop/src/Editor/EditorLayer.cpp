@@ -2,6 +2,8 @@
 #include "EditorLayer.h"
 
 #include <imgui.h>
+#include <imgui_custom.h>
+#include <imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <ImGuizmo.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -402,6 +404,7 @@ namespace Plop
 		ImVec2 vPosition = ImGui::GetMainViewport()->Pos;
 		ImVec2 vSize = ImGui::GetMainViewport()->Size;
 		ImGuizmo::SetRect( vPosition.x, vPosition.y, vSize.x, vSize.y );
+		EditorGizmo::SetViewportPosAndSize( vPosition, vSize );
 #else
 		ImVec2 vSize = ImGui::GetIO().DisplaySize;
 		ImGuizmo::SetRect( 0, 0, vSize.x, vSize.y );
@@ -456,6 +459,10 @@ namespace Plop
 #endif
 					ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), 1.f, vPosition, ImVec2( 128, 128 ), 0x10101010 );
 				}
+
+
+				glm::mat4 mViewProj = mViewMatrix * mProjMatrix;
+				EditorGizmo::SetViewProjMatrix( mViewProj );
 			}
 		}
 
@@ -555,5 +562,77 @@ namespace Plop
 		}
 
 		return dupEntity;
+	}
+
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// EditorGizmo
+
+	glm::mat4	EditorGizmo::s_mViewProj = glm::identity<glm::mat4>();
+	glm::vec2	EditorGizmo::s_vViewportPos = VEC2_0;
+	glm::vec2	EditorGizmo::s_vViewportSize = VEC2_1;
+
+
+	void EditorGizmo::FilledCircle( const glm::vec2& _vPoint, glm::vec3 _vColor /*= VEC3_1*/ )
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+
+		glm::vec2 vSSPoint = GetSSPosition( glm::vec3( _vPoint, 0.f ) );
+
+		drawList->AddCircleFilled( vSSPoint, 6.f, ImColor( _vColor.x, _vColor.y, _vColor.z ) );
+	}
+
+	void EditorGizmo::Bezier( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+
+		glm::vec2 vSSPoint1 = GetSSPosition( glm::vec3( _v1, 0.f ) );
+		glm::vec2 vSSPoint2 = GetSSPosition( glm::vec3( _v2, 0.f ) );
+		glm::vec2 vSSPoint3 = GetSSPosition( glm::vec3( _v3, 0.f ) );
+		glm::vec2 vSSPoint4 = GetSSPosition( glm::vec3( _v4, 0.f ) );
+
+		drawList->AddBezierCurve( vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4, ImColor( _vColor.x, _vColor.y, _vColor.z ), 2.f );
+	}
+
+	void EditorGizmo::CatmullRom( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+
+		glm::vec2 vSSPoint1 = GetSSPosition( glm::vec3( _v1, 0.f ) );
+		glm::vec2 vSSPoint2 = GetSSPosition( glm::vec3( _v2, 0.f ) );
+		glm::vec2 vSSPoint3 = GetSSPosition( glm::vec3( _v3, 0.f ) );
+		glm::vec2 vSSPoint4 = GetSSPosition( glm::vec3( _v4, 0.f ) );
+
+		ImGui::PathCatmullCurve( drawList, vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4 );
+	}
+
+
+	void EditorGizmo::SetViewProjMatrix( const glm::mat4& _mViewProj )
+	{
+		s_mViewProj = _mViewProj;
+	}
+	void EditorGizmo::SetViewportPosAndSize( const glm::vec2& _vPos, const glm::vec2& _vSize )
+	{
+		s_vViewportPos = _vPos;
+		s_vViewportSize = _vSize;
+	}
+
+	glm::vec2 EditorGizmo::GetSSPosition( const glm::vec3& _vPos )
+	{
+		glm::vec4 vTrans = glm::vec4(_vPos, 1.f) * s_mViewProj;
+		vTrans *= 0.5f / vTrans.w;
+		vTrans.xy += glm::vec2( 0.5f, 0.5f );
+		vTrans.y = 1.f - vTrans.y;
+		vTrans.x *= s_vViewportSize.x;
+		vTrans.y *= s_vViewportSize.y;
+		vTrans.x += s_vViewportPos.x;
+		vTrans.y += s_vViewportPos.y;
+
+		return vTrans.xy;
 	}
 }

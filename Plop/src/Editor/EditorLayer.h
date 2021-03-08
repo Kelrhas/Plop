@@ -14,10 +14,13 @@ namespace MM
 
 namespace Plop
 {
+	class EditorGizmo;
+
 	class EditorLayer : public ApplicationLayer, IEventListener
 	{
 	private:
 		friend class Application;
+		friend class EditorGizmo;
 		EditorLayer();
 		~EditorLayer();
 
@@ -105,5 +108,27 @@ namespace Plop
 		static ::MM::EntityEditor<entt::entity>* s_pENTTEditor;
 
 
+	};
+
+
+	class EditorGizmo
+	{
+	public:
+		static void FilledCircle( const glm::vec2& _vPoint, glm::vec3 _vColor = VEC3_1 );
+		static void Bezier( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor = VEC3_1 );
+		static void CatmullRom( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor = VEC3_1 );
+
+
+
+		static void SetViewProjMatrix( const glm::mat4& _mViewProj );
+		static void SetViewportPosAndSize( const glm::vec2& _vPos, const glm::vec2& _vSize );
+
+	private:
+		static glm::vec2 GetSSPosition( const glm::vec3& _vPos );
+
+
+		static glm::mat4	s_mViewProj;
+		static glm::vec2	s_vViewportPos;
+		static glm::vec2	s_vViewportSize;
 	};
 }

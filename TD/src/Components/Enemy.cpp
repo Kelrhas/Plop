@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <ECS/ECSHelper.h>
+#include <ECS/BaseComponents.h>
 
 #include <Editor/EditorLayer.h>
 #include <Utils/JsonTypes.h>
@@ -50,6 +51,12 @@ namespace MM
 	void ComponentEditorWidget<EnemySpawnerComponent>( entt::registry& reg, entt::registry::entity_type e )
 	{
 		auto& comp = reg.get<EnemySpawnerComponent>( e );
+
+		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
+		Plop::Entity owner = Plop::GetComponentOwner( xLevel, comp );
+		auto vSpawnerPosition = owner.GetComponent<Plop::TransformComponent>().vPosition;
+
+
 		size_t iNbPoint = comp.vecCurvePoints.size();
 		if (ImGui::TreeNode( &comp, "Number of points: %llu", iNbPoint ))
 		{
@@ -58,7 +65,7 @@ namespace MM
 			{
 				ImGui::PushID( i );
 
-				glm::vec2& vPoint = comp.vecCurvePoints[i];
+				glm::vec3& vPoint = comp.vecCurvePoints[i];
 				ImGui::DragFloat2( "", glm::value_ptr( vPoint ), 0.1f );
 				ImGui::SameLine();
 				if (ImGui::Button( "-" ))
@@ -67,16 +74,22 @@ namespace MM
 				}
 
 
+				const glm::vec3 vCurrentPoint = comp.vecCurvePoints[i] + vSpawnerPosition;
+				Plop::EditorGizmo::FilledCircle( vCurrentPoint );
 
-				Plop::EditorGizmo::FilledCircle( vPoint );
-
-
-				if (i > 0 && i < iNbPoint - 2)
+				// draw the curve
+				if (i < iNbPoint - 2)
 				{
-					const glm::vec2& vPrevPoint = comp.vecCurvePoints[i - 1];
-					const glm::vec2& vNextPoint = comp.vecCurvePoints[i + 1];
-					const glm::vec2& vNext2Point = comp.vecCurvePoints[i + 2];
-					Plop::EditorGizmo::CatmullRom( vPrevPoint, vPoint, vNextPoint, vNext2Point );
+					if (i == 0)
+						Plop::EditorGizmo::Line( vSpawnerPosition, vCurrentPoint );
+
+					const glm::vec3 vPrevPoint = i == 0 ? vSpawnerPosition : comp.vecCurvePoints[i - 1] + vSpawnerPosition;
+					const glm::vec3 vNextPoint = comp.vecCurvePoints[i + 1] + vSpawnerPosition;
+					const glm::vec3 vNext2Point = comp.vecCurvePoints[i + 2] + vSpawnerPosition;
+					Plop::EditorGizmo::CatmullRom( vPrevPoint, vCurrentPoint, vNextPoint, vNext2Point );
+
+					if( i == iNbPoint -3)
+						Plop::EditorGizmo::Line( vNextPoint, vNext2Point );
 				}
 
 				ImGui::PopID();
@@ -89,7 +102,7 @@ namespace MM
 
 			if (ImGui::Button( "Add point" ))
 			{
-				comp.vecCurvePoints.push_back( VEC2_0 );
+				comp.vecCurvePoints.push_back( VEC3_0 );
 			}
 
 			ImGui::TreePop();

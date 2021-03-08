@@ -585,6 +585,18 @@ namespace Plop
 		drawList->AddCircleFilled( vSSPoint, 6.f, ImColor( _vColor.x, _vColor.y, _vColor.z ) );
 	}
 
+	void EditorGizmo::Line( const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3 _vColor /*= VEC3_1*/ )
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+
+		glm::vec2 vSSPoint1 = GetSSPosition( _v1 );
+		glm::vec2 vSSPoint2 = GetSSPosition( _v2 );
+
+		drawList->AddLine( vSSPoint1, vSSPoint2, ImColor( _vColor.x, _vColor.y, _vColor.z ), 2.f );
+
+	}
+
 	void EditorGizmo::Bezier( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
@@ -598,15 +610,15 @@ namespace Plop
 		drawList->AddBezierCurve( vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4, ImColor( _vColor.x, _vColor.y, _vColor.z ), 2.f );
 	}
 
-	void EditorGizmo::CatmullRom( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
+	void EditorGizmo::CatmullRom( const glm::vec3& _v1, const glm::vec3& _v2, const glm::vec3& _v3, const glm::vec3& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
 		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
 
-		glm::vec2 vSSPoint1 = GetSSPosition( glm::vec3( _v1, 0.f ) );
-		glm::vec2 vSSPoint2 = GetSSPosition( glm::vec3( _v2, 0.f ) );
-		glm::vec2 vSSPoint3 = GetSSPosition( glm::vec3( _v3, 0.f ) );
-		glm::vec2 vSSPoint4 = GetSSPosition( glm::vec3( _v4, 0.f ) );
+		glm::vec2 vSSPoint1 = GetSSPosition( _v1 );
+		glm::vec2 vSSPoint2 = GetSSPosition( _v2 );
+		glm::vec2 vSSPoint3 = GetSSPosition( _v3 );
+		glm::vec2 vSSPoint4 = GetSSPosition( _v4 );
 
 		ImGui::PathCatmullCurve( drawList, vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4 );
 	}

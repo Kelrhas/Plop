@@ -12,7 +12,7 @@ struct EnemyComponent
 
 struct EnemySpawnerComponent
 {
-	std::vector<glm::vec2> vecCurvePoints;
+	std::vector<glm::vec3> vecCurvePoints;
 };
 
 namespace MM

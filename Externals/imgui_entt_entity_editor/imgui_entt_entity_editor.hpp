@@ -73,8 +73,6 @@ public:
 		CallbackFromJson fromjson;
 	};
 
-	bool show_window = true;
-
 //private:
 	using ComponentTypeID = ENTT_ID_TYPE;
 
@@ -118,6 +116,7 @@ public:
 
 	bool render(Registry& registry, EntityType& e)
 	{
+		bool show_window = true;
 		if (show_window) {
 			if (ImGui::Begin("Entity Editor", &show_window)) {
 				ImGui::TextUnformatted("Editing:");

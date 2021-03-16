@@ -28,3 +28,4 @@ log.txt
 *.exe.recipe
 *.FileListAbsolute.txt
 *.backup
+Externals/imguizmo/example/Debug/*

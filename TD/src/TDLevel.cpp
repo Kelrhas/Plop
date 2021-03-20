@@ -116,7 +116,9 @@ void TDLevel::Update( Plop::TimeStep _ts )
 			bDestroy = true;
 
 		if (bDestroy)
-			m_ENTTRegistry.destroy(entityID);
+		{
+			DestroyEntity( Plop::Entity{ entityID, weak_from_this() } );
+		}
 	}
 
 	Plop::LevelBase::Update( _ts );

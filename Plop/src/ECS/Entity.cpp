@@ -7,6 +7,12 @@
 
 namespace Plop
 {
+	Entity::Entity( entt::null_t )
+		: m_EntityId( entt::null )
+	{
+		m_xLevel.reset();
+	}
+
 	Entity::Entity( entt::entity _entityID, const LevelBaseWeakPtr& _xLevel )
 		: m_EntityId( _entityID )
 		, m_xLevel( _xLevel )
@@ -26,6 +32,13 @@ namespace Plop
 	{
 		m_EntityId = entt::null;
 		m_xLevel.reset();
+	}
+
+	void Entity::Destroy()
+	{
+		auto xLevel = m_xLevel.lock();
+		xLevel->DestroyEntity( *this );
+		Reset();
 	}
 
 

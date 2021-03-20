@@ -381,10 +381,7 @@ namespace Plop
 				}
 
 				if (entityToDestroy)
-				{
-					LevelBase::s_xCurrentLevel.lock()->DestroyEntity( entityToDestroy );
-					entityToDestroy.Reset();
-				}
+					entityToDestroy.Destroy();
 
 				ImGui::EndChild();
 				if (ImGui::Button( "New entity" ))

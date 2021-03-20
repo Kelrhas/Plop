@@ -16,7 +16,7 @@ void EnemyComponent::Hit( float _fDamage )
 	{
 		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
 		Plop::Entity owner = Plop::GetComponentOwner( xLevel, *this );
-		xLevel->GetEntityRegistry().destroy( owner );
+		owner.Destroy();
 	}
 }
 

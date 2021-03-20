@@ -15,11 +15,13 @@ namespace Plop
 	public:
 
 		Entity() = default;
+		Entity( entt::null_t );
 		Entity( entt::entity _entityID, const LevelBaseWeakPtr& _xLevel );
 		Entity( const Entity& _other ) = delete;
 		Entity( Entity&& _other ) noexcept;
 
 		void												Reset();
+		void												Destroy();
 
 		operator bool() const;
 		Entity& operator =( const Entity& _other );

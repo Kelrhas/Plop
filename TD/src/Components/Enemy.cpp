@@ -54,7 +54,7 @@ namespace MM
 
 		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
 		Plop::Entity owner = Plop::GetComponentOwner( xLevel, comp );
-		auto vSpawnerPosition = owner.GetComponent<Plop::TransformComponent>().vPosition;
+		const auto& vSpawnerPosition = owner.GetComponent<Plop::TransformComponent>().GetWorldPosition();
 
 
 		size_t iNbPoint = comp.vecCurvePoints.size();

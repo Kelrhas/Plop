@@ -42,9 +42,9 @@ void TDLevel::Update( Plop::TimeStep _ts )
 		auto& enemyComp = newEnemy.AddComponent<EnemyComponent>();
 		enemyComp.fLife = 1.f;
 		auto& transform = newEnemy.GetComponent<Plop::TransformComponent>();
-		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorViewportPos(), transform.vPosition.z );
-		transform.vPosition = vMousePos;
-		transform.vScale = VEC3_1 * 0.2f;
+		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorViewportPos(), transform.GetWorldPosition().z );
+		transform.SetLocalPosition( vMousePos );
+		transform.SetLocalScale( VEC3_1 * 0.2f );
 		auto& xSprite = newEnemy.AddComponent<Plop::SpriteRendererComponent>().xSprite;
 		xSprite->SetTint( COLOR_GREEN );
 	}
@@ -89,7 +89,7 @@ void TDLevel::Update( Plop::TimeStep _ts )
 	float fMaxDistSq = glm::compMax( Plop::Application::Get()->GetWindow().GetViewportSize() ) * 2.f;
 	for (auto& [entityID, bulletComp, transform] : viewBullet.proxy())
 	{
-		transform.vPosition += bulletComp.vVelocity * _ts.GetGameDeltaTime();
+		transform.TranslateWorld( bulletComp.vVelocity * _ts.GetGameDeltaTime() );
 		
 		bool bDestroy = false;
 		// test if on target (if target is dead, keep going)
@@ -97,7 +97,7 @@ void TDLevel::Update( Plop::TimeStep _ts )
 		{
 			const auto& enemyTransform = bulletComp.target.GetComponent<Plop::TransformComponent>();
 
-			const glm::vec2& thisPos2D = transform.vPosition;
+			const glm::vec2& thisPos2D = transform.GetWorldPosition();
 
 			if (enemyTransform.Distance2DSquare(transform ) < 0.001f)
 			{
@@ -112,7 +112,7 @@ void TDLevel::Update( Plop::TimeStep _ts )
 		
 
 		// test if too far
-		if (glm::distance2( transform.vPosition, bulletComp.emitting.GetComponent<Plop::TransformComponent>().vPosition ) > fMaxDistSq)
+		if (glm::distance2( transform.GetWorldPosition(), bulletComp.emitting.GetComponent<Plop::TransformComponent>().GetWorldPosition() ) > fMaxDistSq)
 			bDestroy = true;
 
 		if (bDestroy)

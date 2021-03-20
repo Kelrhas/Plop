@@ -27,14 +27,16 @@ void TowerComponent::Fire( const std::tuple<Plop::Entity, EnemyComponent&, Plop:
 	Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
 	Plop::Entity towerEntity = Plop::GetComponentOwner( xLevel, *this );
 	Plop::TransformComponent& transformTower = towerEntity.GetComponent<Plop::TransformComponent>();
-	glm::vec3 vTowerPos = transformTower.vPosition;
+	glm::vec3 vTowerPos = transformTower.GetWorldPosition();
 	
-	const glm::vec3 vEnemyPos = std::get<2>( _enemyData ).vPosition;
+	const glm::vec3 vEnemyPos = std::get<2>( _enemyData ).GetWorldPosition();
 	const glm::vec2 vEnemyDir2D = glm::normalize( vEnemyPos.xy - vTowerPos.xy );
 	float fAngle = glm::acos( glm::dot( glm::vec2( 1.f, 0.f ), vEnemyDir2D ) ) - glm::half_pi<float>();
-	if (transformTower.vPosition.y > vEnemyPos.y)
+	if (vTowerPos.y > vEnemyPos.y)
 		fAngle = glm::pi<float>() - fAngle;
-	transformTower.vRotation.z = fAngle;
+	glm::vec3 vTowerRotation = glm::eulerAngles( transformTower.GetLocalRotation() );
+	vTowerRotation.z = fAngle;
+	transformTower.SetLocalRotation( glm::quat(vTowerRotation) );
 
 
 	Plop::Entity bullet = xLevel->CreateEntity( "Bullet" );
@@ -49,9 +51,9 @@ void TowerComponent::Fire( const std::tuple<Plop::Entity, EnemyComponent&, Plop:
 
 
 	Plop::TransformComponent& transform = bullet.GetComponent<Plop::TransformComponent>();
-	transform.vPosition = glm::vec3( vTowerPos.xy, vTowerPos.z - 0.1f );
-	transform.vRotation.z = fAngle;
-	transform.vScale = glm::vec3( 0.05f, 0.5f, 1.f );
+	transform.SetLocalPosition( glm::vec3( vTowerPos.xy, vTowerPos.z - 0.1f ) );
+	transform.SetLocalRotation( glm::quat( glm::vec3( 0.f, 0.f, fAngle ) ) );
+	transform.SetLocalScale( glm::vec3( 0.05f, 0.5f, 1.f ) );
 }
 
 namespace MM

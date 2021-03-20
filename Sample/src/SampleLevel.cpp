@@ -17,8 +17,8 @@ void SampleLevel::Update( Plop::TimeStep _ts )
 	{
 		auto& [transform, rotComp] = view.get<Plop::TransformComponent, RotatingComponent>( entity );
 		
-		glm::quat qRot = transform;
+		glm::quat qRot = transform.GetLocalRotation();
 		qRot = glm::rotate( qRot, rotComp.fSpeed * _ts.GetGameDeltaTime(), rotComp.vAxis );
-		transform.vRotation = glm::eulerAngles( qRot );
+		transform.SetLocalRotation( qRot );
 	}
 }

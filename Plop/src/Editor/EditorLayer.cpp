@@ -422,7 +422,7 @@ namespace Plop
 			{
 				auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
 				xCurrentCamera = camera.xCamera;
-				mViewMatrix = glm::inverse( transform.GetMatrix() );
+				mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 				mProjMatrix = camera.xCamera->GetProjectionMatrix();
 			}
 
@@ -431,11 +431,11 @@ namespace Plop
 				if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
 				{
 					ImGuizmo::SetOrthographic( xCurrentCamera->IsOrthographic() );
-					glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetMatrix();
+					glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldMatrix();
 					if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
 						ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr( mTransform ) ))
 					{
-						m_SelectedEntity.GetComponent<TransformComponent>().SetMatrix( mTransform );
+						m_SelectedEntity.GetComponent<TransformComponent>().SetWorldMatrix( mTransform );
 					}
 				}
 

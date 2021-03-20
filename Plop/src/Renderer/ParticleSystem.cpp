@@ -96,7 +96,7 @@ namespace Plop
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 		auto& entity = GetComponentOwner( xLevel , *this);
 		// we allow ParticleSystem to not 
-		glm::vec3 vBasePosition = entity ? entity.GetComponent<TransformComponent>().vPosition : VEC3_0;
+		glm::vec3 vBasePosition = entity ? entity.GetComponent<TransformComponent>().GetLocalPosition() : VEC3_0;
 		while(m_iNbActiveParticles < m_iMaxNumberParticles && _iNbParticle > 0 )
 		{
 			ParticleData& p = m_pParticles[m_iNbActiveParticles];

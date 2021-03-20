@@ -230,7 +230,7 @@ namespace Plop::Particle
 	void SpawnRadialSpeed::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
 	{
 		auto& entity = GetComponentOwner( LevelBase::GetCurrentLevel().lock(), _system );
-		glm::vec3 vCenter = entity ? entity.GetComponent<TransformComponent>().vPosition : VEC3_0;
+		glm::vec3 vCenter = entity ? entity.GetComponent<TransformComponent>().GetLocalPosition() : VEC3_0;
 
 		_pParticle->vSpeed = glm::normalize( _pParticle->vPosition - vCenter ) * fSpeed;
 	}

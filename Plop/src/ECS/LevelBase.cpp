@@ -27,6 +27,7 @@ namespace Plop
 
 	void LevelBase::Init()
 	{
+		m_ENTTRegistry.sort<GraphNodeComponent, TransformComponent>(); // minimizes cache misses when iterating together
 	}
 
 	void LevelBase::Shutdown()
@@ -58,7 +59,7 @@ namespace Plop
 		{
 			auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
 			xCurrentCamera = camera.xCamera;
-			mViewMatrix = glm::inverse( transform.GetMatrix() );
+			mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 		}
 
 		if (xCurrentCamera)
@@ -227,11 +228,7 @@ namespace Plop
 			TransformComponent& transform = group.get<TransformComponent>( entityID );
 
 			Entity entity{ entityID, weak_from_this() };
-			glm::mat4 mTransform = transform.GetMatrix();
-			while (entity = entity.GetParent())
-			{
-				mTransform *= entity.GetComponent<TransformComponent>().GetMatrix();
-			}
+			glm::mat4 mTransform = transform.GetWorldMatrix();
 
 			vecSpriteMat.push_back( std::make_pair( renderer.xSprite, mTransform ) );
 		}

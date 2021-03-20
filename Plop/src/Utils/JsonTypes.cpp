@@ -75,6 +75,25 @@ namespace nlohmann
 			j[x].get_to( _vec[x] );
 	}
 
+	/* glm::quat*/
+	void adl_serializer<glm::quat>::to_json( json& j, const glm::quat& _quat )
+	{
+		j = json();
+		j[0] = _quat.x;
+		j[1] = _quat.y;
+		j[2] = _quat.z;
+		j[3] = _quat.w;
+	}
+
+	void adl_serializer<glm::quat>::from_json( const json& j, glm::quat& _quat )
+	{
+		ASSERT( j.size() == 4, "Json::Not enough parameter, wanted 4 got %llu", j.size() );
+		_quat.x = j[0];
+		_quat.y = j[1];
+		_quat.z = j[2];
+		_quat.w = j[3];
+	}
+
 	/* ParticleSystemComponent::ParticleSpawnerPtr*/
 	void adl_serializer<Plop::ParticleSystemComponent::ParticleSpawnerPtr>::to_json( json& j, const Plop::ParticleSystemComponent::ParticleSpawnerPtr& _xSpawner )
 	{

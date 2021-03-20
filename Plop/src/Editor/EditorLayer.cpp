@@ -21,14 +21,27 @@
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
 #include "Utils/OSDialogs.h"
+#include "Assets/TextureLoader.h"
+#include "Renderer/Texture.h"
 
 
 namespace Plop
 {
 	namespace Private
 	{
-		// Renaming
-		static String sNewName;
+		static String sNewName; // For renaming
+		static TextureHandle hIconSpriteSheet;
+		static const ImVec2 vEditorIconSize( 48, 48 );
+		static std::unordered_map<String, std::pair<ImVec2,ImVec2>> mapIconsUV = {
+			{"Play",		{{0.f, 0.f},	{1.f / 3, 0.5f}}},
+			{"Pause",		{{1.f/3, 0.f},	{2.f / 3, 0.5f}}},
+			{"Stop",		{{2.f/3, 0.f},	{1.f, 0.5f}}},
+			{"Translate",	{{0., 0.5f},	{1.f/3, 1.f}}},
+			{"Rotate",		{{1.f/3, 0.5f},	{2.f/3, 1.f}}},
+			{"Scale",		{{2.f/3, 0.5f},	{1.f, 1.f}}},
+		};
+		static ImGuizmo::OPERATION eGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+		static ImGuizmo::MODE eGuizmoSpace = ImGuizmo::MODE::LOCAL;
 	}
 
 	::MM::EntityEditor<entt::entity>* EditorLayer::s_pENTTEditor = nullptr;
@@ -46,6 +59,8 @@ namespace Plop
 	void EditorLayer::OnRegistered()
 	{
 		EventDispatcher::RegisterListener( this );
+
+		Private::hIconSpriteSheet = AssetLoader::GetTexture( "Plop\\assets\\icons\\editor.png" );
 	}
 
 	void EditorLayer::OnUnregistered()
@@ -56,7 +71,7 @@ namespace Plop
 	void EditorLayer::OnUpdate( TimeStep& _timeStep )
 	{
 		static ImGuiWindowFlags windowFlags =
-			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar |
+			ImGuiWindowFlags_NoTitleBar | /*ImGuiWindowFlags_MenuBar |*/
 			ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
 			ImGuiWindowFlags_NoBackground;
@@ -64,6 +79,10 @@ namespace Plop
 		ImGuiIO& io = ImGui::GetIO();
 		if (!(io.ConfigFlags & ImGuiConfigFlags_DockingEnable))
 			return;
+
+
+		ShowMenuBar();
+		ShowToolBar();
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
 		ImGui::SetNextWindowPos( viewport->GetWorkPos() );
@@ -80,8 +99,6 @@ namespace Plop
 			static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
 			static ImGuiID id = ImGui::GetID( "Editor" );
 			ImGui::DockSpace( id, ImVec2( 0, 0 ), flags );
-
-			ShowMenuBar();
 
 
 			// we can draw editor windows here
@@ -172,9 +189,111 @@ namespace Plop
 		}
 	}
 
+
+	bool IconButton(const char* _pButton, bool bActive = false)
+	{
+		if(!bActive)
+			ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
+		ImGui::PushID( _pButton );
+		bool bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, Private::mapIconsUV[_pButton].first, Private::mapIconsUV[_pButton].second, 0 );
+		ImGui::PopID();
+		if (!bActive)
+			ImGui::PopStyleColor();
+
+		return bClicked;
+	}
+
+
+	void EditorLayer::ShowToolBar()
+	{
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		float fBarHeight = Private::vEditorIconSize.y + 2 * ImGui::GetStyle().WindowPadding.y;
+		ImGui::SetNextWindowPos( viewport->GetWorkPos() );
+		ImGui::SetNextWindowSize( ImVec2( viewport->GetWorkSize().x, fBarHeight ) );
+		ImGui::SetNextWindowViewport( viewport->ID );
+		ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.f );
+		if (ImGui::Begin( "##Manipulation", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize ))
+		{
+			ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 0 ) );
+
+			if (IconButton( "Translate", Private::eGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE ))
+				Private::eGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+
+			ImGui::SameLine();
+			if (IconButton( "Rotate", Private::eGuizmoOperation == ImGuizmo::OPERATION::ROTATE ))
+				Private::eGuizmoOperation = ImGuizmo::OPERATION::ROTATE;
+
+			ImGui::SameLine();
+			if (IconButton( "Scale", Private::eGuizmoOperation == ImGuizmo::OPERATION::SCALE ))
+				Private::eGuizmoOperation = ImGuizmo::OPERATION::SCALE;
+
+
+
+
+
+			ImGui::SameLine(0, 60);
+			ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, Private::vEditorIconSize.y / 4.f );
+			{
+				bool bWasLocal = Private::eGuizmoSpace == ImGuizmo::MODE::LOCAL;
+				if (!bWasLocal)
+					ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
+
+				if (ImGui::ButtonRounded( "Local", ImVec2( 0, Private::vEditorIconSize.y ), ImDrawCornerFlags_Left ))
+					Private::eGuizmoSpace = ImGuizmo::MODE::LOCAL;
+
+				if (!bWasLocal)
+					ImGui::PopStyleColor();
+				else
+					ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
+
+				ImGui::SameLine();
+				if (ImGui::ButtonRounded( "World", ImVec2( 0, Private::vEditorIconSize.y ), ImDrawCornerFlags_Right ))
+					Private::eGuizmoSpace = ImGuizmo::MODE::WORLD;
+
+				if(bWasLocal)
+					ImGui::PopStyleColor(); // ImGuiCol_Button
+			}
+			ImGui::PopStyleVar(); // ImGuiStyleVar_FrameRounding
+
+
+
+
+			ImGui::PopStyleVar(); // ImGuiStyleVar_ItemSpacing
+
+			ImGui::SameLine( 0, 60 );
+			if (m_eLevelState == LevelState::RUNNING)
+			{
+				if (IconButton( "Pause" ))
+					PauseLevel();
+
+				ImGui::SameLine();
+				if (IconButton( "Stop" ))
+					StopLevel();
+			}
+			else if (m_eLevelState == LevelState::PAUSED)
+			{
+				if (IconButton( "Play" ))
+					ResumeLevel();
+
+				ImGui::SameLine();
+				if (IconButton( "Stop" ))
+					StopLevel();
+			}
+			else if (m_eLevelState == LevelState::EDITING)
+			{
+				if (IconButton( "Play" ))
+					PlayLevel();
+			}
+		}
+		ImGui::End();
+		ImGui::PopStyleVar();
+
+		viewport->WorkOffsetMin.y += fBarHeight;
+	}
+
 	void EditorLayer::ShowMenuBar()
 	{
-		if (ImGui::BeginMenuBar())
+		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu( "File" ))
 			{
@@ -219,27 +338,7 @@ namespace Plop
 				ImGui::EndMenu();
 			}
 
-			if (m_eLevelState == LevelState::RUNNING)
-			{
-				if (ImGui::MenuItem( "Pause" ))
-					PauseLevel();
-				if (ImGui::MenuItem( "Stop" ))
-					StopLevel();
-			}
-			else if(m_eLevelState == LevelState::PAUSED)
-			{
-				if (ImGui::MenuItem( "Resume" ))
-					ResumeLevel();
-				if (ImGui::MenuItem( "Stop" ))
-					StopLevel();
-			}
-			else if(m_eLevelState == LevelState::EDITING)
-			{
-				if (ImGui::MenuItem( "Play" ))
-					PlayLevel();
-			}
-
-			ImGui::EndMenuBar();
+			ImGui::EndMainMenuBar();
 		}
 
 		// shortcuts for ImGui menus
@@ -429,8 +528,11 @@ namespace Plop
 				{
 					ImGuizmo::SetOrthographic( xCurrentCamera->IsOrthographic() );
 					glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldMatrix();
+
+					ImGuizmo::DrawCubes( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ), glm::value_ptr( mProjMatrix ), 1 );
+
 					if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
-						ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr( mTransform ) ))
+						Private::eGuizmoOperation, Private::eGuizmoSpace, glm::value_ptr( mTransform ) ))
 					{
 						m_SelectedEntity.GetComponent<TransformComponent>().SetWorldMatrix( mTransform );
 					}

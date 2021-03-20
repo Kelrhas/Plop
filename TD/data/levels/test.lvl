@@ -2,22 +2,109 @@
   "entities": [
     {
       "Children": [],
+      "HintID": 8,
+      "Name": "Background",
+      "SpriteRenderer": {
+        "size": [1,1],
+        "texture": "assets\\textures\\tilesheet.png",
+        "tint": [1.0,1.0,1.0,1.0],
+        "uvmax": [0.08695652335882187,0.692307710647583],
+        "uvmin": [0.043478261679410934,0.6153846383094788]
+      },
+      "Transform": {
+        "Position": [0.0,0.0,-9.899999618530273],
+        "Rotation": [0.0,0.0,0.0,1.0],
+        "Scale": [10.0,10.0,1.0]
+      }
+    },
+    {
+      "Camera": {
+        "far": 67.0,
+        "near": 0.10000000149011612,
+        "ortho": true,
+        "orthoSize": 12.899999618530273,
+        "perspFOV": 1.0471975803375244
+      },
+      "Children": [],
+      "HintID": 7,
+      "Name": "Camera",
+      "Transform": {
+        "Position": [0.0,0.0,10.5],
+        "Rotation": [0.0,0.0,0.0,1.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Children": [
+        {
+          "Children": [
+            {
+              "Children": [],
+              "HintID": 4,
+              "Name": "Child 2",
+              "SpriteRenderer": {
+                "size": [1,1],
+                "texture": "assets\\textures\\tilesheet.png",
+                "tint": [1.0,1.0,1.0,1.0],
+                "uvmax": [0.1304347813129425,0.07692307978868484],
+                "uvmin": [0.08695652335882187,0.0]
+              },
+              "Transform": {
+                "Position": [0.07120466232299805,-0.7185707092285156,0.20000000298023224],
+                "Rotation": [0.0,-0.0,-0.5578824281692505,0.8299199938774109],
+                "Scale": [1.0000035762786865,0.9999980330467224,0.9999996423721313]
+              }
+            }
+          ],
+          "HintID": 5,
+          "Name": "Child",
+          "SpriteRenderer": {
+            "size": [1,1],
+            "texture": "assets\\textures\\tilesheet.png",
+            "tint": [1.0,1.0,1.0,1.0],
+            "uvmax": [0.08695652335882187,0.07692307978868484],
+            "uvmin": [0.043478261679410934,0.0]
+          },
+          "Transform": {
+            "Position": [0.6195950508117676,0.2348766326904297,0.30000001192092896],
+            "Rotation": [0.0,-0.0,-0.16193579137325287,0.9868013262748718],
+            "Scale": [1.0001834630966187,1.0001834630966187,1.0]
+          }
+        }
+      ],
+      "HintID": 6,
+      "Name": "Parent",
+      "SpriteRenderer": {
+        "size": [1,1],
+        "texture": "assets\\textures\\tilesheet.png",
+        "tint": [1.0,1.0,1.0,1.0],
+        "uvmax": [0.043478261679410934,0.07692307978868484],
+        "uvmin": [0.0,0.0]
+      },
+      "Transform": {
+        "Position": [-1.1377724409103394,-2.346891403198242,0.0],
+        "Rotation": [0.0,0.0,0.22081053256988525,0.9753167033195496],
+        "Scale": [0.9999996423721313,0.9999996423721313,1.0]
+      }
+    },
+    {
+      "Children": [],
       "EnemySpawner": {
         "Delay": 0.5,
         "NbEnemies": 5,
         "Points": [[0.4000000059604645,0.800000011920929,0.0],[1.0,1.2999999523162842,0.0],[2.799999952316284,1.100000023841858,0.0],[3.799999952316284,-0.699999988079071,0.0],[3.9000000953674316,-1.100000023841858,0.0]]
       },
-      "HintID": 5,
+      "HintID": 3,
       "Name": "Spawner",
       "Transform": {
         "Position": [-3.057370185852051,-1.8769049644470215,0.0],
-        "Rotation": [0.0,0.0,0.0],
+        "Rotation": [0.0,0.0,0.0,1.0],
         "Scale": [1.0,1.0,1.0]
       }
     },
     {
       "Children": [],
-      "HintID": 4,
+      "HintID": 2,
       "Name": "Particles",
       "ParticleSystem": {
         "AutoSpawnRate": 100.0,
@@ -59,7 +146,7 @@
       },
       "Transform": {
         "Position": [-2.8204360008239746,-2.4127235412597656,0.0],
-        "Rotation": [0.0,0.0,0.0],
+        "Rotation": [0.0,0.0,0.0,1.0],
         "Scale": [1.0,1.0,1.0]
       }
     },
@@ -68,7 +155,7 @@
       "Enemy": {
         "Life": 10.0
       },
-      "HintID": 3,
+      "HintID": 1,
       "Name": "Enemy",
       "ParticleSystem": {
         "AutoSpawnRate": 0.0,
@@ -117,13 +204,13 @@
       },
       "Transform": {
         "Position": [3.006232500076294,3.092397928237915,-0.4000000059604645],
-        "Rotation": [0.0,0.0,0.0],
+        "Rotation": [0.0,0.0,0.0,1.0],
         "Scale": [1.0,1.0,1.0]
       }
     },
     {
       "Children": [],
-      "HintID": 2,
+      "HintID": 0,
       "Name": "Tower",
       "SpriteRenderer": {
         "size": [1,1],
@@ -138,41 +225,7 @@
       },
       "Transform": {
         "Position": [-2.592090368270874,1.609604001045227,-0.30000001192092896],
-        "Rotation": [0.0,0.0,0.0],
-        "Scale": [1.0,1.0,1.0]
-      }
-    },
-    {
-      "Children": [],
-      "HintID": 1,
-      "Name": "Background",
-      "SpriteRenderer": {
-        "size": [1,1],
-        "texture": "assets\\textures\\tilesheet.png",
-        "tint": [1.0,1.0,1.0,1.0],
-        "uvmax": [0.08695652335882187,0.692307710647583],
-        "uvmin": [0.043478261679410934,0.6153846383094788]
-      },
-      "Transform": {
-        "Position": [0.0,0.0,-9.899999618530273],
-        "Rotation": [0.0,0.0,0.0],
-        "Scale": [10.0,10.0,1.0]
-      }
-    },
-    {
-      "Camera": {
-        "far": 67.0,
-        "near": 0.10000000149011612,
-        "ortho": true,
-        "orthoSize": 18.5,
-        "perspFOV": 1.0471975803375244
-      },
-      "Children": [],
-      "HintID": 0,
-      "Name": "Camera",
-      "Transform": {
-        "Position": [0.0,0.0,0.800000011920929],
-        "Rotation": [0.0,0.0,0.0],
+        "Rotation": [0.0,0.0,0.0,1.0],
         "Scale": [1.0,1.0,1.0]
       }
     }

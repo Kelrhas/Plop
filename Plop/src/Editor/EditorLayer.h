@@ -55,6 +55,7 @@ namespace Plop
 
 
 				void		ShowMenuBar();
+				void		ShowToolBar();
 				void		ShowSceneGraph();
 				void		ShowGizmos();
 

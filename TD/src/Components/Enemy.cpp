@@ -8,6 +8,7 @@
 
 #include <Editor/EditorLayer.h>
 #include <Utils/JsonTypes.h>
+#include <Assets/TextureLoader.h>
 
 void EnemyComponent::Hit( float _fDamage )
 {
@@ -18,6 +19,39 @@ void EnemyComponent::Hit( float _fDamage )
 		Plop::Entity owner = Plop::GetComponentOwner( xLevel, *this );
 		owner.Destroy();
 	}
+}
+
+
+void EnemySpawnerComponent::Update( float _fDeltaTime )
+{
+	if (fTimer >= 0 && iNbEnemySpawned < wave.nbEnemies)
+	{
+		fTimer -= _fDeltaTime;
+
+		if (fTimer <= 0)
+		{
+			Spawn();
+			++iNbEnemySpawned;
+			fTimer = wave.fSpawnDelay;
+		}
+	}
+}
+
+void EnemySpawnerComponent::Spawn()
+{
+	Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
+	auto entity = xLevel->CreateEntity( "Enemy" );
+
+	Plop::Entity owner = Plop::GetComponentOwner( xLevel, *this );
+	entity.SetParent( owner );
+
+	auto& enemyComp = entity.AddComponent<EnemyComponent>();
+	auto& spriteComp = entity.AddComponent<Plop::SpriteRendererComponent>();
+	spriteComp.xSprite->SetTextureHandle( Plop::AssetLoader::GetTexture( "assets\\textures\\tilesheet.png" ) );
+	spriteComp.xSprite->SetSpriteIndex( glm::uvec2{ 18,2 }, glm::uvec2{23, 13} );
+
+	//auto& transformComp = entity.GetComponent<Plop::TransformComponent>();
+	//transformComp.vPosition = owner.GetComponent<Plop::TransformComponent>().vPosition;
 }
 
 namespace MM
@@ -107,6 +141,9 @@ namespace MM
 
 			ImGui::TreePop();
 		}
+
+		ImGui::DragInt( "Nb enemies", &comp.wave.nbEnemies, 0.1f, 1 );
+		ImGui::DragFloat( "Spawn delay", &comp.wave.fSpawnDelay, 0.1f, 0.01f );
 	}
 
 	template <>
@@ -115,6 +152,8 @@ namespace MM
 		auto& comp = reg.get<EnemySpawnerComponent>( e );
 		json j;
 		j["Points"] = comp.vecCurvePoints;
+		j["NbEnemies"] = comp.wave.nbEnemies;
+		j["Delay"] = comp.wave.fSpawnDelay;
 		return j;
 	}
 
@@ -124,5 +163,9 @@ namespace MM
 		auto& comp = reg.get_or_emplace<EnemySpawnerComponent>( e );
 		if (_j.contains( "Points" ))
 			_j["Points"].get_to( comp.vecCurvePoints );
+		if (_j.contains( "NbEnemies" ))
+			comp.wave.nbEnemies = _j["NbEnemies"];
+		if (_j.contains( "Delay" ))
+			comp.wave.fSpawnDelay = _j["Delay"];
 	}
 }

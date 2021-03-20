@@ -12,7 +12,23 @@ struct EnemyComponent
 
 struct EnemySpawnerComponent
 {
+	struct Wave
+	{
+		int nbEnemies = 5;
+		float fSpawnDelay = 0.5f;
+	};
+
+
 	std::vector<glm::vec3> vecCurvePoints;
+
+	Wave wave;
+
+	void Update( float _deltaTime );
+	void Spawn();
+
+private:
+	float fTimer = 0;
+	int iNbEnemySpawned = 0;
 };
 
 namespace MM

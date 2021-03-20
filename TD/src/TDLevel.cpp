@@ -49,6 +49,12 @@ void TDLevel::Update( Plop::TimeStep _ts )
 		xSprite->SetTint( COLOR_GREEN );
 	}
 
+	auto& viewEnemySpawner = m_ENTTRegistry.view<EnemySpawnerComponent, Plop::TransformComponent>();
+	for (auto& [entityID, enemySpawnerComp, transform] : viewEnemySpawner.proxy())
+	{
+		enemySpawnerComp.Update( _ts.GetGameDeltaTime() );
+	}
+
 	std::vector<std::tuple<Plop::Entity, EnemyComponent&, Plop::TransformComponent&>> vecEnemies;
 	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent>();
 	for (auto& [entityID, enemyComp, transform] : viewEnemy.proxy())
@@ -102,8 +108,11 @@ void TDLevel::Update( Plop::TimeStep _ts )
 			if (enemyTransform.Distance2DSquare(transform ) < 0.001f)
 			{
 				bDestroy = true;
-				auto& enemyParticles = bulletComp.target.GetComponent<Plop::ParticleSystemComponent>();
-				enemyParticles.Spawn( 20 );
+				if (bulletComp.target.HasComponent<Plop::ParticleSystemComponent>())
+				{
+					auto& enemyParticles = bulletComp.target.GetComponent<Plop::ParticleSystemComponent>();
+					enemyParticles.Spawn( 20 );
+				}
 
 				auto& enemyComp = bulletComp.target.GetComponent<EnemyComponent>();
 				enemyComp.Hit( bulletComp.emitting.GetComponent<TowerComponent>().fDamage );

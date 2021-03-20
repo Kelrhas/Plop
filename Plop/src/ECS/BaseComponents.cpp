@@ -19,16 +19,16 @@ namespace Plop
 {
 	float TransformComponent::Distance2D( const TransformComponent& _other ) const
 	{
-		glm::vec2 vThisPos = vPosition;
-		glm::vec2 vOtherPos = _other.vPosition;
+		glm::vec2 vThisPos = GetWorldPosition();
+		glm::vec2 vOtherPos = _other.GetWorldPosition();
 
 		return glm::distance( vThisPos, vOtherPos );
 	}
 
 	float TransformComponent::Distance2DSquare( const TransformComponent& _other ) const
 	{
-		glm::vec2 vThisPos = vPosition;
-		glm::vec2 vOtherPos = _other.vPosition;
+		glm::vec2 vThisPos = GetWorldPosition();
+		glm::vec2 vOtherPos = _other.GetWorldPosition();
 
 		return glm::distance2( vThisPos, vOtherPos );
 	}

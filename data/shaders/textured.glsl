@@ -38,4 +38,6 @@ uniform sampler2D u_textures[32];
 void main()
 {
 	out_color = texture(u_textures[int(v_texUnit)], v_uv) * v_color;
+	if(out_color.a < 0.05) // alpha cutoff
+		discard;
 }

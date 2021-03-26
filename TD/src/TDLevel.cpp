@@ -59,6 +59,7 @@ void TDLevel::Update( Plop::TimeStep _ts )
 	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent>();
 	for (auto& [entityID, enemyComp, transform] : viewEnemy.proxy())
 	{
+		enemyComp.Move( _ts.GetGameDeltaTime() );
 		vecEnemies.push_back( { Plop::Entity( entityID, weak_from_this() ), enemyComp, transform } );
 	}
 

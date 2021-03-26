@@ -60,7 +60,11 @@ namespace Plop
 		void SetWorldMatrix( const glm::mat4& _m );
 		glm::mat4 GetWorldMatrix() const;
 
+		void SetWorldPosition( const glm::vec3& _vPos );
 		glm::vec3 GetWorldPosition() const;
+
+		void SetWorldRotation( const glm::quat& _qRot );
+		glm::quat GetWorldRotation() const;
 
 		void TranslateWorld( const glm::vec3& _vTrans );
 

@@ -96,6 +96,26 @@ namespace Plop
 		return mLocalMatrix;
 	}
 
+	void TransformComponent::SetWorldPosition( const glm::vec3& _vPos )
+	{
+		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
+
+		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		auto owner = GetComponentOwner( xLevel, *this );
+		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		if (parent)
+		{
+			// TODO: cache the parent worldmatrix or our own world and local matrix
+			mParentWorldMatrix = parent.GetComponent<TransformComponent>().GetWorldMatrix();
+		}
+
+		mParentWorldMatrix = glm::inverse( mParentWorldMatrix );
+
+		glm::vec3 vLocalPos = mParentWorldMatrix * glm::vec4( _vPos, 0.f );
+		
+		SetLocalPosition( vLocalPos );
+	}
+
 	glm::vec3 TransformComponent::GetWorldPosition() const
 	{
 		glm::vec3 vLocalPos = GetLocalPosition();
@@ -111,6 +131,31 @@ namespace Plop
 		}
 
 		return vLocalPos;
+	}
+
+	void TransformComponent::SetWorldRotation( const glm::quat& _qRot )
+	{
+		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
+
+		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		auto owner = GetComponentOwner( xLevel, *this );
+		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		if (parent)
+		{
+			// TODO: cache the parent worldmatrix or our own world and local matrix
+			mParentWorldMatrix = parent.GetComponent<TransformComponent>().GetWorldMatrix();
+		}
+
+		mParentWorldMatrix = glm::inverse( mParentWorldMatrix );
+
+		glm::quat qLocalRot = mParentWorldMatrix * glm::mat4( _qRot );
+
+		SetLocalRotation( qLocalRot );
+	}
+
+	glm::quat TransformComponent::GetWorldRotation() const
+	{
+		return glm::quat( GetWorldMatrix() );
 	}
 
 	void TransformComponent::TranslateWorld(const glm::vec3& _vTrans)

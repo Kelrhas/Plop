@@ -63,7 +63,7 @@ namespace MM
 	{
 		auto& comp = reg.get<TowerComponent>( e );
 		ImGui::DragFloat( "Damage", &comp.fDamage, 0.1f, 1.f );
-		ImGui::DragFloat( "Firing rate", &comp.fFiringRate, 0.1f, 0.01f );
+		ImGui::DragFloat( "Firing rate", &comp.fFiringRate, 0.1f, 0.01f, FLT_MAX );
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::BeginTooltip();

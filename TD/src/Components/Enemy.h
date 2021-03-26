@@ -2,12 +2,20 @@
 
 #include <imgui_entt_entity_editor.hpp>
 
+#include <Math/Curves.h>
+
 
 struct EnemyComponent
 {
 	float fLife = 1.f;
+	float fMoveSpeed = 0.2f;
 
 	void Hit( float _fDamage );
+	void Move( float _fDeltaTime );
+
+
+	Plop::Math::CatmullRomCurvePtr xPathCurve;
+	float fPathPosition = 0.f;
 };
 
 struct EnemySpawnerComponent
@@ -18,13 +26,16 @@ struct EnemySpawnerComponent
 		float fSpawnDelay = 0.5f;
 	};
 
+	EnemySpawnerComponent();
 
-	std::vector<glm::vec3> vecCurvePoints;
-
-	Wave wave;
 
 	void Update( float _deltaTime );
 	void Spawn();
+
+
+	Plop::Math::CatmullRomCurvePtr xPathCurve;
+
+	Wave wave;
 
 private:
 	float fTimer = 0;

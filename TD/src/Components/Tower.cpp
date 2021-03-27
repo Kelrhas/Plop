@@ -3,6 +3,7 @@
 
 #include <ECS/LevelBase.h>
 #include <ECS/ECSHelper.h>
+#include <ECS/BaseComponents.h>
 #include <Assets/TextureLoader.h>
 
 #include "Components/Bullet.h"

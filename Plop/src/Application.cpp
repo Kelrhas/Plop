@@ -11,6 +11,7 @@
 #include "Events/EventDispatcher.h"
 #include "Events/WindowEvent.h"
 #include "ECS/BaseComponents.h"
+#include "ECS/TransformComponent.h"
 #include "Renderer/ParticleSystem.h"
 #include "Renderer/Renderer.h"
 

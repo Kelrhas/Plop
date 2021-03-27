@@ -5,6 +5,7 @@
 
 #include <ECS/ECSHelper.h>
 #include <ECS/BaseComponents.h>
+#include <ECS/TransformComponent.h>
 
 #include <Editor/EditorLayer.h>
 #include <Utils/JsonTypes.h>

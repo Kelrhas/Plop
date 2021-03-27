@@ -2,7 +2,7 @@
 #include "SampleLevel.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
-#include <ECS/BaseComponents.h>
+#include <ECS/TransformComponent.h>
 
 #include "SampleComponents.h"
 

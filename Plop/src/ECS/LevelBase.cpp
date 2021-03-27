@@ -11,6 +11,7 @@
 #include "Renderer/ParticleSystem.h"
 #include "ECS/Entity.h"
 #include "ECS/BaseComponents.h"
+#include "ECS/TransformComponent.h"
 
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"

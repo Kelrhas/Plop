@@ -1,7 +1,7 @@
 #pragma once
 
 #include <imgui_entt_entity_editor.hpp>
-#include <ECS/BaseComponents.h>
+#include <ECS/TransformComponent.h>
 
 #include "Components/Enemy.h"
 

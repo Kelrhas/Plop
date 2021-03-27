@@ -5,7 +5,7 @@
 #include <imgui_custom.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "ECS/BaseComponents.h"
+#include "ECS/TransformComponent.h"
 #include "ECS/Entity.h"
 #include "ECS/ECSHelper.h"
 #include "ECS/LevelBase.h"

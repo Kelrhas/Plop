@@ -3,7 +3,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "ECS/BaseComponents.h"
+#include "ECS/TransformComponent.h"
 #include "ECS/ECSHelper.h"
 #include "Utils/JsonTypes.h"
 

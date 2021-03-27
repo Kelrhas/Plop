@@ -15,6 +15,7 @@
 #include "Application.h"
 #include "Editor/Console.h"
 #include "ECS/BaseComponents.h"
+#include "ECS/TransformComponent.h"
 #include "ECS/LevelBase.h"
 #include "Input/Input.h"
 #include "Renderer/ParticleSystem.h"

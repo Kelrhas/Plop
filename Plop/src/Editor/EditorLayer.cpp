@@ -530,8 +530,6 @@ namespace Plop
 					ImGuizmo::SetOrthographic( xCurrentCamera->IsOrthographic() );
 					glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldMatrix();
 
-					ImGuizmo::DrawCubes( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ), glm::value_ptr( mProjMatrix ), 1 );
-
 					if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
 						Private::eGuizmoOperation, Private::eGuizmoSpace, glm::value_ptr( mTransform ) ))
 					{

@@ -559,8 +559,7 @@ namespace Plop
 				}
 
 
-				glm::mat4 mViewProj = mViewMatrix * mProjMatrix;
-				EditorGizmo::SetViewProjMatrix( mViewProj );
+				EditorGizmo::SetViewProjMatrix( mViewMatrix, mProjMatrix );
 			}
 		}
 
@@ -763,9 +762,9 @@ namespace Plop
 	}
 
 
-	void EditorGizmo::SetViewProjMatrix( const glm::mat4& _mViewProj )
+	void EditorGizmo::SetViewProjMatrix( const glm::mat4& _mView, const glm::mat4& _mProj )
 	{
-		s_mViewProj = _mViewProj;
+		s_mViewProj = _mProj * _mView;
 	}
 	void EditorGizmo::SetViewportPosAndSize( const glm::vec2& _vPos, const glm::vec2& _vSize )
 	{
@@ -775,15 +774,15 @@ namespace Plop
 
 	glm::vec2 EditorGizmo::GetSSPosition( const glm::vec3& _vPos )
 	{
-		glm::vec4 vTrans = glm::vec4(_vPos, 1.f) * s_mViewProj;
-		vTrans *= 0.5f / vTrans.w;
-		vTrans.xy += glm::vec2( 0.5f, 0.5f );
-		vTrans.y = 1.f - vTrans.y;
-		vTrans.x *= s_vViewportSize.x;
-		vTrans.y *= s_vViewportSize.y;
-		vTrans.x += s_vViewportPos.x;
-		vTrans.y += s_vViewportPos.y;
+		glm::vec4 vClipSpace = s_mViewProj * glm::vec4(_vPos, 1.f);
+		glm::vec3 vNDCSpace = glm::vec3(vClipSpace.xyz) / vClipSpace.w; // [-1; 1]
+		glm::vec2 vScreenSpace = ((glm::vec2( vNDCSpace.xy ) + VEC2_1) / 2.f);  // [0; 1]
+		vScreenSpace.y = 1.f - vScreenSpace.y;
+		vScreenSpace.x *= s_vViewportSize.x;
+		vScreenSpace.y *= s_vViewportSize.y;
+		vScreenSpace.x += s_vViewportPos.x;
+		vScreenSpace.y += s_vViewportPos.y;
 
-		return vTrans.xy;
+		return vScreenSpace;
 	}
 }

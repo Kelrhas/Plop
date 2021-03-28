@@ -694,6 +694,47 @@ namespace Plop
 		drawList->AddLine( vSSPoint1, vSSPoint2, ImColor( _vColor.x, _vColor.y, _vColor.z ), 2.f );
 
 	}
+	void EditorGizmo::AABB( const glm::vec3& _vMin, const glm::vec3& _vMax, glm::vec3 _vColor /*= VEC3_1*/ )
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+
+		glm::vec3 vMinMaxX = glm::vec3( _vMax.x, _vMin.y, _vMin.z );
+		glm::vec3 vMinMaxY = glm::vec3( _vMin.x, _vMax.y, _vMin.z );
+		glm::vec3 vMinMaxZ = glm::vec3( _vMin.x, _vMin.y, _vMax.z );
+		glm::vec3 vMaxMinX = glm::vec3( _vMin.x, _vMax.y, _vMax.z );
+		glm::vec3 vMaxMinY = glm::vec3( _vMax.x, _vMin.y, _vMax.z );
+		glm::vec3 vMaxMinZ = glm::vec3( _vMax.x, _vMax.y, _vMin.z );
+
+		glm::vec2 vSSMin = GetSSPosition( _vMin );
+		glm::vec2 vSSMax = GetSSPosition( _vMax );
+		glm::vec2 vSSMinMaxX = GetSSPosition( vMinMaxX );
+		glm::vec2 vSSMinMaxY = GetSSPosition( vMinMaxY );
+		glm::vec2 vSSMinMaxZ = GetSSPosition( vMinMaxZ );
+		glm::vec2 vSSMaxMinX = GetSSPosition( vMaxMinX );
+		glm::vec2 vSSMaxMinY = GetSSPosition( vMaxMinY );
+		glm::vec2 vSSMaxMinZ = GetSSPosition( vMaxMinZ );
+
+		const float fThickness = 2.f;
+		ImColor col( _vColor.x, _vColor.y, _vColor.z );
+		// Min X
+		drawList->AddLine( vSSMin, vSSMinMaxY, col, fThickness );
+		drawList->AddLine( vSSMin, vSSMinMaxZ, col, fThickness );
+		drawList->AddLine( vSSMinMaxY, vSSMaxMinX, col, fThickness );
+		drawList->AddLine( vSSMinMaxZ, vSSMaxMinX, col, fThickness );
+		// Max X
+		drawList->AddLine( vSSMinMaxX, vSSMaxMinY, col, fThickness );
+		drawList->AddLine( vSSMinMaxX, vSSMaxMinZ, col, fThickness );
+		drawList->AddLine( vSSMaxMinY, vSSMax, col, fThickness );
+		drawList->AddLine( vSSMaxMinZ, vSSMax, col, fThickness );
+		// Min Y
+		drawList->AddLine( vSSMin, vSSMinMaxX, col, fThickness );
+		drawList->AddLine( vSSMinMaxZ, vSSMaxMinY, col, fThickness );
+		// Max Y
+		drawList->AddLine( vSSMinMaxY, vSSMaxMinZ, col, fThickness );
+		drawList->AddLine( vSSMaxMinX, vSSMax, col, fThickness );
+		// Min Z && Max Z already done
+	}
 
 	void EditorGizmo::Bezier( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
 	{

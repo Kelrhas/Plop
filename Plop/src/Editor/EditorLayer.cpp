@@ -506,6 +506,7 @@ namespace Plop
 		ImVec2 vSize = ImGui::GetIO().DisplaySize;
 		ImGuizmo::SetRect( 0, 0, vSize.x, vSize.y );
 #endif
+		ImGuizmo::SetDrawlist( ImGui::GetBackgroundDrawList() );
 
 		// get the current camera, TODO editor camera
 		CameraPtr xCurrentCamera = nullptr;
@@ -675,7 +676,7 @@ namespace Plop
 	void EditorGizmo::FilledCircle( const glm::vec2& _vPoint, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
-		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+		ImDrawList* drawList = /*window ? window->DrawList :*/ ImGui::GetBackgroundDrawList();
 
 		glm::vec2 vSSPoint = GetSSPosition( glm::vec3( _vPoint, 0.f ) );
 
@@ -685,7 +686,7 @@ namespace Plop
 	void EditorGizmo::Line( const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
-		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+		ImDrawList* drawList = /*window ? window->DrawList :*/ ImGui::GetBackgroundDrawList();
 
 		glm::vec2 vSSPoint1 = GetSSPosition( _v1 );
 		glm::vec2 vSSPoint2 = GetSSPosition( _v2 );
@@ -696,7 +697,7 @@ namespace Plop
 	void EditorGizmo::AABB( const glm::vec3& _vMin, const glm::vec3& _vMax, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
-		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+		ImDrawList* drawList = /*window ? window->DrawList :*/ ImGui::GetBackgroundDrawList();
 
 		glm::vec3 vMinMaxX = glm::vec3( _vMax.x, _vMin.y, _vMin.z );
 		glm::vec3 vMinMaxY = glm::vec3( _vMin.x, _vMax.y, _vMin.z );
@@ -738,7 +739,7 @@ namespace Plop
 	void EditorGizmo::Bezier( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
-		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+		ImDrawList* drawList = /*window ? window->DrawList :*/ ImGui::GetBackgroundDrawList();
 
 		glm::vec2 vSSPoint1 = GetSSPosition( glm::vec3( _v1, 0.f ) );
 		glm::vec2 vSSPoint2 = GetSSPosition( glm::vec3( _v2, 0.f ) );
@@ -751,7 +752,7 @@ namespace Plop
 	void EditorGizmo::CatmullRom( const glm::vec3& _v1, const glm::vec3& _v2, const glm::vec3& _v3, const glm::vec3& _v4, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "gizmo" );
-		ImDrawList* drawList = window ? window->DrawList : ImGui::GetForegroundDrawList();
+		ImDrawList* drawList = /*window ? window->DrawList :*/ ImGui::GetBackgroundDrawList();
 
 		glm::vec2 vSSPoint1 = GetSSPosition( _v1 );
 		glm::vec2 vSSPoint2 = GetSSPosition( _v2 );

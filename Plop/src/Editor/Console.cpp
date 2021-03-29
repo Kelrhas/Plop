@@ -40,9 +40,19 @@ namespace Plop
 		memset( s_BufferCountPerType, 0, sizeof( s_BufferCountPerType ) );
 		memset( s_BufferTypeDisplayed, true, sizeof( s_BufferTypeDisplayed ) );
 
-		RegisterCommand( "Test", []( const String& _args ) { Console::AddOutput( "Command Test with args" ); } );
+		RegisterCommand( "Test", []( const String& _args ) {
+			String s = "Command Test with args " + _args;
+			Console::AddOutput( s );
+		} );
 		RegisterCommand( "Close", []( const String& _args ) { Application::Get()->Close(); } );
 		RegisterCommand( "Exit", []( const String& _args ) { Application::Get()->Close(); } );
+		RegisterCommand( "TimeScale", []( const String& _args ) {
+
+			float fScale = 1.f;
+			fScale = (float)atof( _args.c_str() );
+
+			Application::GetTimeStep().SetGameScale( fScale );
+		});
 	}
 
 	void Console::AddOutput( const String& _str, LogEntry::Type _eType /*= LogEntry::Type::Info*/ )

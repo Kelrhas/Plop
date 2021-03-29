@@ -12,6 +12,7 @@ struct EnemyComponent
 
 	void Hit( float _fDamage );
 	void Move( float _fDeltaTime );
+	bool IsDead() const;
 
 
 	Plop::Math::CatmullRomCurvePtr xPathCurve;

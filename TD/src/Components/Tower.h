@@ -13,7 +13,7 @@ struct TowerComponent
 
 	void Update( const Plop::TimeStep& _ts );
 	bool CanFire() const;
-	void Fire( const std::tuple<Plop::Entity, EnemyComponent&, Plop::TransformComponent&>& _enemyData );
+	void Fire( const Plop::Entity& _enemyEntity, const glm::vec3& _vEnemyPosition );
 
 private:
 	float fFireDelay = 0.f; // 

@@ -6,6 +6,7 @@
 #include <ECS/ECSHelper.h>
 #include <ECS/BaseComponents.h>
 #include <ECS/TransformComponent.h>
+#include <ECS/PhysicsComponents.h>
 
 #include <Editor/EditorLayer.h>
 #include <Utils/JsonTypes.h>
@@ -14,12 +15,6 @@
 void EnemyComponent::Hit( float _fDamage )
 {
 	fLife -= _fDamage;
-	if (fLife <= 0)
-	{
-		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
-		Plop::Entity owner = Plop::GetComponentOwner( xLevel, *this );
-		owner.Destroy();
-	}
 }
 
 void EnemyComponent::Move( float _fDeltaTime )
@@ -42,6 +37,11 @@ void EnemyComponent::Move( float _fDeltaTime )
 			fAngle = -fAngle;
 		transform.SetWorldRotation( glm::quat( VEC3_Z * fAngle ) );
 	}
+}
+
+bool EnemyComponent::IsDead() const
+{
+	return fLife <= 0.f;
 }
 
 EnemySpawnerComponent::EnemySpawnerComponent()
@@ -74,9 +74,15 @@ void EnemySpawnerComponent::Spawn()
 
 	auto& enemyComp = entityEnemy.AddComponent<EnemyComponent>();
 	enemyComp.xPathCurve = xPathCurve;
+
 	auto& spriteComp = entityEnemy.AddComponent<Plop::SpriteRendererComponent>();
 	spriteComp.xSprite->SetTextureHandle( Plop::AssetLoader::GetTexture( "assets\\textures\\tilesheet.png" ) );
 	spriteComp.xSprite->SetSpriteIndex( glm::uvec2{ 18,2 }, glm::uvec2{23, 13} );
+
+
+	Plop::AABBColliderComponent& colliderComp = entityEnemy.AddComponent<Plop::AABBColliderComponent>();
+	colliderComp.vMin = glm::vec3( -0.15f, -0.15f, -10.f );
+	colliderComp.vMax = glm::vec3( 0.15f, 0.15f, 10.f );
 
 	auto& transformComp = entityEnemy.GetComponent<Plop::TransformComponent>();
 	transformComp.SetWorldPosition( owner.GetComponent<Plop::TransformComponent>().GetWorldPosition() + VEC3_Z * (0.1f * (iNbEnemySpawned + 1)) );

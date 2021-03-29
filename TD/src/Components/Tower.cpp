@@ -4,6 +4,7 @@
 #include <ECS/LevelBase.h>
 #include <ECS/ECSHelper.h>
 #include <ECS/BaseComponents.h>
+#include <ECS/PhysicsComponents.h>
 #include <Assets/TextureLoader.h>
 
 #include "Components/Bullet.h"
@@ -21,7 +22,7 @@ bool TowerComponent::CanFire() const
 	return fFireDelay <= 0.f;
 }
 
-void TowerComponent::Fire( const std::tuple<Plop::Entity, EnemyComponent&, Plop::TransformComponent&>& _enemyData )
+void TowerComponent::Fire( const Plop::Entity& _enemyEntity, const glm::vec3& _vEnemyPosition )
 {
 	fFireDelay += 1.f / fFiringRate;
 
@@ -30,10 +31,9 @@ void TowerComponent::Fire( const std::tuple<Plop::Entity, EnemyComponent&, Plop:
 	Plop::TransformComponent& transformTower = towerEntity.GetComponent<Plop::TransformComponent>();
 	glm::vec3 vTowerPos = transformTower.GetWorldPosition();
 	
-	const glm::vec3 vEnemyPos = std::get<2>( _enemyData ).GetWorldPosition();
-	const glm::vec2 vEnemyDir2D = glm::normalize( vEnemyPos.xy - vTowerPos.xy );
+	const glm::vec2 vEnemyDir2D = glm::normalize( _vEnemyPosition.xy - vTowerPos.xy );
 	float fAngle = glm::acos( glm::dot( glm::vec2( 1.f, 0.f ), vEnemyDir2D ) ) - glm::half_pi<float>();
-	if (vTowerPos.y > vEnemyPos.y)
+	if (vTowerPos.y > _vEnemyPosition.y)
 		fAngle = glm::pi<float>() - fAngle;
 	glm::vec3 vTowerRotation = glm::eulerAngles( transformTower.GetLocalRotation() );
 	vTowerRotation.z = fAngle;
@@ -47,14 +47,18 @@ void TowerComponent::Fire( const std::tuple<Plop::Entity, EnemyComponent&, Plop:
 
 	BulletComponent& bulletComp = bullet.AddComponent<BulletComponent>();
 	bulletComp.emitting = towerEntity;
-	bulletComp.target = std::get<0>( _enemyData );
+	bulletComp.target = _enemyEntity;
 	bulletComp.vVelocity = glm::vec3( bulletComp.fSpeed * vEnemyDir2D, 0.f );
+
+	Plop::AABBColliderComponent& colliderComp = bullet.AddComponent<Plop::AABBColliderComponent>();
+	colliderComp.vMin = glm::vec3( -0.1f, -0.1f, -10.f );
+	colliderComp.vMax = glm::vec3( 0.1f, 0.1f, 10.f );
 
 
 	Plop::TransformComponent& transform = bullet.GetComponent<Plop::TransformComponent>();
 	transform.SetLocalPosition( glm::vec3( vTowerPos.xy, vTowerPos.z - 0.1f ) );
 	transform.SetLocalRotation( glm::quat( glm::vec3( 0.f, 0.f, fAngle ) ) );
-	transform.SetLocalScale( glm::vec3( 0.05f, 0.5f, 1.f ) );
+	transform.SetLocalScale( glm::vec3( 0.2f, 0.2f, 1.f ) );
 }
 
 namespace MM

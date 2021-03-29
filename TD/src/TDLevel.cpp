@@ -8,6 +8,7 @@
 #include <Renderer/ParticleSystem.h>
 #include <Renderer/Texture.h>
 #include <ECS/BaseComponents.h>
+#include <ECS/PhysicsComponents.h>
 #include <ECS/ParticleSpawners.h>
 
 #include "Components/Bullet.h"
@@ -55,50 +56,55 @@ void TDLevel::Update( Plop::TimeStep _ts )
 		enemySpawnerComp.Update( _ts.GetGameDeltaTime() );
 	}
 
-	std::vector<std::tuple<Plop::Entity, EnemyComponent&, Plop::TransformComponent&>> vecEnemies;
-	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent>();
-	for (auto& [entityID, enemyComp, transform] : viewEnemy.proxy())
-	{
-		enemyComp.Move( _ts.GetGameDeltaTime() );
-		vecEnemies.push_back( { Plop::Entity( entityID, weak_from_this() ), enemyComp, transform } );
-	}
+	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent, Plop::AABBColliderComponent>();
 
-	auto& viewTower = m_ENTTRegistry.view<TowerComponent, Plop::TransformComponent>();
-	for (auto& [entityID, towerComp, transform] : viewTower.proxy())
+	viewEnemy.each( [&]( entt::entity entityID, EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
+		if (enemyComp.IsDead())
+		{
+			Plop::Entity e{ entityID, weak_from_this() };
+			e.Destroy();
+		}
+		else
+		{
+			enemyComp.Move( _ts.GetGameDeltaTime() );
+		}
+	} );
+
+	m_ENTTRegistry.view<TowerComponent, Plop::TransformComponent>().each( [&]( TowerComponent& towerComp, Plop::TransformComponent& transform )
 	{
 		towerComp.Update( _ts );
 		if (towerComp.CanFire())
 		{
 			float fShortestDistanceSq = -1.f;
-			int iBestIndex = -1;
-			int index = 0;
-			for (auto& enemyTuple : vecEnemies)
-			{
-				float fDistanceSq = transform.Distance2DSquare( std::get<2>( enemyTuple ) );
-				if (fDistanceSq < fShortestDistanceSq || iBestIndex == -1)
+			entt::entity iBestEnemy = entt::null;
+			glm::vec3 vEnemyPos;
+
+			viewEnemy.each( [&]( entt::entity entityID, const EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
+				float fDistanceSq = transform.Distance2DSquare( transformEnemy );
+				if (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null)
 				{
 					fShortestDistanceSq = fDistanceSq;
-					iBestIndex = index;
+					iBestEnemy = entityID;
+					vEnemyPos = transformEnemy.GetWorldPosition();
 				}
+			} );
 
-				++index;
-			}
-
-			if (iBestIndex != -1)
+			if (iBestEnemy != entt::null)
 			{
-				towerComp.Fire( vecEnemies[iBestIndex] );
+
+				towerComp.Fire( Plop::Entity{ iBestEnemy, weak_from_this() }, vEnemyPos );
 			}
 		}
-	}
+	} );
 
 
-	auto& viewBullet = m_ENTTRegistry.view<BulletComponent, Plop::TransformComponent>();
 	float fMaxDistSq = glm::compMax( Plop::Application::Get()->GetWindow().GetViewportSize() ) * 2.f;
-	for (auto& [entityID, bulletComp, transform] : viewBullet.proxy())
+	
+	m_ENTTRegistry.view<BulletComponent, Plop::TransformComponent, Plop::AABBColliderComponent>().each( [&]( entt::entity entityID, const BulletComponent& bulletComp, Plop::TransformComponent& transform, const Plop::AABBColliderComponent& collider)
 	{
 		transform.TranslateWorld( bulletComp.vVelocity * _ts.GetGameDeltaTime() );
 		
-		bool bDestroy = false;
+		bool bDestroyBullet = false;
 		// test if on target (if target is dead, keep going)
 		if (bulletComp.target)
 		{
@@ -106,30 +112,37 @@ void TDLevel::Update( Plop::TimeStep _ts )
 
 			const glm::vec2& thisPos2D = transform.GetWorldPosition();
 
-			if (enemyTransform.Distance2DSquare(transform ) < 0.001f)
-			{
-				bDestroy = true;
-				if (bulletComp.target.HasComponent<Plop::ParticleSystemComponent>())
+			viewEnemy.each( [&]( entt::entity entityID, const EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
+				if (!enemyComp.IsDead())
 				{
-					auto& enemyParticles = bulletComp.target.GetComponent<Plop::ParticleSystemComponent>();
-					enemyParticles.Spawn( 20 );
-				}
+					if (collider.IsColliding( colliderEnemy, transformEnemy.GetWorldPosition() ))
+					{
+						bDestroyBullet = true;
+						if (bulletComp.target.HasComponent<Plop::ParticleSystemComponent>())
+						{
+							auto& enemyParticles = bulletComp.target.GetComponent<Plop::ParticleSystemComponent>();
+							enemyParticles.Spawn( 20 );
+						}
 
-				auto& enemyComp = bulletComp.target.GetComponent<EnemyComponent>();
-				enemyComp.Hit( bulletComp.emitting.GetComponent<TowerComponent>().fDamage );
-			}
+						auto& enemyComp = bulletComp.target.GetComponent<EnemyComponent>();
+						enemyComp.Hit( bulletComp.emitting.GetComponent<TowerComponent>().fDamage );
+
+						return;
+					}
+				}
+			} );
 		}
 		
 
 		// test if too far
 		if (glm::distance2( transform.GetWorldPosition(), bulletComp.emitting.GetComponent<Plop::TransformComponent>().GetWorldPosition() ) > fMaxDistSq)
-			bDestroy = true;
+			bDestroyBullet = true;
 
-		if (bDestroy)
+		if (bDestroyBullet)
 		{
 			DestroyEntity( Plop::Entity{ entityID, weak_from_this() } );
 		}
-	}
+	});
 
 	Plop::LevelBase::Update( _ts );
 }
@@ -139,4 +152,28 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 	Plop::LevelBase::UpdateInEditor( _ts );
 
 	//m_particlesBullet.Update( _ts );
+
+
+
+
+	auto& viewAABB = m_ENTTRegistry.view<Plop::TransformComponent, Plop::AABBColliderComponent>();
+	for (auto& [entityID, transform, collider] : viewAABB.proxy())
+	{
+		bool bCollides = false;
+		for (auto& [entityID2, transform2, collider2] : viewAABB.proxy())
+		{
+			if (entityID == entityID2)
+				continue;
+
+			glm::vec3 vWorldPos = transform2.GetWorldPosition();
+			if (collider.IsColliding( collider2, vWorldPos ))
+			{
+				bCollides = true;
+				break;
+			}
+		}
+
+		glm::vec3 vWorldPos = transform.GetWorldPosition();
+		Plop::EditorGizmo::AABB( collider.vMin + vWorldPos, collider.vMax + vWorldPos, bCollides ? COLOR_RED : COLOR_GREEN );
+	}
 }

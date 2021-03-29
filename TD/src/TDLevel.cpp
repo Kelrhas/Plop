@@ -152,28 +152,4 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 	Plop::LevelBase::UpdateInEditor( _ts );
 
 	//m_particlesBullet.Update( _ts );
-
-
-
-
-	auto& viewAABB = m_ENTTRegistry.view<Plop::TransformComponent, Plop::AABBColliderComponent>();
-	for (auto& [entityID, transform, collider] : viewAABB.proxy())
-	{
-		bool bCollides = false;
-		for (auto& [entityID2, transform2, collider2] : viewAABB.proxy())
-		{
-			if (entityID == entityID2)
-				continue;
-
-			glm::vec3 vWorldPos = transform2.GetWorldPosition();
-			if (collider.IsColliding( collider2, vWorldPos ))
-			{
-				bCollides = true;
-				break;
-			}
-		}
-
-		glm::vec3 vWorldPos = transform.GetWorldPosition();
-		Plop::EditorGizmo::AABB( collider.vMin + vWorldPos, collider.vMax + vWorldPos, bCollides ? COLOR_RED : COLOR_GREEN );
-	}
 }

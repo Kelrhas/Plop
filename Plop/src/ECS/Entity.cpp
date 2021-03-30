@@ -88,7 +88,7 @@ namespace Plop
 
 	void Entity::SetParent( Entity& _Parent )
 	{
-		ASSERT( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
+		ASSERTM( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
 
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))
@@ -155,7 +155,7 @@ namespace Plop
 		if (_jEntity.contains( "Children" ))
 		{
 			LevelBasePtr xLevel = LevelBase::GetCurrentLevel().lock();
-			ASSERT( xLevel != nullptr, "No current level" );
+			ASSERTM( xLevel != nullptr, "No current level" );
 			for (auto& j : _jEntity["Children"])
 			{
 				Entity e = xLevel->CreateEntity();
@@ -170,14 +170,14 @@ namespace Plop
 
 	void Entity::AddChild( Entity& _Child )
 	{
-		ASSERT( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
-		ASSERT( _Child, "Invalid Entity for _Child" );
+		ASSERTM( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
+		ASSERTM( _Child, "Invalid Entity for _Child" );
 
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))
 		{
 			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
-			ASSERT( graphNode.nbChild + 1 < GraphNodeComponent::MAX_CHILDREN, "No room for another child" );
+			ASSERTM( graphNode.nbChild + 1 < GraphNodeComponent::MAX_CHILDREN, "No room for another child" );
 			if (graphNode.nbChild + 1 < graphNode.MAX_CHILDREN)
 			{
 				graphNode.children[graphNode.nbChild++] = _Child.m_EntityId;
@@ -187,8 +187,8 @@ namespace Plop
 
 	void Entity::RemoveChild( Entity& _Child )
 	{
-		ASSERT( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
-		ASSERT( _Child, "Invalid Entity for _Child" );
+		ASSERTM( m_EntityId != entt::null && !m_xLevel.expired(), "Invalid Entity" );
+		ASSERTM( _Child, "Invalid Entity for _Child" );
 
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))

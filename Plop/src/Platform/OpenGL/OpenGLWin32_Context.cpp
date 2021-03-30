@@ -98,9 +98,9 @@ namespace Plop
 			};
 
 			m_hGLRenderContext = wglCreateContextAttribsARB(m_hDeviceContext, 0, contextAttribs);
-			VERIFY_NO_MSG(wglMakeCurrent(NULL, NULL));
-			VERIFY_NO_MSG(wglDeleteContext(tempContext));
-			VERIFY_NO_MSG(wglMakeCurrent(m_hDeviceContext, m_hGLRenderContext));
+			VERIFY(wglMakeCurrent(NULL, NULL));
+			VERIFY(wglDeleteContext(tempContext));
+			VERIFY(wglMakeCurrent(m_hDeviceContext, m_hGLRenderContext));
 			//Assert_GL();
 		}
 		else
@@ -123,7 +123,7 @@ namespace Plop
 
 	void OpenGLWin32_Context::SetCurrent()
 	{
-		VERIFY_NO_MSG( wglMakeCurrent( m_hDeviceContext, m_hGLRenderContext ) );
+		VERIFY( wglMakeCurrent( m_hDeviceContext, m_hGLRenderContext ) );
 	}
 
 	void OpenGLWin32_Context::SetVSync(bool _bEnabled)

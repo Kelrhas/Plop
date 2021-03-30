@@ -39,7 +39,7 @@ namespace Plop
 			case ElementType::MAT4:			return 4 * 4 * 4;
 		}
 
-		ASSERT(false, "BufferLayout type not supported");
+		ASSERTM(false, "BufferLayout type not supported");
 		return 0;
 	}
 
@@ -55,7 +55,7 @@ namespace Plop
 			case ElementType::MAT4:			return 4;
 		}
 
-		ASSERT(false, "BufferLayout type not supported");
+		ASSERTM(false, "BufferLayout type not supported");
 		return 0;
 	}
 
@@ -73,7 +73,7 @@ namespace Plop
 			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_VertexBuffer>(_uSize);
 		}
 
-		ASSERT(false, "Render API not supported");
+		ASSERTM(false, "Render API not supported");
 		return nullptr;
 	}
 
@@ -84,7 +84,7 @@ namespace Plop
 			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_VertexBuffer>( _uSize, _pData );
 		}
 
-		ASSERT(false, "Render API not supported");
+		ASSERTM(false, "Render API not supported");
 		return nullptr;
 	}
 
@@ -98,7 +98,7 @@ namespace Plop
 			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_IndexBuffer>(_uCount);
 		}
 
-		ASSERT(false, "Render API not supported");
+		ASSERTM(false, "Render API not supported");
 		return nullptr;
 	}
 
@@ -109,7 +109,7 @@ namespace Plop
 			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_IndexBuffer>(_uCount, _pIndices);
 		}
 
-		ASSERT(false, "Render API not supported");
+		ASSERTM(false, "Render API not supported");
 		return nullptr;
 	}
 }

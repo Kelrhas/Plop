@@ -11,7 +11,7 @@ namespace Plop
 		int iWidth, iHeight, iChannels;
 		stbi_set_flip_vertically_on_load( true );
 		stbi_uc* pData = stbi_load( _sFile.c_str(), &iWidth, &iHeight, &iChannels, 0 );
-		ASSERT( pData, "File '%s' has failed to load", _sFile.c_str() );
+		ASSERTM( pData, "File '%s' has failed to load", _sFile.c_str() );
 
 		m_uWidth = iWidth;
 		m_uHeight = iHeight;

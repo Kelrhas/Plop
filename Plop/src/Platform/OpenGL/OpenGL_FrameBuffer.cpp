@@ -58,7 +58,7 @@ namespace Plop
 		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_uDepthBuffer, 0 );
 
 
-		ASSERT( glCheckFramebufferStatus( GL_FRAMEBUFFER ) == GL_FRAMEBUFFER_COMPLETE, "Error with FrameBuffer creation" );
+		ASSERTM( glCheckFramebufferStatus( GL_FRAMEBUFFER ) == GL_FRAMEBUFFER_COMPLETE, "Error with FrameBuffer creation" );
 
 
 		glBindFramebuffer( GL_FRAMEBUFFER, 0 );

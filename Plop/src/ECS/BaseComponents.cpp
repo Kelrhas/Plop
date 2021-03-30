@@ -176,7 +176,7 @@ namespace MM
 	void ComponentFromJson<Plop::SpriteRendererComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
 	{
 		auto& comp = reg.get_or_emplace<Plop::SpriteRendererComponent>( e );
-		ASSERT( (bool)comp.xSprite, "SpritePtr should be created in component CTOR" );
+		ASSERTM( (bool)comp.xSprite, "SpritePtr should be created in component CTOR" );
 		
 		if (comp.xSprite)
 		{

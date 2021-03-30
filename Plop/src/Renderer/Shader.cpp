@@ -32,7 +32,7 @@ namespace Plop
 		}
 
 
-		ASSERT(false, "Render API not supported");
+		ASSERTM(false, "Render API not supported");
 		return nullptr;
 	}
 
@@ -54,7 +54,7 @@ namespace Plop
 	void ShaderLibrary::Add( const ShaderPtr& _xShader )
 	{
 		auto& it = m_mapShaders.find( _xShader->GetName() );
-		ASSERT( it == m_mapShaders.end(), "Shader already exists" );
+		ASSERTM( it == m_mapShaders.end(), "Shader already exists" );
 		if (it == m_mapShaders.end())
 		{
 			m_mapShaders[_xShader->GetName()] = _xShader;
@@ -64,7 +64,7 @@ namespace Plop
 	ShaderPtr ShaderLibrary::GetShader( const String& _sName )
 	{
 		auto& it = m_mapShaders.find( _sName );
-		ASSERT( it != m_mapShaders.end(), "Shader not found" );
+		ASSERTM( it != m_mapShaders.end(), "Shader not found" );
 		if (it != m_mapShaders.end())
 			return it->second;
 

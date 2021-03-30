@@ -140,7 +140,7 @@ namespace Plop
 			if (ImGui::Begin( "Allocations", _bOpened ))
 			{
 #ifdef ENABLE_MEMORY_TRACKING
-				ASSERT( s_GlobalAllocation.uCurrentNumberAllocation == s_GlobalAllocation.mapAllocations.size(), "size mismatch" );
+				ASSERTM( s_GlobalAllocation.uCurrentNumberAllocation == s_GlobalAllocation.mapAllocations.size(), "size mismatch" );
 				if (ImGui::Button( "Clear current tracking" ))
 				{
 					s_GlobalAllocation.mapAllocations.clear();

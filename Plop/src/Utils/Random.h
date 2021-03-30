@@ -129,7 +129,7 @@ namespace Plop
 		
 		const Element& NextElement()
 		{
-			ASSERT( m_vecTable.size() > 0, "Nothing in the table" );
+			ASSERTM( m_vecTable.size() > 0, "Nothing in the random table" );
 
 			Weight uWeight = m_Random.NextInt() % m_uMaxWeight;
 			for (const CumulatedWeightElement& weightedElmt : m_vecTable)

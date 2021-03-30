@@ -26,12 +26,12 @@ namespace Plop
 	{
 		String sContent;
 		std::ifstream file(_sFile, std::ios::in | std::ios::binary);
-		ASSERT(file.is_open(), "File not found: %s", _sFile.c_str());
+		ASSERTM(file.is_open(), "File not found: %s", _sFile.c_str());
 		if (file.is_open())
 		{
 			file.seekg(0, std::ios::end);
 			size_t size = file.tellg();
-			ASSERT(size > 0, "The file %s is empty", _sFile);
+			ASSERTM(size > 0, "The file %s is empty", _sFile);
 			if (size > 0)
 			{
 				sContent.resize(size);
@@ -63,15 +63,15 @@ namespace Plop
 		while (currentPos != String::npos)
 		{
 			size_t EOL = sContent.find("\r\n", currentPos);
-			ASSERT(EOL != String::npos, "No shader under type %s", sContent.substr(currentPos).c_str());
+			ASSERTM(EOL != String::npos, "No shader under type %s", sContent.substr(currentPos).c_str());
 			if (EOL == String::npos)
 				break;
 
 			String sType = sContent.substr(currentPos + strlen(pTypeToken), EOL - currentPos - strlen(pTypeToken) );
 			GLenum eType = GetGLTypeFromStrType(sType);
 
-			ASSERT(eType != GL_INVALID_ENUM, "Unknown shader type");
-			ASSERT(m_mapShaderSources.find(eType) == m_mapShaderSources.end(), "Shader type already read");
+			ASSERTM(eType != GL_INVALID_ENUM, "Unknown shader type");
+			ASSERTM(m_mapShaderSources.find(eType) == m_mapShaderSources.end(), "Shader type already read");
 
 			size_t nextLinePos = sContent.find_first_not_of("\r\n", EOL);
 			currentPos = sContent.find(pTypeToken, nextLinePos);

@@ -393,7 +393,7 @@ namespace MM
 		{
 			for (auto& j : _j["Spawners"])
 			{
-				ASSERT( j.is_object(), "Not an object" );
+				ASSERTM( j.is_object(), "Not an object" );
 				for (auto [key, value] : j.items())
 				{
 					for (auto& pHdl : spawnerHandlerList)
@@ -413,7 +413,7 @@ namespace MM
 		{
 			for (auto& j : _j["Updaters"])
 			{
-				ASSERT( j.is_object(), "Not an object" );
+				ASSERTM( j.is_object(), "Not an object" );
 				for (auto [key, value] : j.items())
 				{
 					for (auto& pHdl : updaterHandlerList)

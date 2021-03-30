@@ -35,11 +35,11 @@ namespace Plop
 
 	void DirectoryWatcher::Start(const std::function<void(const std::filesystem::path&, FileStatus)>& _callback)
 	{
-		ASSERT(!m_bWatching, "Watcher is already watching, please call Stop before");
+		ASSERTM(!m_bWatching, "Watcher is already watching, please call Stop before");
 		if (m_bWatching)
 			return;
 
-		ASSERT(!m_sPath.empty(), "Watcher has no directory to watch");
+		ASSERTM(!m_sPath.empty(), "Watcher has no directory to watch");
 		if (m_sPath.empty())
 			return;
 

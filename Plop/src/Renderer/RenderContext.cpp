@@ -14,7 +14,7 @@ namespace Plop
 			case RenderAPI::API::OPENGL:		return std::make_shared<OpenGLWin32_Context>();
 		}
 
-		ASSERT( false, "Render API not supported" );
+		ASSERTM( false, "Render API not supported" );
 		return nullptr;
 	}
 }

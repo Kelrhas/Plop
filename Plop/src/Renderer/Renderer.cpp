@@ -186,7 +186,7 @@ namespace Plop
 	{
 		PROFILING_FUNCTION();
 
-		ASSERT(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
+		ASSERTM(s_bRendering2D, "Renderer2D::PrepareScene has not been called");
 
 
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
@@ -257,7 +257,7 @@ namespace Plop
 	{
 		PROFILING_FUNCTION();
 
-		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+		ASSERTM( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
@@ -319,7 +319,7 @@ namespace Plop
 	{
 		PROFILING_FUNCTION();
 
-		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+		ASSERTM( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 		glm::mat4 mTransform = glm::scale( _mTransform, glm::vec3( _sprite.GetSize(), 1.f ) );
 
@@ -393,7 +393,7 @@ namespace Plop
 	{
 		PROFILING_FUNCTION();
 
-		ASSERT( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
+		ASSERTM( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
 		s_xVertexBuffer->SetData( s_sceneData.vecVertices.size() * sizeof(Vertex), (float*)s_sceneData.vecVertices.data() );
 		s_xIndexBuffer->SetData( (uint32_t)s_sceneData.vecIndices.size(), s_sceneData.vecIndices.data() );

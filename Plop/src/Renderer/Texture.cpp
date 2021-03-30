@@ -12,7 +12,7 @@ namespace Plop
 		{
 			case RenderAPI::API::OPENGL:		return std::make_shared<OpenGL_Texture2D>( _uWidth, _uHeight, _eFlags, _pData, _sName );
 		}
-		ASSERT( false, "Render API not supported" );
+		ASSERTM( false, "Render API not supported" );
 		return nullptr;
 	}
 }

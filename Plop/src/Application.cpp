@@ -135,11 +135,11 @@ namespace Plop
 
 	void Application::Init()
 	{
-		ASSERT( s_pInstance == nullptr, "Only one instance of Application authorized" );
+		ASSERTM( s_pInstance == nullptr, "Only one instance of Application authorized" );
 		s_pInstance = this;
 
 		Console::Init();
-		VERIFY( Log::Init(), "Log did not init properly" );
+		VERIFYM( Log::Init(), "Log did not init properly" );
 
 		PROFILING_INIT();
 

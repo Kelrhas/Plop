@@ -87,7 +87,7 @@ namespace nlohmann
 
 	void adl_serializer<glm::quat>::from_json( const json& j, glm::quat& _quat )
 	{
-		ASSERT( j.size() == 4, "Json::Not enough parameter, wanted 4 got %llu", j.size() );
+		ASSERTM( j.size() == 4, "Json::Not enough parameter, wanted 4 got %llu", j.size() );
 		_quat.x = j[0];
 		_quat.y = j[1];
 		_quat.z = j[2];

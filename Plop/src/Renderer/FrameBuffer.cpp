@@ -13,7 +13,7 @@ namespace Plop
 			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_FrameBuffer>(_uWidth, _uHeight );
 		}
 
-		ASSERT( false, "Render API not supported" );
+		ASSERTM( false, "Render API not supported" );
 		return nullptr;
 	}
 }

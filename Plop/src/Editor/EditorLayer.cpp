@@ -441,7 +441,7 @@ namespace Plop
 						{
 							if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "ReparentEntity" ))
 							{
-								ASSERT( pPayload->DataSize == sizeof( entt::entity ), "Wrong Drag&Drop payload" );
+								ASSERTM( pPayload->DataSize == sizeof( entt::entity ), "Wrong Drag&Drop payload" );
 								Entity child( *(entt::entity*)pPayload->Data, _Entity.m_xLevel );
 
 								if (child.GetParent() != _Entity)

@@ -88,7 +88,7 @@ namespace Plop
 		String sCommand = _pCommand;
 		std::transform( sCommand.begin(), sCommand.end(), sCommand.begin(), ::toupper );
 
-		ASSERT( s_mapCommands.find( sCommand ) == s_mapCommands.end(), "The command is already registered, overwriting the callback..." );
+		ASSERTM( s_mapCommands.find( sCommand ) == s_mapCommands.end(), "The command is already registered, overwriting the callback..." );
 		s_mapCommands[sCommand] = _callback;
 	}
 

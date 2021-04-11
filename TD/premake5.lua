@@ -28,16 +28,19 @@ project "TD"
 		"../Externals/fmt/include/",
 		"../Externals/entt/",
 		"../Externals/imgui_entt_entity_editor/",
+		"../Externals/openal/include"
 	}
 
 	libdirs
 	{
-		"../Externals/optick/lib/x64/%{cfg.buildcfg}/"
+		"../Externals/optick/lib/x64/%{cfg.buildcfg}/",
+		"../Externals/openal/libs/Win64/"
 	}
 	
 	links
 	{
 		"Plop",
+		"OpenAL32.lib"
 	}
 
 	filter "configurations:not Master"

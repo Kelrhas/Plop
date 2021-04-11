@@ -26,10 +26,17 @@ project "Sample"
 		"../Externals/entt/",
 		"../Externals/imgui_entt_entity_editor/",
 	}
+
+	libdirs
+	{
+		"../Externals/optick/lib/x64/%{cfg.buildcfg}/",
+		"../Externals/openal/libs/Win64/"
+	}
 	
 	links
 	{
-		"Plop"
+		"Plop",
+		"OpenAL32.lib"
 	}
 	
 	filter "configurations:not Master"

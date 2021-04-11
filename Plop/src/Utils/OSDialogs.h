@@ -6,6 +6,7 @@ namespace Plop
 	struct Dialog
 	{
 		static const char* IMAGE_FILTER;
+		static const char* SOUND_FILTER;
 		static const char* LEVEL_FILTER;
 
 

@@ -32,6 +32,7 @@ project "Plop"
 		"../Externals/fmt/include/",
 		"../Externals/entt/",
 		"../Externals/imgui_entt_entity_editor/",
+		"../Externals/openal/include"
 	}
 	
 	libdirs {

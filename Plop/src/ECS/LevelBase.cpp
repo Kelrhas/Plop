@@ -12,6 +12,7 @@
 #include "ECS/Entity.h"
 #include "ECS/BaseComponents.h"
 #include "ECS/TransformComponent.h"
+#include "ECS/AudioEmitter.h"
 
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
@@ -29,6 +30,8 @@ namespace Plop
 	void LevelBase::Init()
 	{
 		m_ENTTRegistry.sort<GraphNodeComponent, TransformComponent>(); // minimizes cache misses when iterating together
+		m_ENTTRegistry.on_construct<AudioEmitterComponent>().connect<&entt::invoke<&AudioEmitterComponent::OnCreate>>();
+		m_ENTTRegistry.on_destroy<AudioEmitterComponent>().connect<&entt::invoke<&AudioEmitterComponent::OnDestroy>>();
 	}
 
 	void LevelBase::Shutdown()

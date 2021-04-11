@@ -68,6 +68,7 @@ namespace Plop
 				void		ResumeLevel();
 				void		StopLevel();
 
+
 		template<typename Comp, bool RegisterEditor>
 				void		RegisterComponent( const char* _pName )
 		{
@@ -98,6 +99,7 @@ namespace Plop
 
 		bool				m_bShowImGuiDemo = false;
 		bool				m_bShowAllocations = false;
+		bool				m_bShowAudioDebug = false;
 		LevelBasePtr		m_xCloneLevel = nullptr; // used when we Play the current level
 		LevelBasePtr		m_xBackupLevel = nullptr;
 		LevelState			m_eLevelState = LevelState::EDITING;

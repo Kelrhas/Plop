@@ -5,6 +5,7 @@
 
 #include <json.hpp>
 
+#include "Audio/AudioManager.h"
 #include "Input/Input.h"
 #include "Debug/Debug.h"
 #include "Debug/Log.h"
@@ -13,6 +14,7 @@
 #include "ECS/BaseComponents.h"
 #include "ECS/TransformComponent.h"
 #include "ECS/PhysicsComponents.h"
+#include "ECS/AudioEmitter.h"
 #include "Renderer/ParticleSystem.h"
 #include "Renderer/Renderer.h"
 
@@ -161,6 +163,9 @@ namespace Plop
 
 		Input::Init( m_xWindow->GetNativeWindow() );
 
+		g_pAudioManager = new AudioManager();
+		VERIFYM( g_pAudioManager->Init(), "Audio manager did not init properly" );
+
 		Renderer::Init();
 		Renderer2D::Init();
 
@@ -222,7 +227,6 @@ namespace Plop
 			Input::Update( m_timeStep );
 			m_xWindow->Update( m_timeStep );
 
-
 			Renderer2D::NewFrame();
 			m_ImGuiLayer.NewFrame();
 
@@ -266,9 +270,9 @@ namespace Plop
 					m_EditorLayer.m_xCloneLevel = Application::Get()->CreateNewLevel();
 
 				m_EditorLayer.m_xBackupLevel = xLevel;
+				m_EditorLayer.m_xCloneLevel->StartFromEditor();
 				m_EditorLayer.m_xCloneLevel->CopyFrom( xLevel );
 				m_EditorLayer.m_xCloneLevel->MakeCurrent();
-				m_EditorLayer.m_xCloneLevel->StartFromEditor();
 
 				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::RUNNING;
 			}
@@ -336,6 +340,7 @@ namespace Plop
 		REGISTER_COMPONENT( Camera );
 		REGISTER_COMPONENT( ParticleSystem );
 		REGISTER_COMPONENT( AABBCollider );
+		REGISTER_COMPONENT( AudioEmitter );
 	}
 
 }

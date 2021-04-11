@@ -213,6 +213,9 @@
       }
     },
     {
+      "AudioEmitter": {
+        "Sound": "data\\audio\\sfx\\lasershort.wav"
+      },
       "Children": [],
       "HintID": 0,
       "Name": "Tower",

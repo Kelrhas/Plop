@@ -13,6 +13,7 @@
 
 
 #include "Application.h"
+#include "Audio/AudioManager.h"
 #include "Editor/Console.h"
 #include "ECS/BaseComponents.h"
 #include "ECS/TransformComponent.h"
@@ -109,6 +110,9 @@ namespace Plop
 
 			if (m_bShowAllocations)
 				Debug::ShowAllocationsWindow( &m_bShowAllocations );
+
+			if (m_bShowAudioDebug)
+				g_pAudioManager->DrawEditorPanel( &m_bShowAudioDebug );
 
 			// TODO set docking to bottom
 			Console::Draw();
@@ -335,6 +339,7 @@ namespace Plop
 			if (ImGui::BeginMenu( "Debug" ))
 			{
 				ImGui::MenuItem( "Show allocations", nullptr, &m_bShowAllocations );
+				ImGui::MenuItem( "Show audio debug", nullptr, &m_bShowAudioDebug );
 
 				ImGui::EndMenu();
 			}

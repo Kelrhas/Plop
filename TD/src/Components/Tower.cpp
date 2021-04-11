@@ -1,10 +1,13 @@
 #include "TD_pch.h"
 #include "Tower.h"
 
+#include <entt/meta/resolve.hpp>
+
 #include <ECS/LevelBase.h>
 #include <ECS/ECSHelper.h>
 #include <ECS/BaseComponents.h>
 #include <ECS/PhysicsComponents.h>
+#include <ECS/AudioEmitter.h>
 #include <Assets/TextureLoader.h>
 
 #include "Components/Bullet.h"
@@ -59,6 +62,10 @@ void TowerComponent::Fire( const Plop::Entity& _enemyEntity, const glm::vec3& _v
 	transform.SetLocalPosition( glm::vec3( vTowerPos.xy, vTowerPos.z - 0.1f ) );
 	transform.SetLocalRotation( glm::quat( glm::vec3( 0.f, 0.f, fAngle ) ) );
 	transform.SetLocalScale( glm::vec3( 0.2f, 0.2f, 1.f ) );
+
+	// play sound
+	auto& audioComp = towerEntity.GetComponent<Plop::AudioEmitterComponent>();
+	audioComp.PlaySound();
 }
 
 namespace MM

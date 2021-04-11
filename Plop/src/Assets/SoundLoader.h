@@ -2,12 +2,11 @@
 
 #include "Audio/Sound.h"
 
-namespace Plop
+namespace Plop::AssetLoader
 {
-	namespace AssetLoader
-	{
-		SoundHandle GetSound( const StringPath& _sFilepath );
+	SoundHandle GetSound( const StringPath& _sFilepath );
 
-		SoundHandle PickSoundFromCache();
-	};
-}
+	void ClearSoundCache();
+
+	SoundHandle PickSoundFromCache();
+};

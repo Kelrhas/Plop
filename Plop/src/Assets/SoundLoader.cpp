@@ -9,7 +9,7 @@
 #include "Utils/Utils.h"
 #include "Utils/OSDialogs.h"
 
-namespace Plop
+namespace Plop::AssetLoader
 {
 	/// <summary>
 	/// Resource loader for the class Sound, takes a file path
@@ -99,7 +99,7 @@ namespace Plop
 			stream.read( (char*)xSnd->m_pSamples, xSnd->m_uDataSize / sizeof( ALubyte ) );
 
 			alGenBuffers( 1, &xSnd->m_uBufferID );
-			Assert_AL();
+			Debug::Assert_AL();
 
 			xSnd->m_iChannels = NbChannel;
 			if (NbChannel == 1)
@@ -116,7 +116,7 @@ namespace Plop
 			}
 
 			alBufferData( xSnd->m_uBufferID, xSnd->m_eFormat, &xSnd->m_pSamples[0], xSnd->m_uDataSize, xSnd->m_uFrequency );
-			Assert_AL();
+			Debug::Assert_AL();
 
 			return xSnd;
 		}
@@ -132,12 +132,17 @@ namespace Plop
 
 	entt::resource_cache<Sound> s_CacheSound{};
 
-	SoundHandle AssetLoader::GetSound( const StringPath& _sFilepath )
+	SoundHandle GetSound( const StringPath& _sFilepath )
 	{
 		return s_CacheSound.load<SoundLoader>( entt::hashed_string( _sFilepath.string().c_str() ), _sFilepath );
 	}
 
-	SoundHandle AssetLoader::PickSoundFromCache()
+	void ClearSoundCache()
+	{
+		s_CacheSound.clear();
+	}
+
+	SoundHandle PickSoundFromCache()
 	{
 		SoundHandle hNewSound;
 

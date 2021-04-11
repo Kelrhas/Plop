@@ -16,6 +16,7 @@ namespace Plop
 		~AudioManager();
 
 		bool				Init();
+		bool				Shutdown();
 		void				DrawEditorPanel( bool* _bOpen );
 
 		void				Reset();

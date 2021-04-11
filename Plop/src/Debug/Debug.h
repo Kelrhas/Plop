@@ -31,6 +31,7 @@ namespace Plop
 		void EndFrame();
 
 		void Assert_GL();
+		void Assert_AL();
 
 		void TODO( const char* _pMessage = nullptr );
 #define TODO_STATIC( message ) static_assert(false, message);

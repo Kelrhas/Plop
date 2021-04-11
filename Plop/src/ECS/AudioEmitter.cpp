@@ -6,6 +6,7 @@
 #include <alc.h>
 
 #include "Assets/SoundLoader.h"
+#include "Debug/Debug.h"
 
 
 namespace Plop
@@ -41,7 +42,7 @@ namespace Plop
 	void AudioEmitterComponent::OnCreate()
 	{
 		alGenSources( 1, &m_uSourceID );
-		Assert_AL();
+		Debug::Assert_AL();
 
 		if (m_hSound)
 			AttachSound( m_hSound );
@@ -52,9 +53,9 @@ namespace Plop
 		if (m_uSourceID)
 		{
 			alSourcei( m_uSourceID, AL_BUFFER, 0 );
-			Assert_AL();
+			Debug::Assert_AL();
 			alDeleteSources( 1, &m_uSourceID );
-			Assert_AL();
+			Debug::Assert_AL();
 			m_uSourceID = 0;
 		}
 	}
@@ -63,8 +64,11 @@ namespace Plop
 	{
 		m_hSound = _hSound;
 
-		alSourcei( m_uSourceID, AL_BUFFER, m_hSound->GetBufferID() );
-		Assert_AL();
+		if(m_hSound)
+			alSourcei( m_uSourceID, AL_BUFFER, m_hSound->GetBufferID() );
+		else
+			alSourcei( m_uSourceID, AL_BUFFER, 0 );
+		Debug::Assert_AL();
 	}
 
 	void AudioEmitterComponent::PlaySound(bool _bResetIfPlaying /*= false*/)
@@ -72,7 +76,7 @@ namespace Plop
 		//if( _bResetIfPlaying || !m_bPlaying )
 		{
 			alSourcePlay( m_uSourceID );
-			Assert_AL();
+			Debug::Assert_AL();
 		}
 
 		m_bPlaying = true;
@@ -81,7 +85,7 @@ namespace Plop
 	void AudioEmitterComponent::StopSound()
 	{
 		alSourceStop( m_uSourceID );
-		Assert_AL();
+		Debug::Assert_AL();
 
 		m_bPlaying = false;
 	}
@@ -89,7 +93,7 @@ namespace Plop
 	void AudioEmitterComponent::PauseSound()
 	{
 		alSourcePause( m_uSourceID );
-		Assert_AL();
+		Debug::Assert_AL();
 
 		m_bPlaying = false;
 	}

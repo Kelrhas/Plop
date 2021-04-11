@@ -53,7 +53,7 @@ namespace Plop
 			m_pAllDevices = alcGetString( NULL, ALC_ALL_DEVICES_SPECIFIER );
 		else
 			m_pAllDevices = alcGetString( NULL, ALC_DEVICE_SPECIFIER );
-		Assert_AL();
+		Debug::Assert_AL();
 
 		if( m_iDeviceIndex >= 0 )
 		{
@@ -67,7 +67,7 @@ namespace Plop
 			m_iDeviceIndex = 0;
 			m_pDevice = alcOpenDevice( NULL );
 		}
-		Assert_AL();
+		Debug::Assert_AL();
 		if (m_pDevice == nullptr)
 			return false;
 
@@ -78,13 +78,45 @@ namespace Plop
 		if (alcMakeContextCurrent( m_pContext ) == false)
 			return false;
 
-		Assert_AL();
+		Debug::Assert_AL();
 
 		alGenSources( 1, &m_uSourceID );
-		Assert_AL();
+		Debug::Assert_AL();
 
 		alGetListenerf( AL_GAIN, &m_fMasterVolume );
-		Assert_AL();
+		Debug::Assert_AL();
+
+		return true;
+	}
+
+	bool AudioManager::Shutdown()
+	{
+		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		if (xLevel)
+		{
+			auto view = xLevel->GetEntityRegistry().view<AudioEmitterComponent>();
+			for (auto [entity, audioComp] : view.proxy())
+			{
+				audioComp.AttachSound( SoundHandle{} );
+			}
+		}
+
+		alSourceStop( m_uSourceID );
+		Debug::Assert_AL();
+		alSourcei( m_uSourceID, AL_BUFFER, 0 );
+		Debug::Assert_AL();
+		alDeleteSources( 1, &m_uSourceID );
+		m_uSourceID = 0;
+		Debug::Assert_AL();
+
+		alcMakeContextCurrent( nullptr );
+		Debug::Assert_AL();
+		alcDestroyContext( m_pContext );
+		Debug::Assert_AL();
+		m_pContext = nullptr;
+		alcCloseDevice( m_pDevice );
+		Debug::Assert_AL();
+		m_pDevice = nullptr;
 
 		return true;
 	}
@@ -106,9 +138,9 @@ namespace Plop
 			{
 				SoundHandle hSnd = AssetLoader::GetSound( "D:\\Prog\\Plop\\data\\audio\\test.wav" );
 				alSourcei( m_uSourceID, AL_BUFFER, hSnd->GetBufferID() );
-				Assert_AL();
+				Debug::Assert_AL();
 				alSourcePlay( m_uSourceID );
-				Assert_AL();
+				Debug::Assert_AL();
 			}
 
 			if (ImGui::Button( "Test sound on all emitters" ))
@@ -128,21 +160,7 @@ namespace Plop
 
 	void AudioManager::Reset()
 	{
-		alSourceStop( m_uSourceID );
-		Assert_AL();
-		alSourcei( m_uSourceID, AL_BUFFER, 0 );
-		Assert_AL();
-		alDeleteSources( 1, &m_uSourceID );
-		m_uSourceID = 0;
-		Assert_AL();
-
-		Assert_AL();
-		alcMakeContextCurrent( nullptr );
-		alcDestroyContext( m_pContext );
-		m_pContext = nullptr,
-		alcCloseDevice( m_pDevice );
-		m_pDevice = nullptr;
-		Assert_AL();
+		VERIFY( Shutdown() );
 
 		VERIFY( Init() );
 	}
@@ -151,6 +169,6 @@ namespace Plop
 	{
 		static_assert(sizeof( _vPos.x ) == sizeof( ALfloat ), "Not the same size");
 		alListenerfv( AL_POSITION, &_vPos.x );
-		Assert_AL();
+		Debug::Assert_AL();
 	}
 }

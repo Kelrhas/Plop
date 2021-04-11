@@ -7,6 +7,8 @@
 
 #include <map>
 
+#include <al.h>
+//#include <alc.h>
 #include <GL/glew.h>
 #include <imgui_custom.h>
 
@@ -107,18 +109,42 @@ namespace Plop
 		void Assert_GL()
 		{
 #ifndef _MASTER
-			int iGLError = glGetError();
-			while (iGLError != GL_NO_ERROR)
+			int err = glGetError();
+			while (err != GL_NO_ERROR)
 			{
-				switch (iGLError)
+				switch (err)
 				{
-					case GL_INVALID_ENUM:		// 1280
-					case GL_INVALID_VALUE:		// 1281
-					case GL_INVALID_OPERATION:	// 1282
+					case GL_INVALID_ENUM:		// 0x0500 - 1280
+					case GL_INVALID_VALUE:		// 0x0501 - 1281
+					case GL_INVALID_OPERATION:	// 0x0502 - 1282
+					case GL_STACK_OVERFLOW:		// 0x0503 - 1283
+					case GL_STACK_UNDERFLOW:	// 0x0504 - 1284
+					case GL_OUT_OF_MEMORY:		// 0x0505 - 1285
 					default:
 						BREAK();
 				}
-				iGLError = glGetError();
+				err = glGetError();
+			}
+#endif
+		}
+
+		void Assert_AL()
+		{
+#ifndef _MASTER
+			int err = alGetError();
+			while (err != AL_NO_ERROR)
+			{
+				switch (err)
+				{
+					case AL_INVALID_NAME:		// 0xA001 - 40961
+					case AL_INVALID_ENUM:		// 0xA002 - 40962 also AL_ILLEGAL_ENUM
+					case AL_INVALID_VALUE:		// 0xA003 - 40963
+					case AL_INVALID_OPERATION:	// 0xA004 - 40964 also AL_ILLEGAL_COMMAND
+					case AL_OUT_OF_MEMORY:		// 0xA005 - 40965
+					default:
+						BREAK();
+				}
+				err = alGetError();
 			}
 #endif
 		}

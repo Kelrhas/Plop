@@ -5,6 +5,7 @@
 
 #include <json.hpp>
 
+#include "Assets/SoundLoader.h"
 #include "Audio/AudioManager.h"
 #include "Input/Input.h"
 #include "Debug/Debug.h"
@@ -205,6 +206,10 @@ namespace Plop
 
 		EventDispatcher::Destroy();
 
+		VERIFY( g_pAudioManager->Shutdown() );
+
+		AssetLoader::ClearSoundCache();
+
 		PROFILING_SHUTDOWN();
 	}
 
@@ -287,6 +292,8 @@ namespace Plop
 		}
 
 		m_xWindow->Destroy();
+
+		Destroy();
 	}
 
 	void Application::RegisterAppLayer( ApplicationLayer* _pLayer )

@@ -6,8 +6,6 @@
 
 #include "Assets/Asset.h"
 
-void Assert_AL();
-
 namespace Plop
 {
 	class Sound;
@@ -16,12 +14,20 @@ namespace Plop
 	using SoundPtr = std::shared_ptr<Sound>;
 	using SoundHandle = entt::resource_handle<Sound>;
 
+	namespace AssetLoader
+	{
+		struct SoundLoader;
+	}
+
 	class Sound : public Asset
 	{
 		friend class AudioManager;
-		friend struct SoundLoader;
+		friend struct AssetLoader::SoundLoader;
 
 	public:
+		Sound() = default;
+		Sound( const Sound& ) = delete;
+		Sound( Sound&& ) = delete;
 		virtual ~Sound();
 
 

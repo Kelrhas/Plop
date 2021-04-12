@@ -1,0 +1,137 @@
+#include "Plop_pch.h"
+#include "EditorCamera.h"
+
+#include <glm/gtc/type_ptr.hpp>
+
+#include "Input/Input.h"
+#include "Application.h"
+
+namespace Plop
+{
+	float fCameraMoveSpeed = 600.f;
+	float fCameraRotateSpeed = 600.f;
+	float fCameraZoomSpeed = 60.f;
+
+
+	void EditorCamera::Init()
+	{
+		Camera::Init();
+
+		UpdateViewMatrix();
+
+		Input::RegisterMouseWheel( [this]( float _fZoom ) {return this->OnMouseWheel( _fZoom ); } );
+		Input::RegisterMouseMove( [this]( glm::vec2 _vDelta, glm::vec2 _vNewPos ) {this->OnMouseMove( _vDelta ); } );
+	}
+
+	void EditorCamera::OnUpdate( const TimeStep& _ts )
+	{
+		const float fDeltaTime = _ts.GetSystemDeltaTime();
+	}
+
+	bool EditorCamera::OnMouseWheel( float _fZoom )
+	{
+		if (m_bIsOrtho)
+		{
+			SetOrthographicSize( m_fOrthoSize - _fZoom * glm::pow( 5.f, log10( m_fOrthoSize ) ) * fCameraZoomSpeed * Application::GetTimeStep().GetSystemDeltaTime() );
+		}
+		else
+		{
+			m_fOrbitDistance = glm::max( 0.1f, m_fOrbitDistance - _fZoom * glm::pow( 5.f, log10( m_fOrbitDistance ) ) * fCameraZoomSpeed * Application::GetTimeStep().GetSystemDeltaTime() );
+			UpdateViewMatrix();
+		}
+
+		return true;
+	}
+
+	void EditorCamera::OnMouseMove( const glm::vec2& _vDelta )
+	{
+		const float fDeltaTime = Application::GetTimeStep().GetSystemDeltaTime();
+
+		// blender style - orbit
+		if (Input::IsMouseMiddleDown())
+		{
+			const glm::vec3 vUp = GetUp();
+			const glm::vec3 vRight = GetRight();
+
+			if (Input::IsKeyDown( KeyCode::KEY_Shift ))
+			{
+				// pan
+				glm::vec3 vTranslate = VEC3_0;
+				if (m_bIsOrtho)
+				{
+					vTranslate = (-vRight * _vDelta.x * m_fAspectRatio + vUp * _vDelta.y) * m_fOrthoSize;
+				}
+				else
+				{
+					vTranslate = (-vRight * _vDelta.x + vUp * _vDelta.y) * fCameraMoveSpeed * fDeltaTime;
+				}
+				Translate( vTranslate);
+			}
+			else
+			{
+				// rotate
+				Rotate( vUp, _vDelta.x * fCameraRotateSpeed * fDeltaTime );
+				Rotate( vRight, _vDelta.y * fCameraRotateSpeed * fDeltaTime );
+			}
+		}
+	}
+
+	void EditorCamera::FocusCamera( const glm::vec3& _vTarget, const glm::vec3& _vSize )
+	{
+		m_vOrbitTarget = _vTarget;
+		// TODO: reset distance to encapsulate the given size
+		m_fOrbitDistance = 10.f;
+		UpdateViewMatrix();
+	}
+
+	glm::vec3 EditorCamera::GetDirection() const
+	{
+		glm::mat4 mT = glm::transpose( m_mViewMatrix );
+		glm::vec3 vDir = -mT[2];
+
+		vDir = VEC3_FORWARD;
+
+		return vDir;
+	}
+
+	glm::vec3 EditorCamera::GetRight() const
+	{
+		glm::mat4 mT = glm::transpose( m_mViewMatrix );
+		glm::vec3 vRight = mT[0];
+
+		vRight = VEC3_RIGHT;
+
+		return vRight;
+	}
+
+	glm::vec3 EditorCamera::GetUp() const
+	{
+		glm::mat4 mT = glm::transpose( m_mViewMatrix );
+		glm::vec3 vUp = mT[1];
+
+		vUp = VEC3_UP;
+
+		return vUp;
+	}
+
+	void EditorCamera::Translate( const glm::vec3& _vTranslate )
+	{
+		m_vOrbitTarget += _vTranslate;
+		UpdateViewMatrix();
+	}
+
+	void EditorCamera::Rotate( const glm::vec3& _vAxis, float _fAngle )
+	{
+		m_qOrbitRotation = glm::rotate( m_qOrbitRotation, _fAngle, _vAxis );
+
+		UpdateViewMatrix();
+	}
+
+	void EditorCamera::UpdateViewMatrix()
+	{
+		glm::mat4 mRot = glm::mat4_cast( m_qOrbitRotation );
+
+		m_mViewMatrix = glm::translate( glm::identity<glm::mat4>(), glm::vec3( 0.f, 0.f, -m_fOrbitDistance ) ) * mRot * glm::translate( glm::identity<glm::mat4>(), -m_vOrbitTarget );
+
+	}
+}

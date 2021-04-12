@@ -51,6 +51,7 @@ namespace Plop
 	EditorLayer::EditorLayer()
 	{
 		s_pENTTEditor = NEW ::MM::EntityEditor<entt::entity>;
+		m_xEditorCamera = std::make_shared<EditorCamera>();
 	}
 
 	EditorLayer::~EditorLayer()
@@ -63,6 +64,12 @@ namespace Plop
 		EventDispatcher::RegisterListener( this );
 
 		Private::hIconSpriteSheet = AssetLoader::GetTexture( "Plop\\assets\\icons\\editor.png" );
+
+		m_xEditorCamera->Init();
+		m_xEditorCamera->SetNear( 0.01f );
+		m_xEditorCamera->SetFar( 100.f );
+		m_xEditorCamera->SetOrthographic();
+		m_xEditorCamera->SetOrthographicSize( 10.f );
 	}
 
 	void EditorLayer::OnUnregistered()
@@ -72,6 +79,10 @@ namespace Plop
 
 	void EditorLayer::OnUpdate( TimeStep& _timeStep )
 	{
+
+		m_xEditorCamera->OnUpdate( _timeStep );
+
+
 		static ImGuiWindowFlags windowFlags =
 			ImGuiWindowFlags_NoTitleBar | /*ImGuiWindowFlags_MenuBar |*/
 			ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
@@ -143,6 +154,14 @@ namespace Plop
 			if (m_SelectedEntity.HasComponent<ParticleSystemComponent>())
 			{
 				m_SelectedEntity.GetComponent<ParticleSystemComponent>().Update( _timeStep );
+			}
+
+			// focus camera on entity
+			if (Input::IsKeyDown( KeyCode::KEY_F ))
+			{
+				const glm::vec3& vPos = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldPosition();
+				// TODO: get the object size
+				m_xEditorCamera->FocusCamera( vPos, VEC3_1 );
 			}
 		}
 	}
@@ -517,6 +536,7 @@ namespace Plop
 		CameraPtr xCurrentCamera = nullptr;
 		glm::mat4 mViewMatrix = glm::identity<glm::mat4>();
 		glm::mat4 mProjMatrix = glm::identity<glm::mat4>();
+		bool bOrthographic = false;
 		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 		if (xLevel)
 		{
@@ -527,46 +547,48 @@ namespace Plop
 				xCurrentCamera = camera.xCamera;
 				mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 				mProjMatrix = camera.xCamera->GetProjectionMatrix();
+				bOrthographic = camera.xCamera->IsOrthographic();
 			}
 
-			if (xCurrentCamera)
+			mViewMatrix = m_xEditorCamera->GetViewMatrix();
+			mProjMatrix = m_xEditorCamera->GetProjectionMatrix();
+			bOrthographic = m_xEditorCamera->IsOrthographic();
+
+			if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
 			{
-				if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
-				{
-					ImGuizmo::SetOrthographic( xCurrentCamera->IsOrthographic() );
-					glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldMatrix();
+				ImGuizmo::SetOrthographic( bOrthographic );
+				glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldMatrix();
 
-					if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
-						Private::eGuizmoOperation, Private::eGuizmoSpace, glm::value_ptr( mTransform ) ))
-					{
-						m_SelectedEntity.GetComponent<TransformComponent>().SetWorldMatrix( mTransform );
-					}
+				if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
+					Private::eGuizmoOperation, Private::eGuizmoSpace, glm::value_ptr( mTransform ) ))
+				{
+					m_SelectedEntity.GetComponent<TransformComponent>().SetWorldMatrix( mTransform );
 				}
+			}
 
-				if (false)
-				{
-					// TODO Position the view square correctly with the panels and fixed offsets from the top and right
-					// TODO actually make it work by decomposing the viewmatrix back to camera position/rotation
-					static float fXMul = 0.703f;
-					static float fYMul = 0.032f;
+			if (false)
+			{
+				// TODO Position the view square correctly with the panels and fixed offsets from the top and right
+				// TODO actually make it work by decomposing the viewmatrix back to camera position/rotation
+				static float fXMul = 0.703f;
+				static float fYMul = 0.032f;
 
 #ifdef IMGUI_HAS_VIEWPORT
-					ImVec2 vPosition = ImGui::GetMainViewport()->Size;
-					vPosition.x *= fXMul;
-					vPosition.y *= fYMul;
-					vPosition.x += ImGui::GetMainViewport()->Pos.x;
-					vPosition.y += ImGui::GetMainViewport()->Pos.y;
+				ImVec2 vPosition = ImGui::GetMainViewport()->Size;
+				vPosition.x *= fXMul;
+				vPosition.y *= fYMul;
+				vPosition.x += ImGui::GetMainViewport()->Pos.x;
+				vPosition.y += ImGui::GetMainViewport()->Pos.y;
 #else
-					ImVec2 vPosition = io.DisplaySize;
-					vPosition.x *= fXMul;
-					vPosition.y *= fYMul;
+				ImVec2 vPosition = io.DisplaySize;
+				vPosition.x *= fXMul;
+				vPosition.y *= fYMul;
 #endif
-					ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), 1.f, vPosition, ImVec2( 128, 128 ), 0x10101010 );
-				}
-
-
-				EditorGizmo::SetViewProjMatrix( mViewMatrix, mProjMatrix );
+				ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), 1.f, vPosition, ImVec2( 128, 128 ), 0x10101010 );
 			}
+
+
+			EditorGizmo::SetViewProjMatrix( mViewMatrix, mProjMatrix );
 		}
 
 

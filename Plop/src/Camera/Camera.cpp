@@ -39,7 +39,7 @@ namespace Plop
 
 	void Camera::SetOrthographicSize( float _fSize )
 	{
-		m_fOrthoSize = _fSize;
+		m_fOrthoSize = glm::max( _fSize, 0.1f );
 		UpdateProjectionMatrix();
 	}
 

@@ -5,6 +5,7 @@
 #include "ApplicationLayer.h"
 #include "Events/IEventListener.h"
 #include "ECS/Entity.h"
+#include "Editor/EditorCamera.h"
 
 namespace MM
 {
@@ -25,17 +26,19 @@ namespace Plop
 		~EditorLayer();
 
 	public:
-		virtual void		OnRegistered() override;
-		virtual void		OnUnregistered() override;
-		virtual void		OnUpdate( TimeStep& _timeStep ) override;
+		virtual void			OnRegistered() override;
+		virtual void			OnUnregistered() override;
+		virtual void			OnUpdate( TimeStep& _timeStep ) override;
 
-		virtual bool		OnEvent( Event& _event ) override;
+		virtual bool			OnEvent( Event& _event ) override;
 
-		virtual uint8_t		GetPriority() const { return 190; }
+		virtual uint8_t			GetPriority() const { return 190; }
+
+				EditorCameraPtr GetEditorCamera() const { return m_xEditorCamera; }
 
 
-		static	json		GetJsonEntity( const Entity& _entity );
-		static	void		SetJsonEntity( const Entity& _entity, const json& _j );
+		static	json			GetJsonEntity( const Entity& _entity );
+		static	void			SetJsonEntity( const Entity& _entity, const json& _j );
 
 
 	private:
@@ -100,6 +103,7 @@ namespace Plop
 		bool				m_bShowImGuiDemo = false;
 		bool				m_bShowAllocations = false;
 		bool				m_bShowAudioDebug = false;
+		EditorCameraPtr		m_xEditorCamera;
 		LevelBasePtr		m_xCloneLevel = nullptr; // used when we Play the current level
 		LevelBasePtr		m_xBackupLevel = nullptr;
 		LevelState			m_eLevelState = LevelState::EDITING;

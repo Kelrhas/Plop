@@ -58,12 +58,20 @@ namespace Plop
 	{
 		CameraPtr xCurrentCamera = nullptr;
 		glm::mat4 mViewMatrix = glm::identity<glm::mat4>();
-		auto& view = m_ENTTRegistry.view<CameraComponent, TransformComponent>();
-		for (auto entity : view)
+		if (Application::Get()->IsUsingEditorCamera())
 		{
-			auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
-			xCurrentCamera = camera.xCamera;
-			mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
+			xCurrentCamera = Application::Get()->GetEditor().GetEditorCamera();
+			mViewMatrix = Application::Get()->GetEditor().GetEditorCamera()->GetViewMatrix();
+		}
+		else
+		{
+			auto& view = m_ENTTRegistry.view<CameraComponent, TransformComponent>();
+			for (auto entity : view)
+			{
+				auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
+				xCurrentCamera = camera.xCamera;
+				mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
+			}
 		}
 
 		if (xCurrentCamera)

@@ -64,6 +64,11 @@ namespace Plop
 				// Level
 				LevelBasePtr	CreateNewLevel();
 
+				// Editor
+				bool			IsUsingEditorCamera() const;
+				EditorLayer&	GetEditor() { return m_EditorLayer; }
+				const EditorLayer&	GetEditor() const { return m_EditorLayer; }
+
 
 		static Application*		Get() { return s_pInstance; }
 		static Config&			GetConfig() { return s_pInstance->m_Config; }

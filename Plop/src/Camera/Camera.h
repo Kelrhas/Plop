@@ -16,7 +16,6 @@ namespace Plop
 		virtual ~Camera() = default;
 
 		virtual void				Init();
-		virtual void				Update() {}
 
 		const glm::mat4&			GetProjectionMatrix() const { return m_mProjectionMatrix; }
 		glm::vec3					GetWorldPosFromViewportPos( const glm::vec2& _vViewportPos, float _fWantedDepth );

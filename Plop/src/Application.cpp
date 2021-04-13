@@ -327,6 +327,14 @@ namespace Plop
 		return xLevel;
 	}
 
+	bool Application::IsUsingEditorCamera() const
+	{
+		if(m_bEditorMode)
+			return m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING;
+
+		return FALSE;
+	}
+
 	GameConfig* Application::CreateGameConfig()
 	{
 		return NEW GameConfig();

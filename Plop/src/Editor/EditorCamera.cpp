@@ -84,12 +84,27 @@ namespace Plop
 		UpdateViewMatrix();
 	}
 
+	void EditorCamera::ChangeView( const glm::mat4& _mView )
+	{
+		m_mViewMatrix = _mView;
+
+		glm::vec3 vPos = GetPosition();
+		glm::vec3 vDir = GetDirection();
+		glm::vec3 vUp = GetUp();
+
+		m_qOrbitRotation = glm::inverse( glm::quatLookAt( vDir, vUp ) );
+		m_vOrbitTarget = vPos + vDir * m_fOrbitDistance;
+	}
+
+	glm::vec3 EditorCamera::GetPosition() const
+	{
+		return -m_mViewMatrix[3] * m_mViewMatrix;
+	}
+
 	glm::vec3 EditorCamera::GetDirection() const
 	{
 		glm::mat4 mT = glm::transpose( m_mViewMatrix );
 		glm::vec3 vDir = -mT[2];
-
-		vDir = VEC3_FORWARD;
 
 		return vDir;
 	}
@@ -99,8 +114,6 @@ namespace Plop
 		glm::mat4 mT = glm::transpose( m_mViewMatrix );
 		glm::vec3 vRight = mT[0];
 
-		vRight = VEC3_RIGHT;
-
 		return vRight;
 	}
 
@@ -108,8 +121,6 @@ namespace Plop
 	{
 		glm::mat4 mT = glm::transpose( m_mViewMatrix );
 		glm::vec3 vUp = mT[1];
-
-		vUp = VEC3_UP;
 
 		return vUp;
 	}

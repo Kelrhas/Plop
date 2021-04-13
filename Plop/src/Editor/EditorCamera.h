@@ -16,10 +16,13 @@ namespace Plop
 
 
 				void		FocusCamera( const glm::vec3& _vTarget, const glm::vec3& _vSize );
+				void		ChangeView( const glm::mat4& _mView );
 
 
+				float		GetTargetDistance() const { return m_fOrbitDistance; }
 		const glm::mat4&	GetViewMatrix() const { return m_mViewMatrix; }
 
+		glm::vec3			GetPosition() const;
 		glm::vec3			GetDirection() const;
 		glm::vec3			GetRight() const;
 		glm::vec3			GetUp() const;

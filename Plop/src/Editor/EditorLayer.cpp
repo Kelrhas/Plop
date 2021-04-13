@@ -566,12 +566,11 @@ namespace Plop
 				}
 			}
 
-			if (false)
+			if (true) // TODO: test if editor camera is the currently active one
 			{
-				// TODO Position the view square correctly with the panels and fixed offsets from the top and right
-				// TODO actually make it work by decomposing the viewmatrix back to camera position/rotation
+				// TODO: Position the view square correctly with the panels and fixed offsets from the top and right
 				static float fXMul = 0.703f;
-				static float fYMul = 0.032f;
+				static float fYMul = 0.1f;
 
 #ifdef IMGUI_HAS_VIEWPORT
 				ImVec2 vPosition = ImGui::GetMainViewport()->Size;
@@ -584,7 +583,10 @@ namespace Plop
 				vPosition.x *= fXMul;
 				vPosition.y *= fYMul;
 #endif
-				ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), 1.f, vPosition, ImVec2( 128, 128 ), 0x10101010 );
+				if (ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), m_xEditorCamera->GetTargetDistance(), vPosition, ImVec2( 128, 128 ), 0x10101010 ))
+				{
+					m_xEditorCamera->ChangeView( mViewMatrix );
+				}
 			}
 
 

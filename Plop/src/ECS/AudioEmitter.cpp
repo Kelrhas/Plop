@@ -52,6 +52,7 @@ namespace Plop
 	{
 		if (m_uSourceID)
 		{
+			StopSound();
 			alSourcei( m_uSourceID, AL_BUFFER, 0 );
 			Debug::Assert_AL();
 			alDeleteSources( 1, &m_uSourceID );

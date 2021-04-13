@@ -125,6 +125,9 @@ namespace Plop
 			if (m_bShowAudioDebug)
 				g_pAudioManager->DrawEditorPanel( &m_bShowAudioDebug );
 
+			if (m_bShowCameraSettings)
+				m_xEditorCamera->DisplaySettings( m_bShowCameraSettings );
+
 			// TODO set docking to bottom
 			Console::Draw();
 
@@ -344,6 +347,13 @@ namespace Plop
 				ImGui::Separator();
 				if (ImGui::MenuItem( "Exit" ))
 					Application::Get()->Close();
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu( "Editor" ))
+			{
+				ImGui::MenuItem( "Show camera settings", nullptr, &m_bShowCameraSettings );
 
 				ImGui::EndMenu();
 			}

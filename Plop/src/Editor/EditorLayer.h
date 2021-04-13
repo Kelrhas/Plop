@@ -103,6 +103,9 @@ namespace Plop
 		bool				m_bShowImGuiDemo = false;
 		bool				m_bShowAllocations = false;
 		bool				m_bShowAudioDebug = false;
+		bool				m_bShowCameraSettings = false;
+
+
 		EditorCameraPtr		m_xEditorCamera;
 		LevelBasePtr		m_xCloneLevel = nullptr; // used when we Play the current level
 		LevelBasePtr		m_xBackupLevel = nullptr;

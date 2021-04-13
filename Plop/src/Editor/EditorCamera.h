@@ -19,6 +19,9 @@ namespace Plop
 				void		ChangeView( const glm::mat4& _mView );
 
 
+				void		DisplaySettings(bool& _bOpen);
+
+
 				float		GetTargetDistance() const { return m_fOrbitDistance; }
 		const glm::mat4&	GetViewMatrix() const { return m_mViewMatrix; }
 

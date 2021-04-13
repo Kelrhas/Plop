@@ -96,6 +96,42 @@ namespace Plop
 		m_vOrbitTarget = vPos + vDir * m_fOrbitDistance;
 	}
 
+	void EditorCamera::DisplaySettings(bool& _bOpen)
+	{
+		if (ImGui::Begin( "Camera editor", &_bOpen ))
+		{
+			ImGui::Text( "No settings are saved right now" );
+
+			bool bProjectionDirty = false;
+			bProjectionDirty = ImGui::Checkbox( "Ortho", &m_bIsOrtho );
+
+			bProjectionDirty |= ImGui::DragFloat("Near plane", &m_fNear);
+			bProjectionDirty |= ImGui::DragFloat("Far plane", &m_fFar);
+			if (!m_bIsOrtho)
+				bProjectionDirty |= ImGui::SliderAngle( "FOV", &m_fPersFOV, 10.f, 170.f );
+
+			if(!m_bIsOrtho)
+				ImGui::DragFloat( "Move speed", &fCameraMoveSpeed, 0.1f, 0.1f, FLT_MAX );
+			ImGui::DragFloat( "Rotate speed", &fCameraRotateSpeed, 0.1f, 0.1f, FLT_MAX );
+			ImGui::DragFloat( "Zoom speed", &fCameraZoomSpeed, 0.1f, 0.1f, FLT_MAX );
+			if (ImGui::Button( "Reset pos & target" ))
+			{
+				m_vOrbitTarget = VEC3_0;
+				m_qOrbitRotation = glm::identity<glm::quat>();
+				m_fOrbitDistance = 10.f;
+				UpdateViewMatrix();
+			}
+
+			ImGui::Text( "Distance	%.3f", m_fOrbitDistance );
+			ImGui::Text( "Target	%.3f, %.3f, %.3f", m_vOrbitTarget.x, m_vOrbitTarget.y, m_vOrbitTarget.z );
+			//ImGui::Text( "Rotation	%.3f, %.3f, %.3f, %.3f", m_qOrbitRotation.x, m_qOrbitRotation.y, m_qOrbitRotation.z, m_qOrbitRotation.w );
+			
+			if (bProjectionDirty)
+				UpdateProjectionMatrix();
+		}
+		ImGui::End();
+	}
+
 	glm::vec3 EditorCamera::GetPosition() const
 	{
 		return -m_mViewMatrix[3] * m_mViewMatrix;

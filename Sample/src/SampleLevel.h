@@ -6,7 +6,7 @@ class SampleLevel : public Plop::LevelBase
 {
 public:
 
-	virtual	void Update( Plop::TimeStep _ts ) override;
+	virtual	void Update( Plop::TimeStep& _ts ) override;
 
 private:
 };

@@ -37,7 +37,7 @@ namespace Plop
 		virtual	void UpdateInEditor( TimeStep _ts );
 
 				bool BeforeUpdate();			// prepare the rendering
-		virtual	void Update( TimeStep _ts );	// update & submit rendering
+		virtual	void Update( TimeStep& _ts );	// update & submit rendering
 				void AfterUpdate();				// close the rendering
 
 				Entity CreateEntity( const String& _sName = "New Entity" );

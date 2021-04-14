@@ -7,7 +7,7 @@
 #include "SampleComponents.h"
 
 
-void SampleLevel::Update( Plop::TimeStep _ts )
+void SampleLevel::Update( Plop::TimeStep& _ts )
 {
 	LevelBase::Update( _ts );
 

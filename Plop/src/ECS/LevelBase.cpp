@@ -85,7 +85,7 @@ namespace Plop
 		return m_bRendering;
 	}
 
-	void LevelBase::Update( TimeStep _ts )
+	void LevelBase::Update( TimeStep& _ts )
 	{
 		DrawSprites();
 		DrawParticles( _ts );

@@ -32,7 +32,7 @@ void TDLevel::Init()
 	Plop::LevelBase::Init();
 }
 
-void TDLevel::Update( Plop::TimeStep _ts )
+void TDLevel::Update( Plop::TimeStep& _ts )
 {
 	PROFILING_FUNCTION();
 

@@ -13,6 +13,7 @@
 
 #include "Components/Bullet.h"
 #include "Components/Enemy.h"
+#include "Components/EnemySpawner.h"
 #include "Components/Tower.h"
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
@@ -50,25 +51,10 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 		xSprite->SetTint( COLOR_GREEN );
 	}
 
-	auto& viewEnemySpawner = m_ENTTRegistry.view<EnemySpawnerComponent, Plop::TransformComponent>();
-	for (auto& [entityID, enemySpawnerComp, transform] : viewEnemySpawner.proxy())
-	{
-		enemySpawnerComp.Update( _ts.GetGameDeltaTime() );
-	}
+	EnemySpawnerSystem::OnUpdate( _ts, m_ENTTRegistry );
+	EnemySystem::OnUpdate( _ts, m_ENTTRegistry );
 
 	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent, Plop::AABBColliderComponent>();
-
-	viewEnemy.each( [&]( entt::entity entityID, EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
-		if (enemyComp.IsDead())
-		{
-			Plop::Entity e{ entityID, weak_from_this() };
-			e.Destroy();
-		}
-		else
-		{
-			enemyComp.Move( _ts.GetGameDeltaTime() );
-		}
-	} );
 
 	m_ENTTRegistry.view<TowerComponent, Plop::TransformComponent>().each( [&]( TowerComponent& towerComp, Plop::TransformComponent& transform )
 	{

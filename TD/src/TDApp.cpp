@@ -6,6 +6,7 @@
 #include "WorldLayer.h"
 #include "Components/Bullet.h"
 #include "Components/Enemy.h"
+#include "Components/EnemySpawner.h"
 #include "Components/Tower.h"
 
 

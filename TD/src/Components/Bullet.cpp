@@ -7,7 +7,6 @@ BulletComponent::BulletComponent( const BulletComponent& _other )
 	fSpeed = _other.fSpeed;
 	vVelocity = _other.vVelocity;
 	emitting = _other.emitting;
-	target = _other.target;
 }
 
 namespace MM

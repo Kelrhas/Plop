@@ -12,60 +12,95 @@
 
 #include "Components/Bullet.h"
 
-void TowerComponent::Update( const Plop::TimeStep& _ts )
-{
-	if (fFireDelay > 0.f)
-	{
-		fFireDelay -= _ts.GetGameDeltaTime();
-	}
-}
+#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
 bool TowerComponent::CanFire() const
 {
 	return fFireDelay <= 0.f;
 }
 
-void TowerComponent::Fire( const Plop::Entity& _enemyEntity, const glm::vec3& _vEnemyPosition )
+namespace TowerSystem
 {
-	fFireDelay += 1.f / fFiringRate;
+	auto ShootAt = []( entt::entity entityTower, TowerComponent& tower, Plop::TransformComponent& transformTower, const glm::vec3& _vEnemyPosition ) {
 
-	Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
-	Plop::Entity towerEntity = Plop::GetComponentOwner( xLevel, *this );
-	Plop::TransformComponent& transformTower = towerEntity.GetComponent<Plop::TransformComponent>();
-	glm::vec3 vTowerPos = transformTower.GetWorldPosition();
-	
-	const glm::vec2 vEnemyDir2D = glm::normalize( _vEnemyPosition.xy - vTowerPos.xy );
-	float fAngle = glm::acos( glm::dot( glm::vec2( 1.f, 0.f ), vEnemyDir2D ) ) - glm::half_pi<float>();
-	if (vTowerPos.y > _vEnemyPosition.y)
-		fAngle = glm::pi<float>() - fAngle;
-	glm::vec3 vTowerRotation = glm::eulerAngles( transformTower.GetLocalRotation() );
-	vTowerRotation.z = fAngle;
-	transformTower.SetLocalRotation( glm::quat(vTowerRotation) );
+		tower.fFireDelay += 1.f / tower.fFiringRate;
+
+		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
+		glm::vec3 vTowerPos = transformTower.GetWorldPosition();
+
+		const glm::vec2 vEnemyDir2D = glm::normalize( _vEnemyPosition.xy - vTowerPos.xy );
+		float fAngle = glm::acos( glm::dot( glm::vec2( 1.f, 0.f ), vEnemyDir2D ) ) - glm::half_pi<float>();
+		if (vTowerPos.y > _vEnemyPosition.y)
+			fAngle = glm::pi<float>() - fAngle;
+		glm::vec3 vTowerRotation = glm::eulerAngles( transformTower.GetLocalRotation() );
+		vTowerRotation.z = fAngle;
+		transformTower.SetLocalRotation( glm::quat( vTowerRotation ) );
+
+		// Instantiate a Bullet
+		{
+			Plop::Entity bullet = xLevel->CreateEntity( "Bullet" );
+
+			Plop::SpriteRendererComponent& spriteComp = bullet.AddComponent<Plop::SpriteRendererComponent>();
+			spriteComp.xSprite->SetTint( COLOR_RED );
+
+			BulletComponent& bulletComp = bullet.AddComponent<BulletComponent>();
+			bulletComp.emitting = { entityTower, xLevel };
+			bulletComp.vVelocity = glm::vec3( bulletComp.fSpeed * vEnemyDir2D, 0.f );
+
+			Plop::AABBColliderComponent& colliderComp = bullet.AddComponent<Plop::AABBColliderComponent>();
+			colliderComp.vMin = glm::vec3( -0.1f, -0.1f, -10.f );
+			colliderComp.vMax = glm::vec3( 0.1f, 0.1f, 10.f );
 
 
-	Plop::Entity bullet = xLevel->CreateEntity( "Bullet" );
+			Plop::TransformComponent& transform = bullet.GetComponent<Plop::TransformComponent>();
+			transform.SetLocalPosition( glm::vec3( vTowerPos.xy, vTowerPos.z - 0.1f ) );
+			transform.SetLocalRotation( glm::quat( glm::vec3( 0.f, 0.f, fAngle ) ) );
+			transform.SetLocalScale( glm::vec3( 0.2f, 0.2f, 1.f ) );
+		}
 
-	Plop::SpriteRendererComponent& spriteComp = bullet.AddComponent<Plop::SpriteRendererComponent>();
-	spriteComp.xSprite->SetTint( COLOR_RED );
+		// play sound
+		Plop::Entity towerEntity{ entityTower, Plop::LevelBase::GetCurrentLevel() };
+		auto& audioComp = towerEntity.GetComponent<Plop::AudioEmitterComponent>();
+		audioComp.PlaySound();
 
-	BulletComponent& bulletComp = bullet.AddComponent<BulletComponent>();
-	bulletComp.emitting = towerEntity;
-	bulletComp.target = _enemyEntity;
-	bulletComp.vVelocity = glm::vec3( bulletComp.fSpeed * vEnemyDir2D, 0.f );
-
-	Plop::AABBColliderComponent& colliderComp = bullet.AddComponent<Plop::AABBColliderComponent>();
-	colliderComp.vMin = glm::vec3( -0.1f, -0.1f, -10.f );
-	colliderComp.vMax = glm::vec3( 0.1f, 0.1f, 10.f );
+	};
 
 
-	Plop::TransformComponent& transform = bullet.GetComponent<Plop::TransformComponent>();
-	transform.SetLocalPosition( glm::vec3( vTowerPos.xy, vTowerPos.z - 0.1f ) );
-	transform.SetLocalRotation( glm::quat( glm::vec3( 0.f, 0.f, fAngle ) ) );
-	transform.SetLocalScale( glm::vec3( 0.2f, 0.2f, 1.f ) );
+	void OnUpdate( const Plop::TimeStep& _ts, entt::registry& _registry )
+	{
+		auto& viewEnemy = _registry.view<EnemyComponent, Plop::TransformComponent>();
 
-	// play sound
-	auto& audioComp = towerEntity.GetComponent<Plop::AudioEmitterComponent>();
-	audioComp.PlaySound();
+		_registry.view<TowerComponent, Plop::TransformComponent>().each( [&]( entt::entity entityTower, TowerComponent& tower, Plop::TransformComponent& transform ) 	{
+
+			if (tower.fFireDelay > 0.f)
+			{
+				tower.fFireDelay -= _ts.GetGameDeltaTime();
+			}
+
+			if (tower.CanFire())
+			{
+				float fShortestDistanceSq = -1.f;
+				entt::entity iBestEnemy = entt::null;
+				glm::vec3 vEnemyPos;
+
+				viewEnemy.each( [&]( entt::entity entityID, const EnemyComponent&, const Plop::TransformComponent& transformEnemy ) {
+					float fDistanceSq = transform.Distance2DSquare( transformEnemy );
+					if (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null)
+					{
+						fShortestDistanceSq = fDistanceSq;
+						iBestEnemy = entityID;
+						vEnemyPos = transformEnemy.GetWorldPosition();
+					}
+				} );
+
+				if (iBestEnemy != entt::null)
+				{
+					ShootAt( entityTower, tower, transform, vEnemyPos );
+					//tower.Fire( Plop::Entity{ iBestEnemy, Plop::LevelBase::GetCurrentLevel() }, vEnemyPos );
+				}
+			}
+		} );
+	}
 }
 
 namespace MM

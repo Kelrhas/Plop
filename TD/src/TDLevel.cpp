@@ -53,36 +53,9 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 
 	EnemySpawnerSystem::OnUpdate( _ts, m_ENTTRegistry );
 	EnemySystem::OnUpdate( _ts, m_ENTTRegistry );
+	TowerSystem::OnUpdate( _ts, m_ENTTRegistry );
 
 	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent, Plop::AABBColliderComponent>();
-
-	m_ENTTRegistry.view<TowerComponent, Plop::TransformComponent>().each( [&]( TowerComponent& towerComp, Plop::TransformComponent& transform )
-	{
-		towerComp.Update( _ts );
-		if (towerComp.CanFire())
-		{
-			float fShortestDistanceSq = -1.f;
-			entt::entity iBestEnemy = entt::null;
-			glm::vec3 vEnemyPos;
-
-			viewEnemy.each( [&]( entt::entity entityID, const EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
-				float fDistanceSq = transform.Distance2DSquare( transformEnemy );
-				if (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null)
-				{
-					fShortestDistanceSq = fDistanceSq;
-					iBestEnemy = entityID;
-					vEnemyPos = transformEnemy.GetWorldPosition();
-				}
-			} );
-
-			if (iBestEnemy != entt::null)
-			{
-
-				towerComp.Fire( Plop::Entity{ iBestEnemy, weak_from_this() }, vEnemyPos );
-			}
-		}
-	} );
-
 
 	float fMaxDistSq = glm::compMax( Plop::Application::Get()->GetWindow().GetViewportSize() ) * 2.f;
 	
@@ -91,33 +64,28 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 		transform.TranslateWorld( bulletComp.vVelocity * _ts.GetGameDeltaTime() );
 		
 		bool bDestroyBullet = false;
-		// test if on target (if target is dead, keep going)
-		if (bulletComp.target)
-		{
-			const auto& enemyTransform = bulletComp.target.GetComponent<Plop::TransformComponent>();
 
-			const glm::vec2& thisPos2D = transform.GetWorldPosition();
+		const glm::vec2& thisPos2D = transform.GetWorldPosition();
 
-			viewEnemy.each( [&]( entt::entity entityID, const EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
-				if (!enemyComp.IsDead())
+		viewEnemy.each( [&]( entt::entity entityID, EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
+			if (!enemyComp.IsDead() && !bDestroyBullet)
+			{
+				if (collider.IsColliding( colliderEnemy, transformEnemy.GetWorldPosition() ))
 				{
-					if (collider.IsColliding( colliderEnemy, transformEnemy.GetWorldPosition() ))
+					bDestroyBullet = true;
+					Plop::Entity enemy{ entityID, weak_from_this() };
+					if (enemy.HasComponent<Plop::ParticleSystemComponent>())
 					{
-						bDestroyBullet = true;
-						if (bulletComp.target.HasComponent<Plop::ParticleSystemComponent>())
-						{
-							auto& enemyParticles = bulletComp.target.GetComponent<Plop::ParticleSystemComponent>();
-							enemyParticles.Spawn( 20 );
-						}
-
-						auto& enemyComp = bulletComp.target.GetComponent<EnemyComponent>();
-						enemyComp.Hit( bulletComp.emitting.GetComponent<TowerComponent>().fDamage );
-
-						return;
+						auto& enemyParticles = enemy.GetComponent<Plop::ParticleSystemComponent>();
+						enemyParticles.Spawn( 20 );
 					}
+
+					enemyComp.Hit( bulletComp.emitting.GetComponent<TowerComponent>().fDamage );
+
+					return;
 				}
-			} );
-		}
+			}
+		} );
 		
 
 		// test if too far

@@ -11,14 +11,16 @@ struct TowerComponent
 	float fDamage = 1.f;
 	float fFiringRate = 1.f; // fire per second
 
-	void Update( const Plop::TimeStep& _ts );
 	bool CanFire() const;
-	void Fire( const Plop::Entity& _enemyEntity, const glm::vec3& _vEnemyPosition );
-
-private:
-	float fFireDelay = 0.f; // 
-
+	
+	// internal
+	float fFireDelay = 0.f;
 };
+
+namespace TowerSystem
+{
+	void OnUpdate( const Plop::TimeStep& _ts, entt::registry& _registry );
+}
 
 namespace MM
 {

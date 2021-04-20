@@ -7,13 +7,12 @@ struct BulletComponent
 	float fSpeed = 5.f;
 
 
-	BulletComponent() {}
+	BulletComponent() = default;
 	BulletComponent( const BulletComponent& _other );
 
 	// runtime
 	glm::vec3 vVelocity = VEC3_0;
 	Plop::Entity emitting;
-	Plop::Entity target;
 };
 
 namespace MM

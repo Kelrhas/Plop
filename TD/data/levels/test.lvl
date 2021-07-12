@@ -2,14 +2,30 @@
   "entities": [
     {
       "Children": [],
+      "HintID": 9,
+      "Name": "Base",
+      "PlayerBase": {
+        "Life": 10.0
+      },
+      "SpriteRenderer": {
+        "Coord": [20,5],
+        "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+        "Tint": [1.0,1.0,1.0,1.0]
+      },
+      "Transform": {
+        "Position": [4.403757572174072,-1.2810940742492676,0.0],
+        "Rotation": [0.0,0.0,0.0,1.0],
+        "Scale": [1.0,1.0,1.0]
+      }
+    },
+    {
+      "Children": [],
       "HintID": 8,
       "Name": "Background",
       "SpriteRenderer": {
-        "size": [1,1],
-        "texture": "assets\\textures\\tilesheet.png",
-        "tint": [1.0,1.0,1.0,1.0],
-        "uvmax": [0.08695652335882187,0.692307710647583],
-        "uvmin": [0.043478261679410934,0.6153846383094788]
+        "Coord": [1,8],
+        "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+        "Tint": [1.0,1.0,1.0,1.0]
       },
       "Transform": {
         "Position": [0.0,0.0,-6.599999904632568],
@@ -43,11 +59,9 @@
               "HintID": 4,
               "Name": "Child 2",
               "SpriteRenderer": {
-                "size": [1,1],
-                "texture": "assets\\textures\\tilesheet.png",
-                "tint": [1.0,1.0,1.0,1.0],
-                "uvmax": [0.1304347813129425,0.07692307978868484],
-                "uvmin": [0.08695652335882187,0.0]
+                "Coord": [2,0],
+                "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+                "Tint": [1.0,1.0,1.0,1.0]
               },
               "Transform": {
                 "Position": [0.07120466232299805,-0.7185707092285156,0.20000000298023224],
@@ -59,11 +73,9 @@
           "HintID": 5,
           "Name": "Child",
           "SpriteRenderer": {
-            "size": [1,1],
-            "texture": "assets\\textures\\tilesheet.png",
-            "tint": [1.0,1.0,1.0,1.0],
-            "uvmax": [0.08695652335882187,0.07692307978868484],
-            "uvmin": [0.043478261679410934,0.0]
+            "Coord": [1,0],
+            "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+            "Tint": [1.0,1.0,1.0,1.0]
           },
           "Transform": {
             "Position": [0.6195950508117676,0.2348766326904297,0.30000001192092896],
@@ -75,11 +87,9 @@
       "HintID": 6,
       "Name": "Parent",
       "SpriteRenderer": {
-        "size": [1,1],
-        "texture": "assets\\textures\\tilesheet.png",
-        "tint": [1.0,1.0,1.0,1.0],
-        "uvmax": [0.043478261679410934,0.07692307978868484],
-        "uvmin": [0.0,0.0]
+        "Coord": [0,0],
+        "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+        "Tint": [1.0,1.0,1.0,1.0]
       },
       "Transform": {
         "Position": [-1.1377724409103394,-2.346891403198242,0.0],
@@ -200,11 +210,9 @@
         ]
       },
       "SpriteRenderer": {
-        "size": [1,1],
-        "texture": "assets\\textures\\tilesheet.png",
-        "tint": [1.0,1.0,1.0,1.0],
-        "uvmax": [0.8260869383811951,0.23076924681663513],
-        "uvmin": [0.782608687877655,0.1538461595773697]
+        "Coord": [17,2],
+        "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+        "Tint": [1.0,1.0,1.0,1.0]
       },
       "Transform": {
         "Position": [-0.3657446503639221,2.395052433013916,-0.4000000059604645],
@@ -220,11 +228,9 @@
       "HintID": 0,
       "Name": "Tower",
       "SpriteRenderer": {
-        "size": [1,1],
-        "texture": "assets\\textures\\tilesheet.png",
-        "tint": [1.0,1.0,1.0,1.0],
-        "uvmax": [0.8695652484893799,0.23076924681663513],
-        "uvmin": [0.8260869979858398,0.1538461595773697]
+        "Coord": [19,2],
+        "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+        "Tint": [1.0,1.0,1.0,1.0]
       },
       "Tower": {
         "Damage": 1.0,

@@ -3,9 +3,10 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Application.h>
 #include <ECS/ECSHelper.h>
 #include <ECS/BaseComponents.h>
-#include <Assets/TextureLoader.h>
+#include <Assets/SpritesheetLoader.h>
 #include <ECS/PhysicsComponents.h>
 #include <ECS/TransformComponent.h>
 #include <Utils/JsonTypes.h>
@@ -45,9 +46,11 @@ void EnemySpawnerSystem::OnUpdate( const Plop::TimeStep& _ts, entt::registry& _r
 				enemyComp.xPathCurve = spawner.xPathCurve;
 
 				auto& spriteComp = entityEnemy.AddComponent<Plop::SpriteRendererComponent>();
-				spriteComp.xSprite->SetTextureHandle( Plop::AssetLoader::GetTexture( "assets\\textures\\tilesheet.png" ) );
-				spriteComp.xSprite->SetSpriteIndex( glm::uvec2{ 18,2 }, glm::uvec2{ 23, 13 } );
-
+				auto hSpritesheet = Plop::AssetLoader::GetSpritesheet( Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef" );
+				if (hSpritesheet)
+				{
+					spriteComp.xSprite->SetSpritesheet( hSpritesheet, "enemy" );
+				}
 
 				Plop::AABBColliderComponent& colliderComp = entityEnemy.AddComponent<Plop::AABBColliderComponent>();
 				colliderComp.vMin = glm::vec3( -0.15f, -0.15f, -10.f );

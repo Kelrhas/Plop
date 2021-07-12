@@ -8,6 +8,7 @@
 #include "Components/Enemy.h"
 #include "Components/EnemySpawner.h"
 #include "Components/Tower.h"
+#include "Components/PlayerBase.h"
 
 
 Plop::Application* Plop::CreateApplication( const StringVec& _Arguments )
@@ -42,4 +43,5 @@ void TDApp::RegisterComponents()
 	REGISTER_COMPONENT( Enemy );
 	REGISTER_COMPONENT( EnemySpawner );
 	REGISTER_COMPONENT( Bullet );
+	REGISTER_COMPONENT( PlayerBase );
 }

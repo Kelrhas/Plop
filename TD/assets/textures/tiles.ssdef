@@ -1,0 +1,31 @@
+{
+	"TexturePath": "TD/assets/textures/tilesheet.png",
+	"Columns": 23,
+	"Rows": 13,
+	"Aliases": {
+		"0": {
+			"Column":0,
+			"Row":0
+		},
+		"1": {
+			"Column":1,
+			"Row":0
+		},
+		"2": {
+			"Column":2,
+			"Row":0
+		},
+		"plane": {
+			"Column":18,
+			"Row":1
+		},
+		"plane_shadow": {
+			"Column":18,
+			"Row":0
+		},
+		"enemy": {
+			"Column":17,
+			"Row":2
+		}
+	}
+}

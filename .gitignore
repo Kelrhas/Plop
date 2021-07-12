@@ -30,3 +30,4 @@ log.txt
 *.backup
 Externals/imguizmo/example/Debug/*
 Externals/imguizmo/example/Debug/ImGuizmoSample.exe
+TD/assets/textures/inspiration-private/

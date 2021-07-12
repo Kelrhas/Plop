@@ -24,6 +24,7 @@
 #include "Events/EntityEvent.h"
 #include "Utils/OSDialogs.h"
 #include "Assets/TextureLoader.h"
+#include "Assets/SpritesheetLoader.h"
 #include "Renderer/Texture.h"
 
 
@@ -32,16 +33,8 @@ namespace Plop
 	namespace Private
 	{
 		static String sNewName; // For renaming
-		static TextureHandle hIconSpriteSheet;
+		static SpritesheetHandle hIconSpriteSheet;
 		static const ImVec2 vEditorIconSize( 48, 48 );
-		static std::unordered_map<String, std::pair<ImVec2,ImVec2>> mapIconsUV = {
-			{"Play",		{{0.f, 0.f},	{1.f / 3, 0.5f}}},
-			{"Pause",		{{1.f/3, 0.f},	{2.f / 3, 0.5f}}},
-			{"Stop",		{{2.f/3, 0.f},	{1.f, 0.5f}}},
-			{"Translate",	{{0., 0.5f},	{1.f/3, 1.f}}},
-			{"Rotate",		{{1.f/3, 0.5f},	{2.f/3, 1.f}}},
-			{"Scale",		{{2.f/3, 0.5f},	{1.f, 1.f}}},
-		};
 		static ImGuizmo::OPERATION eGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		static ImGuizmo::MODE eGuizmoSpace = ImGuizmo::MODE::LOCAL;
 	}
@@ -63,7 +56,7 @@ namespace Plop
 	{
 		EventDispatcher::RegisterListener( this );
 
-		Private::hIconSpriteSheet = AssetLoader::GetTexture( "Plop\\assets\\icons\\editor.png" );
+		Private::hIconSpriteSheet = AssetLoader::GetSpritesheet( "Plop\\assets\\icons\\editor.ssdef" );
 
 		m_xEditorCamera->Init();
 		m_xEditorCamera->SetNear( 0.01f );
@@ -222,7 +215,15 @@ namespace Plop
 		if(!bActive)
 			ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
 		ImGui::PushID( _pButton );
-		bool bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, Private::mapIconsUV[_pButton].first, Private::mapIconsUV[_pButton].second, 0 );
+
+		glm::vec2 vUVMin;
+		glm::vec2 vUVMax;
+		bool bClicked = false;
+		if (Private::hIconSpriteSheet->GetSpriteUV( _pButton, vUVMin, vUVMax ))
+		{
+			bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, ImVec2( vUVMin.x, vUVMax.y ), ImVec2( vUVMax.x, vUVMin.y ), 0 );
+		}
+
 		ImGui::PopID();
 		if (!bActive)
 			ImGui::PopStyleColor();

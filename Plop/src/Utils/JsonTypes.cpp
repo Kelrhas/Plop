@@ -47,6 +47,20 @@ namespace nlohmann
 			j[x].get_to( _vec[x] );
 	}
 
+	/* glm::ivec2*/
+	void adl_serializer<glm::ivec2>::to_json( json& j, const glm::ivec2& _vec )
+	{
+		j = json();
+		for (int x = 0; x < 2; ++x)
+			j[x] = _vec[x];
+	}
+
+	void adl_serializer<glm::ivec2>::from_json( const json& j, glm::ivec2& _vec )
+	{
+		for (int x = 0; x < j.size() && x < 2; ++x)
+			j[x].get_to( _vec[x] );
+	}
+
 	/* glm::uvec2*/
 	void adl_serializer<glm::uvec2>::to_json( json& j, const glm::uvec2& _vec )
 	{

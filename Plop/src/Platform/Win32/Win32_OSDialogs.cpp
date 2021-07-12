@@ -13,6 +13,7 @@ namespace Plop
 	const char* Dialog::IMAGE_FILTER = "Image file (png, jpg, tga...)\0*.png;*.jpg;*.jpeg;*.tga;*.psd;*.bmp;*.gif\0";
 	const char* Dialog::SOUND_FILTER = "Sound file (wav, mp3, flac...)\0*.wav;*.mp3;*.pcm;*.flac;*.wma\0";
 	const char* Dialog::LEVEL_FILTER = "Level file (.lvl)\0*.lvl\0";
+	const char* Dialog::SPRITESHEET_FILTER = "Spritesheet definition file (.ssdef)\0*.ssdef\0";
 
 	bool Dialog::OpenFile( StringPath& _sFilePath, const char* _pFilter )
 	{

@@ -23,6 +23,11 @@ namespace nlohmann {
 		static void from_json( const json& j, glm::vec3& _vec );
 	};
 	template<>
+	struct adl_serializer<glm::ivec2> {
+		static void to_json( json& j, const glm::ivec2& _vec );
+		static void from_json( const json& j, glm::ivec2& _vec );
+	};
+	template<>
 	struct adl_serializer<glm::uvec2> {
 		static void to_json( json& j, const glm::uvec2& _vec );
 		static void from_json( const json& j, glm::uvec2& _vec );

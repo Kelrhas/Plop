@@ -321,20 +321,19 @@ namespace Plop
 
 		ASSERTM( s_bRendering2D, "Renderer2D::PrepareScene has not been called" );
 
-		glm::mat4 mTransform = glm::scale( _mTransform, glm::vec3( _sprite.GetSize(), 1.f ) );
 
 		if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
 			DrawBatch();
 
 		Vertex v;
-		v.vColor = _sprite.GetTint();;
+		v.vColor = _sprite.GetTint();
 
 		bool bTexFound = false;
 		for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
 		{
 			if (_sprite.GetTextureHandle())
 			{
-				if (s_sceneData.pTextureUnits[i]->Compare( _sprite.GetTexture() ))
+				if (s_sceneData.pTextureUnits[i]->Compare( _sprite.GetTextureHandle() ))
 				{
 					v.fTexUnit = (float)i;
 					bTexFound = true;
@@ -355,7 +354,7 @@ namespace Plop
 		{
 			if (_sprite.GetTextureHandle())
 			{
-				s_sceneData.pTextureUnits[s_sceneData.uNbTex] = &_sprite.GetTexture();
+				s_sceneData.pTextureUnits[s_sceneData.uNbTex] = &(*_sprite.GetTextureHandle());
 				v.fTexUnit = (float)s_sceneData.uNbTex++;
 			}
 			else // default to white texture
@@ -365,16 +364,16 @@ namespace Plop
 			}
 		}
 
-		v.vPosition = mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
+		v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
 		v.vUV = _sprite.GetUVMin();
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
+		v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
 		v.vUV.x = _sprite.GetUVMax().x;
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
+		v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
 		v.vUV = _sprite.GetUVMax();
 		s_sceneData.vecVertices.push_back( v );
-		v.vPosition = mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
+		v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
 		v.vUV.x = _sprite.GetUVMin().x;
 		s_sceneData.vecVertices.push_back( v );
 

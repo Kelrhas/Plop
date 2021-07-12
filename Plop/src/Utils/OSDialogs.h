@@ -8,6 +8,7 @@ namespace Plop
 		static const char* IMAGE_FILTER;
 		static const char* SOUND_FILTER;
 		static const char* LEVEL_FILTER;
+		static const char* SPRITESHEET_FILTER;
 
 
 		static bool OpenFile( StringPath& _sFilePath, const char* _pFilter );

@@ -5,7 +5,7 @@
 #include <Math/Curves.h>
 
 
-struct EnemyComponent
+struct Component_Enemy
 {
 	float fLife = 1.f;
 	float fMoveSpeed = 0.2f;
@@ -26,7 +26,7 @@ namespace EnemySystem
 
 namespace MM
 {
-	template <>	void ComponentEditorWidget<EnemyComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	json ComponentToJson<EnemyComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	void ComponentFromJson<EnemyComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
+	template <>	void ComponentEditorWidget<Component_Enemy>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	json ComponentToJson<Component_Enemy>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	void ComponentFromJson<Component_Enemy>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 }

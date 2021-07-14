@@ -32,8 +32,8 @@ namespace Plop
 	};
 
 
-#define REGISTER_COMPONENT(comp) RegisterComponent<comp##Component, true>( #comp )
-#define REGISTER_COMPONENT_NO_EDITOR(comp) RegisterComponent<comp##Component, false>( #comp )
+#define REGISTER_COMPONENT(comp) RegisterComponent<Component_##comp, true>( #comp )
+#define REGISTER_COMPONENT_NO_EDITOR(comp) RegisterComponent<Component_##comp, false>( #comp )
 
 	class Application : public IEventListener
 	{

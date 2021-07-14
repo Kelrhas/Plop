@@ -9,7 +9,7 @@
 #include <Events/EventDispatcher.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
-#include <ECS/BaseComponents.h>
+#include <ECS/Components/BaseComponents.h>
 
 //////////////////////////////////////////////////////////////////////////
 // SampleLayer

@@ -1,11 +1,11 @@
 #include "Plop_pch.h"
-#include "ParticleSystem.h"
+#include "Component_ParticleSystem.h"
 
 #include <imgui.h>
 #include <imgui_custom.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "ECS/TransformComponent.h"
+#include "ECS/Components/Component_Transform.h"
 #include "ECS/Entity.h"
 #include "ECS/ECSHelper.h"
 #include "ECS/LevelBase.h"
@@ -15,28 +15,28 @@
 
 namespace Plop
 {
-	ParticleSystemComponent::ParticleSystemComponent( size_t _iMaxParticles )
+	Component_ParticleSystem::Component_ParticleSystem( size_t _iMaxParticles )
 		: m_iMaxNumberParticles( std::max<size_t>( _iMaxParticles, 1 ) )
 	{
 		m_pParticles = NEW ParticleData[m_iMaxNumberParticles];
 	}
 
-	ParticleSystemComponent::ParticleSystemComponent( const ParticleSystemComponent& _other ) noexcept
+	Component_ParticleSystem::Component_ParticleSystem( const Component_ParticleSystem& _other ) noexcept
 	{
 		*this = _other;
 	}
 
-	ParticleSystemComponent::ParticleSystemComponent( ParticleSystemComponent&& _other ) noexcept
+	Component_ParticleSystem::Component_ParticleSystem( Component_ParticleSystem&& _other ) noexcept
 	{
 		*this = std::move( _other );
 	}
 
-	ParticleSystemComponent::~ParticleSystemComponent()
+	Component_ParticleSystem::~Component_ParticleSystem()
 	{
 		delete[] m_pParticles;
 	}
 
-	ParticleSystemComponent& ParticleSystemComponent::operator=( const ParticleSystemComponent& _other ) noexcept
+	Component_ParticleSystem& Component_ParticleSystem::operator=( const Component_ParticleSystem& _other ) noexcept
 	{
 		if (m_pParticles)
 			delete[] m_pParticles;
@@ -62,7 +62,7 @@ namespace Plop
 		return *this;
 	}
 
-	ParticleSystemComponent& ParticleSystemComponent::operator=( ParticleSystemComponent&& _other) noexcept
+	Component_ParticleSystem& Component_ParticleSystem::operator=( Component_ParticleSystem&& _other) noexcept
 	{
 		if (m_pParticles)
 			delete[] m_pParticles;
@@ -83,7 +83,7 @@ namespace Plop
 		return *this;
 	}
 
-	void ParticleSystemComponent::Spawn( size_t _iNbParticle )
+	void Component_ParticleSystem::Spawn( size_t _iNbParticle )
 	{
 		PROFILING_FUNCTION();
 
@@ -96,7 +96,7 @@ namespace Plop
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 		auto& entity = GetComponentOwner( xLevel , *this);
 		// we allow ParticleSystem to not 
-		glm::vec3 vBasePosition = entity ? entity.GetComponent<TransformComponent>().GetLocalPosition() : VEC3_0;
+		glm::vec3 vBasePosition = entity ? entity.GetComponent<Component_Transform>().GetLocalPosition() : VEC3_0;
 		while(m_iNbActiveParticles < m_iMaxNumberParticles && _iNbParticle > 0 )
 		{
 			ParticleData& p = m_pParticles[m_iNbActiveParticles];
@@ -112,7 +112,7 @@ namespace Plop
 		}
 	}
 
-	void ParticleSystemComponent::Update( const TimeStep& _ts )
+	void Component_ParticleSystem::Update( const TimeStep& _ts )
 	{
 		PROFILING_FUNCTION();
 
@@ -158,17 +158,17 @@ namespace Plop
 		}
 	}
 
-	void ParticleSystemComponent::AddSpawner( const ParticleSpawnerPtr& _xSpawner )
+	void Component_ParticleSystem::AddSpawner( const ParticleSpawnerPtr& _xSpawner )
 	{
 		m_vecSpawners.push_back( _xSpawner );
 	}
 
-	void ParticleSystemComponent::AddUpdater( const ParticleUpdaterPtr& _xUpdater )
+	void Component_ParticleSystem::AddUpdater( const ParticleUpdaterPtr& _xUpdater )
 	{
 		m_vecUpdaters.push_back( _xUpdater );
 	}
 
-	void ParticleSystemComponent::Clear()
+	void Component_ParticleSystem::Clear()
 	{
 		m_vecSpawners.clear();
 		m_vecUpdaters.clear();
@@ -176,7 +176,7 @@ namespace Plop
 		ResetSystem();
 	}
 
-	void ParticleSystemComponent::ResetSystem()
+	void Component_ParticleSystem::ResetSystem()
 	{
 		for (size_t i = 0; i < m_iMaxNumberParticles; ++i)
 		{
@@ -186,7 +186,7 @@ namespace Plop
 		m_fAutoSpawnRemainder = 0;
 	}
 
-	void ParticleSystemComponent::SetMaxNbParticles( size_t _iMaxParticles )
+	void Component_ParticleSystem::SetMaxNbParticles( size_t _iMaxParticles )
 	{
 		if (_iMaxParticles != m_iMaxNumberParticles)
 		{
@@ -205,13 +205,13 @@ namespace MM
 {
 	struct SpawnerHandlerAbstract // type erasure
 	{
-		virtual Plop::ParticleSystemComponent::ParticleSpawnerPtr Instantiate() const = 0;
+		virtual Plop::Component_ParticleSystem::ParticleSpawnerPtr Instantiate() const = 0;
 		virtual const char* const Name() const = 0;
 	};
 	template<typename Spawner>
 	struct SpawnerHandler : SpawnerHandlerAbstract
 	{
-		Plop::ParticleSystemComponent::ParticleSpawnerPtr Instantiate() const final { return std::make_shared<Spawner>(); }
+		Plop::Component_ParticleSystem::ParticleSpawnerPtr Instantiate() const final { return std::make_shared<Spawner>(); }
 		virtual const char* const Name() const final { return Spawner::StaticName(); }
 	};
 
@@ -228,13 +228,13 @@ namespace MM
 
 	struct UpdaterHandlerAbstract // type erasure
 	{
-		virtual Plop::ParticleSystemComponent::ParticleUpdaterPtr Instantiate() const = 0;
+		virtual Plop::Component_ParticleSystem::ParticleUpdaterPtr Instantiate() const = 0;
 		virtual const char* const Name() const = 0;
 	};
 	template<typename Updater>
 	struct UpdaterHandler : UpdaterHandlerAbstract
 	{
-		Plop::ParticleSystemComponent::ParticleUpdaterPtr Instantiate() const final { return std::make_shared<Updater>(); }
+		Plop::Component_ParticleSystem::ParticleUpdaterPtr Instantiate() const final { return std::make_shared<Updater>(); }
 		virtual const char* const Name() const final { return Updater::StaticName(); }
 	};
 
@@ -245,9 +245,9 @@ namespace MM
 
 
 	template <>
-	void ComponentEditorWidget<Plop::ParticleSystemComponent>( entt::registry& reg, entt::registry::entity_type e )
+	void ComponentEditorWidget<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<Plop::ParticleSystemComponent>( e );
+		auto& comp = reg.get<Plop::Component_ParticleSystem>( e );
 
 		float fSpawnRate = comp.GetAutoSpawnRate();
 		if (ImGui::DragFloat( "Auto spawn rate", &fSpawnRate, 0.1f, 0.f, 100000.f ))
@@ -370,9 +370,9 @@ namespace MM
 	}
 
 	template <>
-	json ComponentToJson<Plop::ParticleSystemComponent>( entt::registry& reg, entt::registry::entity_type e )
+	json ComponentToJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<Plop::ParticleSystemComponent>( e );
+		auto& comp = reg.get<Plop::Component_ParticleSystem>( e );
 		json j;
 
 		j["AutoSpawnRate"] = comp.GetAutoSpawnRate();
@@ -383,9 +383,9 @@ namespace MM
 	}
 
 	template<>
-	void ComponentFromJson<Plop::ParticleSystemComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	void ComponentFromJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
 	{
-		auto& comp = reg.get_or_emplace<Plop::ParticleSystemComponent>( e );
+		auto& comp = reg.get_or_emplace<Plop::Component_ParticleSystem>( e );
 
 		if (_j.contains( "AutoSpawnRate" ))
 			comp.SetAutoSpawnRate( _j["AutoSpawnRate"] );

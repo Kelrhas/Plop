@@ -1,5 +1,5 @@
 #include "Plop_pch.h"
-#include "TransformComponent.h"
+#include "Component_Transform.h"
 
 
 #include <glm/gtc/type_ptr.hpp>
@@ -8,13 +8,13 @@
 
 #include "ECS/LevelBase.h"
 #include "ECS/ECSHelper.h"
-#include "ECS/BaseComponents.h"
+#include "ECS/Components/BaseComponents.h"
 #include "Utils/JsonTypes.h"
 
 namespace Plop
 {
 
-	float TransformComponent::Distance2D( const TransformComponent& _other ) const
+	float Component_Transform::Distance2D( const Component_Transform& _other ) const
 	{
 		glm::vec2 vThisPos = GetWorldPosition();
 		glm::vec2 vOtherPos = _other.GetWorldPosition();
@@ -22,7 +22,7 @@ namespace Plop
 		return glm::distance( vThisPos, vOtherPos );
 	}
 
-	float TransformComponent::Distance2DSquare( const TransformComponent& _other ) const
+	float Component_Transform::Distance2DSquare( const Component_Transform& _other ) const
 	{
 		glm::vec2 vThisPos = GetWorldPosition();
 		glm::vec2 vOtherPos = _other.GetWorldPosition();
@@ -32,14 +32,14 @@ namespace Plop
 
 	// LOCAL
 
-	void TransformComponent::SetLocalMatrix( const glm::mat4& _m )
+	void Component_Transform::SetLocalMatrix( const glm::mat4& _m )
 	{
 		glm::vec3 vRotation;
 		ImGuizmo::DecomposeMatrixToComponents( glm::value_ptr( _m ), glm::value_ptr( vPosition ), glm::value_ptr( vRotation ), glm::value_ptr( vScale ) );
 		qRotation = glm::quat( glm::radians( vRotation ) );
 	}
 
-	glm::mat4 TransformComponent::GetLocalMatrix() const
+	glm::mat4 Component_Transform::GetLocalMatrix() const
 	{
 		glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), vPosition );
 		mTransform = mTransform * glm::toMat4( qRotation );
@@ -48,7 +48,7 @@ namespace Plop
 	}
 
 
-	void TransformComponent::TranslateLocal( const glm::vec3& _vTrans )
+	void Component_Transform::TranslateLocal( const glm::vec3& _vTrans )
 	{
 		vPosition += _vTrans;
 	}
@@ -56,17 +56,17 @@ namespace Plop
 
 	// WORLD
 
-	void TransformComponent::SetWorldMatrix( const glm::mat4& _m )
+	void Component_Transform::SetWorldMatrix( const glm::mat4& _m )
 	{
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
-			mParentWorldMatrix = parent.GetComponent<TransformComponent>().GetWorldMatrix();
+			mParentWorldMatrix = parent.GetComponent<Component_Transform>().GetWorldMatrix();
 		}
 
 		mParentWorldMatrix = glm::inverse( mParentWorldMatrix );
@@ -76,34 +76,34 @@ namespace Plop
 		SetLocalMatrix( mLocalMatrix );
 	}
 
-	glm::mat4 TransformComponent::GetWorldMatrix() const
+	glm::mat4 Component_Transform::GetWorldMatrix() const
 	{
 		glm::mat4 mLocalMatrix = GetLocalMatrix();
 
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 
 		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
-			return parent.GetComponent<TransformComponent>().GetWorldMatrix() * mLocalMatrix;
+			return parent.GetComponent<Component_Transform>().GetWorldMatrix() * mLocalMatrix;
 		}
 
 		return mLocalMatrix;
 	}
 
-	void TransformComponent::SetWorldPosition( const glm::vec3& _vPos )
+	void Component_Transform::SetWorldPosition( const glm::vec3& _vPos )
 	{
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
-			mParentWorldMatrix = parent.GetComponent<TransformComponent>().GetWorldMatrix();
+			mParentWorldMatrix = parent.GetComponent<Component_Transform>().GetWorldMatrix();
 		}
 
 		mParentWorldMatrix = glm::inverse( mParentWorldMatrix );
@@ -113,34 +113,34 @@ namespace Plop
 		SetLocalPosition( vLocalPos );
 	}
 
-	glm::vec3 TransformComponent::GetWorldPosition() const
+	glm::vec3 Component_Transform::GetWorldPosition() const
 	{
 		glm::vec3 vLocalPos = GetLocalPosition();
 
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 
 		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
-			return (parent.GetComponent<TransformComponent>().GetWorldMatrix() * glm::vec4( vLocalPos, 1.f )).xyz;
+			return (parent.GetComponent<Component_Transform>().GetWorldMatrix() * glm::vec4( vLocalPos, 1.f )).xyz;
 		}
 
 		return vLocalPos;
 	}
 
-	void TransformComponent::SetWorldRotation( const glm::quat& _qRot )
+	void Component_Transform::SetWorldRotation( const glm::quat& _qRot )
 	{
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
-			mParentWorldMatrix = parent.GetComponent<TransformComponent>().GetWorldMatrix();
+			mParentWorldMatrix = parent.GetComponent<Component_Transform>().GetWorldMatrix();
 		}
 
 		mParentWorldMatrix = glm::inverse( mParentWorldMatrix );
@@ -150,22 +150,22 @@ namespace Plop
 		SetLocalRotation( qLocalRot );
 	}
 
-	glm::quat TransformComponent::GetWorldRotation() const
+	glm::quat Component_Transform::GetWorldRotation() const
 	{
 		return glm::quat( GetWorldMatrix() );
 	}
 
-	void TransformComponent::TranslateWorld( const glm::vec3& _vTrans )
+	void Component_Transform::TranslateWorld( const glm::vec3& _vTrans )
 	{
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<GraphNodeComponent>().parent, xLevel );
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
-			mParentWorldMatrix = parent.GetComponent<TransformComponent>().GetWorldMatrix();
+			mParentWorldMatrix = parent.GetComponent<Component_Transform>().GetWorldMatrix();
 		}
 
 		mParentWorldMatrix = glm::inverse( mParentWorldMatrix );
@@ -180,7 +180,7 @@ namespace Plop
 namespace MM
 {
 	template <>
-	void ComponentEditorWidget<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e )
+	void ComponentEditorWidget<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e )
 	{
 		float fResetBtnWidth = ImGui::CalcTextSize( "X" ).x + ImGui::GetStyle().FramePadding.x * 2;
 
@@ -188,7 +188,7 @@ namespace MM
 		ImGui::Text( "Local space" );
 		ImGui::Separator();
 
-		auto& comp = reg.get<Plop::TransformComponent>( e );
+		auto& comp = reg.get<Plop::Component_Transform>( e );
 		glm::vec3 vPos = comp.GetLocalPosition();
 		if (ImGui::DragFloat3( "Pos", glm::value_ptr( vPos ), 0.1f ))
 			comp.SetLocalPosition( vPos );
@@ -234,9 +234,9 @@ namespace MM
 	}
 
 	template <>
-	json ComponentToJson<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e )
+	json ComponentToJson<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<Plop::TransformComponent>( e );
+		auto& comp = reg.get<Plop::Component_Transform>( e );
 		json j;
 		j["Position"] = comp.GetLocalPosition();
 		j["Rotation"] = comp.GetLocalRotation();
@@ -245,9 +245,9 @@ namespace MM
 	}
 
 	template<>
-	void ComponentFromJson<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	void ComponentFromJson<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
 	{
-		auto& comp = reg.get_or_emplace<Plop::TransformComponent>( e );
+		auto& comp = reg.get_or_emplace<Plop::Component_Transform>( e );
 		if (_j.contains( "Position" ))
 			comp.SetLocalPosition( _j["Position"] );
 		if (_j.contains( "Rotation" ))

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "Renderer/ParticleSystem.h"
+#include "ECS/Components/Component_ParticleSystem.h"
 
 #include <json.hpp>
 using json = nlohmann::json;
@@ -45,12 +45,12 @@ namespace nlohmann {
 
 
 	template<>
-	struct adl_serializer<Plop::ParticleSystemComponent::ParticleSpawnerPtr> {
-		static void to_json( json& j, const Plop::ParticleSystemComponent::ParticleSpawnerPtr& _xSpawner );
+	struct adl_serializer<Plop::Component_ParticleSystem::ParticleSpawnerPtr> {
+		static void to_json( json& j, const Plop::Component_ParticleSystem::ParticleSpawnerPtr& _xSpawner );
 	};
 
 	template<>
-	struct adl_serializer<Plop::ParticleSystemComponent::ParticleUpdaterPtr> {
-		static void to_json( json& j, const Plop::ParticleSystemComponent::ParticleUpdaterPtr& _xSpawner );
+	struct adl_serializer<Plop::Component_ParticleSystem::ParticleUpdaterPtr> {
+		static void to_json( json& j, const Plop::Component_ParticleSystem::ParticleUpdaterPtr& _xSpawner );
 	};
 }

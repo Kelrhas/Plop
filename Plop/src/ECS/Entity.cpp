@@ -1,7 +1,7 @@
 #include "Plop_pch.h"
 #include "Entity.h"
 
-#include <ECS/BaseComponents.h>
+#include <ECS/Components/BaseComponents.h>
 #include <Utils/JsonTypes.h>
 #include <Editor/EditorLayer.h>
 
@@ -77,7 +77,7 @@ namespace Plop
 			auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 			if (reg.valid( m_EntityId ))
 			{
-				auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+				auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
 
 				parent.m_EntityId = graphNode.parent;
 			}
@@ -93,7 +93,7 @@ namespace Plop
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))
 		{
-			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+			auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
 
 			Entity oldParent( graphNode.parent, m_xLevel );
 			if (oldParent != _Parent)
@@ -121,7 +121,7 @@ namespace Plop
 			auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 			if (reg.valid( m_EntityId ))
 			{
-				auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+				auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
 
 				for (int i = 0; i < graphNode.nbChild; ++i)
 				{
@@ -142,7 +142,7 @@ namespace Plop
 		json j = EditorLayer::GetJsonEntity( *this );
 
 		j["HintID"] = m_EntityId;
-		j["Name"] = GetComponent<NameComponent>().sName;
+		j["Name"] = GetComponent<Component_Name>().sName;
 		j["Children"] = GetChildren();
 
 		return j;
@@ -150,7 +150,7 @@ namespace Plop
 
 	void Entity::FromJson( const json& _jEntity )
 	{
-		GetComponent<NameComponent>().sName = _jEntity["Name"];
+		GetComponent<Component_Name>().sName = _jEntity["Name"];
 
 		if (_jEntity.contains( "Children" ))
 		{
@@ -176,8 +176,8 @@ namespace Plop
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))
 		{
-			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
-			ASSERTM( graphNode.nbChild + 1 < GraphNodeComponent::MAX_CHILDREN, "No room for another child" );
+			auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
+			ASSERTM( graphNode.nbChild + 1 < Component_GraphNode::MAX_CHILDREN, "No room for another child" );
 			if (graphNode.nbChild + 1 < graphNode.MAX_CHILDREN)
 			{
 				graphNode.children[graphNode.nbChild++] = _Child.m_EntityId;
@@ -193,7 +193,7 @@ namespace Plop
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))
 		{
-			auto& graphNode = reg.get<GraphNodeComponent>( m_EntityId );
+			auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
 			for (int i = 0; i < graphNode.nbChild; ++i)
 			{
 				if (graphNode.children[i] == _Child.m_EntityId)

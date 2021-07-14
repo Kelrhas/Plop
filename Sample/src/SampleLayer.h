@@ -3,7 +3,7 @@
 #include <ApplicationLayer.h>
 #include <Camera/Camera2DController.h>
 #include <Renderer/Mesh.h>
-#include <Renderer/ParticleSystem.h>
+#include <ECS/Components/Component_ParticleSystem.h>
 #include <ECS/LevelBase.h>
 #include <ECS/Entity.h>
 

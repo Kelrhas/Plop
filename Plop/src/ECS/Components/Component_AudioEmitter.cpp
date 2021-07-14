@@ -1,5 +1,5 @@
 #include "Plop_pch.h"
-#include "AudioEmitter.h"
+#include "ECS/Components/Component_AudioEmitter.h"
 
 
 #include <al.h>
@@ -11,23 +11,23 @@
 
 namespace Plop
 {
-	AudioEmitterComponent::AudioEmitterComponent( const AudioEmitterComponent& _other )
+	Component_AudioEmitter::Component_AudioEmitter( const Component_AudioEmitter& _other )
 	{
 		*this = _other;
 	}
-	AudioEmitterComponent::AudioEmitterComponent( AudioEmitterComponent&& _other )
+	Component_AudioEmitter::Component_AudioEmitter( Component_AudioEmitter&& _other )
 	{
 		*this = std::move(_other);
 	}
 
-	AudioEmitterComponent& AudioEmitterComponent::operator=( const AudioEmitterComponent& _other )
+	Component_AudioEmitter& Component_AudioEmitter::operator=( const Component_AudioEmitter& _other )
 	{
 		m_hSound = _other.m_hSound;
 
 		return *this;
 	}
 
-	AudioEmitterComponent& AudioEmitterComponent::operator=( AudioEmitterComponent&& _other )
+	Component_AudioEmitter& Component_AudioEmitter::operator=( Component_AudioEmitter&& _other )
 	{
 		m_uSourceID = _other.m_uSourceID;
 		m_hSound = _other.m_hSound;
@@ -39,7 +39,7 @@ namespace Plop
 		return *this;
 	}
 
-	void AudioEmitterComponent::OnCreate()
+	void Component_AudioEmitter::OnCreate()
 	{
 		alGenSources( 1, &m_uSourceID );
 		Debug::Assert_AL();
@@ -48,7 +48,7 @@ namespace Plop
 			AttachSound( m_hSound );
 	}
 
-	void AudioEmitterComponent::OnDestroy()
+	void Component_AudioEmitter::OnDestroy()
 	{
 		if (m_uSourceID)
 		{
@@ -61,7 +61,7 @@ namespace Plop
 		}
 	}
 
-	void AudioEmitterComponent::AttachSound( SoundHandle _hSound )
+	void Component_AudioEmitter::AttachSound( SoundHandle _hSound )
 	{
 		m_hSound = _hSound;
 
@@ -72,7 +72,7 @@ namespace Plop
 		Debug::Assert_AL();
 	}
 
-	void AudioEmitterComponent::PlaySound(bool _bResetIfPlaying /*= false*/)
+	void Component_AudioEmitter::PlaySound(bool _bResetIfPlaying /*= false*/)
 	{
 		//if( _bResetIfPlaying || !m_bPlaying )
 		{
@@ -83,7 +83,7 @@ namespace Plop
 		m_bPlaying = true;
 	}
 
-	void AudioEmitterComponent::StopSound()
+	void Component_AudioEmitter::StopSound()
 	{
 		alSourceStop( m_uSourceID );
 		Debug::Assert_AL();
@@ -91,7 +91,7 @@ namespace Plop
 		m_bPlaying = false;
 	}
 
-	void AudioEmitterComponent::PauseSound()
+	void Component_AudioEmitter::PauseSound()
 	{
 		alSourcePause( m_uSourceID );
 		Debug::Assert_AL();
@@ -104,9 +104,9 @@ namespace Plop
 namespace MM
 {
 	template <>
-	void ComponentEditorWidget<Plop::AudioEmitterComponent>( entt::registry& reg, entt::registry::entity_type e )
+	void ComponentEditorWidget<Plop::Component_AudioEmitter>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<Plop::AudioEmitterComponent>( e );
+		auto& comp = reg.get<Plop::Component_AudioEmitter>( e );
 		ImGui::Text( "Source id : %d", comp.m_uSourceID );
 		if (comp.m_hSound)
 		{
@@ -128,9 +128,9 @@ namespace MM
 	}
 
 	template <>
-	json ComponentToJson<Plop::AudioEmitterComponent>( entt::registry& reg, entt::registry::entity_type e )
+	json ComponentToJson<Plop::Component_AudioEmitter>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<Plop::AudioEmitterComponent>( e );
+		auto& comp = reg.get<Plop::Component_AudioEmitter>( e );
 		json j;
 		if (comp.m_hSound)
 			j["Sound"] = comp.m_hSound->GetFilePathStr();
@@ -138,9 +138,9 @@ namespace MM
 	}
 
 	template<>
-	void ComponentFromJson<Plop::AudioEmitterComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	void ComponentFromJson<Plop::Component_AudioEmitter>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
 	{
-		auto& comp = reg.get_or_emplace<Plop::AudioEmitterComponent>( e );
+		auto& comp = reg.get_or_emplace<Plop::Component_AudioEmitter>( e );
 		if (_j.contains( "Sound" ))
 		{
 			String path;

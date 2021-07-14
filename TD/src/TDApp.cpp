@@ -4,11 +4,11 @@
 #include <Debug/Log.h>
 
 #include "WorldLayer.h"
-#include "Components/Bullet.h"
-#include "Components/Enemy.h"
-#include "Components/EnemySpawner.h"
-#include "Components/Tower.h"
-#include "Components/PlayerBase.h"
+#include "Components/Component_Bullet.h"
+#include "Components/Component_Enemy.h"
+#include "Components/Component_EnemySpawner.h"
+#include "Components/Component_Tower.h"
+#include "Components/Component_PlayerBase.h"
 
 
 Plop::Application* Plop::CreateApplication( const StringVec& _Arguments )

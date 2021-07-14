@@ -3,7 +3,7 @@
 
 #include <Application.h>
 #include <Platform/OpenGL/OpenGL_Renderer.h>
-#include <ECS/BaseComponents.h>
+#include <ECS/Components/BaseComponents.h>
 
 
 namespace Plop

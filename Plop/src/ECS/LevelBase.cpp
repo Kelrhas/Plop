@@ -8,11 +8,13 @@
 
 #include "Application.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/ParticleSystem.h"
+#include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Entity.h"
-#include "ECS/BaseComponents.h"
-#include "ECS/TransformComponent.h"
-#include "ECS/AudioEmitter.h"
+#include "ECS/Components/BaseComponents.h"
+#include "ECS/Components/Component_AudioEmitter.h"
+#include "ECS/Components/Component_Camera.h"
+#include "ECS/Components/Component_SpriteRenderer.h"
+#include "ECS/Components/Component_Transform.h"
 
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
@@ -29,9 +31,9 @@ namespace Plop
 
 	void LevelBase::Init()
 	{
-		m_ENTTRegistry.sort<GraphNodeComponent, TransformComponent>(); // minimizes cache misses when iterating together
-		m_ENTTRegistry.on_construct<AudioEmitterComponent>().connect<&entt::invoke<&AudioEmitterComponent::OnCreate>>();
-		m_ENTTRegistry.on_destroy<AudioEmitterComponent>().connect<&entt::invoke<&AudioEmitterComponent::OnDestroy>>();
+		m_ENTTRegistry.sort<Component_GraphNode, Component_Transform>(); // minimizes cache misses when iterating together
+		m_ENTTRegistry.on_construct<Component_AudioEmitter>().connect<&entt::invoke<&Component_AudioEmitter::OnCreate>>();
+		m_ENTTRegistry.on_destroy<Component_AudioEmitter>().connect<&entt::invoke<&Component_AudioEmitter::OnDestroy>>();
 	}
 
 	void LevelBase::Shutdown()
@@ -65,10 +67,10 @@ namespace Plop
 		}
 		else
 		{
-			auto& view = m_ENTTRegistry.view<CameraComponent, TransformComponent>();
+			auto& view = m_ENTTRegistry.view<Component_Camera, Component_Transform>();
 			for (auto entity : view)
 			{
-				auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
+				auto& [camera, transform] = view.get<Component_Camera, Component_Transform>( entity );
 				xCurrentCamera = camera.xCamera;
 				mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 			}
@@ -103,9 +105,9 @@ namespace Plop
 		entt::entity entityID = m_ENTTRegistry.create();
 		Entity e = { entityID, weak_from_this() };
 
-		e.AddComponent<NameComponent>( _sName );
-		e.AddComponent<GraphNodeComponent>();
-		e.AddComponent<TransformComponent>();
+		e.AddComponent<Component_Name>( _sName );
+		e.AddComponent<Component_GraphNode>();
+		e.AddComponent<Component_Transform>();
 
 		return e;
 	}
@@ -115,9 +117,9 @@ namespace Plop
 		entt::entity entityID = m_ENTTRegistry.create( _id );
 		Entity e = { entityID, weak_from_this() };
 
-		e.AddComponent<NameComponent>();
-		e.AddComponent<GraphNodeComponent>();
-		e.AddComponent<TransformComponent>();
+		e.AddComponent<Component_Name>();
+		e.AddComponent<Component_GraphNode>();
+		e.AddComponent<Component_Transform>();
 
 		return e;
 	}
@@ -206,7 +208,7 @@ namespace Plop
 			Entity entity{ _entityID, weak_from_this() };
 			if (!entity.GetParent())
 			{
-				String& sName = entity.GetComponent<NameComponent>().sName;
+				String& sName = entity.GetComponent<Component_Name>().sName;
 				j["entities"].push_back( entity.ToJson() );
 			}
 		});
@@ -229,15 +231,15 @@ namespace Plop
 	void LevelBase::DrawSprites()
 	{
 		std::vector<std::pair<SpritePtr, glm::mat4>> vecSpriteMat;
-		auto& group = m_ENTTRegistry.group<TransformComponent, SpriteRendererComponent>();
+		auto& group = m_ENTTRegistry.group<Component_Transform, Component_SpriteRenderer>();
 		for (auto entityID : group)
 		{
-			SpriteRendererComponent& renderer = group.get<SpriteRendererComponent>( entityID );
+			Component_SpriteRenderer& renderer = group.get<Component_SpriteRenderer>( entityID );
 			if (!renderer.xSprite)
 				continue;
 
 
-			TransformComponent& transform = group.get<TransformComponent>( entityID );
+			Component_Transform& transform = group.get<Component_Transform>( entityID );
 
 			Entity entity{ entityID, weak_from_this() };
 			glm::mat4 mTransform = transform.GetWorldMatrix();
@@ -258,7 +260,7 @@ namespace Plop
 
 	void LevelBase::DrawParticles( const TimeStep& _ts )
 	{
-		auto& view = m_ENTTRegistry.view<ParticleSystemComponent>();
+		auto& view = m_ENTTRegistry.view<Component_ParticleSystem>();
 		for (auto [entityID, particleSystem] : view.proxy())
 		{
 			particleSystem.Update( _ts );

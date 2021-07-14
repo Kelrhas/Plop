@@ -3,7 +3,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "ECS/TransformComponent.h"
+#include "ECS/Components/Component_Transform.h"
 #include "ECS/ECSHelper.h"
 #include "Utils/JsonTypes.h"
 
@@ -12,13 +12,13 @@ namespace Plop::Particle
 #pragma region Spawners
 
 	/* SpawnLife */
-	void SpawnLife::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
+	void SpawnLife::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		_pParticle->fLifeTime = fLifetime + _system.GetRandom().NextFloatNeg11() * fVariation;
 		_pParticle->fRemainingLife = _pParticle->fLifeTime;
 	}
 
-	ParticleSystemComponent::ParticleSpawnerPtr SpawnLife::Clone() const
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnLife::Clone() const
 	{
 		SpawnLifePtr xSpawner = std::make_shared<SpawnLife>();
 		*xSpawner = *this;
@@ -50,7 +50,7 @@ namespace Plop::Particle
 
 
 	/* SpawnShapeCircle */
-	void SpawnShapeCircle::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
+	void SpawnShapeCircle::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		float fAngle = _system.GetRandom().NextFloat01() * glm::two_pi<float>();
 
@@ -59,7 +59,7 @@ namespace Plop::Particle
 		_pParticle->vPosition += res;
 	}
 
-	ParticleSystemComponent::ParticleSpawnerPtr SpawnShapeCircle::Clone() const
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnShapeCircle::Clone() const
 	{
 		SpawnShapeCirclePtr xSpawner = std::make_shared<SpawnShapeCircle>();
 		*xSpawner = *this;
@@ -87,7 +87,7 @@ namespace Plop::Particle
 
 
 	/* SpawnShapeDisk */
-	void SpawnShapeDisk::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
+	void SpawnShapeDisk::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		float fAngle = _system.GetRandom().NextFloat01() * glm::two_pi<float>();
 
@@ -96,7 +96,7 @@ namespace Plop::Particle
 		_pParticle->vPosition += res;
 	}
 
-	ParticleSystemComponent::ParticleSpawnerPtr SpawnShapeDisk::Clone() const
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnShapeDisk::Clone() const
 	{
 		SpawnShapeDiskPtr xSpawner = std::make_shared<SpawnShapeDisk>();
 		*xSpawner = *this;
@@ -124,7 +124,7 @@ namespace Plop::Particle
 
 
 	/* SpawnShapeRect */
-	void SpawnShapeRect::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
+	void SpawnShapeRect::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		float fx = _system.GetRandom().NextFloatNeg11() * vSize.x * 0.5f;
 		float fy = _system.GetRandom().NextFloatNeg11() * vSize.y * 0.5f;
@@ -133,7 +133,7 @@ namespace Plop::Particle
 		_pParticle->vPosition += res;
 	}
 
-	ParticleSystemComponent::ParticleSpawnerPtr SpawnShapeRect::Clone() const
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnShapeRect::Clone() const
 	{
 		SpawnShapeRectPtr xSpawner = std::make_shared<SpawnShapeRect>();
 		*xSpawner = *this;
@@ -161,12 +161,12 @@ namespace Plop::Particle
 
 
 	/* SpawnColor */
-	void SpawnColor::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
+	void SpawnColor::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		_pParticle->vColor = vColor;
 	}
 
-	ParticleSystemComponent::ParticleSpawnerPtr SpawnColor::Clone() const
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnColor::Clone() const
 	{
 		SpawnColorPtr xSpawner = std::make_shared<SpawnColor>();
 		*xSpawner = *this;
@@ -194,12 +194,12 @@ namespace Plop::Particle
 
 
 	/* SpawnSize */
-	void SpawnSize::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
+	void SpawnSize::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		_pParticle->vSize = vSize;
 	}
 
-	ParticleSystemComponent::ParticleSpawnerPtr SpawnSize::Clone() const
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnSize::Clone() const
 	{
 		SpawnSizePtr xSpawner = std::make_shared<SpawnSize>();
 		*xSpawner = *this;
@@ -227,15 +227,15 @@ namespace Plop::Particle
 
 
 	/* SpawnRadialSpeed */
-	void SpawnRadialSpeed::Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system )
+	void SpawnRadialSpeed::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		auto& entity = GetComponentOwner( LevelBase::GetCurrentLevel().lock(), _system );
-		glm::vec3 vCenter = entity ? entity.GetComponent<TransformComponent>().GetLocalPosition() : VEC3_0;
+		glm::vec3 vCenter = entity ? entity.GetComponent<Component_Transform>().GetLocalPosition() : VEC3_0;
 
 		_pParticle->vSpeed = glm::normalize( _pParticle->vPosition - vCenter ) * fSpeed;
 	}
 
-	ParticleSystemComponent::ParticleSpawnerPtr SpawnRadialSpeed::Clone() const
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnRadialSpeed::Clone() const
 	{
 		SpawnRadialSpeedPtr xSpawner = std::make_shared<SpawnRadialSpeed>();
 		*xSpawner = *this;
@@ -272,7 +272,7 @@ namespace Plop::Particle
 		_pParticle->vSpeed *= 1.f - (fAttenuation * dt);
 	}
 
-	ParticleSystemComponent::ParticleUpdaterPtr UpdatePositionFromSpeed::Clone() const
+	Component_ParticleSystem::ParticleUpdaterPtr UpdatePositionFromSpeed::Clone() const
 	{
 		UpdatePositionFromSpeedPtr xUpdater = std::make_shared<UpdatePositionFromSpeed>();
 		*xUpdater = *this;

@@ -5,16 +5,16 @@
 
 #include <Input/Input.h>
 #include <Renderer/Renderer.h>
-#include <Renderer/ParticleSystem.h>
 #include <Renderer/Texture.h>
-#include <ECS/BaseComponents.h>
-#include <ECS/PhysicsComponents.h>
+#include <ECS/Components/Component_ParticleSystem.h>
+#include <ECS/Components/Component_Physics.h>
+#include <ECS/Components/Component_SpriteRenderer.h>
 #include <ECS/ParticleSpawners.h>
 
-#include "Components/Bullet.h"
-#include "Components/Enemy.h"
-#include "Components/EnemySpawner.h"
-#include "Components/Tower.h"
+#include "Components/Component_Bullet.h"
+#include "Components/Component_Enemy.h"
+#include "Components/Component_EnemySpawner.h"
+#include "Components/Component_Tower.h"
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
 
@@ -33,7 +33,8 @@ void TDLevel::Init()
 	Plop::LevelBase::Init();
 }
 
-void TDLevel::Update( Plop::TimeStep& _ts )
+void TDLevel::Update( Plop::TimeStep& _ts ) 
+
 {
 	PROFILING_FUNCTION();
 
@@ -41,13 +42,13 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 	if (Plop::Input::IsMouseLeftPressed() && !m_xCurrentCamera.expired())
 	{
 		Plop::Entity newEnemy = CreateEntity( "Enemy" );
-		auto& enemyComp = newEnemy.AddComponent<EnemyComponent>();
+		auto& enemyComp = newEnemy.AddComponent<Component_Enemy>();
 		enemyComp.fLife = 1.f;
-		auto& transform = newEnemy.GetComponent<Plop::TransformComponent>();
+		auto& transform = newEnemy.GetComponent<Plop::Component_Transform>();
 		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorViewportPos(), transform.GetWorldPosition().z );
 		transform.SetLocalPosition( vMousePos );
 		transform.SetLocalScale( VEC3_1 * 0.2f );
-		auto& xSprite = newEnemy.AddComponent<Plop::SpriteRendererComponent>().xSprite;
+		auto& xSprite = newEnemy.AddComponent<Plop::Component_SpriteRenderer>().xSprite;
 		xSprite->SetTint( COLOR_GREEN );
 	}
 
@@ -55,11 +56,11 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 	EnemySystem::OnUpdate( _ts, m_ENTTRegistry );
 	TowerSystem::OnUpdate( _ts, m_ENTTRegistry );
 
-	auto& viewEnemy = m_ENTTRegistry.view<EnemyComponent, Plop::TransformComponent, Plop::AABBColliderComponent>();
+	auto& viewEnemy = m_ENTTRegistry.view<Component_Enemy, Plop::Component_Transform, Plop::Component_AABBCollider>();
 
 	float fMaxDistSq = glm::compMax( Plop::Application::Get()->GetWindow().GetViewportSize() ) * 2.f;
 	
-	m_ENTTRegistry.view<BulletComponent, Plop::TransformComponent, Plop::AABBColliderComponent>().each( [&]( entt::entity entityID, const BulletComponent& bulletComp, Plop::TransformComponent& transform, const Plop::AABBColliderComponent& collider)
+	m_ENTTRegistry.view<Component_Bullet, Plop::Component_Transform, Plop::Component_AABBCollider>().each( [&]( entt::entity entityID, const Component_Bullet& bulletComp, Plop::Component_Transform& transform, const Plop::Component_AABBCollider& collider)
 	{
 		transform.TranslateWorld( bulletComp.vVelocity * _ts.GetGameDeltaTime() );
 		
@@ -67,20 +68,20 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 
 		const glm::vec2& thisPos2D = transform.GetWorldPosition();
 
-		viewEnemy.each( [&]( entt::entity entityID, EnemyComponent& enemyComp, const Plop::TransformComponent& transformEnemy, const Plop::AABBColliderComponent& colliderEnemy ) {
+		viewEnemy.each( [&]( entt::entity entityID, Component_Enemy& enemyComp, const Plop::Component_Transform& transformEnemy, const Plop::Component_AABBCollider& colliderEnemy ) {
 			if (!enemyComp.IsDead() && !bDestroyBullet)
 			{
 				if (collider.IsColliding( colliderEnemy, transformEnemy.GetWorldPosition() ))
 				{
 					bDestroyBullet = true;
 					Plop::Entity enemy{ entityID, weak_from_this() };
-					if (enemy.HasComponent<Plop::ParticleSystemComponent>())
+					if (enemy.HasComponent<Plop::Component_ParticleSystem>())
 					{
-						auto& enemyParticles = enemy.GetComponent<Plop::ParticleSystemComponent>();
+						auto& enemyParticles = enemy.GetComponent<Plop::Component_ParticleSystem>();
 						enemyParticles.Spawn( 20 );
 					}
 
-					enemyComp.Hit( bulletComp.emitting.GetComponent<TowerComponent>().fDamage );
+					enemyComp.Hit( bulletComp.emitting.GetComponent<Component_Tower>().fDamage );
 
 					return;
 				}
@@ -89,7 +90,7 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 		
 
 		// test if too far
-		if (glm::distance2( transform.GetWorldPosition(), bulletComp.emitting.GetComponent<Plop::TransformComponent>().GetWorldPosition() ) > fMaxDistSq)
+		if (glm::distance2( transform.GetWorldPosition(), bulletComp.emitting.GetComponent<Plop::Component_Transform>().GetWorldPosition() ) > fMaxDistSq)
 			bDestroyBullet = true;
 
 		if (bDestroyBullet)

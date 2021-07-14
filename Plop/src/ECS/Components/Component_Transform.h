@@ -6,18 +6,18 @@
 
 namespace Plop
 {
-	struct TransformComponent
+	struct Component_Transform
 	{
-		TransformComponent() = default;
-		TransformComponent( const glm::vec3& _vTranslation, const glm::vec3& _vRotation = VEC3_0, const glm::vec3& _vScale = VEC3_1 )
+		Component_Transform() = default;
+		Component_Transform( const glm::vec3& _vTranslation, const glm::vec3& _vRotation = VEC3_0, const glm::vec3& _vScale = VEC3_1 )
 			: vPosition( _vTranslation ), qRotation( glm::quat( _vRotation ) ), vScale( _vScale )
 		{}
-		TransformComponent( const glm::vec3& _vTranslation, const glm::quat& _qRotation = glm::identity<glm::quat>(), const glm::vec3& _vScale = VEC3_1 )
+		Component_Transform( const glm::vec3& _vTranslation, const glm::quat& _qRotation = glm::identity<glm::quat>(), const glm::vec3& _vScale = VEC3_1 )
 			: vPosition( _vTranslation ), qRotation( _qRotation ), vScale( _vScale )
 		{}
 
-		float Distance2D( const TransformComponent& _other ) const;
-		float Distance2DSquare( const TransformComponent& _other ) const;
+		float Distance2D( const Component_Transform& _other ) const;
+		float Distance2DSquare( const Component_Transform& _other ) const;
 
 		// LOCAL
 		void SetLocalMatrix( const glm::mat4& _m );
@@ -65,7 +65,7 @@ namespace Plop
 
 namespace MM
 {
-	template <>	void ComponentEditorWidget<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	json ComponentToJson<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	void ComponentFromJson<Plop::TransformComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
+	template <>	void ComponentEditorWidget<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	json ComponentToJson<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	void ComponentFromJson<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 }

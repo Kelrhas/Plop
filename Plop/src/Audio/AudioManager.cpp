@@ -4,7 +4,7 @@
 #include "Assets/SoundLoader.h"
 #include "Debug/Log.h"
 #include "ECS/LevelBase.h"
-#include "ECS/AudioEmitter.h"
+#include "ECS/Components/Component_AudioEmitter.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
@@ -94,7 +94,7 @@ namespace Plop
 		auto xLevel = LevelBase::GetCurrentLevel().lock();
 		if (xLevel)
 		{
-			auto view = xLevel->GetEntityRegistry().view<AudioEmitterComponent>();
+			auto view = xLevel->GetEntityRegistry().view<Component_AudioEmitter>();
 			for (auto [entity, audioComp] : view.proxy())
 			{
 				audioComp.AttachSound( SoundHandle{} );
@@ -146,8 +146,8 @@ namespace Plop
 			if (ImGui::Button( "Test sound on all emitters" ))
 			{
 				auto& reg = LevelBase::GetCurrentLevel().lock()->GetEntityRegistry();
-				auto& view = reg.view<AudioEmitterComponent>();
-				view.each( [&]( AudioEmitterComponent& emitter) {
+				auto& view = reg.view<Component_AudioEmitter>();
+				view.each( [&]( Component_AudioEmitter& emitter) {
 
 					SoundHandle hSnd = AssetLoader::GetSound( "D:\\Prog\\Plop\\data\\audio\\test.wav" );
 					emitter.AttachSound( hSnd );

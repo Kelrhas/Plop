@@ -20,7 +20,7 @@ namespace Plop
 		glm::vec3 vSpeed = VEC3_0;
 	};
 
-	class ParticleSystemComponent final
+	class Component_ParticleSystem final
 	{
 	public:
 		struct ParticleSpawner;
@@ -30,7 +30,7 @@ namespace Plop
 		struct ParticleSpawner
 		{
 			virtual ~ParticleSpawner() {}
-			virtual void Spawn( ParticleData*, ParticleSystemComponent& ) = 0;
+			virtual void Spawn( ParticleData*, Component_ParticleSystem& ) = 0;
 			virtual ParticleSpawnerPtr Clone() const = 0;
 			virtual const char* const Name() = 0;
 			virtual void Editor() = 0;
@@ -50,13 +50,13 @@ namespace Plop
 		};
 
 
-		ParticleSystemComponent(size_t _iMaxParticles = 500);
-		ParticleSystemComponent( const ParticleSystemComponent&) noexcept;
-		ParticleSystemComponent( ParticleSystemComponent&&) noexcept;
-		~ParticleSystemComponent();
+		Component_ParticleSystem(size_t _iMaxParticles = 500);
+		Component_ParticleSystem( const Component_ParticleSystem&) noexcept;
+		Component_ParticleSystem( Component_ParticleSystem&&) noexcept;
+		~Component_ParticleSystem();
 
-		ParticleSystemComponent& operator=( const ParticleSystemComponent& ) noexcept;
-		ParticleSystemComponent& operator=( ParticleSystemComponent&& ) noexcept;
+		Component_ParticleSystem& operator=( const Component_ParticleSystem& ) noexcept;
+		Component_ParticleSystem& operator=( Component_ParticleSystem&& ) noexcept;
 
 		void Spawn( size_t iNbParticle = 1 );
 		void Update( const TimeStep& _ts );
@@ -101,8 +101,8 @@ namespace Plop
 
 namespace MM
 {
-	template <>	void ComponentEditorWidget<Plop::ParticleSystemComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	json ComponentToJson<Plop::ParticleSystemComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	void ComponentFromJson<Plop::ParticleSystemComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
+	template <>	void ComponentEditorWidget<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	json ComponentToJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	void ComponentFromJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 
 }

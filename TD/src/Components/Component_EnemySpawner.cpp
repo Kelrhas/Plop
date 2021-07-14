@@ -1,29 +1,29 @@
 #include "TD_pch.h"
-#include "EnemySpawner.h"
+#include "Component_EnemySpawner.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
 #include <Application.h>
 #include <ECS/ECSHelper.h>
-#include <ECS/BaseComponents.h>
+#include <ECS/Components/Component_Physics.h>
+#include <ECS/Components/Component_SpriteRenderer.h>
+#include <ECS/Components/Component_Transform.h>
 #include <Assets/SpritesheetLoader.h>
-#include <ECS/PhysicsComponents.h>
-#include <ECS/TransformComponent.h>
 #include <Utils/JsonTypes.h>
 
-#include "Enemy.h"
+#include "Component_Enemy.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
-EnemySpawnerComponent::EnemySpawnerComponent()
+Component_EnemySpawner::Component_EnemySpawner()
 {
 	xPathCurve.reset( new Plop::Math::CatmullRomCurve );
 }
 
 void EnemySpawnerSystem::OnUpdate( const Plop::TimeStep& _ts, entt::registry& _registry )
 {
-	auto& viewEnemySpawner = _registry.view<EnemySpawnerComponent>();
-	viewEnemySpawner.each([&_ts]( const entt::entity entity, EnemySpawnerComponent& spawner) {
+	auto& viewEnemySpawner = _registry.view<Component_EnemySpawner>();
+	viewEnemySpawner.each([&_ts]( const entt::entity entity, Component_EnemySpawner& spawner) {
 
 		if (spawner.fTimer >= 0 && spawner.iNbEnemySpawned < spawner.wave.nbEnemies)
 		{
@@ -42,22 +42,22 @@ void EnemySpawnerSystem::OnUpdate( const Plop::TimeStep& _ts, entt::registry& _r
 				Plop::Entity owner{ entity, xLevel };
 				entityEnemy.SetParent( owner );
 
-				auto& enemyComp = entityEnemy.AddComponent<EnemyComponent>();
+				auto& enemyComp = entityEnemy.AddComponent<Component_Enemy>();
 				enemyComp.xPathCurve = spawner.xPathCurve;
 
-				auto& spriteComp = entityEnemy.AddComponent<Plop::SpriteRendererComponent>();
+				auto& spriteComp = entityEnemy.AddComponent<Plop::Component_SpriteRenderer>();
 				auto hSpritesheet = Plop::AssetLoader::GetSpritesheet( Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef" );
 				if (hSpritesheet)
 				{
 					spriteComp.xSprite->SetSpritesheet( hSpritesheet, "enemy" );
 				}
 
-				Plop::AABBColliderComponent& colliderComp = entityEnemy.AddComponent<Plop::AABBColliderComponent>();
+				Plop::Component_AABBCollider& colliderComp = entityEnemy.AddComponent<Plop::Component_AABBCollider>();
 				colliderComp.vMin = glm::vec3( -0.15f, -0.15f, -10.f );
 				colliderComp.vMax = glm::vec3( 0.15f, 0.15f, 10.f );
 
-				auto& transformComp = entityEnemy.GetComponent<Plop::TransformComponent>();
-				transformComp.SetWorldPosition( owner.GetComponent<Plop::TransformComponent>().GetWorldPosition() + VEC3_Z * (0.1f * (spawner.iNbEnemySpawned + 1)) );
+				auto& transformComp = entityEnemy.GetComponent<Plop::Component_Transform>();
+				transformComp.SetWorldPosition( owner.GetComponent<Plop::Component_Transform>().GetWorldPosition() + VEC3_Z * (0.1f * (spawner.iNbEnemySpawned + 1)) );
 
 			}
 		}
@@ -67,13 +67,13 @@ void EnemySpawnerSystem::OnUpdate( const Plop::TimeStep& _ts, entt::registry& _r
 namespace MM
 {
 	template <>
-	void ComponentEditorWidget<EnemySpawnerComponent>( entt::registry& reg, entt::registry::entity_type e )
+	void ComponentEditorWidget<Component_EnemySpawner>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<EnemySpawnerComponent>( e );
+		auto& comp = reg.get<Component_EnemySpawner>( e );
 
 		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
 		Plop::Entity owner = Plop::GetComponentOwner( xLevel, comp );
-		const auto& vSpawnerPosition = owner.GetComponent<Plop::TransformComponent>().GetWorldPosition();
+		const auto& vSpawnerPosition = owner.GetComponent<Plop::Component_Transform>().GetWorldPosition();
 
 
 		size_t iNbPoint = comp.xPathCurve->vecControlPoints.size();
@@ -136,9 +136,9 @@ namespace MM
 	}
 
 	template <>
-	json ComponentToJson<EnemySpawnerComponent>( entt::registry& reg, entt::registry::entity_type e )
+	json ComponentToJson<Component_EnemySpawner>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<EnemySpawnerComponent>( e );
+		auto& comp = reg.get<Component_EnemySpawner>( e );
 		json j;
 		j["Points"] = comp.xPathCurve->vecControlPoints;
 		j["NbEnemies"] = comp.wave.nbEnemies;
@@ -147,9 +147,9 @@ namespace MM
 	}
 
 	template<>
-	void ComponentFromJson<EnemySpawnerComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	void ComponentFromJson<Component_EnemySpawner>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
 	{
-		auto& comp = reg.get_or_emplace<EnemySpawnerComponent>( e );
+		auto& comp = reg.get_or_emplace<Component_EnemySpawner>( e );
 		if (_j.contains( "Points" ))
 			_j["Points"].get_to( comp.xPathCurve->vecControlPoints );
 		if (_j.contains( "NbEnemies" ))

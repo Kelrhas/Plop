@@ -12,11 +12,13 @@
 #include "Debug/Log.h"
 #include "Events/EventDispatcher.h"
 #include "Events/WindowEvent.h"
-#include "ECS/BaseComponents.h"
-#include "ECS/TransformComponent.h"
-#include "ECS/PhysicsComponents.h"
-#include "ECS/AudioEmitter.h"
-#include "Renderer/ParticleSystem.h"
+#include "ECS/Components/BaseComponents.h"
+#include "ECS/Components/Component_AudioEmitter.h"
+#include "ECS/Components/Component_Camera.h"
+#include "ECS/Components/Component_ParticleSystem.h"
+#include "ECS/Components/Component_Physics.h"
+#include "ECS/Components/Component_SpriteRenderer.h"
+#include "ECS/Components/Component_Transform.h"
 #include "Renderer/Renderer.h"
 
 namespace Plop

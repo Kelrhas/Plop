@@ -15,11 +15,12 @@
 #include "Application.h"
 #include "Audio/AudioManager.h"
 #include "Editor/Console.h"
-#include "ECS/BaseComponents.h"
-#include "ECS/TransformComponent.h"
+#include "ECS/Components/BaseComponents.h"
+#include "ECS/Components/Component_Camera.h"
+#include "ECS/Components/Component_ParticleSystem.h"
+#include "ECS/Components/Component_Transform.h"
 #include "ECS/LevelBase.h"
 #include "Input/Input.h"
-#include "Renderer/ParticleSystem.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
 #include "Utils/OSDialogs.h"
@@ -147,15 +148,15 @@ namespace Plop
 
 		if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
 		{
-			if (m_SelectedEntity.HasComponent<ParticleSystemComponent>())
+			if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
 			{
-				m_SelectedEntity.GetComponent<ParticleSystemComponent>().Update( _timeStep );
+				m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update( _timeStep );
 			}
 
 			// focus camera on entity
 			if (Input::IsKeyDown( KeyCode::KEY_F ))
 			{
-				const glm::vec3& vPos = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldPosition();
+				const glm::vec3& vPos = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldPosition();
 				// TODO: get the object size
 				m_xEditorCamera->FocusCamera( vPos, VEC3_1 );
 			}
@@ -399,7 +400,7 @@ namespace Plop
 		{
 			if (m_eEditMode == EditMode::NONE && Input::IsKeyPressed( KeyCode::KEY_F2 ))
 			{
-				Private::sNewName = m_SelectedEntity.GetComponent<NameComponent>().sName;
+				Private::sNewName = m_SelectedEntity.GetComponent<Component_Name>().sName;
 				m_eEditMode = EditMode::RENAMING_ENTITY;
 			}
 		}
@@ -417,7 +418,7 @@ namespace Plop
 
 					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
 
-					String& sName = _Entity.GetComponent<NameComponent>().sName;
+					String& sName = _Entity.GetComponent<Component_Name>().sName;
 					if (m_eEditMode == EditMode::RENAMING_ENTITY && _Entity == m_SelectedEntity)
 					{
 						ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { 0, 0 } );
@@ -502,7 +503,7 @@ namespace Plop
 
 				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 
-				auto& view = xLevel->m_ENTTRegistry.view<NameComponent>();
+				auto& view = xLevel->m_ENTTRegistry.view<Component_Name>();
 				for (auto& e : view)
 				{
 					Entity entity{ e, LevelBase::s_xCurrentLevel };
@@ -551,10 +552,10 @@ namespace Plop
 		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 		if (xLevel)
 		{
-			auto& view = xLevel->GetEntityRegistry().view<CameraComponent, TransformComponent>();
+			auto& view = xLevel->GetEntityRegistry().view<Component_Camera, Component_Transform>();
 			for (auto entity : view)
 			{
-				auto& [camera, transform] = view.get<CameraComponent, TransformComponent>( entity );
+				auto& [camera, transform] = view.get<Component_Camera, Component_Transform>( entity );
 				xCurrentCamera = camera.xCamera;
 				mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 				mProjMatrix = camera.xCamera->GetProjectionMatrix();
@@ -568,12 +569,12 @@ namespace Plop
 			if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
 			{
 				ImGuizmo::SetOrthographic( bOrthographic );
-				glm::mat4 mTransform = m_SelectedEntity.GetComponent<TransformComponent>().GetWorldMatrix();
+				glm::mat4 mTransform = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldMatrix();
 
 				if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
 					Private::eGuizmoOperation, Private::eGuizmoSpace, glm::value_ptr( mTransform ) ))
 				{
-					m_SelectedEntity.GetComponent<TransformComponent>().SetWorldMatrix( mTransform );
+					m_SelectedEntity.GetComponent<Component_Transform>().SetWorldMatrix( mTransform );
 				}
 			}
 
@@ -682,7 +683,7 @@ namespace Plop
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )
 	{
 		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
-		const String& sName = _entity.GetComponent<NameComponent>().sName;
+		const String& sName = _entity.GetComponent<Component_Name>().sName;
 		Entity dupEntity = xLevel->CreateEntity( sName );
 		dupEntity.SetParent( _entity.GetParent() );
 

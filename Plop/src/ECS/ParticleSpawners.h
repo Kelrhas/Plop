@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Renderer/ParticleSystem.h"
+#include "ECS/Components/Component_ParticleSystem.h"
 
 
 namespace Plop::Particle
 {
-	struct SpawnLife final : public ParticleSystemComponent::ParticleSpawner
+	struct SpawnLife final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnLife( float _fLifetime = 2.f ) : fLifetime( _fLifetime ) {}
-		virtual void Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system ) override;
-		virtual ParticleSystemComponent::ParticleSpawnerPtr Clone() const override;
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Lifetime"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;
@@ -22,11 +22,11 @@ namespace Plop::Particle
 	using SpawnLifePtr = std::shared_ptr<SpawnLife>;
 
 	// spawn on a ring
-	struct SpawnShapeCircle final : public ParticleSystemComponent::ParticleSpawner
+	struct SpawnShapeCircle final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnShapeCircle( float _fRadius = 0.5f ) : fRadius( _fRadius ) {}
-		virtual void Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system ) override;
-		virtual ParticleSystemComponent::ParticleSpawnerPtr Clone() const override;
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Shape:Circle"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;
@@ -38,11 +38,11 @@ namespace Plop::Particle
 	using SpawnShapeCirclePtr = std::shared_ptr<SpawnShapeCircle>;
 
 	// spawn within a radius
-	struct SpawnShapeDisk final : public ParticleSystemComponent::ParticleSpawner
+	struct SpawnShapeDisk final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnShapeDisk( float _fRadius = 0.5f ) : fRadius( _fRadius ) {}
-		virtual void Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system ) override;
-		virtual ParticleSystemComponent::ParticleSpawnerPtr Clone() const override;
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Shape:Disk"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;
@@ -53,11 +53,11 @@ namespace Plop::Particle
 	};
 	using SpawnShapeDiskPtr = std::shared_ptr<SpawnShapeDisk>;
 
-	struct SpawnShapeRect final : public ParticleSystemComponent::ParticleSpawner
+	struct SpawnShapeRect final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnShapeRect( const glm::vec2& _vSize = glm::vec2( 0.5f, 0.5f ) ) : vSize( _vSize ) {}
-		virtual void Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system ) override;
-		virtual ParticleSystemComponent::ParticleSpawnerPtr Clone() const override;
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Shape:Rect"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;
@@ -68,11 +68,11 @@ namespace Plop::Particle
 	};
 	using SpawnShapeRectPtr = std::shared_ptr<SpawnShapeRect>;
 
-	struct SpawnColor final : public ParticleSystemComponent::ParticleSpawner
+	struct SpawnColor final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnColor( const glm::vec4& _vColor = COLOR_WHITE ) : vColor( _vColor ) {}
-		virtual void Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system ) override;
-		virtual ParticleSystemComponent::ParticleSpawnerPtr Clone() const override;
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Color"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;
@@ -83,11 +83,11 @@ namespace Plop::Particle
 	};
 	using SpawnColorPtr = std::shared_ptr<SpawnColor>;
 
-	struct SpawnSize final : public ParticleSystemComponent::ParticleSpawner
+	struct SpawnSize final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnSize( const glm::vec2& _vSize = glm::vec2( 0.01f, 0.01f ) ) : vSize( _vSize ) {}
-		virtual void Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system ) override;
-		virtual ParticleSystemComponent::ParticleSpawnerPtr Clone() const override;
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Size"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;
@@ -98,11 +98,11 @@ namespace Plop::Particle
 	};
 	using SpawnSizePtr = std::shared_ptr<SpawnSize>;
 
-	struct SpawnRadialSpeed final : public ParticleSystemComponent::ParticleSpawner
+	struct SpawnRadialSpeed final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnRadialSpeed( float _fSpeed = 1.f ) : fSpeed( _fSpeed ) {}
-		virtual void Spawn( ParticleData* _pParticle, ParticleSystemComponent& _system ) override;
-		virtual ParticleSystemComponent::ParticleSpawnerPtr Clone() const override;
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Speed:Radial"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;
@@ -113,11 +113,11 @@ namespace Plop::Particle
 	};
 	using SpawnRadialSpeedPtr = std::shared_ptr<SpawnRadialSpeed>;
 
-	struct UpdatePositionFromSpeed final : public ParticleSystemComponent::ParticleUpdater
+	struct UpdatePositionFromSpeed final : public Component_ParticleSystem::ParticleUpdater
 	{
 		UpdatePositionFromSpeed( float _fAttenuation = 0.1f ) : fAttenuation( std::clamp( _fAttenuation, 0.f, 1.f ) ) {}
 		virtual void Update( ParticleData* _pParticle, const TimeStep& _ts ) override;
-		virtual ParticleSystemComponent::ParticleUpdaterPtr Clone() const override;
+		virtual Component_ParticleSystem::ParticleUpdaterPtr Clone() const override;
 		static const char* const StaticName() { return "Position from speed"; }
 		virtual const char* const Name() override { return StaticName(); }
 		virtual void Editor() override;

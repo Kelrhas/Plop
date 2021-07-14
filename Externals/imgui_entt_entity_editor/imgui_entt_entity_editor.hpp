@@ -124,8 +124,8 @@ public:
 
 				if (registry.valid(e))
 				{
-					if (registry.has<Plop::NameComponent>( e ))
-						ImGui::Text( registry.get<Plop::NameComponent>( e ).sName.c_str() );
+					if (registry.has<Plop::Component_Name>( e ))
+						ImGui::Text( registry.get<Plop::Component_Name>( e ).sName.c_str() );
 					else
 						ImGui::Text("ID: %d", entt::to_integral(e));
 				} else {

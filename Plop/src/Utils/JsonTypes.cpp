@@ -108,14 +108,14 @@ namespace nlohmann
 		_quat.w = j[3];
 	}
 
-	/* ParticleSystemComponent::ParticleSpawnerPtr*/
-	void adl_serializer<Plop::ParticleSystemComponent::ParticleSpawnerPtr>::to_json( json& j, const Plop::ParticleSystemComponent::ParticleSpawnerPtr& _xSpawner )
+	/* Component_ParticleSystem::ParticleSpawnerPtr*/
+	void adl_serializer<Plop::Component_ParticleSystem::ParticleSpawnerPtr>::to_json( json& j, const Plop::Component_ParticleSystem::ParticleSpawnerPtr& _xSpawner )
 	{
 		j[_xSpawner->Name()] = _xSpawner->to_json();
 	}
 
-	/* ParticleSystemComponent::ParticleUpdaterPtr*/
-	void adl_serializer<Plop::ParticleSystemComponent::ParticleUpdaterPtr>::to_json( json& j, const Plop::ParticleSystemComponent::ParticleUpdaterPtr& _xUpdater )
+	/* Component_ParticleSystem::ParticleUpdaterPtr*/
+	void adl_serializer<Plop::Component_ParticleSystem::ParticleUpdaterPtr>::to_json( json& j, const Plop::Component_ParticleSystem::ParticleUpdaterPtr& _xUpdater )
 	{
 		j[_xUpdater->Name()] = _xUpdater->to_json();
 	}

@@ -1,27 +1,27 @@
 #include "TD_pch.h"
-#include "Tower.h"
+#include "Component_Tower.h"
 
 #include <entt/meta/resolve.hpp>
 
 #include <ECS/LevelBase.h>
 #include <ECS/ECSHelper.h>
-#include <ECS/BaseComponents.h>
-#include <ECS/PhysicsComponents.h>
-#include <ECS/AudioEmitter.h>
+#include <ECS/Components/Component_AudioEmitter.h>
+#include <ECS/Components/Component_Physics.h>
+#include <ECS/Components/Component_SpriteRenderer.h>
 #include <Assets/TextureLoader.h>
 
-#include "Components/Bullet.h"
+#include "Components/Component_Bullet.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
-bool TowerComponent::CanFire() const
+bool Component_Tower::CanFire() const
 {
 	return fFireDelay <= 0.f;
 }
 
 namespace TowerSystem
 {
-	auto ShootAt = []( entt::entity entityTower, TowerComponent& tower, Plop::TransformComponent& transformTower, const glm::vec3& _vEnemyPosition ) {
+	auto ShootAt = []( entt::entity entityTower, Component_Tower& tower, Plop::Component_Transform& transformTower, const glm::vec3& _vEnemyPosition ) {
 
 		tower.fFireDelay += 1.f / tower.fFiringRate;
 
@@ -40,19 +40,19 @@ namespace TowerSystem
 		{
 			Plop::Entity bullet = xLevel->CreateEntity( "Bullet" );
 
-			Plop::SpriteRendererComponent& spriteComp = bullet.AddComponent<Plop::SpriteRendererComponent>();
+			Plop::Component_SpriteRenderer& spriteComp = bullet.AddComponent<Plop::Component_SpriteRenderer>();
 			spriteComp.xSprite->SetTint( COLOR_RED );
 
-			BulletComponent& bulletComp = bullet.AddComponent<BulletComponent>();
+			Component_Bullet& bulletComp = bullet.AddComponent<Component_Bullet>();
 			bulletComp.emitting = { entityTower, xLevel };
 			bulletComp.vVelocity = glm::vec3( bulletComp.fSpeed * vEnemyDir2D, 0.f );
 
-			Plop::AABBColliderComponent& colliderComp = bullet.AddComponent<Plop::AABBColliderComponent>();
+			Plop::Component_AABBCollider& colliderComp = bullet.AddComponent<Plop::Component_AABBCollider>();
 			colliderComp.vMin = glm::vec3( -0.1f, -0.1f, -10.f );
 			colliderComp.vMax = glm::vec3( 0.1f, 0.1f, 10.f );
 
 
-			Plop::TransformComponent& transform = bullet.GetComponent<Plop::TransformComponent>();
+			Plop::Component_Transform& transform = bullet.GetComponent<Plop::Component_Transform>();
 			transform.SetLocalPosition( glm::vec3( vTowerPos.xy, vTowerPos.z - 0.1f ) );
 			transform.SetLocalRotation( glm::quat( glm::vec3( 0.f, 0.f, fAngle ) ) );
 			transform.SetLocalScale( glm::vec3( 0.2f, 0.2f, 1.f ) );
@@ -60,7 +60,7 @@ namespace TowerSystem
 
 		// play sound
 		Plop::Entity towerEntity{ entityTower, Plop::LevelBase::GetCurrentLevel() };
-		auto& audioComp = towerEntity.GetComponent<Plop::AudioEmitterComponent>();
+		auto& audioComp = towerEntity.GetComponent<Plop::Component_AudioEmitter>();
 		audioComp.PlaySound();
 
 	};
@@ -68,9 +68,9 @@ namespace TowerSystem
 
 	void OnUpdate( const Plop::TimeStep& _ts, entt::registry& _registry )
 	{
-		auto& viewEnemy = _registry.view<EnemyComponent, Plop::TransformComponent>();
+		auto& viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();
 
-		_registry.view<TowerComponent, Plop::TransformComponent>().each( [&]( entt::entity entityTower, TowerComponent& tower, Plop::TransformComponent& transform ) 	{
+		_registry.view<Component_Tower, Plop::Component_Transform>().each( [&]( entt::entity entityTower, Component_Tower& tower, Plop::Component_Transform& transform ) 	{
 
 			if (tower.fFireDelay > 0.f)
 			{
@@ -83,7 +83,7 @@ namespace TowerSystem
 				entt::entity iBestEnemy = entt::null;
 				glm::vec3 vEnemyPos;
 
-				viewEnemy.each( [&]( entt::entity entityID, const EnemyComponent&, const Plop::TransformComponent& transformEnemy ) {
+				viewEnemy.each( [&]( entt::entity entityID, const Component_Enemy&, const Plop::Component_Transform& transformEnemy ) {
 					float fDistanceSq = transform.Distance2DSquare( transformEnemy );
 					if (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null)
 					{
@@ -106,9 +106,9 @@ namespace TowerSystem
 namespace MM
 {
 	template <>
-	void ComponentEditorWidget<TowerComponent>( entt::registry& reg, entt::registry::entity_type e )
+	void ComponentEditorWidget<Component_Tower>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<TowerComponent>( e );
+		auto& comp = reg.get<Component_Tower>( e );
 		ImGui::DragFloat( "Damage", &comp.fDamage, 0.1f, 1.f );
 		ImGui::DragFloat( "Firing rate", &comp.fFiringRate, 0.005f, 0.01f, FLT_MAX );
 		if (ImGui::IsItemHovered())
@@ -120,9 +120,9 @@ namespace MM
 	}
 
 	template <>
-	json ComponentToJson<TowerComponent>( entt::registry& reg, entt::registry::entity_type e )
+	json ComponentToJson<Component_Tower>( entt::registry& reg, entt::registry::entity_type e )
 	{
-		auto& comp = reg.get<TowerComponent>( e );
+		auto& comp = reg.get<Component_Tower>( e );
 		json j;
 		j["Damage"] = comp.fDamage;
 		j["Firing rate"] = comp.fFiringRate;
@@ -130,9 +130,9 @@ namespace MM
 	}
 
 	template<>
-	void ComponentFromJson<TowerComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	void ComponentFromJson<Component_Tower>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
 	{
-		auto& comp = reg.get_or_emplace<TowerComponent>( e );
+		auto& comp = reg.get_or_emplace<Component_Tower>( e );
 		if (_j.contains( "Damage" ))
 			comp.fDamage = _j["Damage"];
 		if (_j.contains( "Firing rate" ))

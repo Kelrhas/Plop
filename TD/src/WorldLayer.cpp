@@ -6,12 +6,12 @@
 
 #include <Debug/Debug.h>
 #include <Constants.h>
-#include <ECS/BaseComponents.h>
+#include <ECS/Components/BaseComponents.h>
+#include <ECS/Components/Component_ParticleSystem.h>
 #include <Events/EventDispatcher.h>
 #include <Input/Input.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Texture.h>
-#include <Renderer/ParticleSystem.h>
 #include <Renderer/Sprite.h>
 
 void WorldLayer::OnRegistered()

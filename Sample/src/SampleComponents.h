@@ -2,7 +2,7 @@
 
 #include <imgui_entt_entity_editor.hpp>
 
-struct RotatingComponent
+struct Component_Rotating
 {
 	float fSpeed = 0.f;
 	glm::vec3 vAxis = VEC3_0;
@@ -11,7 +11,7 @@ struct RotatingComponent
 
 namespace MM
 {
-	template <>	void ComponentEditorWidget<RotatingComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	json ComponentToJson<RotatingComponent>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	void ComponentFromJson<RotatingComponent>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
+	template <>	void ComponentEditorWidget<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	json ComponentToJson<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e );
+	template <>	void ComponentFromJson<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 }

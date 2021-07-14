@@ -62,7 +62,7 @@ namespace Plop
 							ImVec2 vCursorPos = ImGui::GetCursorPos();
 							ImGui::SetCursorPosX( vCursorPos.x + ImGui::GetStyle().FramePadding.x );
 							ImGui::SetCursorPosY( vCursorPos.y + ImGui::GetStyle().FramePadding.y );
-							ImGui::Image( (ImTextureID)Renderer2D::s_xCheckerTex->GetNativeHandle(), ImVec2( fWidth, fWidth ), ImVec2( 0, 0 ), ImVec2( fWidth / 10.f, fWidth / 10.f ) );
+							ImGui::Image( (ImTextureID)Renderer::GetDefaultTextureHandle(Renderer::DefaultTexture::CHECKER), ImVec2( fWidth, fWidth ), ImVec2( 0, 0 ), ImVec2( fWidth / 10.f, fWidth / 10.f ) );
 
 							ImGui::SetCursorPos( vCursorPos );
 						}

@@ -76,7 +76,7 @@ namespace Plop
 
 		if (xCurrentCamera)
 		{
-			Renderer2D::PrepareScene( xCurrentCamera->GetProjectionMatrix(), mViewMatrix );
+			Renderer::PrepareScene( xCurrentCamera->GetProjectionMatrix(), mViewMatrix );
 			m_bRendering = true;
 		}
 
@@ -94,7 +94,7 @@ namespace Plop
 	void LevelBase::AfterUpdate()
 	{
 		if (m_bRendering)
-			Renderer2D::EndScene();
+			Renderer::EndScene();
 		m_bRendering = false;
 	}
 
@@ -252,7 +252,7 @@ namespace Plop
 
 		for (std::pair<SpritePtr, glm::mat4>& _pair : vecSpriteMat)
 		{
-			Renderer2D::DrawSprite( *_pair.first, _pair.second );
+			Renderer::DrawSprite( *_pair.first, _pair.second );
 		}
 	}
 

@@ -44,42 +44,11 @@ namespace Plop
 
 	//////////////////////////////////////////////////////////////////////////
 	// Renderer
-	class Renderer2D;
-	class Renderer
+	//class Renderer2D;
+	namespace Renderer
 	{
-		friend class Renderer2D;
-		struct SceneData
-		{
-			glm::mat4 mVPMatrix;
-		};
-	public:
-		static void				Init();
+		//friend class Renderer2D;
 
-		static void				OnResize(uint32_t _uWidth, uint32_t _uHeight);
-
-		static void				PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix );
-		static void				EndScene();
-
-		static void				Clear();
-
-		static void				SubmitDraw(const MeshPtr& _xMesh);
-
-		static ShaderPtr		LoadShader( const String& _sFile );
-
-
-		static RenderAPI::API	GetAPI() { return RenderAPI::GetAPI(); }
-
-	private:
-		static RenderAPI*		s_pAPI;
-		static SceneData		s_SceneData;
-		static ShaderLibrary	s_shaderLibrary;
-		static FrameBufferPtr	s_xFramebuffer;
-	};
-
-	//////////////////////////////////////////////////////////////////////////
-	// Renderer2D
-	class Renderer2D
-	{
 		struct Stats
 		{
 			uint32_t uDrawCalls = 0;
@@ -97,9 +66,10 @@ namespace Plop
 
 			static const BufferLayout layout;
 		};
-
+		
 		struct SceneData
 		{
+			bool					bRendering = false;
 			glm::mat4				mVPMatrix = glm::identity<glm::mat4>();
 			std::vector<Vertex>		vecVertices;
 			std::vector<uint32_t>	vecIndices;
@@ -110,47 +80,46 @@ namespace Plop
 		};
 
 
-		static uint32_t MAX_TEX_UNIT;
-		static const uint32_t MAX_QUADS = 10000;
-		static const uint32_t MAX_VERTICES = MAX_QUADS * 4;
-		static const uint32_t MAX_INDICES = MAX_QUADS * 6;
+		void			Init();
+
+		void			OnResize(uint32_t _uWidth, uint32_t _uHeight);
+
+		void			NewFrame();
+		void			EndFrame();
+
+		void			PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix );
+		void			EndScene();
+
+		void			Clear();
+
+		void			SubmitDraw(const MeshPtr& _xMesh);
+
+		ShaderPtr		LoadShader( const String& _sFile );
 
 
-	public:
-		static void				Init();
 
-		static void				NewFrame();
-		static void				EndFrame();
+		void			DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize );
+		void			DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad );
+		void			DrawQuad( const glm::vec4& _vColor, const glm::mat4& _mTransform );
 
-		static void				PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix );
-		static void				EndScene();
+		void			DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint = glm::vec4( 1.f ) );
+		void			DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint = glm::vec4( 1.f ) );
+		void			DrawTexture( const Texture& _Texture, const glm::mat4& _mTransform, const glm::vec4& _vTint = glm::vec4( 1.f ) );
 
-
-		static void				DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize );
-		static void				DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad );
-		static void				DrawQuad( const glm::vec4& _vColor, const glm::mat4& _mTransform );
-
-		static void				DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint = glm::vec4( 1.f ) );
-		static void				DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint = glm::vec4( 1.f ) );
-		static void				DrawTexture( const Texture& _Texture, const glm::mat4& _mTransform, const glm::vec4& _vTint = glm::vec4( 1.f ) );
-
-		static void				DrawSprite( const Sprite& _sprite, const glm::vec2& _vPos, const glm::vec2& _vSize = glm::vec2( 1.f ), float _fAngleRad = 0.f );
-		static void				DrawSprite( const Sprite& _sprite, const glm::mat4& _mTransform );
-
-		static TexturePtr		s_xCheckerTex;
-	private:
-
-		static void				DrawBatch();
+		void			DrawSprite( const Sprite& _sprite, const glm::vec2& _vPos, const glm::vec2& _vSize = glm::vec2( 1.f ), float _fAngleRad = 0.f );
+		void			DrawSprite( const Sprite& _sprite, const glm::mat4& _mTransform );
 
 
-		static bool				s_bRendering2D;
-		static TexturePtr		s_xWhiteTex;
-		static ShaderPtr		s_xShader;
-		static VertexArrayPtr	s_xVertexArray;
-		static VertexBufferPtr	s_xVertexBuffer;
-		static IndexBufferPtr	s_xIndexBuffer;
+		enum class DefaultTexture : uint8_t
+		{
+			WHITE,
+			CHECKER,
 
-		static SceneData		s_sceneData;
+			COUNT
+		};
+		uint64_t		GetDefaultTextureHandle( DefaultTexture _eTexture );
+
+		inline RenderAPI::API	GetAPI() { return RenderAPI::GetAPI(); }
+
 	};
-
 }

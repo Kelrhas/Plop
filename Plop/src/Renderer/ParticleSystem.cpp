@@ -150,7 +150,7 @@ namespace Plop
 				}
 
 				// TODO: use a proper shader with one draw call, possibly point primitives etc.
-				Renderer2D::DrawQuad( p.vColor, p.vPosition, p.vSize );
+				Renderer::DrawQuad( p.vColor, p.vPosition, p.vSize );
 
 			}
 

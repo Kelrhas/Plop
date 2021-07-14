@@ -168,7 +168,6 @@ namespace Plop
 		VERIFYM( g_pAudioManager->Init(), "Audio manager did not init properly" );
 
 		Renderer::Init();
-		Renderer2D::Init();
 
 		m_timeStep.Advance();
 		RegisterAppLayer( &m_ImGuiLayer );
@@ -232,7 +231,7 @@ namespace Plop
 			Input::Update( m_timeStep );
 			m_xWindow->Update( m_timeStep );
 
-			Renderer2D::NewFrame();
+			Renderer::NewFrame();
 			m_ImGuiLayer.NewFrame();
 
 			auto xLevel = LevelBase::GetCurrentLevel().lock();
@@ -261,7 +260,7 @@ namespace Plop
 			}
 
 			m_ImGuiLayer.EndFrame();
-			Renderer2D::EndFrame();
+			Renderer::EndFrame();
 
 			m_xWindow->SwapBuffers();
 			Debug::EndFrame();

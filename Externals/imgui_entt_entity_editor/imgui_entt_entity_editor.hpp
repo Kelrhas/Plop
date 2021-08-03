@@ -118,6 +118,7 @@ public:
 	{
 		bool show_window = true;
 		if (show_window) {
+			ImGui::SetNextWindowSizeConstraints( ImVec2( 450, 600 ), ImVec2( -1, -1 ) );
 			if (ImGui::Begin("Entity Editor", &show_window)) {
 				ImGui::TextUnformatted("Editing:");
 				ImGui::SameLine();

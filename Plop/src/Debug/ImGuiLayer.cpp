@@ -22,6 +22,7 @@ namespace Plop
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
+		io.ConfigDockingTransparentPayload = true;
 
 		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Light.ttf", 18.f );
 		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Regular.ttf", 18.f );

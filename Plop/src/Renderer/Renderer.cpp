@@ -125,14 +125,14 @@ namespace Plop
 		void Renderer::NewFrame()
 		{
 			s_sceneData.frameStat.Reset();
-			s_xFramebuffer->Bind();
+			Clear();
 		}
 
 		void Renderer::EndFrame()
 		{
 			s_xFramebuffer->Unbind();
 
-			s_pAPI->DrawFrameBuffer( s_xFramebuffer );
+			//s_pAPI->DrawFrameBuffer( s_xFramebuffer );
 		}
 
 		void PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix )
@@ -437,6 +437,11 @@ namespace Plop
 			TexturePtr xTex = s_defaultTextures[(int)_eTexture];
 			ASSERT( (bool)xTex );
 			return xTex->GetNativeHandle();
+		}
+
+		FrameBufferPtr	GetFrameBuffer()
+		{
+			return s_xFramebuffer;
 		}
 
 	}

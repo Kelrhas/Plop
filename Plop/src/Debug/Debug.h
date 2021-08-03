@@ -55,12 +55,12 @@ namespace Plop
 	#define EXCEPTION(action)			{bool b = (action); if(!b){ BREAK(); }}
 	#define EXCEPTIONM(action, ...)		{bool b = (action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK(); }}
 
-	#define PROFILING_INIT()		{}
-	#define PROFILING_SHUTDOWN()	OPTICK_SHUTDOWN()
-	#define PROFILING_FRAME(...)	OPTICK_FRAME(__VA_ARGS__)
-	#define PROFILING_THREAD(...)	OPTICK_THREAD(__VA_ARGS__)
-	#define PROFILING_FUNCTION()	OPTICK_EVENT()
-	#define PROFILING_SCOPE(...)	OPTICK_EVENT(__VA_ARGS__)
+	#define PROFILING_INIT()			{}
+	#define PROFILING_SHUTDOWN()		OPTICK_SHUTDOWN()
+	#define PROFILING_FRAME(...)		OPTICK_FRAME(__VA_ARGS__)
+	#define PROFILING_THREAD(...)		OPTICK_THREAD(__VA_ARGS__)
+	#define PROFILING_FUNCTION()		OPTICK_EVENT()
+	#define PROFILING_SCOPE(...)		OPTICK_EVENT(__VA_ARGS__)
 #else
 	#define BREAK()						do{}while(0)
 	#define ASSERT(action)				do{}while(0)
@@ -70,10 +70,10 @@ namespace Plop
 	#define EXCEPTION(action)			{bool b = (action); if(!b){ BREAK(); }}
 	#define EXCEPTIONM(action, ...)		{bool b = (action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK();}}
 
-	#define PROFILING_INIT()		{}
-	#define PROFILING_SHUTDOWN()	{}
-	#define PROFILING_FRAME(...)	{}
-	#define PROFILING_THREAD(...)	{}
-	#define PROFILING_FUNCTION()	{}
-	#define PROFILING_SCOPE(...)	{}
+	#define PROFILING_INIT()			{}
+	#define PROFILING_SHUTDOWN()		{}
+	#define PROFILING_FRAME(...)		{}
+	#define PROFILING_THREAD(...)		{}
+	#define PROFILING_FUNCTION()		{}
+	#define PROFILING_SCOPE(...)		{}
 #endif

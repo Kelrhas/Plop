@@ -29,6 +29,7 @@ namespace Plop
 		virtual void			OnRegistered() override;
 		virtual void			OnUnregistered() override;
 		virtual void			OnUpdate( TimeStep& _timeStep ) override;
+		virtual void			OnImGuiRender( TimeStep& _timeStep ) override;
 
 		virtual bool			OnEvent( Event& _event ) override;
 
@@ -113,6 +114,11 @@ namespace Plop
 		Entity				m_SelectedEntity;
 		EditMode			m_eEditMode = EditMode::NONE;
 		StringPath			m_sCurrentLevel;
+
+		// viewport
+		glm::vec2			m_vViewportSize = VEC2_0;
+		glm::vec2			m_vViewportPosMin = VEC2_0;
+		glm::vec2			m_vViewportPosMax = VEC2_0;
 		
 		
 		static ::MM::EntityEditor<entt::entity>* s_pENTTEditor;

@@ -24,6 +24,7 @@ namespace Plop
 	{
 		GL_DEBUG_MARKER( "Binding framebuffer" );
 		glBindFramebuffer( GL_FRAMEBUFFER, m_uID );
+		glViewport( 0, 0, m_uWidth, m_uHeight );
 	}
 
 	void OpenGL_FrameBuffer::Unbind()
@@ -68,7 +69,6 @@ namespace Plop
 
 		ASSERTM( glCheckFramebufferStatus( GL_FRAMEBUFFER ) == GL_FRAMEBUFFER_COMPLETE, "Error with FrameBuffer creation" );
 
-
-		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+		//glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	}
 }

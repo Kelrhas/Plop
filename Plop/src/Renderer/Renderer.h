@@ -119,6 +119,9 @@ namespace Plop
 		};
 		uint64_t		GetDefaultTextureHandle( DefaultTexture _eTexture );
 
+
+		FrameBufferPtr	GetFrameBuffer();
+
 		inline RenderAPI::API	GetAPI() { return RenderAPI::GetAPI(); }
 
 	};

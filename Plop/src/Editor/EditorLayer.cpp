@@ -26,6 +26,7 @@
 #include "Utils/OSDialogs.h"
 #include "Assets/TextureLoader.h"
 #include "Assets/SpritesheetLoader.h"
+#include "Renderer/Renderer.h"
 #include "Renderer/Texture.h"
 
 
@@ -73,8 +74,67 @@ namespace Plop
 
 	void EditorLayer::OnUpdate( TimeStep& _timeStep )
 	{
+		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		if (xLevel)
+		{
+			FrameBufferPtr xLevelFrameBufer = Renderer::GetFrameBuffer();
+			// resize framebuffer
+			if (m_vViewportSize.x > 0 && m_vViewportSize.y > 0 &&
+				(xLevelFrameBufer->GetWidth() != m_vViewportSize.x || xLevelFrameBufer->GetHeight() != m_vViewportSize.y))
+			{
+				xLevelFrameBufer->Resize( (U32)m_vViewportSize.x, (U32)m_vViewportSize.y );
+				m_xEditorCamera->SetAspectRatio( m_vViewportSize.x / m_vViewportSize.y );
+			}
 
-		m_xEditorCamera->OnUpdate( _timeStep );
+
+			xLevelFrameBufer->Bind();
+			Renderer::Clear();
+
+			if (Application::Get()->IsUsingEditorCamera())
+			{
+				Renderer::PrepareScene( m_xEditorCamera->GetProjectionMatrix(), m_xEditorCamera->GetViewMatrix() );
+			}
+			else
+			{
+				Debug::TODO();
+			}
+
+			if (m_eLevelState == EditorLayer::LevelState::RUNNING)
+			{
+				xLevel->Update( _timeStep );
+			}
+			else if (m_eLevelState == EditorLayer::LevelState::EDITING)
+			{
+				xLevel->UpdateInEditor( _timeStep );
+
+
+				if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
+				{
+					if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
+					{
+						m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update( _timeStep );
+					}
+
+					// focus camera on entity
+					if (Input::IsKeyDown( KeyCode::KEY_F ))
+					{
+						const glm::vec3& vPos = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldPosition();
+						// TODO: get the object size
+						m_xEditorCamera->FocusCamera( vPos, VEC3_1 );
+					}
+				}
+			}
+
+			Renderer::EndScene();
+			Renderer::GetFrameBuffer()->Unbind();
+		}
+
+
+	}
+
+	void EditorLayer::OnImGuiRender( TimeStep& _timeStep )
+	{
+		ApplicationLayer::OnImGuiRender( _timeStep );
 
 
 		static ImGuiWindowFlags windowFlags =
@@ -108,6 +168,33 @@ namespace Plop
 			ImGui::DockSpace( id, ImVec2( 0, 0 ), flags );
 
 
+			if (ImGui::Begin( "Scene", nullptr, 0 ))
+			{
+				if (ImGui::IsWindowHovered( ImGuiHoveredFlags_None ))
+				{
+					m_xEditorCamera->OnUpdate( _timeStep );
+					ImGui::CaptureMouseFromApp( false );
+				}
+
+
+				uint64_t texId = Renderer::GetFrameBuffer()->GetColorID();
+				const ImVec2 vViewportSize = ImGui::GetContentRegionAvail();
+				m_vViewportSize = vViewportSize;
+				const glm::vec2 vWindowPos = ImGui::GetWindowPos();
+				const glm::vec2 vRegionMin = ImGui::GetWindowContentRegionMin();
+				const glm::vec2 vRegionMax = ImGui::GetWindowContentRegionMax();
+				m_vViewportPosMin = { vWindowPos.x + vRegionMin.x,vWindowPos.y + vRegionMin.y };
+				m_vViewportPosMax = { vWindowPos.x + vRegionMax.x,vWindowPos.y + vRegionMax.y };
+				ImGui::Image( (ImTextureID)texId, vViewportSize, ImVec2(0, 1), ImVec2(1, 0) );
+
+				if (m_eLevelState == LevelState::EDITING ||
+					m_eLevelState == LevelState::PAUSED)
+				{
+					ShowGizmos();
+				}
+			}
+			ImGui::End();
+
 			// we can draw editor windows here
 
 			if (m_bShowImGuiDemo)
@@ -129,7 +216,6 @@ namespace Plop
 			if (m_eLevelState == LevelState::EDITING ||
 				m_eLevelState == LevelState::PAUSED)
 			{
-				ShowGizmos();
 				ShowSceneGraph();
 
 				if (m_SelectedEntity && !LevelBase::s_xCurrentLevel.expired())
@@ -145,22 +231,6 @@ namespace Plop
 		}
 
 		ImGui::End(); // Begin("Editor")
-
-		if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
-		{
-			if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
-			{
-				m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update( _timeStep );
-			}
-
-			// focus camera on entity
-			if (Input::IsKeyDown( KeyCode::KEY_F ))
-			{
-				const glm::vec3& vPos = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldPosition();
-				// TODO: get the object size
-				m_xEditorCamera->FocusCamera( vPos, VEC3_1 );
-			}
-		}
 	}
 
 	bool EditorLayer::OnEvent( Event& _event )
@@ -534,15 +604,18 @@ namespace Plop
 	{
 		// update the viewport size
 #ifdef IMGUI_HAS_VIEWPORT
-		ImVec2 vPosition = ImGui::GetMainViewport()->Pos;
-		ImVec2 vSize = ImGui::GetMainViewport()->Size;
-		ImGuizmo::SetRect( vPosition.x, vPosition.y, vSize.x, vSize.y );
-		EditorGizmo::SetViewportPosAndSize( vPosition, vSize );
+		ImVec2 vViewportPosition = m_vViewportPosMin;
+		ImVec2 vViewportSize = m_vViewportPosMax - m_vViewportPosMin;
+
+		ImGuizmo::SetRect( vViewportPosition.x, vViewportPosition.y, vViewportSize.x, vViewportSize.y );
+		
+		EditorGizmo::SetViewportPosAndSize( vViewportPosition, vViewportSize );
 #else
 		ImVec2 vSize = ImGui::GetIO().DisplaySize;
 		ImGuizmo::SetRect( 0, 0, vSize.x, vSize.y );
 #endif
-		ImGuizmo::SetDrawlist( ImGui::GetBackgroundDrawList() );
+		ImGuizmo::SetDrawlist( /*ImGui::GetBackgroundDrawList()*/ );
+
 
 		// get the current camera, TODO editor camera
 		CameraPtr xCurrentCamera = nullptr;
@@ -581,21 +654,26 @@ namespace Plop
 			if (true) // TODO: test if editor camera is the currently active one
 			{
 				// TODO: Position the view square correctly with the panels and fixed offsets from the top and right
-				static float fXMul = 0.703f;
-				static float fYMul = 0.1f;
+				const float fXMul = 0.703f;
+				const float fYMul = 0.1f;
 
 #ifdef IMGUI_HAS_VIEWPORT
+				float fCornerOffset = 12.f;
+				ImVec2 vSize( 100, 100 );
+				/*
 				ImVec2 vPosition = ImGui::GetMainViewport()->Size;
 				vPosition.x *= fXMul;
 				vPosition.y *= fYMul;
 				vPosition.x += ImGui::GetMainViewport()->Pos.x;
 				vPosition.y += ImGui::GetMainViewport()->Pos.y;
+				*/
+				ImVec2 vPosition = { vViewportPosition.x + vViewportSize.x - fCornerOffset - vSize.x, vViewportPosition.y + fCornerOffset };
 #else
 				ImVec2 vPosition = io.DisplaySize;
 				vPosition.x *= fXMul;
 				vPosition.y *= fYMul;
 #endif
-				if (ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), m_xEditorCamera->GetTargetDistance(), vPosition, ImVec2( 128, 128 ), 0x10101010 ))
+				if (ImGuizmo::ViewManipulate( glm::value_ptr( mViewMatrix ), m_xEditorCamera->GetTargetDistance(), vPosition, vSize, 0x10101010 ))
 				{
 					m_xEditorCamera->ChangeView( mViewMatrix );
 				}

@@ -48,9 +48,6 @@ namespace Plop
 							GL_COLOR_BUFFER_BIT /*| GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT*/,
 							GL_LINEAR);
 		Debug::Assert_GL();
-
-		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-		Debug::Assert_GL();
 	}
 
 

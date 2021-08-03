@@ -234,34 +234,29 @@ namespace Plop
 			m_xWindow->Update( m_timeStep );
 
 			Renderer::NewFrame();
-			m_ImGuiLayer.NewFrame();
 
 			auto xLevel = LevelBase::GetCurrentLevel().lock();
 			if (xLevel)
 				xLevel->BeforeUpdate();
+
 
 			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
 			{
 				pAppLayer->OnUpdate( m_timeStep );
 			}
 
-
-
 			if (xLevel)
-			{
-				if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::RUNNING)
-				{
-					xLevel->Update( m_timeStep );
-				}
-				else if (m_bEditorMode)
-				{
-					xLevel->UpdateInEditor( m_timeStep );
-				}
-
 				xLevel->AfterUpdate();
-			}
 
+			Renderer::Clear();
+			m_ImGuiLayer.NewFrame();
+			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
+			{
+				pAppLayer->OnImGuiRender( m_timeStep );
+			}
 			m_ImGuiLayer.EndFrame();
+
+
 			Renderer::EndFrame();
 
 			m_xWindow->SwapBuffers();

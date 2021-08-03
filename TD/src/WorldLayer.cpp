@@ -26,6 +26,4 @@ void WorldLayer::OnUnregistered()
 void WorldLayer::OnUpdate(Plop::TimeStep& _ts)
 {
 	PROFILING_FUNCTION();
-
-	Plop::Renderer::Clear();
 }

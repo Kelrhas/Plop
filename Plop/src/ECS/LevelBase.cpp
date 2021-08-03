@@ -60,31 +60,18 @@ namespace Plop
 	{
 		CameraPtr xCurrentCamera = nullptr;
 		glm::mat4 mViewMatrix = glm::identity<glm::mat4>();
-		if (Application::Get()->IsUsingEditorCamera())
-		{
-			xCurrentCamera = Application::Get()->GetEditor().GetEditorCamera();
-			mViewMatrix = Application::Get()->GetEditor().GetEditorCamera()->GetViewMatrix();
-		}
-		else
-		{
-			auto& view = m_ENTTRegistry.view<Component_Camera, Component_Transform>();
-			for (auto entity : view)
-			{
-				auto& [camera, transform] = view.get<Component_Camera, Component_Transform>( entity );
-				xCurrentCamera = camera.xCamera;
-				mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
-			}
-		}
 
-		if (xCurrentCamera)
+		auto& view = m_ENTTRegistry.view<Component_Camera, Component_Transform>();
+		for (auto entity : view)
 		{
-			Renderer::PrepareScene( xCurrentCamera->GetProjectionMatrix(), mViewMatrix );
-			m_bRendering = true;
+			auto& [camera, transform] = view.get<Component_Camera, Component_Transform>( entity );
+			xCurrentCamera = camera.xCamera;
+			mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 		}
 
 		m_xCurrentCamera = xCurrentCamera;
 
-		return m_bRendering;
+		return xCurrentCamera != nullptr;
 	}
 
 	void LevelBase::Update( TimeStep& _ts )
@@ -95,9 +82,7 @@ namespace Plop
 
 	void LevelBase::AfterUpdate()
 	{
-		if (m_bRendering)
-			Renderer::EndScene();
-		m_bRendering = false;
+
 	}
 
 	Entity LevelBase::CreateEntity( const String& _sName /*= "New Entity"*/ )
@@ -197,7 +182,6 @@ namespace Plop
 				auto& f = type.func( "clone"_hs );
 				f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
 			} );
-		m_bRendering = false;
 	}
 
 	json LevelBase::ToJson()

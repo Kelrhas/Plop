@@ -21,6 +21,7 @@ namespace Plop
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigWindowsMoveFromTitleBarOnly = true;
 
 		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Light.ttf", 18.f );
 		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Regular.ttf", 18.f );
@@ -44,8 +45,7 @@ namespace Plop
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)Application::Get()->GetWindow().GetWidth(), (float)Application::Get()->GetWindow().GetHeight());
-		io.DeltaTime = 1.f / 60.f;
-
+		io.DeltaTime = _timeStep.GetSystemDeltaTime();
 	}
 
 	void ImGuiLayer::NewFrame()

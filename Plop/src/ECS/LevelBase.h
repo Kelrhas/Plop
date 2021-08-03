@@ -70,7 +70,5 @@ namespace Plop
 				void	DrawSprites();
 				void	DrawParticles( const TimeStep& _ts );
 
-		bool			m_bRendering = false;
-
 	};
 }

@@ -27,6 +27,10 @@
 //#pragma comment(lib, "Xinput9_1_0")
 #endif
 
+#include <GL/glew.h>
+#include <GL/wglew.h>
+#include <GL/GL.h>
+
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
 //  2020-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
@@ -648,8 +652,70 @@ static void ImGui_ImplWin32_CreateWindow(ImGuiViewport* viewport)
 
     int pixelFormat = ChoosePixelFormat(data->Hdc, &pfd);
     SetPixelFormat(data->Hdc, pixelFormat, &pfd);
-    data->HgLrc = wglCreateContext(data->Hdc);
-    wglMakeCurrent(data->Hdc, data->HgLrc);
+
+    // temporary to try to create a 4.X context
+    HGLRC tempContext = wglCreateContext( data->Hdc );
+    wglMakeCurrent( data->Hdc, tempContext );
+
+    bool success = false;
+    /* CRASH with renderdoc
+    if (wglewIsSupported( "WGL_ARB_create_context" ) == 1)
+    {
+        int pixelFormatAttribs[] =
+        {
+            WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB,		GL_TRUE,
+            WGL_DRAW_TO_WINDOW_ARB,					GL_TRUE,
+            WGL_SUPPORT_OPENGL_ARB,					GL_TRUE,
+            WGL_DOUBLE_BUFFER_ARB,					GL_TRUE,
+            WGL_ACCELERATION_ARB,					WGL_FULL_ACCELERATION_ARB,
+            WGL_PIXEL_TYPE_ARB,						WGL_TYPE_RGBA_ARB,
+            WGL_COLOR_BITS_ARB,						32,
+            WGL_DEPTH_BITS_ARB,						24,
+            WGL_STENCIL_BITS_ARB,					8,
+            0
+        };
+
+        //
+        int iPixelFormat;
+        UINT uNumFormats;
+        wglChoosePixelFormatARB( data->Hdc, pixelFormatAttribs, 0, 1, &iPixelFormat, &uNumFormats );
+        if (uNumFormats)
+        {
+
+            PIXELFORMATDESCRIPTOR pfd;
+            DescribePixelFormat( data->Hdc, iPixelFormat, sizeof( pfd ), &pfd );
+            if (SetPixelFormat( data->Hdc, iPixelFormat, &pfd ))
+            {
+
+                // version 4.4 minimum for glBufferStorage
+                int contextAttribs[] =
+                {
+                    WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                    WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+                    WGL_CONTEXT_MINOR_VERSION_ARB, 4,
+                    WGL_CONTEXT_FLAGS_ARB, 0,
+                    0
+                };
+
+                data->HgLrc = wglCreateContextAttribsARB( data->Hdc, 0, contextAttribs );
+                if (data->HgLrc)
+                {
+                    wglMakeCurrent( NULL, NULL );
+                    wglDeleteContext( tempContext );
+                    wglMakeCurrent( data->Hdc, data->HgLrc );
+                    success = true;
+                }
+            }
+        }
+    }
+    */
+
+    if(!success)
+    {
+        // Use the old style context (GL 2.1 and before)
+        data->HgLrc = tempContext;
+    }
+
     SwapBuffers(data->Hdc);
     wglShareLists(g_glcontext, data->HgLrc);
 }

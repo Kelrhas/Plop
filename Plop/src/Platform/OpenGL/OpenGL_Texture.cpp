@@ -44,6 +44,8 @@ namespace Plop
 
 		glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, m_eDataFormat, GL_UNSIGNED_BYTE, pData );
 
+		glObjectLabel( GL_TEXTURE, m_uID, 0, _sFile.c_str() );
+
 		stbi_image_free( pData );
 
 		m_sName = _sFile;

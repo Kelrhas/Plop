@@ -3,7 +3,8 @@
 
 #include <GL/glew.h>
 
-#include <Application.h>
+#include "Application.h"
+#include "OpenGL_Debug.h"
 
 namespace Plop
 {
@@ -36,6 +37,7 @@ namespace Plop
 
 	void OpenGL_Renderer::DrawFrameBuffer( const FrameBufferPtr& _xFramebuffer )
 	{
+		GL_DEBUG_GROUP_SCOPED( "DrawFrameBuffer" );
 		glBindFramebuffer( GL_READ_FRAMEBUFFER, _xFramebuffer->GetID() );
 		Debug::Assert_GL();
 

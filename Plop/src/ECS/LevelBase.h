@@ -57,6 +57,9 @@ namespace Plop
 		virtual void FromJson(const json& _j);
 
 
+				CameraWeakPtr GetCamera() const { return m_xCurrentCamera; }
+				const glm::mat4& GetCameraViewMatrix() const { return m_mCurrentCameraViewMatrix; }
+
 		static LevelBaseWeakPtr GetCurrentLevel() { return s_xCurrentLevel; }
 
 
@@ -64,6 +67,7 @@ namespace Plop
 		static LevelBaseWeakPtr s_xCurrentLevel;
 		entt::registry	m_ENTTRegistry;
 		CameraWeakPtr	m_xCurrentCamera;
+		glm::mat4		m_mCurrentCameraViewMatrix;
 
 	private:
 

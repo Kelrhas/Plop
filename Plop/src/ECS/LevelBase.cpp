@@ -70,6 +70,7 @@ namespace Plop
 		}
 
 		m_xCurrentCamera = xCurrentCamera;
+		m_mCurrentCameraViewMatrix = mViewMatrix;
 
 		return xCurrentCamera != nullptr;
 	}

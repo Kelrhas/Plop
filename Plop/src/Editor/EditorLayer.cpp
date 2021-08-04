@@ -83,7 +83,10 @@ namespace Plop
 				(xLevelFrameBufer->GetWidth() != m_vViewportSize.x || xLevelFrameBufer->GetHeight() != m_vViewportSize.y))
 			{
 				xLevelFrameBufer->Resize( (U32)m_vViewportSize.x, (U32)m_vViewportSize.y );
-				m_xEditorCamera->SetAspectRatio( m_vViewportSize.x / m_vViewportSize.y );
+				float fRatio = m_vViewportSize.x / m_vViewportSize.y;
+				m_xEditorCamera->SetAspectRatio( fRatio );
+				if (!xLevel->GetCamera().expired())
+					xLevel->GetCamera().lock()->SetAspectRatio( fRatio );
 			}
 
 
@@ -96,7 +99,9 @@ namespace Plop
 			}
 			else
 			{
-				Debug::TODO();
+				ASSERT( !xLevel->GetCamera().expired() );
+				CameraPtr xCamera = xLevel->GetCamera().lock();
+				Renderer::PrepareScene( xCamera->GetProjectionMatrix(), xLevel->GetCameraViewMatrix() );
 			}
 
 			if (m_eLevelState == EditorLayer::LevelState::RUNNING)

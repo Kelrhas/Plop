@@ -3,9 +3,9 @@
 
 #ifdef _DEBUG
 #pragma optimize( "gt", on )
+#endif
 //#define GLM_FORCE_MESSAGES
 #define GLM_FORCE_SWIZZLE
-#endif
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>

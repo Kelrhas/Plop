@@ -240,13 +240,21 @@ namespace Plop
 
 	bool EditorLayer::OnEvent( Event& _event )
 	{
-		if (_event.GetEventType() == EventType::EntityDestroyedEvent)
+		if (_event.GetEventType() == EventType::EntityCreatedEvent)
+		{
+			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
+			entt::entity enttId = entityEvent.entity.m_EntityId;
+			m_mapEntityEditorInfo.insert( { enttId, {} } );
+		}
+		else if (_event.GetEventType() == EventType::EntityDestroyedEvent)
 		{
 			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
 			if (m_SelectedEntity == entityEvent.entity)
 			{
 				m_SelectedEntity.Reset();
 			}
+
+			m_mapEntityEditorInfo.erase( entityEvent.entity.m_EntityId );
 		}
 
 		return false;
@@ -488,14 +496,46 @@ namespace Plop
 		{
 			if (!LevelBase::s_xCurrentLevel.expired())
 			{
+				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+				const auto& registry = xLevel->m_ENTTRegistry;
+
+
 				static Entity entityToDestroy;
 				static std::function<void( Entity& )> DrawEntity;
-				DrawEntity = [this]( Entity& _Entity ) {
+				DrawEntity = [this, &registry]( Entity& _Entity ) {
 
 					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
 
+					auto& itEntityInfo = m_mapEntityEditorInfo.find( _Entity.m_EntityId );
+					ASSERT( itEntityInfo != m_mapEntityEditorInfo.end() );
+
+					bool bSelected = _Entity == m_SelectedEntity;
+					bool bOpen = itEntityInfo->second.bHierarchyOpen;
+
+					const auto& graphNodeParent = registry.get<Component_GraphNode>( _Entity.m_EntityId );
+					bool bHasChildren = graphNodeParent.firstChild != entt::null;
+
+					if (bHasChildren)
+					{
+						ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
+						if (ImGui::ArrowButton( "Hierarchy", bOpen ? ImGuiDir_Down : ImGuiDir_Right ))
+						{
+							bOpen = !bOpen;
+							itEntityInfo->second.bHierarchyOpen = bOpen;
+						}
+						ImGui::PopStyleColor();
+					}
+					else
+					{
+						float fSize = ImGui::GetFrameHeight();
+						ImGui::Dummy( ImVec2( fSize, fSize ) );
+					}
+
+					ImGui::SameLine();
+
+
 					String& sName = _Entity.GetComponent<Component_Name>().sName;
-					if (m_eEditMode == EditMode::RENAMING_ENTITY && _Entity == m_SelectedEntity)
+					if (m_eEditMode == EditMode::RENAMING_ENTITY && bSelected)
 					{
 						ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { 0, 0 } );
 						ImGui::SetItemDefaultFocus();
@@ -516,7 +556,7 @@ namespace Plop
 					}
 					else
 					{
-						if (ImGui::Selectable( sName.c_str(), m_SelectedEntity == _Entity ))
+						if (ImGui::Selectable( sName.c_str(), bSelected ))
 						{
 							m_SelectedEntity = _Entity;
 							m_eEditMode = EditMode::NONE;
@@ -567,17 +607,15 @@ namespace Plop
 
 					ImGui::PopID();
 
-					ImGui::Indent();
-					for (Entity& child : _Entity.GetChildren())
+					if (bHasChildren && bOpen)
 					{
-						DrawEntity( child );
+						ImGui::Indent();
+						_Entity.ChildVisitor( DrawEntity );
+						ImGui::Unindent();
 					}
-					ImGui::Unindent();
 				};
 
 				ImGui::BeginChild( "GraphNodeList", ImVec2( 0, -ImGui::GetFrameHeightWithSpacing() ) );
-
-				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
 
 				auto& view = xLevel->m_ENTTRegistry.view<Component_Name>();
 				for (auto& e : view)
@@ -778,11 +816,11 @@ namespace Plop
 			ci.duplicate( reg, _entity, dupEntity );
 		}
 
-		for (const Entity& _child : _entity.GetChildren())
-		{
+		_entity.ChildVisitor( [&dupEntity](Entity _child ) {
+
 			Entity dupChild = DuplicateEntity( _child );
 			dupChild.SetParent( dupEntity );
-		}
+		} );
 
 		return dupEntity;
 	}

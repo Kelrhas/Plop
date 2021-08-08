@@ -57,6 +57,10 @@ namespace Plop
 			STOPPING // for aync
 		};
 
+		struct EntityEditorInfo
+		{
+			bool bHierarchyOpen = false;
+		};
 
 				void		ShowMenuBar();
 				void		ShowToolBar();
@@ -123,6 +127,7 @@ namespace Plop
 		
 		static ::MM::EntityEditor<entt::entity>* s_pENTTEditor;
 
+		std::unordered_map<entt::entity, EntityEditorInfo> m_mapEntityEditorInfo;
 
 	};
 

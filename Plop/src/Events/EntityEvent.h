@@ -14,6 +14,13 @@ namespace Plop
 		const Entity& entity;
 	};
 
+	class EntityCreatedEvent : public EntityEvent
+	{
+	public:
+		EntityCreatedEvent( const Entity& _entity ) : EntityEvent( _entity ) {}
+		MACRO_EVENT_TYPE( EntityCreatedEvent );
+	};
+
 	class EntityDestroyedEvent : public EntityEvent
 	{
 	public:

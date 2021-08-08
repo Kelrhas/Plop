@@ -1,6 +1,23 @@
 
 namespace Plop
 {
+	template<typename Visitor>
+	void Entity::ChildVisitor( Visitor visitor ) const
+	{
+		const auto& reg = m_xLevel.lock()->m_ENTTRegistry;
+		const auto& graphNodeParent = reg.get<Component_GraphNode>( m_EntityId );
+		auto childEntity = graphNodeParent.firstChild;
+
+		while (childEntity != entt::null)
+		{
+			visitor( Entity{ childEntity, m_xLevel } );
+
+			const auto& graphNodeChild = reg.get<Component_GraphNode>( childEntity );
+			childEntity = reg.get<Component_GraphNode>( childEntity ).nextSibling;
+		}
+	}
+
+
 	template <class Comp, typename ...Args>
 	Comp& Entity::AddComponent( Args...args )
 	{

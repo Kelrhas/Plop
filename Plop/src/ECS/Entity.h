@@ -32,7 +32,12 @@ namespace Plop
 		Entity												GetParent() const;
 		void												SetParent( Entity& _Parent );
 
-		std::vector<Entity>									GetChildren() const;
+
+		void												GetChildren(std::vector<Entity>& _outvecChildren ) const;
+		
+		template<typename Visitor>
+		void												ChildVisitor( Visitor visitor ) const;
+
 
 		template <class Comp, typename ...Args>	Comp&		AddComponent( Args...args );
 		template <class Comp, typename ...Args>	void		RemoveComponent();

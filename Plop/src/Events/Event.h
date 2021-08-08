@@ -11,6 +11,7 @@ namespace Plop
 		WindowMoveEvent,
 		WindowSizeEvent,
 
+		EntityCreatedEvent,
 		EntityDestroyedEvent,
 	};
 

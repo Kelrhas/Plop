@@ -112,25 +112,32 @@ namespace Plop
 		}
 	}
 
-	std::vector<Entity> Entity::GetChildren() const
+	void Entity::GetChildren(std::vector<Entity>& _outvecChildren) const
 	{
-		std::vector<Entity> vecChildren;
+		_outvecChildren.clear();
 
 		if (m_EntityId != entt::null && !m_xLevel.expired())
 		{
 			auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 			if (reg.valid( m_EntityId ))
 			{
-				auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
+				auto& graphNodeParent = reg.get<Component_GraphNode>( m_EntityId );
 
-				for (int i = 0; i < graphNode.nbChild; ++i)
+#ifdef ALLOW_DYNAMIC_CHILDREN
+				auto childEntity = graphNodeParent.firstChild;
+				while(childEntity != entt::null)
 				{
-					vecChildren.emplace_back( graphNode.children[i], m_xLevel );
+					_outvecChildren.emplace_back( childEntity, m_xLevel );
+					childEntity = reg.get<Component_GraphNode>( childEntity ).nextSibling;
 				}
+#else
+				for (int i = 0; i < graphNodeParent.nbChild; ++i)
+				{
+					_outvecChildren.emplace_back( graphNodeParent.children[i], m_xLevel );
+				}
+#endif
 			}
 		}
-
-		return vecChildren;
 	}
 
 	void to_json( json& j, const Entity& e ) {
@@ -143,7 +150,9 @@ namespace Plop
 
 		j["HintID"] = m_EntityId;
 		j["Name"] = GetComponent<Component_Name>().sName;
-		j["Children"] = GetChildren();
+		static std::vector<Entity> vecChildren;
+		GetChildren( vecChildren );
+		j["Children"] = vecChildren;
 
 		return j;
 	}
@@ -176,12 +185,26 @@ namespace Plop
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))
 		{
-			auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
-			ASSERTM( graphNode.nbChild + 1 < Component_GraphNode::MAX_CHILDREN, "No room for another child" );
-			if (graphNode.nbChild + 1 < graphNode.MAX_CHILDREN)
+			auto& graphNodeParent = reg.get<Component_GraphNode>( m_EntityId );
+
+#ifdef ALLOW_DYNAMIC_CHILDREN
+			if (graphNodeParent.firstChild != entt::null)
 			{
-				graphNode.children[graphNode.nbChild++] = _Child.m_EntityId;
+				auto& graphNodeChild = reg.get<Component_GraphNode>( graphNodeParent.firstChild );
+				graphNodeChild.prevSibling = _Child;
+
+				auto& graphNodeNewChild = reg.get<Component_GraphNode>( _Child );
+				graphNodeNewChild.nextSibling = graphNodeParent.firstChild;
 			}
+			
+			graphNodeParent.firstChild = _Child;
+#else
+			ASSERTM( graphNodeParent.nbChild + 1 < Component_GraphNode::MAX_CHILDREN, "No room for another child" );
+			if (graphNodeParent.nbChild + 1 < graphNodeParent.MAX_CHILDREN)
+			{
+				graphNodeParent.children[graphNodeParent.nbChild++] = _Child.m_EntityId;
+			}
+#endif
 		}
 	}
 
@@ -193,16 +216,39 @@ namespace Plop
 		auto& reg = m_xLevel.lock()->m_ENTTRegistry;
 		if (reg.valid( m_EntityId ))
 		{
-			auto& graphNode = reg.get<Component_GraphNode>( m_EntityId );
-			for (int i = 0; i < graphNode.nbChild; ++i)
+
+			auto& graphNodeParent = reg.get<Component_GraphNode>( m_EntityId );
+
+#ifdef ALLOW_DYNAMIC_CHILDREN
+
+			const auto& graphNodeChild = reg.get<Component_GraphNode>( _Child );
+
+			if (graphNodeParent.firstChild == _Child.m_EntityId)
 			{
-				if (graphNode.children[i] == _Child.m_EntityId)
+				graphNodeParent.firstChild = graphNodeChild.nextSibling;
+			}
+			else //if (graphNodeChild.prevSibling != entt::null)
+			{
+				auto& graphNodePrev = reg.get<Component_GraphNode>( graphNodeChild.prevSibling );
+				graphNodePrev.nextSibling = graphNodeChild.nextSibling;
+			}
+			if (graphNodeChild.nextSibling != entt::null)
+			{
+				auto& graphNodeNext = reg.get<Component_GraphNode>( graphNodeChild.nextSibling );
+				graphNodeNext.prevSibling = graphNodeChild.prevSibling;
+			}
+
+#else
+			for (int i = 0; i < graphNodeParent.nbChild; ++i)
+			{
+				if (graphNodeParent.children[i] == _Child.m_EntityId)
 				{
-					graphNode.children[i] = std::move( graphNode.children[graphNode.nbChild - 1] );
-					graphNode.nbChild--;
+					graphNodeParent.children[i] = std::move( graphNodeParent.children[graphNodeParent.nbChild - 1] );
+					graphNodeParent.nbChild--;
 					break;
 				}
 			}
+#endif
 		}
 	}
 #pragma endregion

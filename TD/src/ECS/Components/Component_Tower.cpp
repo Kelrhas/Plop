@@ -10,7 +10,7 @@
 #include <ECS/Components/Component_SpriteRenderer.h>
 #include <Assets/TextureLoader.h>
 
-#include "Components/Component_Bullet.h"
+#include "ECS/Components/Component_Bullet.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 

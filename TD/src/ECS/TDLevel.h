@@ -3,6 +3,8 @@
 #include <Renderer/Sprite.h>
 #include <ECS/LevelBase.h>
 
+#include "ECS/LevelGrid.h"
+
 class TDLevel : public Plop::LevelBase
 {
 public:
@@ -17,5 +19,6 @@ public:
 
 
 private:
+	LevelGrid m_grid;
 };
 

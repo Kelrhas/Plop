@@ -26,6 +26,34 @@
 		"enemy": {
 			"Column":17,
 			"Row":2
+		},
+		"gravel": {
+			"Column":1,
+			"Row":8
+		},
+		"dirt": {
+			"Column":4,
+			"Row":10
+		},
+		"grass": {
+			"Column":1,
+			"Row":11
+		},
+		"concrete": {
+			"Column":4,
+			"Row":1
+		},
+		"concrete-grass_interior_corner": {
+			"Column":3,
+			"Row":3
+		},
+		"concrete-grass_exterior_corner": {
+			"Column":2,
+			"Row":1
+		},
+		"concrete-grass_side": {
+			"Column":2,
+			"Row":2
 		}
 	}
 }

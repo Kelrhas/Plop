@@ -3,7 +3,7 @@
 #include <imgui_entt_entity_editor.hpp>
 #include <ECS/Components/Component_Transform.h>
 
-#include "Components/Component_Enemy.h"
+#include "ECS/Components/Component_Enemy.h"
 
 
 struct Component_Tower

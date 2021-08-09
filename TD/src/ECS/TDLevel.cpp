@@ -31,6 +31,8 @@ TDLevel::~TDLevel()
 void TDLevel::Init()
 {
 	Plop::LevelBase::Init();
+
+	m_grid.Init();
 }
 
 void TDLevel::Update( Plop::TimeStep& _ts ) 

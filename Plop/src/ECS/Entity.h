@@ -17,7 +17,7 @@ namespace Plop
 		Entity() = default;
 		Entity( entt::null_t );
 		Entity( entt::entity _entityID, const LevelBaseWeakPtr& _xLevel );
-		Entity( const Entity& _other ) = delete;
+		Entity( const Entity& _other ) noexcept;
 		Entity( Entity&& _other ) noexcept;
 
 		void												Reset();

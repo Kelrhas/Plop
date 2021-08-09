@@ -18,6 +18,12 @@ namespace Plop
 		, m_xLevel( _xLevel )
 	{}
 
+	Entity::Entity( const Entity& _other ) noexcept
+	{
+		m_EntityId = _other.m_EntityId;
+		m_xLevel = _other.m_xLevel;
+	}
+
 	Entity::Entity( Entity&& _other ) noexcept
 	{
 		m_EntityId = _other.m_EntityId;

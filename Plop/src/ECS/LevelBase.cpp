@@ -95,6 +95,8 @@ namespace Plop
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
+		EventDispatcher::SendEvent( EntityCreatedEvent( e ) );
+
 		return e;
 	}
 
@@ -107,6 +109,8 @@ namespace Plop
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
+		EventDispatcher::SendEvent( EntityCreatedEvent( e ) );
+
 		return e;
 	}
 
@@ -116,7 +120,8 @@ namespace Plop
 
 		_entity.SetParent( Entity() );
 
-		std::vector<Entity> vecChildren = _entity.GetChildren();
+		static std::vector<Entity> vecChildren;
+		_entity.GetChildren(vecChildren);
 		for (Entity& e : vecChildren)
 		{
 			DestroyEntity( std::move(e) );

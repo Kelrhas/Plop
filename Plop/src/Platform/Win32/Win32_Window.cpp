@@ -218,7 +218,16 @@ namespace Plop
 			return;
 
 		s_pWaitingWindow = this;
-		m_hWnd = CreateWindowEx(0, "MainWindow", Application::Get()->GetName().c_str(), windowStyle, windowSize.left, windowSize.top, windowSize.right - windowSize.left, windowSize.bottom - windowSize.top, nullptr, nullptr, hInstance, this);
+		char pWindowTitle[128] = {};
+		strcpy( pWindowTitle, Application::Get()->GetName().c_str() );
+#if defined(_DEBUG)
+		strcat( pWindowTitle, " - Debug" );
+#elif defined(_RELEASE)
+		strcat( pWindowTitle, " - Release" );
+#elif defined(_MASTER)
+		strcat( pWindowTitle, " - Master" );
+#endif
+		m_hWnd = CreateWindowEx(0, "MainWindow", pWindowTitle, windowStyle, windowSize.left, windowSize.top, windowSize.right - windowSize.left, windowSize.bottom - windowSize.top, nullptr, nullptr, hInstance, this);
 		s_pWaitingWindow = nullptr;
 		if (!m_hWnd)
 			return;

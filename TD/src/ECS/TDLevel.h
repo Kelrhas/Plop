@@ -12,6 +12,7 @@ public:
 	virtual ~TDLevel();
 
 	virtual void				Init() override;
+	virtual void				Shutdown() override;
 	virtual void				Update(Plop::TimeStep& _ts) override;
 	virtual void				UpdateInEditor(Plop::TimeStep _ts) override;
 
@@ -20,5 +21,7 @@ public:
 
 private:
 	LevelGrid m_grid;
+	Plop::Entity m_SpawnerEntity;
+	Plop::Entity m_BaseEntity;
 };
 

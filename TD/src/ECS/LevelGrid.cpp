@@ -6,6 +6,8 @@
 #include <ECS/Components/Component_Transform.h>
 #include <Assets/SpritesheetLoader.h>
 
+#include <Debug/Log.h>
+
 namespace // private
 {
 	/*const std::map<String, LevelTileDefinition> s_mapTilesDef =
@@ -19,11 +21,12 @@ namespace // private
 
 
 
-constexpr float LevelGrid::TileDefinition::GetPathFindCost()
+constexpr float LevelGrid::TileDefinition::GetPathFindCost() const
 {
 	switch (eType)
 	{
-		case TYPE_GROUND:	return 1.f;
+		case TYPE_GROUND:		return 1.f;
+		case TYPE_HARD_GROUND:	return 5.f;
 
 
 		default:
@@ -34,92 +37,246 @@ constexpr float LevelGrid::TileDefinition::GetPathFindCost()
 	}
 }
 
-void LevelGrid::Init()
+
+bool LevelGrid::LevelConstraints::IsValid() const
 {
+	if (m_vecStarts.empty() /*|| m_vecEnds.size()*/)
+		return false;
 
-	uLevelWidth = 30;
-	uLevelHeight = 30;
+	for (const auto& vStart : m_vecStarts)
+		if (vStart.x >= m_uLevelWidth || vStart.y >= m_uLevelHeight)
+			return false;
+	//for (const auto& vEnd : m_vecEnds)
+	//	if (vEnd.x >= m_uLevelWidth || vEnd.y >= m_uLevelHeight)
+	//		return false;
+	if (m_vEnd.x >= m_uLevelWidth || m_vEnd.y >= m_uLevelHeight)
+		return false;
+
+	for (const auto& tiles : m_vecFixedTiles)
+		if (tiles.vCoord.x >= m_uLevelWidth || tiles.vCoord.y >= m_uLevelHeight)
+			return false;
+
+	return true;
+}
 
 
-	m_sSpritesheet = std::filesystem::canonical( Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef" );
-	m_hSpritesheet = Plop::AssetLoader::GetSpritesheet( m_sSpritesheet );
 
-	levelGrid = new TileDefinition[uLevelWidth * uLevelHeight];
+void LevelGrid::Init( const LevelConstraints& _constraints )
+{
+	ASSERTM( m_pLevelGrid == nullptr, "Grid not null, call Reset beforehand" );
+	ASSERTM( _constraints.IsValid(), "The constraints are not valid" );
 
-	Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
+	uLevelWidth = _constraints.m_uLevelWidth;
+	uLevelHeight = _constraints.m_uLevelHeight;
+
+	m_pLevelGrid = new TileDefinition[uLevelWidth * uLevelHeight];
+
+	for (const TileDefinition& fixedTile : _constraints.m_vecFixedTiles)
+	{
+		auto& tile = GetTile( fixedTile.vCoord );
+		tile = fixedTile;
+	}
 
 
-	Plop::Entity grid = xLevel->CreateEntity( "grid" );
+	const glm::uvec2& vSpawnPosition = _constraints.m_vecStarts.front();
 
-	glm::uvec2 vBasePosition( uLevelWidth - 2, uLevelHeight - 2 );
-	glm::uvec2 vSpawnPosition = VEC2_1;
+	float fHalfway = floor( (_constraints.m_vEnd.x + vSpawnPosition.x) / 2.f );
 
-	float fHalfway = floor( (vBasePosition.x + vSpawnPosition.x) / 2.f );
-	// generate the base level definition
+	//// generate the base level definition
 	for (U32 y = 0; y < uLevelHeight; ++y)
 	{
 		for (U32 x = 0; x < uLevelWidth; ++x)
 		{
-			TileDefinition& tile = levelGrid[x + uLevelWidth * y];
+			TileDefinition& tile = GetTile( x, y );
+			if (tile.eType == TileDefinition::TYPE_NONE)
+			{
+				tile.vCoord = glm::uvec2( x, y );
+				tile.eType = TileDefinition::TYPE_WALL;
 
-			if (x < fHalfway)
-			{
-				if (y == vSpawnPosition.y)
-					tile.eType = TileDefinition::TYPE_GROUND;
-			}
-			else if (x == fHalfway)
-			{
-				if (y >= vSpawnPosition.y && y <= vBasePosition.y)
-					tile.eType = TileDefinition::TYPE_GROUND;
-			}
-			else
-			{
-				if (y == vBasePosition.y)
-					tile.eType = TileDefinition::TYPE_GROUND;
+				if (x < fHalfway)
+				{
+					if (y == vSpawnPosition.y)
+						tile.eType = TileDefinition::TYPE_GROUND;
+				}
+				else if (x == fHalfway)
+				{
+					if (y >= vSpawnPosition.y && y <= _constraints.m_vEnd.y)
+						tile.eType = TileDefinition::TYPE_GROUND;
+				}
+				else
+				{
+					if (y == _constraints.m_vEnd.y)
+						tile.eType = TileDefinition::TYPE_GROUND;
+				}
 			}
 		}
 	}
 
-	/**/
-	// generate entities
+
+
+	//// generate entities according to the definitions generated
+
+	m_sSpritesheet = std::filesystem::canonical( Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef" );
+	m_hSpritesheet = Plop::AssetLoader::GetSpritesheet( m_sSpritesheet );
+
+
+	Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
+	Plop::Entity grid = xLevel->CreateEntity( "grid" );
+	grid.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
+
+	String sName;
+	sName.resize( 16 );
 	for (U32 y = 0; y < uLevelHeight; ++y)
 	{
 		for (U32 x = 0; x < uLevelWidth; ++x)
 		{
-			TileDefinition& tile = levelGrid[x + uLevelWidth * y];
-			String sName;
-			sName.resize( 16 );
+			TileDefinition& tile = GetTile(x, y);
+			sName.clear();
 			sprintf(sName.data(), "Tile_%d_%d", x, y);
 			tile.entity = xLevel->CreateEntity( sName );
+			tile.entity.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
 			tile.entity.SetParent( grid );
 			auto& transform = tile.entity.GetComponent<Plop::Component_Transform>();
 			transform.SetLocalPosition( glm::vec3( x, y, 0 ) );
-			/*
-			if (bTransition)
-			{
-				float fAngle = 0;
-				if (x > 1)
-					fAngle += glm::half_pi<float>();
 
-				if (y < uLevelHeight -2 && x > 1)
-					fAngle += glm::half_pi<float>();
-
-				if (y == 1 && !bCorner)
-					fAngle += glm::half_pi<float>();
-
-				if(x == 1 && y == 1)
-					fAngle -= glm::half_pi<float>();
-
-				if(fAngle != 0.f)
-					transform.SetLocalRotation( glm::angleAxis( fAngle, VEC3_FORWARD ) );
-			}
-			*/
 
 			auto& spriteComp = tile.entity.AddComponent<Plop::Component_SpriteRenderer>();
 			spriteComp.xSprite->SetSpritesheet( m_hSpritesheet, tile.eType == TileDefinition::TYPE_GROUND ? "concrete" : "grass" );
 		}
 	}
-	/**/
+}
+
+void LevelGrid::Reset()
+{
+	delete[] m_pLevelGrid;
+	m_pLevelGrid = nullptr;
+}
+
+
+template <class CellType, class CostFunc, class NeighborFunc>
+GridPathFind<CellType> A_Star( const CellType& start, const CellType& end, CostFunc EstimateCostFunc, NeighborFunc GetNeighborFunc )
+{
+	GridPathFind<CellType> pf;
+
+	struct CellInfo
+	{
+		CellType previous;
+		float fCurrentCost = FLT_MAX;
+		float fEstimateTotalCost = FLT_MAX;
+	};
+
+	static std::vector<CellType> vecOpen;
+	static std::unordered_map<CellType, CellInfo> mapCellInfo;
+
+	vecOpen.clear();
+	vecOpen.push_back( start );
+	mapCellInfo.clear();
+
+	mapCellInfo.insert_or_assign( start, CellInfo{ start, 0, EstimateCostFunc( start, end ) } );
+	
+	while (!vecOpen.empty())
+	{
+		CellType current = vecOpen.front();
+		const auto& currentInfo = mapCellInfo[current];
+		float fLowestCost = currentInfo.fEstimateTotalCost;
+		for (auto& cell : vecOpen)
+		{
+			if (float fCost = currentInfo.fEstimateTotalCost; fCost < fLowestCost)
+			{
+				current = cell;
+				fLowestCost = fCost;
+			}
+		}
+
+		if (current == end)
+		{
+			pf.bValid = true;
+			pf.fTotalCost = currentInfo.fCurrentCost;
+			// reconstruct path
+			pf.vecPath.push_back( current );
+			CellType previous = currentInfo.previous;
+			while (previous != start)
+			{
+				pf.vecPath.push_back( previous );
+				const auto& previousInfo = mapCellInfo[previous];
+				previous = previousInfo.previous;
+			}
+
+			std::reverse( pf.vecPath.begin(), pf.vecPath.end() );
+
+			return pf;
+		}
+
+		vecOpen.erase( std::remove( vecOpen.begin(), vecOpen.end(), current ), vecOpen.end() );
+
+		static std::vector<CellType> vecNeighbors;
+		vecNeighbors.clear();
+		GetNeighborFunc( current, vecNeighbors );
+
+
+		for (const CellType& vNeighbor : vecNeighbors)
+		{
+			float fNeighborCost = vNeighbor.GetPathFindCost();
+			if (fNeighborCost < 0)
+				continue;
+
+			float fCost = currentInfo.fCurrentCost + fNeighborCost;
+			auto& neighborInfo = mapCellInfo[vNeighbor];
+
+			if (fCost < neighborInfo.fCurrentCost)
+			{
+				neighborInfo.previous = current;
+				neighborInfo.fCurrentCost = fCost;
+				neighborInfo.fEstimateTotalCost = fCost + EstimateCostFunc( vNeighbor, end );
+				if (std::find( vecOpen.begin(), vecOpen.end(), vNeighbor ) == vecOpen.end())
+					vecOpen.push_back( vNeighbor );
+			}
+
+		}
+
+	}
+
+	return pf;
+}
+
+GridPathFind<LevelGrid::TileDefinition> LevelGrid::GetPathfind( const LevelGrid::TileDefinition& _vStart, const LevelGrid::TileDefinition& _vEnd )
+{
+	using CellType = LevelGrid::TileDefinition;
+
+	GridPathFind<CellType> pf = A_Star( _vStart, _vEnd,
+		[]( const CellType& _cell1, const CellType& _cell2 ) {
+			glm::vec2 v1 = _cell1.vCoord;
+			glm::vec2 v2 = _cell2.vCoord;
+			return glm::distance2( v1, v2 );
+		},
+		[&]( const CellType& _cell, std::vector<CellType>& _outVec ) 		{
+			
+			if (_cell.vCoord.x > 0)
+				_outVec.push_back( GetTile( _cell.vCoord.x - 1, _cell.vCoord.y ) );
+			if (_cell.vCoord.x < uLevelWidth - 1)
+				_outVec.push_back( GetTile( _cell.vCoord.x + 1, _cell.vCoord.y ) );
+			if (_cell.vCoord.y > 0)
+				_outVec.push_back( GetTile( _cell.vCoord.x, _cell.vCoord.y - 1 ) );
+			if (_cell.vCoord.y < uLevelHeight - 1)
+				_outVec.push_back( GetTile( _cell.vCoord.x, _cell.vCoord.y + 1 ) );
+			
+		} );
+	/*
+	if (pf.bValid)
+	{
+		Plop::Log::Info( "Valid from {}, {} to {}, {} with a cost of {}", _vStart.vCoord.x, _vStart.vCoord.y, _vEnd.vCoord.x, _vEnd.vCoord.y, pf.fTotalCost );
+		for (auto& tile : pf.vecPath)
+		{
+			Plop::Log::Info( " - {}, {}", tile.vCoord.x, tile.vCoord.y );
+		}
+	}
+	else
+	{
+		Plop::Log::Info( "NOT Valid from {}, {} to {}, {}", _vStart.vCoord.x, _vStart.vCoord.y, _vEnd.vCoord.x, _vEnd.vCoord.y );
+	}
+	*/
+
+	return pf;
 }
 
 const LevelGrid::TileDefinition& LevelGrid::GetTileDefinition( const String& _sTileName )

@@ -35,6 +35,10 @@
 			"Column":4,
 			"Row":10
 		},
+		"sand": {
+			"Column":11,
+			"Row":2
+		},
 		"grass": {
 			"Column":1,
 			"Row":11
@@ -54,6 +58,10 @@
 		"concrete-grass_side": {
 			"Column":2,
 			"Row":2
+		},
+		"player_base": {
+			"Column":19,
+			"Row":5
 		}
 	}
 }

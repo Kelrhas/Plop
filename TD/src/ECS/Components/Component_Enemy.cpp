@@ -33,7 +33,7 @@ namespace EnemySystem
 			}
 			else
 			{
-				if (enemy.xPathCurve)
+				if (enemy.xPathCurve && enemy.xPathCurve->IsValid())
 				{
 					//fPathPosition += fMoveSpeed * _fDeltaTime;
 					enemy.fPathPosition += enemy.fMoveSpeed / glm::length( enemy.xPathCurve->GetTangent( enemy.fPathPosition ) ) * fDeltaTime;

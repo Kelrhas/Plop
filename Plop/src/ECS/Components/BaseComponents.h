@@ -4,6 +4,8 @@
 #include <entt/entity/registry.hpp>
 #include <imgui_entt_entity_editor.hpp>
 
+#include <ECS/EntityFlag.h>
+
 
 // dynamic children allows for N children per entity, and keep the ordering of children
 // static children does not keep ordering and only allows MAX_CHILDREN children
@@ -11,12 +13,15 @@
 
 namespace Plop
 {
+
 	struct Component_Name
 	{
-		Component_Name( const String& _sName = "Entity" ) : sName( _sName ) {}
-
 		String sName;
+
+		Component_Name( const String& _sName = "Entity" ) : sName( _sName ) {}
 	};
+
+	using EntityFlagBits = EnumFlags<EntityFlag>;
 
 	struct Component_GraphNode
 	{
@@ -33,6 +38,8 @@ namespace Plop
 		size_t nbChild = 0;
 		std::array<entt::entity, MAX_CHILDREN> children{}; // cannot be a dynamic sized array
 #endif
+		
+		EntityFlagBits	uFlags = EntityFlag::NONE;
 	};
 	// TODO: merge GraphNode & Transform ?
 }

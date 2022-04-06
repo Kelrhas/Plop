@@ -126,6 +126,8 @@ namespace Plop::Math
 
 		glm::vec3 GetTangent( float _t );
 
+		bool IsValid() const { return vecControlPoints.size() > 3; }
+
 		std::vector<glm::vec3> vecControlPoints;
 	};
 	using CatmullRomCurvePtr = std::shared_ptr<CatmullRomCurve>;

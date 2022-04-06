@@ -1,8 +1,14 @@
 #pragma once
 
+#ifdef USE_COMPONENT_MGR
+#include <ECS/ComponentManager.h>
+#else
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <imgui_entt_entity_editor.hpp>
+#endif
+
+#include "ECS/Components/ComponentDefinition.h"
 
 namespace Plop
 {
@@ -15,6 +21,13 @@ namespace Plop
 		Component_Transform( const glm::vec3& _vTranslation, const glm::quat& _qRotation = glm::identity<glm::quat>(), const glm::vec3& _vScale = VEC3_1 )
 			: vPosition( _vTranslation ), qRotation( _qRotation ), vScale( _vScale )
 		{}
+
+
+		void EditorUI();
+		json ToJson() const;
+		void FromJson( const json& _j );
+
+
 
 		float Distance2D( const Component_Transform& _other ) const;
 		float Distance2DSquare( const Component_Transform& _other ) const;
@@ -52,6 +65,7 @@ namespace Plop
 
 
 
+
 		//operator glm::mat4() const { return GetLocalMatrix(); }
 		//operator glm::quat() const { return glm::quat( vRotation ); }
 
@@ -60,12 +74,17 @@ namespace Plop
 		glm::quat qRotation = glm::identity<glm::quat>();
 		glm::vec3 vScale = glm::vec3( 1.f, 1.f, 1.f );
 	};
+
+	template<>
+	constexpr bool CanRemoveComponent<Component_Transform>() { return false; }
 }
 
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>	void ComponentEditorWidget<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	json ComponentToJson<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	void ComponentFromJson<Plop::Component_Transform>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 }
+#endif

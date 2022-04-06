@@ -132,35 +132,6 @@ namespace Plop
 		ImGui::End();
 	}
 
-	glm::vec3 EditorCamera::GetPosition() const
-	{
-		return -m_mViewMatrix[3] * m_mViewMatrix;
-	}
-
-	glm::vec3 EditorCamera::GetDirection() const
-	{
-		glm::mat4 mT = glm::transpose( m_mViewMatrix );
-		glm::vec3 vDir = -mT[2];
-
-		return vDir;
-	}
-
-	glm::vec3 EditorCamera::GetRight() const
-	{
-		glm::mat4 mT = glm::transpose( m_mViewMatrix );
-		glm::vec3 vRight = mT[0];
-
-		return vRight;
-	}
-
-	glm::vec3 EditorCamera::GetUp() const
-	{
-		glm::mat4 mT = glm::transpose( m_mViewMatrix );
-		glm::vec3 vUp = mT[1];
-
-		return vUp;
-	}
-
 	void EditorCamera::Translate( const glm::vec3& _vTranslate )
 	{
 		m_vOrbitTarget += _vTranslate;

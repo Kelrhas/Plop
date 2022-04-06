@@ -25,7 +25,7 @@ namespace TowerSystem
 
 		tower.fFireDelay += 1.f / tower.fFiringRate;
 
-		Plop::LevelBasePtr xLevel = Plop::LevelBase::GetCurrentLevel().lock();
+		Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
 		glm::vec3 vTowerPos = transformTower.GetWorldPosition();
 
 		const glm::vec2 vEnemyDir2D = glm::normalize( _vEnemyPosition.xy - vTowerPos.xy );
@@ -59,7 +59,7 @@ namespace TowerSystem
 		}
 
 		// play sound
-		Plop::Entity towerEntity{ entityTower, Plop::LevelBase::GetCurrentLevel() };
+		Plop::Entity towerEntity{ entityTower, Plop::Application::GetCurrentLevel() };
 		auto& audioComp = towerEntity.GetComponent<Plop::Component_AudioEmitter>();
 		audioComp.PlaySound();
 
@@ -96,13 +96,14 @@ namespace TowerSystem
 				if (iBestEnemy != entt::null)
 				{
 					ShootAt( entityTower, tower, transform, vEnemyPos );
-					//tower.Fire( Plop::Entity{ iBestEnemy, Plop::LevelBase::GetCurrentLevel() }, vEnemyPos );
+					//tower.Fire( Plop::Entity{ iBestEnemy, Plop::Application::GetCurrentLevel() }, vEnemyPos );
 				}
 			}
 		} );
 	}
 }
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>
@@ -139,3 +140,4 @@ namespace MM
 			comp.fFiringRate = _j["Firing rate"];
 	}
 }
+#endif

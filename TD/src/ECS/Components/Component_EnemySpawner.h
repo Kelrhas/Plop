@@ -20,6 +20,11 @@ struct Component_EnemySpawner
 	Wave wave;
 	float fTimer = 0;
 	int iNbEnemySpawned = 0;
+
+
+	void EditorUI();
+	json ToJson() const;
+	void FromJson( const json& _j );
 };
 
 
@@ -27,10 +32,3 @@ namespace EnemySpawnerSystem
 {
 	void OnUpdate( const Plop::TimeStep& _ts, entt::registry& _registry );
 };
-
-namespace MM
-{
-	template <>	void ComponentEditorWidget<Component_EnemySpawner>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	json ComponentToJson<Component_EnemySpawner>( entt::registry& reg, entt::registry::entity_type e );
-	template <>	void ComponentFromJson<Component_EnemySpawner>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
-}

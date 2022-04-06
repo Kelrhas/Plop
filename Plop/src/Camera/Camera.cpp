@@ -83,8 +83,9 @@ namespace Plop
 
 	glm::vec3 Camera::GetWorldPosFromNDCPos( const glm::vec2& _vNDCPos, float _fWantedDepth )
 	{
+		// TODO get the camera transform into account
 
-		const glm::mat4 mProjInv = glm::inverse( m_mProjectionMatrix );
+		const glm::mat4 mProjInv = glm::inverse( m_mProjectionMatrix * m_mViewMatrix );
 		const glm::vec4 vPos( _vNDCPos, 0.f, 1.f );
 
 		const glm::vec4 vTemp = mProjInv * vPos;
@@ -92,6 +93,46 @@ namespace Plop
 		vRes /= vTemp.w;
 		vRes.z = _fWantedDepth;
 
+
+		/*
+		const glm::mat4 mProjInv = glm::inverse( m_mProjectionMatrix );
+		const glm::vec4 vPos( _vNDCPos, 0.f, 1.f );
+
+		const glm::vec4 vTemp = mProjInv * vPos;
+		glm::vec3 vRes = vTemp.xyz;
+		vRes /= vTemp.w;
+		vRes.z = _fWantedDepth;
+		*/
 		return vRes;
+	}
+
+
+	glm::vec3 Camera::GetPosition() const
+	{
+		return -m_mViewMatrix[3] * m_mViewMatrix;
+	}
+
+	glm::vec3 Camera::GetDirection() const
+	{
+		glm::mat4 mT = glm::transpose( m_mViewMatrix );
+		glm::vec3 vDir = -mT[2];
+
+		return vDir;
+	}
+
+	glm::vec3 Camera::GetRight() const
+	{
+		glm::mat4 mT = glm::transpose( m_mViewMatrix );
+		glm::vec3 vRight = mT[0];
+
+		return vRight;
+	}
+
+	glm::vec3 Camera::GetUp() const
+	{
+		glm::mat4 mT = glm::transpose( m_mViewMatrix );
+		glm::vec3 vUp = mT[1];
+
+		return vUp;
 	}
 }

@@ -10,11 +10,9 @@
 #include "Renderer/Renderer.h"
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Entity.h"
+#include "ECS/Components/ComponentDefinition.h"
 #include "ECS/Components/BaseComponents.h"
-#include "ECS/Components/Component_AudioEmitter.h"
-#include "ECS/Components/Component_Camera.h"
-#include "ECS/Components/Component_SpriteRenderer.h"
-#include "ECS/Components/Component_Transform.h"
+#include "ECS/Components/ComponentIncludes.h"
 
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
@@ -23,8 +21,6 @@
 
 namespace Plop
 {
-	LevelBaseWeakPtr LevelBase::s_xCurrentLevel;
-
 	LevelBase::~LevelBase()
 	{
 	}
@@ -32,8 +28,12 @@ namespace Plop
 	void LevelBase::Init()
 	{
 		m_ENTTRegistry.sort<Component_GraphNode, Component_Transform>(); // minimizes cache misses when iterating together
-		m_ENTTRegistry.on_construct<Component_AudioEmitter>().connect<&entt::invoke<&Component_AudioEmitter::OnCreate>>();
-		m_ENTTRegistry.on_destroy<Component_AudioEmitter>().connect<&entt::invoke<&Component_AudioEmitter::OnDestroy>>();
+
+
+#define MACRO_COMPONENT(comp)	BindOnCreate<Component_##comp>( m_ENTTRegistry ); \
+								BindOnDestroy<Component_##comp>( m_ENTTRegistry );
+	#include "ECS/Components/ComponentList.h"
+#undef MACRO_COMPONENT
 	}
 
 	void LevelBase::Shutdown()
@@ -70,7 +70,9 @@ namespace Plop
 		}
 
 		m_xCurrentCamera = xCurrentCamera;
-		m_mCurrentCameraViewMatrix = mViewMatrix;
+		m_mCurrentCameraView = mViewMatrix;
+		if(xCurrentCamera)
+			m_xCurrentCamera.lock()->SetViewMatrix( mViewMatrix );
 
 		return xCurrentCamera != nullptr;
 	}
@@ -89,7 +91,7 @@ namespace Plop
 	Entity LevelBase::CreateEntity( const String& _sName /*= "New Entity"*/ )
 	{
 		entt::entity entityID = m_ENTTRegistry.create();
-		Entity e = { entityID, weak_from_this() };
+		Entity e = { entityID, Application::GetCurrentLevel()};
 
 		e.AddComponent<Component_Name>( _sName );
 		e.AddComponent<Component_GraphNode>();
@@ -103,13 +105,20 @@ namespace Plop
 	Entity LevelBase::CreateEntityWithHint( entt::entity _id )
 	{
 		entt::entity entityID = m_ENTTRegistry.create( _id );
-		Entity e = { entityID, weak_from_this() };
+		Entity e = { entityID, Application::GetCurrentLevel()};
 
 		e.AddComponent<Component_Name>();
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
 		EventDispatcher::SendEvent( EntityCreatedEvent( e ) );
+
+		return e;
+	}
+
+	Entity LevelBase::GetEntityFromHint( entt::entity _id )
+	{
+		Entity e = {_id, Application::GetCurrentLevel() };
 
 		return e;
 	}
@@ -127,11 +136,6 @@ namespace Plop
 			DestroyEntity( std::move(e) );
 		}
 		m_ENTTRegistry.destroy( _entity );
-	}
-
-	void LevelBase::MakeCurrent()
-	{
-		s_xCurrentLevel = weak_from_this();
 	}
 
 	void LevelBase::Save( const StringPath& _path )
@@ -162,12 +166,18 @@ namespace Plop
 			Shutdown();
 			Init();
 
-			json jLevel;
+			size_t fileSize = levelFile.tellg();
+			levelFile.seekg( 0, std::ios::end );
+			fileSize = (size_t)levelFile.tellg() - fileSize;
+			if (fileSize > 10)
+			{
+				levelFile.seekg( std::ios::beg );
+				json jLevel;
 
-			levelFile >> jLevel;
+				levelFile >> jLevel;
 
-			FromJson( jLevel );
-
+				FromJson( jLevel );
+			}
 			return true;
 		}
 
@@ -195,8 +205,8 @@ namespace Plop
 		json j;
 
 		m_ENTTRegistry.each( [&j, this]( entt::entity _entityID ) {
-			Entity entity{ _entityID, weak_from_this() };
-			if (!entity.GetParent())
+			Entity entity{ _entityID, Application::GetCurrentLevel() };
+			if (!entity.HasFlag( EntityFlag::DYNAMIC_GENERATION ))
 			{
 				String& sName = entity.GetComponent<Component_Name>().sName;
 				j["entities"].push_back( entity.ToJson() );
@@ -210,10 +220,17 @@ namespace Plop
 	{
 		if (_j.contains( "entities" ))
 		{
+			// create all entities so that everything is created to apply GraphNode links
 			for (auto j : _j["entities"])
 			{
-				Entity e = CreateEntityWithHint( j["HintID"] );
-				e.FromJson( j );
+				CreateEntityWithHint( j["HintID"] );
+			}
+
+			// and apply whatever we need to
+			for (auto j : _j["entities"])
+			{
+				Entity e = GetEntityFromHint(j["HintID"]);
+				e.FromJson(j);
 			}
 		}
 	}
@@ -231,7 +248,7 @@ namespace Plop
 
 			Component_Transform& transform = group.get<Component_Transform>( entityID );
 
-			Entity entity{ entityID, weak_from_this() };
+			Entity entity{ entityID, Application::GetCurrentLevel() };
 			glm::mat4 mTransform = transform.GetWorldMatrix();
 
 			vecSpriteMat.push_back( std::make_pair( renderer.xSprite, mTransform ) );

@@ -5,6 +5,7 @@
 
 #include "Utils/JsonTypes.h"
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>
@@ -36,3 +37,4 @@ namespace MM
 	}
 
 }
+#endif

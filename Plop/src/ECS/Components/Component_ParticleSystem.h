@@ -1,7 +1,12 @@
 #pragma once
 
-#include <entt/entt.hpp>
+#ifdef USE_COMPONENT_MGR
+#include <ECS/ComponentManager.h>
+#else
+#include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
 #include <imgui_entt_entity_editor.hpp>
+#endif
 
 #include "Constants.h"
 #include "TimeStep.h"
@@ -77,9 +82,14 @@ namespace Plop
 
 		Random& GetRandom() { return m_rand; }
 		std::vector<ParticleSpawnerPtr>& GetSpawners() { return m_vecSpawners; }
+		const std::vector<ParticleSpawnerPtr>& GetSpawners() const { return m_vecSpawners; }
 		std::vector<ParticleUpdaterPtr>& GetUpdaters() { return m_vecUpdaters; }
+		const std::vector<ParticleUpdaterPtr>& GetUpdaters() const { return m_vecUpdaters; }
 
 
+		void EditorUI();
+		json ToJson() const;
+		void FromJson( const json& _j );
 
 	private:
 		// TODO: write a proper Pool class
@@ -99,6 +109,7 @@ namespace Plop
 
 
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>	void ComponentEditorWidget<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e );
@@ -106,3 +117,4 @@ namespace MM
 	template <>	void ComponentFromJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 
 }
+#endif

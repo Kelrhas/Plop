@@ -41,10 +41,20 @@ namespace Plop
 				float				GetPerspectiveFOV() const { return m_fPersFOV; }
 
 
+
+				void				SetViewMatrix( const glm::mat4& _mView ) { m_mViewMatrix = _mView; }
+				const glm::mat4&	GetViewMatrix() const { return m_mViewMatrix; }
+				glm::vec3			GetPosition() const;
+				glm::vec3			GetDirection() const;
+				glm::vec3			GetRight() const;
+				glm::vec3			GetUp() const;
+
 	protected:
 		virtual void				UpdateProjectionMatrix();
 
+				glm::mat4			m_mViewMatrix;
 				glm::mat4			m_mProjectionMatrix;
+
 
 				float				m_fAspectRatio = 1.f;
 				float				m_fNear = 0.1f;

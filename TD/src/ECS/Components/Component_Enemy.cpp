@@ -28,7 +28,7 @@ namespace EnemySystem
 			
 			if (enemy.IsDead())
 			{
-				Plop::Entity e{ entity, Plop::LevelBase::GetCurrentLevel() };
+				Plop::Entity e{ entity, Plop::Application::GetCurrentLevel() };
 				e.Destroy();
 			}
 			else
@@ -54,6 +54,7 @@ namespace EnemySystem
 	}
 };
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>
@@ -80,3 +81,4 @@ namespace MM
 			comp.fLife = _j["Life"];
 	}
 }
+#endif

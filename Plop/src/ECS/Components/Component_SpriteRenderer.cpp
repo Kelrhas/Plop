@@ -18,21 +18,16 @@ namespace Plop
 		xSprite = _other.xSprite;
 		return *this;
 	}
-}
 
-namespace MM
-{
-	template <>
-	void ComponentEditorWidget<Plop::Component_SpriteRenderer>( entt::registry& reg, entt::registry::entity_type e )
+	void Component_SpriteRenderer::EditorUI()
 	{
-		auto& comp = reg.get<Plop::Component_SpriteRenderer>( e );
-		if (comp.xSprite)
+		if (xSprite)
 		{
-			auto hSpritesheet = comp.xSprite->GetSpritesheetHandle();
+			auto hSpritesheet = xSprite->GetSpritesheetHandle();
 			if (hSpritesheet)
 			{
-				glm::vec2 vCurrentUVMin = comp.xSprite->GetUVMin();
-				glm::vec2 vCurrentUVMax = comp.xSprite->GetUVMax();
+				glm::vec2 vCurrentUVMin = xSprite->GetUVMin();
+				glm::vec2 vCurrentUVMax = xSprite->GetUVMax();
 
 				if (hSpritesheet->GetNativeHandle())
 				{
@@ -44,11 +39,11 @@ namespace MM
 					//else
 					//	vSpriteImageSize.x *= fUVRatio;
 
-					if (ImGui::ImageButton( (ImTextureID)hSpritesheet->GetNativeHandle(), vSpriteImageSize, ImVec2( vCurrentUVMin.x, vCurrentUVMax.y ), ImVec2( vCurrentUVMax.x, vCurrentUVMin.y ), 1, ImVec4( 0, 0, 0, 0 ), comp.xSprite->GetTint() ))
+					if (ImGui::ImageButton( (ImTextureID)hSpritesheet->GetNativeHandle(), vSpriteImageSize, ImVec2( vCurrentUVMin.x, vCurrentUVMax.y ), ImVec2( vCurrentUVMax.x, vCurrentUVMin.y ), 1, ImVec4( 0, 0, 0, 0 ), xSprite->GetTint() ))
 						ImGui::OpenPopup( "###SpriteEditor" );
 				}
 
-				ImGui::ColorEdit4( "Tint", glm::value_ptr( comp.xSprite->GetTint() ), ImGuiColorEditFlags_AlphaBar );
+				ImGui::ColorEdit4( "Tint", glm::value_ptr( xSprite->GetTint() ), ImGuiColorEditFlags_AlphaBar );
 
 				//ImGui::SetNextWindowViewport( ImGui::GetWindowViewport()->ID );
 				ImVec2 vPopupCenter = ImGui::GetWindowViewport()->GetCenter();
@@ -77,13 +72,13 @@ namespace MM
 
 					glm::vec2 vImageScreenPos = VEC2_0;
 					glm::vec2 vImageDisplaySize = VEC2_0;
-					
+
 					bool bSpriteChanged = false;
 
 					//ImGui::PushStyleColor( ImGuiCol_ChildBg, BACKGROUND_COLOR.Value );
 					if (ImGui::BeginChild( "Spritesheet", ImVec2( fImageRegionWidth, fRegionHeight ), false, ImGuiWindowFlags_NoScrollbar ))
 					{
-						const float fImageRatio = (float)comp.xSprite->GetTextureHandle()->GetWidth() / (float)comp.xSprite->GetTextureHandle()->GetHeight();
+						const float fImageRatio = (float)xSprite->GetTextureHandle()->GetWidth() / (float)xSprite->GetTextureHandle()->GetHeight();
 
 						vImageDisplaySize = glm::vec2( ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().x / fImageRatio );
 
@@ -108,7 +103,7 @@ namespace MM
 						ImDrawList* draw_list = ImGui::GetWindowDrawList();
 						draw_list->AddRectFilled( vImageScreenPos, vImageScreenPos + vImageDisplaySize, BACKGROUND_COLOR );
 
-						ImGui::Image( (ImTextureID)comp.xSprite->GetTextureHandle()->GetNativeHandle(), vImageDisplaySize, ImVec2( 0, 1 ), ImVec2( 1, 0 ) );
+						ImGui::Image( (ImTextureID)xSprite->GetTextureHandle()->GetNativeHandle(), vImageDisplaySize, ImVec2( 0, 1 ), ImVec2( 1, 0 ) );
 
 						if (ImGui::IsItemHovered())
 						{
@@ -129,7 +124,7 @@ namespace MM
 
 							if (ImGui::IsItemClicked())
 							{
-								comp.xSprite->SetSpritesheet( hSpritesheet, vIndex );
+								xSprite->SetSpritesheet( hSpritesheet, vIndex );
 								bSpriteChanged = true;
 							}
 						}
@@ -169,7 +164,7 @@ namespace MM
 						static ImGuiTextFilter aliasFilter;
 						ImGui::Text( "Search:" );
 						ImGui::SameLine();
-						aliasFilter.Draw("###AliasFilter");
+						aliasFilter.Draw( "###AliasFilter" );
 						ImGui::Indent( 10.f );
 						for (const auto& aliasData : hSpritesheet->GetAliasData())
 						{
@@ -179,7 +174,7 @@ namespace MM
 							glm::uvec2 vSpriteIndices( aliasData.second.uColumn, aliasData.second.uRow );
 							if (ImGui::Selectable( aliasData.first.c_str() ))
 							{
-								comp.xSprite->SetSpritesheet( hSpritesheet, vSpriteIndices );
+								xSprite->SetSpritesheet( hSpritesheet, vSpriteIndices );
 								bSpriteChanged = true;
 							}
 							if (ImGui::IsItemHovered())
@@ -212,7 +207,7 @@ namespace MM
 
 					ImGui::EndPopup();
 
-					if(bOpenSpritesheetPopup)
+					if (bOpenSpritesheetPopup)
 					{
 						ImGui::CloseCurrentPopup();
 						ImGui::OpenPopup( "###PickSpritesheetFromCache" );
@@ -228,7 +223,7 @@ namespace MM
 			Plop::SpritesheetHandle hNewSpritesheet = Plop::AssetLoader::PickSpritesheetFromCache();
 			if (hNewSpritesheet)
 			{
-				comp.xSprite->SetSpritesheet( hNewSpritesheet, VEC2_0 );
+				xSprite->SetSpritesheet( hNewSpritesheet, VEC2_0 );
 				ImGui::OpenPopup( "###SpriteEditor" );
 			}
 		}
@@ -239,33 +234,29 @@ namespace MM
 
 	}
 
-	template <>
-	json ComponentToJson<Plop::Component_SpriteRenderer>( entt::registry& reg, entt::registry::entity_type e )
+	json Component_SpriteRenderer::ToJson() const
 	{
-		auto& comp = reg.get<Plop::Component_SpriteRenderer>( e );
 		json j;
-		if (comp.xSprite)
+		if (xSprite)
 		{
-			if (comp.xSprite->GetSpritesheetHandle())
+			if (xSprite->GetSpritesheetHandle())
 			{
-				j["Spritesheet"] = comp.xSprite->GetSpritesheetHandle()->GetFilePathStr();
-				if (auto sAlias = comp.xSprite->GetAlias(); !sAlias.empty())
+				j["Spritesheet"] = xSprite->GetSpritesheetHandle()->GetFilePathStr();
+				if (auto sAlias = xSprite->GetAlias(); !sAlias.empty())
 					j["Alias"] = sAlias;
 				else
-					j["Coord"] = comp.xSprite->GetCoord();
-				j["Tint"] = comp.xSprite->GetTint();
+					j["Coord"] = xSprite->GetCoord();
+				j["Tint"] = xSprite->GetTint();
 			}
 		}
 		return j;
 	}
 
-	template<>
-	void ComponentFromJson<Plop::Component_SpriteRenderer>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	void Component_SpriteRenderer::FromJson( const json& _j )
 	{
-		auto& comp = reg.get_or_emplace<Plop::Component_SpriteRenderer>( e );
-		ASSERTM( (bool)comp.xSprite, "SpritePtr should be created in component CTOR" );
-		
-		if (comp.xSprite)
+		ASSERTM( (bool)xSprite, "SpritePtr should be created in component CTOR" );
+
+		if (xSprite)
 		{
 			if (_j.contains( "Spritesheet" ))
 			{
@@ -274,18 +265,44 @@ namespace MM
 				if (_j.contains( "Alias" ))
 				{
 					String sAlias = _j["Alias"];
-					comp.xSprite->SetSpritesheet( hTex, sAlias );
+					xSprite->SetSpritesheet( hTex, sAlias );
 				}
 				else
 				{
 					glm::ivec2 vCoord = _j["Coord"];
-					comp.xSprite->SetSpritesheet( hTex, vCoord );
+					xSprite->SetSpritesheet( hTex, vCoord );
 				}
 
 				if (_j.contains( "Tint" ))
-					comp.xSprite->SetTint( _j["Tint"] );
+					xSprite->SetTint( _j["Tint"] );
 			}
 		}
 	}
+}
+
+#ifndef USE_COMPONENT_MGR
+namespace MM
+{
+	template <>
+	void ComponentEditorWidget<Plop::Component_SpriteRenderer>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::Component_SpriteRenderer>( e );
+		comp.EditorUI();
+	}
+
+	template <>
+	json ComponentToJson<Plop::Component_SpriteRenderer>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::Component_SpriteRenderer>( e );
+		return comp.ToJson();
+	}
+
+	template<>
+	void ComponentFromJson<Plop::Component_SpriteRenderer>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	{
+		auto& comp = reg.get_or_emplace<Plop::Component_SpriteRenderer>( e );
+		comp.FromJson( _j );
+	}
 
 }
+#endif

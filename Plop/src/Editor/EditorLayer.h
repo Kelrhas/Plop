@@ -36,6 +36,7 @@ namespace Plop
 		virtual uint8_t			GetPriority() const { return 190; }
 
 				EditorCameraPtr GetEditorCamera() const { return m_xEditorCamera; }
+				glm::vec2		GetViewportPosFromScreenPos( const glm::vec2& _vScreenPos, bool _bClamp = false ) const;
 
 
 		static	json			GetJsonEntity( const Entity& _entity );
@@ -80,11 +81,14 @@ namespace Plop
 		template<typename Comp, bool RegisterEditor>
 				void		RegisterComponent( const char* _pName )
 		{
+
+#ifndef USE_COMPONENT_MGR
 			if constexpr (RegisterEditor == std::true_type::value)
 			{
 				if (s_pENTTEditor)
 					s_pENTTEditor->registerComponent<Comp>( _pName );
 			}
+#endif
 
 			auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
 			factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "clone"_hs );
@@ -112,8 +116,7 @@ namespace Plop
 
 
 		EditorCameraPtr		m_xEditorCamera;
-		LevelBasePtr		m_xCloneLevel = nullptr; // used when we Play the current level
-		LevelBasePtr		m_xBackupLevel = nullptr;
+		LevelBasePtr		m_xEditingLevel = nullptr;
 		LevelState			m_eLevelState = LevelState::EDITING;
 		Entity				m_SelectedEntity;
 		EditMode			m_eEditMode = EditMode::NONE;
@@ -121,8 +124,10 @@ namespace Plop
 
 		// viewport
 		glm::vec2			m_vViewportSize = VEC2_0;
-		glm::vec2			m_vViewportPosMin = VEC2_0;
-		glm::vec2			m_vViewportPosMax = VEC2_0;
+		glm::vec2			m_vViewportPosMinWindow = VEC2_0;	// position on the app window
+		glm::vec2			m_vViewportPosMaxWindow = VEC2_0;	// position on the app window
+		glm::vec2			m_vViewportPosMinScreen = VEC2_0;	// position on the physical screen
+		glm::vec2			m_vViewportPosMaxScreen = VEC2_0;	// position on the physical screen
 		
 		
 		static ::MM::EntityEditor<entt::entity>* s_pENTTEditor;

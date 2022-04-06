@@ -1,9 +1,9 @@
 #include "Plop_pch.h"
 #include "AudioManager.h"
 
+#include "Application.h"
 #include "Assets/SoundLoader.h"
 #include "Debug/Log.h"
-#include "ECS/LevelBase.h"
 #include "ECS/Components/Component_AudioEmitter.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
@@ -91,7 +91,7 @@ namespace Plop
 
 	bool AudioManager::Shutdown()
 	{
-		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		auto xLevel = Application::GetCurrentLevel().lock();
 		if (xLevel)
 		{
 			auto view = xLevel->GetEntityRegistry().view<Component_AudioEmitter>();
@@ -145,7 +145,7 @@ namespace Plop
 
 			if (ImGui::Button( "Test sound on all emitters" ))
 			{
-				auto& reg = LevelBase::GetCurrentLevel().lock()->GetEntityRegistry();
+				auto& reg = Application::GetCurrentLevel().lock()->GetEntityRegistry();
 				auto& view = reg.view<Component_AudioEmitter>();
 				view.each( [&]( Component_AudioEmitter& emitter) {
 

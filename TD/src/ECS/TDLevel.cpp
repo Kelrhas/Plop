@@ -43,11 +43,13 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 
 	if (Plop::Input::IsMouseLeftPressed() && !m_xCurrentCamera.expired())
 	{
+		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorScreenPos(), 0.f );
+
+		
 		Plop::Entity newEnemy = CreateEntity( "Enemy" );
 		auto& enemyComp = newEnemy.AddComponent<Component_Enemy>();
 		enemyComp.fLife = 1.f;
 		auto& transform = newEnemy.GetComponent<Plop::Component_Transform>();
-		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorViewportPos(), transform.GetWorldPosition().z );
 		transform.SetLocalPosition( vMousePos );
 		transform.SetLocalScale( VEC3_1 * 0.2f );
 		auto& xSprite = newEnemy.AddComponent<Plop::Component_SpriteRenderer>().xSprite;
@@ -76,7 +78,7 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 				if (collider.IsColliding( colliderEnemy, transformEnemy.GetWorldPosition() ))
 				{
 					bDestroyBullet = true;
-					Plop::Entity enemy{ entityID, weak_from_this() };
+					Plop::Entity enemy{ entityID, Plop::Application::GetCurrentLevel()};
 					if (enemy.HasComponent<Plop::Component_ParticleSystem>())
 					{
 						auto& enemyParticles = enemy.GetComponent<Plop::Component_ParticleSystem>();
@@ -97,7 +99,7 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 
 		if (bDestroyBullet)
 		{
-			DestroyEntity( Plop::Entity{ entityID, weak_from_this() } );
+			DestroyEntity( Plop::Entity{ entityID, Plop::Application::GetCurrentLevel()} );
 		}
 	});
 

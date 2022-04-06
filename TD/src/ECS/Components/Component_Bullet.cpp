@@ -9,6 +9,7 @@ Component_Bullet::Component_Bullet( const Component_Bullet& _other )
 	emitting = _other.emitting;
 }
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>
@@ -39,3 +40,4 @@ namespace MM
 			comp.fSpeed = _j["Speed"];
 	}
 }
+#endif

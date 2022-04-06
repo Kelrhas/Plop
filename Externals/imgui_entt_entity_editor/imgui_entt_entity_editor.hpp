@@ -1,6 +1,10 @@
 // for the license, see the end of the file
 #pragma once
 
+#ifndef USE_COMPONENT_MGR
+
+
+
 #include <map>
 #include <set>
 
@@ -119,7 +123,7 @@ public:
 		bool show_window = true;
 		if (show_window) {
 			ImGui::SetNextWindowSizeConstraints( ImVec2( 450, 600 ), ImVec2( -1, -1 ) );
-			if (ImGui::Begin("Entity Editor", &show_window)) {
+			if (ImGui::Begin("Entity Editor old", &show_window)) {
 				ImGui::TextUnformatted("Editing:");
 				ImGui::SameLine();
 
@@ -219,3 +223,4 @@ public:
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#endif

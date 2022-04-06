@@ -48,4 +48,44 @@ namespace Plop
 		ASSERTM( HasComponent<Comp>(), "Entity does not have this component" );
 		return m_xLevel.lock()->m_ENTTRegistry.get<Comp>( m_EntityId );
 	}
+
+
+
+	template <class Comp, class Registry>
+	void Entity::EditorUIComponent( const char* _pComponentName, Registry& registry )
+	{
+		if constexpr (!HasEditorUI<Comp>())
+			return;
+
+
+		if (HasComponent<Comp>())
+		{
+
+			bool bNoRemove = true;
+			bool* pNoRemove = CanRemoveComponent<Comp>() ? &bNoRemove : nullptr;
+
+			if (ImGui::CollapsingHeader( _pComponentName, pNoRemove ))
+			{
+				ImGui::Indent( 30.f );
+				ImGui::PushID( "Widget" );
+
+				CallEditorUI<Comp>( registry, *this );
+
+				ImGui::PopID();
+				ImGui::Unindent( 30.f );
+			}
+
+			if (!bNoRemove)
+			{
+				RemoveComponent<Comp>();
+			}
+		}
+		else
+		{
+			std::function func = []( Entity _entity ) {
+				_entity.AddComponent<Comp>();
+			};
+			s_mapAddComponent[_pComponentName] = func;
+		}
+	}
 }

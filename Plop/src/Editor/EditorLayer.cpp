@@ -15,6 +15,7 @@
 #include "Application.h"
 #include "Audio/AudioManager.h"
 #include "Editor/Console.h"
+#include "ECS/Components/ComponentDefinition.h"
 #include "ECS/Components/BaseComponents.h"
 #include "ECS/Components/Component_Camera.h"
 #include "ECS/Components/Component_ParticleSystem.h"
@@ -41,17 +42,23 @@ namespace Plop
 		static ImGuizmo::MODE eGuizmoSpace = ImGuizmo::MODE::LOCAL;
 	}
 
+#ifndef USE_COMPONENT_MGR
 	::MM::EntityEditor<entt::entity>* EditorLayer::s_pENTTEditor = nullptr;
+#endif
 
 	EditorLayer::EditorLayer()
 	{
+#ifndef USE_COMPONENT_MGR
 		s_pENTTEditor = NEW ::MM::EntityEditor<entt::entity>;
+#endif
 		m_xEditorCamera = std::make_shared<EditorCamera>();
 	}
 
 	EditorLayer::~EditorLayer()
 	{
+#ifndef USE_COMPONENT_MGR
 		delete s_pENTTEditor;
+#endif
 	}
 
 	void EditorLayer::OnRegistered()
@@ -74,7 +81,7 @@ namespace Plop
 
 	void EditorLayer::OnUpdate( TimeStep& _timeStep )
 	{
-		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		auto xLevel = Application::GetCurrentLevel().lock();
 		if (xLevel)
 		{
 			FrameBufferPtr xLevelFrameBufer = Renderer::GetFrameBuffer();
@@ -93,7 +100,12 @@ namespace Plop
 			xLevelFrameBufer->Bind();
 			Renderer::Clear();
 
-			if (Application::Get()->IsUsingEditorCamera())
+			if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == Application::GetCurrentLevel().lock() && m_SelectedEntity.HasComponent<Component_Camera>())
+			{
+				CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
+				Renderer::PrepareScene(xCamera->GetProjectionMatrix(), xCamera->GetViewMatrix());
+			}
+			else if (Application::Get()->IsUsingEditorCamera())
 			{
 				Renderer::PrepareScene( m_xEditorCamera->GetProjectionMatrix(), m_xEditorCamera->GetViewMatrix() );
 			}
@@ -101,7 +113,7 @@ namespace Plop
 			{
 				ASSERT( !xLevel->GetCamera().expired() );
 				CameraPtr xCamera = xLevel->GetCamera().lock();
-				Renderer::PrepareScene( xCamera->GetProjectionMatrix(), xLevel->GetCameraViewMatrix() );
+				Renderer::PrepareScene( xCamera->GetProjectionMatrix(), xCamera->GetViewMatrix() );
 			}
 
 			if (m_eLevelState == EditorLayer::LevelState::RUNNING)
@@ -113,7 +125,7 @@ namespace Plop
 				xLevel->UpdateInEditor( _timeStep );
 
 
-				if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
+				if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == Application::GetCurrentLevel().lock())
 				{
 					if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
 					{
@@ -188,8 +200,11 @@ namespace Plop
 				const glm::vec2 vWindowPos = ImGui::GetWindowPos();
 				const glm::vec2 vRegionMin = ImGui::GetWindowContentRegionMin();
 				const glm::vec2 vRegionMax = ImGui::GetWindowContentRegionMax();
-				m_vViewportPosMin = { vWindowPos.x + vRegionMin.x,vWindowPos.y + vRegionMin.y };
-				m_vViewportPosMax = { vWindowPos.x + vRegionMax.x,vWindowPos.y + vRegionMax.y };
+				const glm::vec2 vMainViewportPos = ImGui::GetMainViewport()->Pos;
+				m_vViewportPosMinScreen = { vWindowPos.x + vRegionMin.x,vWindowPos.y + vRegionMin.y };
+				m_vViewportPosMaxScreen = { vWindowPos.x + vRegionMax.x,vWindowPos.y + vRegionMax.y };
+				m_vViewportPosMinWindow = m_vViewportPosMinScreen - vMainViewportPos;
+				m_vViewportPosMaxWindow = m_vViewportPosMaxScreen - vMainViewportPos;
 				ImGui::Image( (ImTextureID)texId, vViewportSize, ImVec2(0, 1), ImVec2(1, 0) );
 
 				if (m_eLevelState == LevelState::EDITING ||
@@ -223,13 +238,31 @@ namespace Plop
 			{
 				ShowSceneGraph();
 
-				if (m_SelectedEntity && !LevelBase::s_xCurrentLevel.expired())
+				LevelBaseWeakPtr xCurrentLevel = Application::GetCurrentLevel();
+				if (m_SelectedEntity && !xCurrentLevel.expired())
 				{
-					LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+					LevelBasePtr xLevel = xCurrentLevel.lock();
 					if (m_SelectedEntity.m_xLevel.lock() == xLevel)
 					{
+#ifndef USE_COMPONENT_MGR
 						if (!s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId ))
 							m_SelectedEntity = {};
+#endif
+
+						// TODO set docking to right
+						ImGui::SetNextWindowSizeConstraints( ImVec2( 450, 600 ), ImVec2( -1, -1 ) );
+						String sTitle = m_SelectedEntity.GetComponent<Component_Name>().sName.c_str();
+						sTitle += "###Entity Editor";
+						if (ImGui::Begin(sTitle.c_str()))
+						{
+							if (ImGui::IsItemHovered())
+								ImGui::SetTooltip( "EnTT id:%llu", entt::to_integral( m_SelectedEntity.m_EntityId ) );
+
+							ImGui::Separator();
+
+							m_SelectedEntity.EditorUI();
+						}
+						ImGui::End();
 					}
 				}
 			}
@@ -261,6 +294,20 @@ namespace Plop
 	}
 
 
+	glm::vec2 EditorLayer::GetViewportPosFromScreenPos( const glm::vec2& _vScreenPos, bool _bClamp /*= false*/ ) const
+	{
+		const glm::vec2 vScreenSize = (glm::vec2)Application::Get()->GetWindow().GetViewportSize();
+		const glm::vec2 vViewportMinScreen = m_vViewportPosMinWindow / vScreenSize;
+		const glm::vec2 vViewportMaxScreen = m_vViewportPosMaxWindow / vScreenSize;
+
+		glm::vec2 vViewportPos = (_vScreenPos - vViewportMinScreen) / (vViewportMaxScreen - vViewportMinScreen);
+
+		if (_bClamp)
+			vViewportPos = glm::clamp( vViewportPos, VEC2_0, VEC2_1 );
+
+		return vViewportPos;
+	}
+
 
 	json EditorLayer::GetJsonEntity( const Entity& _entity )
 	{
@@ -268,6 +315,7 @@ namespace Plop
 		entt::entity entityID = _entity.m_EntityId;
 		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
 
+#ifndef USE_COMPONENT_MGR
 		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
 		{
 			if (s_pENTTEditor->entityHasComponent( reg, entityID, component_type_id ))
@@ -275,24 +323,10 @@ namespace Plop
 				j[ci.name] = ci.tojson( reg, entityID );
 			}
 		}
+#endif
 
 		return j;
 	}
-
-	void EditorLayer::SetJsonEntity( const Entity& _entity, const json& _j )
-	{
-		entt::entity entityID = _entity.m_EntityId;
-		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
-
-		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
-		{
-			if (_j.contains( ci.name ))
-			{
-				ci.fromjson( reg, entityID, _j[ci.name] );
-			}
-		}
-	}
-
 
 	bool IconButton(const char* _pButton, bool bActive = false)
 	{
@@ -417,15 +451,15 @@ namespace Plop
 
 				if (m_sCurrentLevel.empty())
 				{
-					if (ImGui::MenuItem( "Save ...", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+					if (ImGui::MenuItem( "Save ...", "Ctrl + S", nullptr, !Application::GetCurrentLevel().expired() ))
 						SaveLevelAs();
 				}
 				else
 				{
-					if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+					if (ImGui::MenuItem( "Save level", "Ctrl + S", nullptr, !Application::GetCurrentLevel().expired() ))
 						SaveLevel();
 
-					if (ImGui::MenuItem( "Save as ...", "Ctrl + Shift + S", nullptr, !LevelBase::GetCurrentLevel().expired() ))
+					if (ImGui::MenuItem( "Save as ...", "Ctrl + Shift + S", nullptr, !Application::GetCurrentLevel().expired() ))
 						SaveLevelAs();
 				}
 
@@ -470,7 +504,7 @@ namespace Plop
 				NewLevel();
 			if (Input::IsKeyPressed( KeyCode::KEY_O ))
 				OpenLevel();
-			if (Input::IsKeyPressed( KeyCode::KEY_S ) && !LevelBase::GetCurrentLevel().expired())
+			if (Input::IsKeyPressed( KeyCode::KEY_S ) && !Application::GetCurrentLevel().expired())
 			{
 				if (bShiftDown || m_sCurrentLevel.empty())
 					SaveLevelAs();
@@ -494,9 +528,10 @@ namespace Plop
 		ImGui::SetNextWindowSizeConstraints( ImVec2(400, 500), ImVec2(4000, 5000) );
 		if (ImGui::Begin( "Scene graph" ))
 		{
-			if (!LevelBase::s_xCurrentLevel.expired())
+			LevelBaseWeakPtr xCurrentLevel = Application::GetCurrentLevel();
+			if (!xCurrentLevel.expired())
 			{
-				LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+				LevelBasePtr xLevel = xCurrentLevel.lock();
 				const auto& registry = xLevel->m_ENTTRegistry;
 
 
@@ -567,7 +602,7 @@ namespace Plop
 					{
 						if (ImGui::Selectable( "New entity" ))
 						{
-							LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+							LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
 							Entity e = xLevel->CreateEntity();
 							e.SetParent( _Entity );
 						}
@@ -620,7 +655,7 @@ namespace Plop
 				auto& view = xLevel->m_ENTTRegistry.view<Component_Name>();
 				for (auto& e : view)
 				{
-					Entity entity{ e, LevelBase::s_xCurrentLevel };
+					Entity entity{ e, Application::GetCurrentLevel()};
 					Entity parent = entity.GetParent();
 
 					// only draw those without parent, and each one will draw their children
@@ -648,8 +683,8 @@ namespace Plop
 	{
 		// update the viewport size
 #ifdef IMGUI_HAS_VIEWPORT
-		ImVec2 vViewportPosition = m_vViewportPosMin;
-		ImVec2 vViewportSize = m_vViewportPosMax - m_vViewportPosMin;
+		ImVec2 vViewportPosition = m_vViewportPosMinScreen;
+		ImVec2 vViewportSize = m_vViewportPosMaxScreen - m_vViewportPosMinScreen;
 
 		ImGuizmo::SetRect( vViewportPosition.x, vViewportPosition.y, vViewportSize.x, vViewportSize.y );
 		
@@ -666,25 +701,24 @@ namespace Plop
 		glm::mat4 mViewMatrix = glm::identity<glm::mat4>();
 		glm::mat4 mProjMatrix = glm::identity<glm::mat4>();
 		bool bOrthographic = false;
-		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+		LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
 		if (xLevel)
 		{
-			auto& view = xLevel->GetEntityRegistry().view<Component_Camera, Component_Transform>();
-			for (auto entity : view)
-			{
-				auto& [camera, transform] = view.get<Component_Camera, Component_Transform>( entity );
-				xCurrentCamera = camera.xCamera;
-				mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
-				mProjMatrix = camera.xCamera->GetProjectionMatrix();
-				bOrthographic = camera.xCamera->IsOrthographic();
-			}
-
 			mViewMatrix = m_xEditorCamera->GetViewMatrix();
 			mProjMatrix = m_xEditorCamera->GetProjectionMatrix();
 			bOrthographic = m_xEditorCamera->IsOrthographic();
 
-			if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == LevelBase::GetCurrentLevel().lock())
+
+			if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == Application::GetCurrentLevel().lock())
 			{
+				if (m_SelectedEntity.HasComponent<Component_Camera>())
+				{
+					CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
+					mViewMatrix = xCamera->GetViewMatrix();
+					mProjMatrix = xCamera->GetProjectionMatrix();
+					bOrthographic = xCamera->IsOrthographic();
+				}
+
 				ImGuizmo::SetOrthographic( bOrthographic );
 				glm::mat4 mTransform = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldMatrix();
 
@@ -739,7 +773,6 @@ namespace Plop
 	{
 		auto xLevel = Application::Get()->CreateNewLevel();
 		m_SelectedEntity.Reset();
-		xLevel->MakeCurrent();
 		m_sCurrentLevel.clear();
 	}
 
@@ -750,7 +783,6 @@ namespace Plop
 		{
 			auto xLevel = Application::Get()->CreateNewLevel();
 			m_SelectedEntity.Reset();
-			xLevel->MakeCurrent();
 			xLevel->Load( sLevelPath );
 			m_sCurrentLevel = sLevelPath;
 		}
@@ -759,7 +791,7 @@ namespace Plop
 	void EditorLayer::SaveLevel()
 	{
 		if(!m_sCurrentLevel.empty())
-			LevelBase::GetCurrentLevel().lock()->Save( m_sCurrentLevel );
+			Application::GetCurrentLevel().lock()->Save( m_sCurrentLevel );
 	}
 
 	void EditorLayer::SaveLevelAs()
@@ -772,7 +804,7 @@ namespace Plop
 				sLevelPath += ".lvl";
 
 
-			LevelBase::GetCurrentLevel().lock()->Save( sLevelPath );
+			Application::GetCurrentLevel().lock()->Save( sLevelPath );
 			m_sCurrentLevel = sLevelPath;
 		}
 	}
@@ -796,7 +828,7 @@ namespace Plop
 	{
 		m_eLevelState = LevelState::STOPPING;
 		// reset the selected entity if it was selected from the playing level
-		if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == m_xCloneLevel)
+		if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() != m_xEditingLevel)
 		{
 			m_SelectedEntity = {};
 		}
@@ -804,17 +836,22 @@ namespace Plop
 
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )
 	{
-		LevelBasePtr xLevel = LevelBase::s_xCurrentLevel.lock();
+		LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
 		const String& sName = _entity.GetComponent<Component_Name>().sName;
 		Entity dupEntity = xLevel->CreateEntity( sName );
 		dupEntity.SetParent( _entity.GetParent() );
 
 		entt::registry& reg = xLevel->m_ENTTRegistry;
 
+
+#ifdef USE_COMPONENT_MGR
+		ComponentManager::DuplicateComponent( reg, _entity.m_EntityId, dupEntity.m_EntityId );
+#else
 		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
 		{
 			ci.duplicate( reg, _entity, dupEntity );
 		}
+#endif
 
 		_entity.ChildVisitor( [&dupEntity](Entity _child ) {
 

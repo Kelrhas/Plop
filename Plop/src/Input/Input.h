@@ -60,7 +60,7 @@ namespace Plop
 		static char GetCharFromCode(KeyCode eKeyCode);
 
 		static glm::vec2 GetCursorPixelPos();
-		static glm::vec2 GetCursorViewportPos();
+		static glm::vec2 GetCursorScreenPos();
 
 
 	protected:

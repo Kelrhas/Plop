@@ -136,7 +136,7 @@ namespace Plop
 		return m_vMousePixelPos;
 	}
 
-	glm::vec2 Input::GetCursorViewportPos()
+	glm::vec2 Input::GetCursorScreenPos()
 	{
 		return m_vMouseViewportPos;
 	}

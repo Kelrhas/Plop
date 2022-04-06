@@ -21,7 +21,7 @@ namespace Plop
 	/**
 	 * Hold entities
 	 */
-	class LevelBase : public std::enable_shared_from_this<LevelBase>
+	class LevelBase
 	{
 		friend class Entity;
 		friend class EditorLayer;
@@ -42,6 +42,7 @@ namespace Plop
 
 				Entity CreateEntity( const String& _sName = "New Entity" );
 				Entity CreateEntityWithHint( entt::entity _id );
+				Entity GetEntityFromHint( entt::entity _id );
 				void DestroyEntity( Entity& _entity );
 
 
@@ -49,7 +50,6 @@ namespace Plop
 				const entt::registry& GetEntityRegistry() const { return m_ENTTRegistry; }
 
 
-				void MakeCurrent();
 				void Save( const StringPath& _path );
 				bool Load( const StringPath& _path );
 		virtual void CopyFrom( LevelBasePtr _xLevel );
@@ -58,16 +58,13 @@ namespace Plop
 
 
 				CameraWeakPtr GetCamera() const { return m_xCurrentCamera; }
-				const glm::mat4& GetCameraViewMatrix() const { return m_mCurrentCameraViewMatrix; }
-
-		static LevelBaseWeakPtr GetCurrentLevel() { return s_xCurrentLevel; }
+				const glm::mat4& GetCameraViewMatrix() const { return m_mCurrentCameraView; }
 
 
 	protected:
-		static LevelBaseWeakPtr s_xCurrentLevel;
 		entt::registry	m_ENTTRegistry;
 		CameraWeakPtr	m_xCurrentCamera;
-		glm::mat4		m_mCurrentCameraViewMatrix;
+		glm::mat4		m_mCurrentCameraView;
 
 	private:
 

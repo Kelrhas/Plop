@@ -63,6 +63,7 @@ namespace Plop
 
 				// Level
 				LevelBasePtr	CreateNewLevel();
+		static	LevelBaseWeakPtr GetCurrentLevel();
 
 				// Editor
 				bool			IsUsingEditorCamera() const;
@@ -110,7 +111,7 @@ namespace Plop
 			return _pLayerA->GetPriority() < _pLayerB->GetPriority();
 		}
 
-				std::vector<LevelBasePtr>	m_vecLoadedLevel;
+				LevelBasePtr	m_xLoadedLevel = nullptr; // this is the runtime level, whether
 	};
 
 

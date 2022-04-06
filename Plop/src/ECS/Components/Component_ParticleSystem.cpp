@@ -5,6 +5,7 @@
 #include <imgui_custom.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Application.h"
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/Entity.h"
 #include "ECS/ECSHelper.h"
@@ -12,6 +13,50 @@
 #include "ECS/ParticleSpawners.h"
 #include "Renderer/Renderer.h"
 #include "Utils/JsonTypes.h"
+
+namespace
+{
+	struct SpawnerHandlerAbstract // type erasure
+	{
+		virtual Plop::Component_ParticleSystem::ParticleSpawnerPtr Instantiate() const = 0;
+		virtual const char* const Name() const = 0;
+	};
+	template<typename Spawner>
+	struct SpawnerHandler : SpawnerHandlerAbstract
+	{
+		Plop::Component_ParticleSystem::ParticleSpawnerPtr Instantiate() const final { return std::make_shared<Spawner>(); }
+		virtual const char* const Name() const final { return Spawner::StaticName(); }
+	};
+
+	// TODO: convert to constexpr std::array once using c++20
+	static SpawnerHandlerAbstract* spawnerHandlerList[] = {
+		new SpawnerHandler<Plop::Particle::SpawnLife>(),
+		new SpawnerHandler<Plop::Particle::SpawnShapeCircle>(),
+		new SpawnerHandler<Plop::Particle::SpawnShapeDisk>(),
+		new SpawnerHandler<Plop::Particle::SpawnShapeRect>(),
+		new SpawnerHandler<Plop::Particle::SpawnColor>(),
+		new SpawnerHandler<Plop::Particle::SpawnSize>(),
+		new SpawnerHandler<Plop::Particle::SpawnRadialSpeed>(),
+	};
+
+	struct UpdaterHandlerAbstract // type erasure
+	{
+		virtual Plop::Component_ParticleSystem::ParticleUpdaterPtr Instantiate() const = 0;
+		virtual const char* const Name() const = 0;
+	};
+	template<typename Updater>
+	struct UpdaterHandler : UpdaterHandlerAbstract
+	{
+		Plop::Component_ParticleSystem::ParticleUpdaterPtr Instantiate() const final { return std::make_shared<Updater>(); }
+		virtual const char* const Name() const final { return Updater::StaticName(); }
+	};
+
+	// TODO: convert to constexpr std::array once using c++20
+	static UpdaterHandlerAbstract* updaterHandlerList[] = {
+		new UpdaterHandler<Plop::Particle::UpdatePositionFromSpeed>(),
+	};
+}
+
 
 namespace Plop
 {
@@ -93,7 +138,7 @@ namespace Plop
 			_iNbParticle = m_iMaxNumberParticles - m_iNbActiveParticles;
 		}
 
-		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		auto xLevel = Application::GetCurrentLevel().lock();
 		auto& entity = GetComponentOwner( xLevel , *this);
 		// we allow ParticleSystem to not 
 		glm::vec3 vBasePosition = entity ? entity.GetComponent<Component_Transform>().GetLocalPosition() : VEC3_0;
@@ -198,72 +243,27 @@ namespace Plop
 			m_pParticles = pNewArray;
 		}
 	}
-}
 
 
-namespace MM
-{
-	struct SpawnerHandlerAbstract // type erasure
+	void Component_ParticleSystem::EditorUI()
 	{
-		virtual Plop::Component_ParticleSystem::ParticleSpawnerPtr Instantiate() const = 0;
-		virtual const char* const Name() const = 0;
-	};
-	template<typename Spawner>
-	struct SpawnerHandler : SpawnerHandlerAbstract
-	{
-		Plop::Component_ParticleSystem::ParticleSpawnerPtr Instantiate() const final { return std::make_shared<Spawner>(); }
-		virtual const char* const Name() const final { return Spawner::StaticName(); }
-	};
 
-	// TODO: convert to constexpr std::array once using c++20
-	static SpawnerHandlerAbstract* spawnerHandlerList[] = {
-		new SpawnerHandler<Plop::Particle::SpawnLife>(),
-		new SpawnerHandler<Plop::Particle::SpawnShapeCircle>(),
-		new SpawnerHandler<Plop::Particle::SpawnShapeDisk>(),
-		new SpawnerHandler<Plop::Particle::SpawnShapeRect>(),
-		new SpawnerHandler<Plop::Particle::SpawnColor>(),
-		new SpawnerHandler<Plop::Particle::SpawnSize>(),
-		new SpawnerHandler<Plop::Particle::SpawnRadialSpeed>(),
-	};
-
-	struct UpdaterHandlerAbstract // type erasure
-	{
-		virtual Plop::Component_ParticleSystem::ParticleUpdaterPtr Instantiate() const = 0;
-		virtual const char* const Name() const = 0;
-	};
-	template<typename Updater>
-	struct UpdaterHandler : UpdaterHandlerAbstract
-	{
-		Plop::Component_ParticleSystem::ParticleUpdaterPtr Instantiate() const final { return std::make_shared<Updater>(); }
-		virtual const char* const Name() const final { return Updater::StaticName(); }
-	};
-
-	// TODO: convert to constexpr std::array once using c++20
-	static UpdaterHandlerAbstract* updaterHandlerList[] = {
-		new UpdaterHandler<Plop::Particle::UpdatePositionFromSpeed>(),
-	};
-
-
-	template <>
-	void ComponentEditorWidget<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e )
-	{
-		auto& comp = reg.get<Plop::Component_ParticleSystem>( e );
-
-		float fSpawnRate = comp.GetAutoSpawnRate();
+		float fSpawnRate = GetAutoSpawnRate();
 		if (ImGui::DragFloat( "Auto spawn rate", &fSpawnRate, 0.1f, 0.f, 100000.f ))
-			comp.SetAutoSpawnRate( fSpawnRate );
-		
-		size_t iMaxParticle = comp.GetMaxNbParticles();
+			SetAutoSpawnRate( fSpawnRate );
+
+		size_t iMaxParticle = GetMaxNbParticles();
 		const int iNbChar = (int)std::log10( iMaxParticle ) + 1;
-		ImGui::Text( "%*llu/%llu alive particles", iNbChar, comp.GetNbActiveParticles(), iMaxParticle );
+		ImGui::Text( "%*llu/%llu alive particles", iNbChar, GetNbActiveParticles(), iMaxParticle );
 
 		static size_t iNewSize = iMaxParticle;
 		if (ImGui::DragBufferSize( "Max particles", &iNewSize, iMaxParticle, 1.f, 0xFFFFFFFF ))
 		{
-			comp.SetMaxNbParticles( iNewSize );
+			SetMaxNbParticles( iNewSize );
 		}
 
 		ImGui::Spacing();
+		ImGui::Separator();
 		ImGui::Text( "Spawners" );
 		{
 			ImGui::PushID( "Spawners" );
@@ -282,7 +282,7 @@ namespace MM
 				{
 					if (ImGui::Selectable( pHdl->Name() ))
 					{
-						comp.AddSpawner( pHdl->Instantiate() );
+						AddSpawner( pHdl->Instantiate() );
 						ImGui::CloseCurrentPopup();
 					}
 				}
@@ -291,32 +291,34 @@ namespace MM
 			}
 
 
-			ImGui::Separator();
-			auto& spawners = comp.GetSpawners();
+			auto& spawners = GetSpawners();
 			for (auto it = spawners.begin(); it != spawners.end();)
 			{
 				auto& spawner = *it;
 				ImGui::PushID( spawner->Name() );
-				if (ImGui::Button( "-" ))
-				{
-					it = spawners.erase( it );
-					ImGui::PopID();
-					continue;
-				}
-				ImGui::SameLine();
-				if (ImGui::CollapsingHeader( spawner->Name() ))
+
+				bool bKeep = true;
+				if (ImGui::CollapsingHeader( spawner->Name(), &bKeep ))
 				{
 					ImGui::Indent( 20.f );
 					spawner->Editor();
 					ImGui::Unindent( 20.f );
 				}
+
+				if (!bKeep)
+				{
+					it = spawners.erase( it );
+				}
+				else
+					++it;
+
 				ImGui::PopID();
-				++it; // prevent error when erasing
 			}
 			ImGui::PopID();
 		}
 
 		ImGui::Spacing();
+		ImGui::Separator();
 		ImGui::Text( "Updaters" );
 		{
 			ImGui::PushID( "Updaters" );
@@ -335,7 +337,7 @@ namespace MM
 				{
 					if (ImGui::Selectable( pHdl->Name() ))
 					{
-						comp.AddUpdater( pHdl->Instantiate() );
+						AddUpdater( pHdl->Instantiate() );
 						ImGui::CloseCurrentPopup();
 					}
 				}
@@ -343,52 +345,48 @@ namespace MM
 				ImGui::EndPopup();
 			}
 
-			ImGui::Separator();
-			auto& updaters = comp.GetUpdaters();
+			auto& updaters = GetUpdaters();
 			for (auto it = updaters.begin(); it != updaters.end();)
 			{
 				auto& updater = *it;
 				ImGui::PushID( updater->Name() );
-				if (ImGui::Button( "-" ))
-				{
-					it = updaters.erase( it );
-					ImGui::PopID();
-					continue;
-				}
-				ImGui::SameLine();
-				if (ImGui::CollapsingHeader( updater->Name() ))
+
+				bool bKeep = true;
+				if (ImGui::CollapsingHeader( updater->Name(), &bKeep ))
 				{
 					ImGui::Indent( 20.f );
 					updater->Editor();
 					ImGui::Unindent( 20.f );
 				}
+
+				if (!bKeep)
+				{
+					it = updaters.erase( it );
+				}
+				else
+					++it;
+
 				ImGui::PopID();
-				++it; // prevent error when erasing
 			}
 			ImGui::PopID();
 		}
 	}
 
-	template <>
-	json ComponentToJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e )
+	json Component_ParticleSystem::ToJson() const
 	{
-		auto& comp = reg.get<Plop::Component_ParticleSystem>( e );
 		json j;
 
-		j["AutoSpawnRate"] = comp.GetAutoSpawnRate();
-		j["Spawners"] = comp.GetSpawners();
-		j["Updaters"] = comp.GetUpdaters();
-
+		j["AutoSpawnRate"] =	GetAutoSpawnRate();
+		j["Spawners"] =			GetSpawners();
+		j["Updaters"] =			GetUpdaters();
+		
 		return j;
 	}
 
-	template<>
-	void ComponentFromJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	void Component_ParticleSystem::FromJson( const json& _j )
 	{
-		auto& comp = reg.get_or_emplace<Plop::Component_ParticleSystem>( e );
-
 		if (_j.contains( "AutoSpawnRate" ))
-			comp.SetAutoSpawnRate( _j["AutoSpawnRate"] );
+			SetAutoSpawnRate( _j["AutoSpawnRate"] );
 		if (_j.contains( "Spawners" ))
 		{
 			for (auto& j : _j["Spawners"])
@@ -402,7 +400,7 @@ namespace MM
 						{
 							auto xSpawner = pHdl->Instantiate();
 							xSpawner->from_json( value );
-							comp.AddSpawner( xSpawner );
+							AddSpawner( xSpawner );
 							break;
 						}
 					}
@@ -422,7 +420,7 @@ namespace MM
 						{
 							auto xUpdater = pHdl->Instantiate();
 							xUpdater->from_json( value );
-							comp.AddUpdater( xUpdater );
+							AddUpdater( xUpdater );
 							break;
 						}
 					}
@@ -430,5 +428,32 @@ namespace MM
 			}
 		}
 	}
+}
+
+
+#ifndef USE_COMPONENT_MGR
+namespace MM
+{
+	template <>
+	void ComponentEditorWidget<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::Component_ParticleSystem>( e );
+		comp.EditorUI();
+	}
+
+	template <>
+	json ComponentToJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e )
+	{
+		auto& comp = reg.get<Plop::Component_ParticleSystem>( e );
+		return comp.ToJson();
+	}
+
+	template<>
+	void ComponentFromJson<Plop::Component_ParticleSystem>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
+	{
+		auto& comp = reg.get_or_emplace<Plop::Component_ParticleSystem>( e );
+		comp.FromJson( _j );
+	}
 
 }
+#endif

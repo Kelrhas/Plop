@@ -22,9 +22,11 @@ namespace TowerSystem
 	void OnUpdate( const Plop::TimeStep& _ts, entt::registry& _registry );
 }
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>	void ComponentEditorWidget<Component_Tower>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	json ComponentToJson<Component_Tower>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	void ComponentFromJson<Component_Tower>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 }
+#endif

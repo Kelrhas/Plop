@@ -12,13 +12,9 @@
 #include "Debug/Log.h"
 #include "Events/EventDispatcher.h"
 #include "Events/WindowEvent.h"
-#include "ECS/Components/BaseComponents.h"
-#include "ECS/Components/Component_AudioEmitter.h"
-#include "ECS/Components/Component_Camera.h"
-#include "ECS/Components/Component_ParticleSystem.h"
-#include "ECS/Components/Component_Physics.h"
-#include "ECS/Components/Component_SpriteRenderer.h"
-#include "ECS/Components/Component_Transform.h"
+#include "ECS/ComponentManager.h"
+#include "ECS/Components/ComponentDefinition.h"
+#include "ECS/Components/ComponentIncludes.h"
 #include "Renderer/Renderer.h"
 
 namespace Plop
@@ -179,9 +175,12 @@ namespace Plop
 		RegisterMandatoryComponents();
 		RegisterComponents();
 
-		auto xLevel = CreateNewLevel();
-		xLevel->MakeCurrent();
-		m_vecLoadedLevel.push_back( xLevel );
+		LevelBasePtr xLevel = CreateNewLevel();
+		if (m_bEditorMode)
+			m_EditorLayer.m_xEditingLevel = xLevel;
+		else
+			m_xLoadedLevel = xLevel;
+
 		if (!m_Config.sLastLevelActive.empty())
 		{
 			if (xLevel->Load( m_Config.sLastLevelActive ))
@@ -235,7 +234,7 @@ namespace Plop
 
 			Renderer::NewFrame();
 
-			auto xLevel = LevelBase::GetCurrentLevel().lock();
+			auto xLevel = Application::GetCurrentLevel().lock();
 			if (xLevel)
 				xLevel->BeforeUpdate();
 
@@ -267,21 +266,18 @@ namespace Plop
 			if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::STARTING)
 			{
 				// TODO make async
-				if (m_EditorLayer.m_xCloneLevel == nullptr)
-					m_EditorLayer.m_xCloneLevel = Application::Get()->CreateNewLevel();
+				if (m_xLoadedLevel == nullptr)
+					m_xLoadedLevel = Application::Get()->CreateNewLevel();
 
-				m_EditorLayer.m_xBackupLevel = xLevel;
-				m_EditorLayer.m_xCloneLevel->StartFromEditor();
-				m_EditorLayer.m_xCloneLevel->CopyFrom( xLevel );
-				m_EditorLayer.m_xCloneLevel->MakeCurrent();
+				m_xLoadedLevel->StartFromEditor();
+				m_xLoadedLevel->CopyFrom( m_EditorLayer.m_xEditingLevel );
 
 				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::RUNNING;
 			}
 			else if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::STOPPING)
 			{
 				// TODO make async
-				m_EditorLayer.m_xCloneLevel->StopToEditor();
-				m_EditorLayer.m_xBackupLevel->MakeCurrent();
+				m_xLoadedLevel->StopToEditor();
 
 				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::EDITING;
 			}
@@ -319,8 +315,32 @@ namespace Plop
 	LevelBasePtr Application::CreateNewLevel()
 	{
 		LevelBasePtr xLevel = CreateNewLevelPrivate();
-		m_vecLoadedLevel.push_back( xLevel );
 		return xLevel;
+	}
+
+	//static
+	LevelBaseWeakPtr Application::GetCurrentLevel()
+	{
+		if (s_pInstance != nullptr)
+		{
+			switch (s_pInstance->m_EditorLayer.m_eLevelState)
+			{
+				case EditorLayer::LevelState::EDITING:
+					return s_pInstance->m_EditorLayer.m_xEditingLevel;
+
+				case EditorLayer::LevelState::STARTING:
+				case EditorLayer::LevelState::RUNNING:
+				case EditorLayer::LevelState::PAUSED:
+					return s_pInstance->m_xLoadedLevel;
+
+				case EditorLayer::LevelState::STOPPING:
+					ASSERTM(false, "Access to current level during stop is forbidden");
+				default:
+					break;
+			}
+		}
+
+		return LevelBaseWeakPtr();
 	}
 
 	bool Application::IsUsingEditorCamera() const
@@ -344,14 +364,11 @@ namespace Plop
 
 	void Application::RegisterMandatoryComponents()
 	{
-		REGISTER_COMPONENT_NO_EDITOR( Name );
-		REGISTER_COMPONENT_NO_EDITOR( GraphNode );
-		REGISTER_COMPONENT( Transform );
-		REGISTER_COMPONENT( SpriteRenderer );
-		REGISTER_COMPONENT( Camera );
-		REGISTER_COMPONENT( ParticleSystem );
-		REGISTER_COMPONENT( AABBCollider );
-		REGISTER_COMPONENT( AudioEmitter );
+		//RegisterComponent<Component_Transform, HasEditorUI<Component_Transform>::value>( "Transform" );
+
+#define MACRO_COMPONENT(comp) ComponentManager::RegisterComponent<Component_##comp>( #comp );
+	#include "ECS/Components/ComponentList.h"
+#undef MACRO_COMPONENT
 	}
 
 }

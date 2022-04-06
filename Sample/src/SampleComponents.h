@@ -9,9 +9,11 @@ struct Component_Rotating
 };
 
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>	void ComponentEditorWidget<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	json ComponentToJson<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	void ComponentFromJson<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 }
+#endif

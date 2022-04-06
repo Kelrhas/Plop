@@ -25,10 +25,6 @@ namespace Plop
 				float		GetTargetDistance() const { return m_fOrbitDistance; }
 		const glm::mat4&	GetViewMatrix() const { return m_mViewMatrix; }
 
-		glm::vec3			GetPosition() const;
-		glm::vec3			GetDirection() const;
-		glm::vec3			GetRight() const;
-		glm::vec3			GetUp() const;
 
 	private:
 		void				Translate( const glm::vec3& _vTranslate );
@@ -39,8 +35,6 @@ namespace Plop
 		glm::vec3			m_vOrbitTarget = VEC3_0;
 		glm::quat			m_qOrbitRotation = glm::identity<glm::quat>();
 		float				m_fOrbitDistance = 10.f;
-
-		glm::mat4			m_mViewMatrix;
 	};
 	using EditorCameraPtr = std::shared_ptr<EditorCamera>;
 }

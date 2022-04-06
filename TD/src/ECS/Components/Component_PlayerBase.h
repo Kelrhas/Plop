@@ -5,11 +5,18 @@
 struct Component_PlayerBase
 {
 	float fLife = 10.f;
+
+
+	void EditorUI();
+	json ToJson() const;
+	void FromJson( const json& _j );
 };
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>	void ComponentEditorWidget<Component_PlayerBase>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	json ComponentToJson<Component_PlayerBase>( entt::registry& reg, entt::registry::entity_type e );
 	template <>	void ComponentFromJson<Component_PlayerBase>( entt::registry& reg, entt::registry::entity_type e, const json& _j );
 }
+#endif

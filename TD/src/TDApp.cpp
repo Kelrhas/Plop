@@ -2,13 +2,10 @@
 #include "TDApp.h"
 
 #include <Debug/Log.h>
+#include <ECS/ComponentManager.h>
 
 #include "WorldLayer.h"
-#include "ECS/Components/Component_Bullet.h"
-#include "ECS/Components/Component_Enemy.h"
-#include "ECS/Components/Component_EnemySpawner.h"
-#include "ECS/Components/Component_Tower.h"
-#include "ECS/Components/Component_PlayerBase.h"
+#include "ECS/Components/TD_ComponentIncludes.h"
 
 
 Plop::Application* Plop::CreateApplication( const StringVec& _Arguments )
@@ -39,9 +36,8 @@ Plop::LevelBasePtr TDApp::CreateNewLevelPrivate()
 
 void TDApp::RegisterComponents()
 {
-	REGISTER_COMPONENT( Tower );
-	REGISTER_COMPONENT( Enemy );
-	REGISTER_COMPONENT( EnemySpawner );
-	REGISTER_COMPONENT( Bullet );
-	REGISTER_COMPONENT( PlayerBase );
+//#define MACRO_COMPONENT(comp) RegisterComponent<Component_##comp, true>( #comp )
+#define MACRO_COMPONENT(comp) Plop::ComponentManager::RegisterComponent<Component_##comp>( #comp );
+#include "ECS/Components/TD_ComponentList.h"
+#undef MACRO_COMPONENT
 }

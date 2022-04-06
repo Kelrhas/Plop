@@ -3,6 +3,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Application.h"
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/ECSHelper.h"
 #include "Utils/JsonTypes.h"
@@ -229,7 +230,7 @@ namespace Plop::Particle
 	/* SpawnRadialSpeed */
 	void SpawnRadialSpeed::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
-		auto& entity = GetComponentOwner( LevelBase::GetCurrentLevel().lock(), _system );
+		auto& entity = GetComponentOwner(Application::GetCurrentLevel().lock(), _system );
 		glm::vec3 vCenter = entity ? entity.GetComponent<Component_Transform>().GetLocalPosition() : VEC3_0;
 
 		_pParticle->vSpeed = glm::normalize( _pParticle->vPosition - vCenter ) * fSpeed;

@@ -3,6 +3,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Application.h"
 #include "Utils/JsonTypes.h"
 #include "Editor/EditorLayer.h"
 #include "ECS/Components/Component_Transform.h"
@@ -13,7 +14,7 @@ namespace Plop
 {
 	bool Component_AABBCollider::IsInside( const glm::vec3& _vPoint ) const
 	{
-		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		auto xLevel = Application::GetCurrentLevel().lock();
 		auto owner = GetComponentOwner( xLevel, *this );
 
 		const glm::vec3& vWorldPos = owner.GetComponent<Component_Transform>().GetWorldPosition();
@@ -26,7 +27,7 @@ namespace Plop
 
 	bool Component_AABBCollider::IsColliding( const Component_AABBCollider& _o, const glm::vec3& _vCenter ) const
 	{
-		auto xLevel = LevelBase::GetCurrentLevel().lock();
+		auto xLevel = Application::GetCurrentLevel().lock();
 		auto owner = GetComponentOwner( xLevel, *this );
 
 		const glm::vec3& vWorldPos = owner.GetComponent<Component_Transform>().GetWorldPosition();
@@ -40,42 +41,60 @@ namespace Plop
 			(vWorldMinA.y <= vWorldMaxB.y && vWorldMaxA.y >= vWorldMinB.y) &&
 			(vWorldMinA.z <= vWorldMaxB.z && vWorldMaxA.z >= vWorldMinB.z);
 	}
+
+	void Component_AABBCollider::EditorUI()
+	{
+		ImGui::DragFloat3( "Min", glm::value_ptr( vMin ), 0.1f );
+		ImGui::DragFloat3( "Max", glm::value_ptr( vMax ), 0.1f );
+
+
+		auto xLevel = Application::GetCurrentLevel().lock();
+		Entity e = GetComponentOwner( xLevel, *this );
+		const auto& transform = e.GetComponent<Component_Transform>();
+		const glm::vec3& vWorldPos = transform.GetWorldPosition();
+		Plop::EditorGizmo::AABB( vMin + vWorldPos, vMax + vWorldPos );
+	}
+
+	json Component_AABBCollider::ToJson() const
+	{
+		json j;
+		j["Min"] = vMin;
+		j["Max"] = vMax;
+		return j;
+	}
+
+	void Component_AABBCollider::FromJson(const json& _j )
+	{
+		if (_j.contains( "Min" ))
+			vMin = _j["Min"];
+
+		if (_j.contains( "Max" ))
+			vMax = _j["Max"];
+	}
 }
 
+#ifndef USE_COMPONENT_MGR
 namespace MM
 {
 	template <>
 	void ComponentEditorWidget<Plop::Component_AABBCollider>( entt::registry& reg, entt::registry::entity_type e )
 	{
 		auto& comp = reg.get<Plop::Component_AABBCollider>( e );
-		ImGui::DragFloat3( "Min", glm::value_ptr( comp.vMin ), 0.1f );
-		ImGui::DragFloat3( "Max", glm::value_ptr( comp.vMax ), 0.1f );
-
-
-		const auto& transform = reg.get<Plop::Component_Transform>( e );
-		const glm::vec3& vWorldPos = transform.GetWorldPosition();
-		Plop::EditorGizmo::AABB( comp.vMin + vWorldPos, comp.vMax + vWorldPos );
+		comp.EditorUI();
 	}
 
 	template <>
 	json ComponentToJson<Plop::Component_AABBCollider>( entt::registry& reg, entt::registry::entity_type e )
 	{
 		auto& comp = reg.get<Plop::Component_AABBCollider>( e );
-		json j;
-		j["Min"] = comp.vMin;
-		j["Max"] = comp.vMax;
-		return j;
+		return comp.ToJson();
 	}
 
 	template<>
 	void ComponentFromJson<Plop::Component_AABBCollider>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
 	{
 		auto& comp = reg.get_or_emplace<Plop::Component_AABBCollider>( e );
-
-		if (_j.contains( "Min" ))
-			comp.vMin = _j["Min"];
-
-		if (_j.contains( "Max" ))
-			comp.vMax = _j["Max"];
+		comp.FromJson( _j );
 	}
 }
+#endif

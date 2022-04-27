@@ -131,12 +131,12 @@ namespace Plop
 		return (char)eKeyCode;
 	}
 
-	glm::vec2 Input::GetCursorPixelPos()
+	const glm::vec2& Input::GetCursorPixelPos()
 	{
 		return m_vMousePixelPos;
 	}
 
-	glm::vec2 Input::GetCursorScreenPos()
+	const glm::vec2& Input::GetCursorWindowPos()
 	{
 		return m_vMouseViewportPos;
 	}

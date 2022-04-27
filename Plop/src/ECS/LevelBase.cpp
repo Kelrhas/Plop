@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <filesystem>
+#include <tuple>
 
 #include <entt/meta/resolve.hpp>
 
@@ -237,7 +238,8 @@ namespace Plop
 
 	void LevelBase::DrawSprites()
 	{
-		std::vector<std::pair<SpritePtr, glm::mat4>> vecSpriteMat;
+		using tuple_t = std::tuple<SpritePtr, glm::mat4, entt::id_type>;
+		std::vector<tuple_t> vecSpriteMat;
 		auto& group = m_ENTTRegistry.group<Component_Transform, Component_SpriteRenderer>();
 		for (auto entityID : group)
 		{
@@ -248,20 +250,21 @@ namespace Plop
 
 			Component_Transform& transform = group.get<Component_Transform>( entityID );
 
-			Entity entity{ entityID, Application::GetCurrentLevel() };
 			glm::mat4 mTransform = transform.GetWorldMatrix();
 
-			vecSpriteMat.push_back( std::make_pair( renderer.xSprite, mTransform ) );
+			vecSpriteMat.push_back( std::make_tuple( renderer.xSprite, mTransform, entt::id_type(entityID)) );
 		}
 
-		std::sort( vecSpriteMat.begin(), vecSpriteMat.end(), []( std::pair<SpritePtr, glm::mat4>& _pair1, std::pair<SpritePtr, glm::mat4>& _pair2 )
-			{
-				return _pair1.second[3][2] < _pair2.second[3][2];
-			} );
+		// depth sorting
+		std::sort(vecSpriteMat.begin(), vecSpriteMat.end(), [](const tuple_t &_pair1, const tuple_t &_pair2){
+			return std::get<1>(_pair1)[3][2] < std::get<1>(_pair2)[3][2];
+		});
 
-		for (std::pair<SpritePtr, glm::mat4>& _pair : vecSpriteMat)
+		for (const tuple_t &_pair : vecSpriteMat)
 		{
-			Renderer::DrawSprite( *_pair.first, _pair.second );
+			Renderer::PushEntityId(std::get<2>(_pair));
+			Renderer::DrawSprite( *std::get<0>(_pair), std::get<1>(_pair));
+			Renderer::PopEntityId();
 		}
 	}
 

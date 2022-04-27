@@ -6,11 +6,11 @@
 
 namespace Plop
 {
-	FrameBufferPtr FrameBuffer::Create( uint32_t _uWidth, uint32_t _uHeight)
+	FrameBufferPtr FrameBuffer::Create(const Specification &_specs)
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_FrameBuffer>(_uWidth, _uHeight );
+			case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_FrameBuffer>(_specs);
 		}
 
 		ASSERTM( false, "Render API not supported" );

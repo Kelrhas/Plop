@@ -84,18 +84,18 @@ namespace Plop
 			{
 				case WM_MOUSEMOVE:
 				{
-					glm::vec2 vMousePos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+					glm::vec2 vCursorPosWindowSpace(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 					if (glm::any(glm::isnan(m_vMousePixelPos)))
-						m_vMousePixelPos = vMousePos;
+						m_vMousePixelPos = vCursorPosWindowSpace;
 					else
 					{
-						glm::vec2 vViewportPos = vMousePos / (glm::vec2)Application::Get()->GetWindow().GetViewportSize();
-						glm::vec2 vDelta = vViewportPos - m_vMouseViewportPos;
+						glm::vec2 vCursorPosWindowSpaceNormalised = vCursorPosWindowSpace / (glm::vec2)Application::Get()->GetWindow().GetViewportSize();
+						glm::vec2 vDelta = vCursorPosWindowSpaceNormalised - m_vMouseViewportPos;
 
 						for (MouseMoveCallbackVec::const_iterator it(m_oEventMouseMove.begin()); it != m_oEventMouseMove.end(); ++it)
-							(*it)(vDelta, vViewportPos);
-						m_vMousePixelPos = vMousePos;
-						m_vMouseViewportPos = vViewportPos;
+							(*it)(vDelta, vCursorPosWindowSpaceNormalised);
+						m_vMousePixelPos = vCursorPosWindowSpace;
+						m_vMouseViewportPos = vCursorPosWindowSpaceNormalised;
 					}
 					result = 0;
 					break;

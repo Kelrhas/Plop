@@ -194,17 +194,18 @@ namespace Plop
 				}
 
 
-				uint64_t texId = Renderer::GetFrameBuffer()->GetColorID();
+				uint64_t texId = Renderer::GetFrameBuffer()->GetColorID(0);
 				const ImVec2 vViewportSize = ImGui::GetContentRegionAvail();
 				m_vViewportSize = vViewportSize;
-				const glm::vec2 vWindowPos = ImGui::GetWindowPos();
+				const glm::vec2 vImguiWindowPos = ImGui::GetWindowPos();
 				const glm::vec2 vRegionMin = ImGui::GetWindowContentRegionMin();
 				const glm::vec2 vRegionMax = ImGui::GetWindowContentRegionMax();
-				const glm::vec2 vMainViewportPos = ImGui::GetMainViewport()->Pos;
-				m_vViewportPosMinScreen = { vWindowPos.x + vRegionMin.x,vWindowPos.y + vRegionMin.y };
-				m_vViewportPosMaxScreen = { vWindowPos.x + vRegionMax.x,vWindowPos.y + vRegionMax.y };
-				m_vViewportPosMinWindow = m_vViewportPosMinScreen - vMainViewportPos;
-				m_vViewportPosMaxWindow = m_vViewportPosMaxScreen - vMainViewportPos;
+				const glm::vec2 vWindowViewportPos = ImGui::GetCurrentWindow()->Viewport->Pos;
+				m_vViewportPosMinScreenSpace = {vImguiWindowPos.x + vRegionMin.x, vImguiWindowPos.y + vRegionMin.y};
+				m_vViewportPosMaxScreenSpace = {vImguiWindowPos.x + vRegionMax.x, vImguiWindowPos.y + vRegionMax.y};
+				m_vViewportPosMinWindowSpace = vRegionMin + vImguiWindowPos - vWindowViewportPos; //m_vViewportPosMinScreenSpace - vMainViewportPos;
+				m_vViewportPosMaxWindowSpace = vRegionMax + vImguiWindowPos - vWindowViewportPos; //m_vViewportPosMaxScreenSpace - vMainViewportPos;
+
 				ImGui::Image( (ImTextureID)texId, vViewportSize, ImVec2(0, 1), ImVec2(1, 0) );
 
 				if (m_eLevelState == LevelState::EDITING ||
@@ -239,31 +240,32 @@ namespace Plop
 				ShowSceneGraph();
 
 				LevelBaseWeakPtr xCurrentLevel = Application::GetCurrentLevel();
-				if (m_SelectedEntity && !xCurrentLevel.expired())
+				if (!xCurrentLevel.expired())
 				{
 					LevelBasePtr xLevel = xCurrentLevel.lock();
-					if (m_SelectedEntity.m_xLevel.lock() == xLevel)
-					{
+					bool bValidEntity = m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == xLevel;
 #ifndef USE_COMPONENT_MGR
-						if (!s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId ))
-							m_SelectedEntity = {};
+					if (bValidEntity && !s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId ))
+						m_SelectedEntity = {};
 #endif
 
-						// TODO set docking to right
-						ImGui::SetNextWindowSizeConstraints( ImVec2( 450, 600 ), ImVec2( -1, -1 ) );
-						String sTitle = m_SelectedEntity.GetComponent<Component_Name>().sName.c_str();
-						sTitle += "###Entity Editor";
-						if (ImGui::Begin(sTitle.c_str()))
+					// TODO set docking to right
+					ImGui::SetNextWindowSizeConstraints( ImVec2( 450, 600 ), ImVec2( -1, -1 ) );
+					String sTitle = bValidEntity ? m_SelectedEntity.GetComponent<Component_Name>().sName.c_str() : "---";
+					sTitle += "###Entity Editor";
+					if (ImGui::Begin(sTitle.c_str()))
+					{
+						if (bValidEntity)
 						{
 							if (ImGui::IsItemHovered())
-								ImGui::SetTooltip( "EnTT id:%llu", entt::to_integral( m_SelectedEntity.m_EntityId ) );
+								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_EntityId));
 
 							ImGui::Separator();
 
 							m_SelectedEntity.EditorUI();
 						}
-						ImGui::End();
 					}
+					ImGui::End();
 				}
 			}
 		}
@@ -294,11 +296,13 @@ namespace Plop
 	}
 
 
-	glm::vec2 EditorLayer::GetViewportPosFromScreenPos( const glm::vec2& _vScreenPos, bool _bClamp /*= false*/ ) const
+	glm::vec2 EditorLayer::GetViewportPosFromWindowPos( const glm::vec2& _vScreenPos, bool _bClamp /*= false*/ ) const
 	{
-		const glm::vec2 vScreenSize = (glm::vec2)Application::Get()->GetWindow().GetViewportSize();
-		const glm::vec2 vViewportMinScreen = m_vViewportPosMinWindow / vScreenSize;
-		const glm::vec2 vViewportMaxScreen = m_vViewportPosMaxWindow / vScreenSize;
+		ASSERTM(_vScreenPos.x <= 1.f && _vScreenPos.y <= 1.f, "Should be normalized values");
+
+		const glm::vec2 vWindowSize = (glm::vec2)Application::Get()->GetWindow().GetViewportSize();
+		const glm::vec2 vViewportMinScreen = m_vViewportPosMinWindowSpace / vWindowSize;
+		const glm::vec2 vViewportMaxScreen = m_vViewportPosMaxWindowSpace / vWindowSize;
 
 		glm::vec2 vViewportPos = (_vScreenPos - vViewportMinScreen) / (vViewportMaxScreen - vViewportMinScreen);
 
@@ -683,8 +687,8 @@ namespace Plop
 	{
 		// update the viewport size
 #ifdef IMGUI_HAS_VIEWPORT
-		ImVec2 vViewportPosition = m_vViewportPosMinScreen;
-		ImVec2 vViewportSize = m_vViewportPosMaxScreen - m_vViewportPosMinScreen;
+		ImVec2 vViewportPosition = m_vViewportPosMinScreenSpace;
+		ImVec2 vViewportSize = m_vViewportPosMaxScreenSpace - m_vViewportPosMinScreenSpace;
 
 		ImGuizmo::SetRect( vViewportPosition.x, vViewportPosition.y, vViewportSize.x, vViewportSize.y );
 		

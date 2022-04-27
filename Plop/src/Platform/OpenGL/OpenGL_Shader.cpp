@@ -9,6 +9,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include "OpenGL_Debug.h"
+
 namespace Plop
 {
 
@@ -24,6 +26,8 @@ namespace Plop
 
 	void OpenGL_Shader::Load(const String& _sFile)
 	{
+		GL_DEBUG_GROUP_SCOPED("Shader::Load");
+
 		String sContent;
 		std::ifstream file(_sFile, std::ios::in | std::ios::binary);
 		ASSERTM(file.is_open(), "File not found: %s", _sFile.c_str());
@@ -88,6 +92,8 @@ namespace Plop
 		Compile();
 
 		m_sName = GetNameFromFile(_sFile);
+
+		Debug::Assert_GL();
 	}
 
 	void OpenGL_Shader::Load( const String& _sVertSrc, const String& _sFragSrc )
@@ -96,11 +102,14 @@ namespace Plop
 		m_mapShaderSources[GL_VERTEX_SHADER] = _sVertSrc;
 		m_mapShaderSources[GL_FRAGMENT_SHADER] = _sFragSrc;
 		Compile();
+
+		Debug::Assert_GL();
 	}
 
 	void OpenGL_Shader::Bind() const
 	{
 		glUseProgram( m_uProgram );
+		Debug::Assert_GL();
 	}
 
 	void OpenGL_Shader::Unbind() const
@@ -123,6 +132,7 @@ namespace Plop
 		if (iLoc >= 0)
 		{
 			glUniform1iv( iLoc, _uCount, _ints );
+			Debug::Assert_GL();
 		}
 	}
 
@@ -132,6 +142,7 @@ namespace Plop
 		if (iLoc >= 0)
 		{
 			glUniform4fv( iLoc, 1, glm::value_ptr( _vec ) );
+			Debug::Assert_GL();
 		}
 	}
 
@@ -141,6 +152,7 @@ namespace Plop
 		if (iLoc >= 0)
 		{
 			glUniformMatrix4fv(iLoc, 1, GL_FALSE, glm::value_ptr(_mat));
+			Debug::Assert_GL();
 		}
 	}
 
@@ -211,6 +223,7 @@ namespace Plop
 			for (GLuint uShader : vecShaders)
 				glDeleteShader(uShader);
 			glDeleteProgram(m_uProgram);
+			m_uProgram = 0;
 			return;
 		}
 
@@ -221,5 +234,7 @@ namespace Plop
 			glDetachShader(m_uProgram, uShader);
 			glDeleteShader(uShader);
 		}
+
+		Debug::Assert_GL();
 	}
 }

@@ -129,49 +129,6 @@ namespace Plop
 		return result;
 	}
 
-	void APIENTRY OpenGLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-	{
-		//if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
-		//	return;
-
-		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
-			return;
-
-		String str("Opengl message: ");
-		str.append(message);
-
-		switch (source)
-		{
-			case GL_DEBUG_SOURCE_API:				str.append("\n\tSource: API"); break;
-			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		str.append("\n\tSource: Window System"); break;
-			case GL_DEBUG_SOURCE_SHADER_COMPILER:	str.append("\n\tSource: Shader Compiler"); break;
-			case GL_DEBUG_SOURCE_THIRD_PARTY:		str.append("\n\tSource: Third Party"); break;
-			case GL_DEBUG_SOURCE_APPLICATION:		str.append("\n\tSource: Application"); break;
-			case GL_DEBUG_SOURCE_OTHER:				str.append("\n\tSource: Other"); break;
-		}
-
-		switch (type)
-		{
-			case GL_DEBUG_TYPE_ERROR:				str.append("\n\tType: Error"); break;
-			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:	str.append("\n\tType: Deprecated Behaviour"); break;
-			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:	str.append("\n\tType: Undefined Behaviour"); break;
-			case GL_DEBUG_TYPE_PORTABILITY:			str.append("\n\tType: Portability"); break;
-			case GL_DEBUG_TYPE_PERFORMANCE:			str.append("\n\tType: Performance"); break;
-			case GL_DEBUG_TYPE_MARKER:				str.append("\n\tType: Marker"); break;
-			case GL_DEBUG_TYPE_PUSH_GROUP:			str.append("\n\tType: Push Group"); break;
-			case GL_DEBUG_TYPE_POP_GROUP:			str.append("\n\tType: Pop Group"); break;
-			case GL_DEBUG_TYPE_OTHER:				str.append("\n\tType: Other"); break;
-		}
-
-		switch (severity)
-		{
-			case GL_DEBUG_SEVERITY_HIGH:			str.append("\n\tSeverity: high");			Log::Error(str.c_str()); break;
-			case GL_DEBUG_SEVERITY_MEDIUM:			str.append("\n\tSeverity: medium");			Log::Warn(str.c_str()); break;
-			case GL_DEBUG_SEVERITY_LOW:				str.append("\n\tSeverity: low");			Log::Info(str.c_str()); break;
-			//case GL_DEBUG_SEVERITY_NOTIFICATION:	str.append("\n\tSeverity: notification");	Log::Info(str.c_str()); break;
-		}
-	}
-
 	static Win32_Window* s_pWaitingWindow = nullptr;
 	LRESULT CALLBACK MainWindowCallback(HWND _hWnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam)
 	{
@@ -229,20 +186,7 @@ namespace Plop
 #endif
 		m_hWnd = CreateWindowEx(0, "MainWindow", pWindowTitle, windowStyle, windowSize.left, windowSize.top, windowSize.right - windowSize.left, windowSize.bottom - windowSize.top, nullptr, nullptr, hInstance, this);
 		s_pWaitingWindow = nullptr;
-		if (!m_hWnd)
-			return;
-
-
-		Log::Info(" GL Version {}", glGetString(GL_VERSION));
-		Log::Info(" GLSL Version {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
-		Log::Info(" Renderer {}", glGetString(GL_RENDERER));
-
-		glClearColor(0.15f, 0.15f, 0.15f, 0.0f);
-
-#ifndef _MASTER
-		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
-#endif
+		ASSERT(m_hWnd);
 	}
 
 	void Win32_Window::Destroy()

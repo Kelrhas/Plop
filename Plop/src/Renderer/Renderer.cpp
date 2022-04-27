@@ -62,6 +62,7 @@ namespace Plop
 				{ "in_color",			BufferLayout::ElementType::FLOAT4},
 				{ "in_uv",				BufferLayout::ElementType::FLOAT2},
 				{ "in_texUnit",			BufferLayout::ElementType::FLOAT},
+				{ "in_entityID",		BufferLayout::ElementType::FLOAT},
 		};
 
 		// ------------------------------------------------
@@ -73,7 +74,13 @@ namespace Plop
 
 			glm::uvec2 vViewportSize = Application::Get()->GetWindow().GetViewportSize();
 			if (!s_xFramebuffer)
-				s_xFramebuffer = FrameBuffer::Create( vViewportSize.x, vViewportSize.y );
+			{
+				FrameBuffer::Specification specs;
+				specs.uWidth = vViewportSize.x;
+				specs.uHeight = vViewportSize.y;
+				specs.vecRenderTargetSpecs = {FrameBuffer::TextureFormat::RGBA8, FrameBuffer::TextureFormat::UINT32, FrameBuffer::TextureFormat::DEPTH24S8};
+				s_xFramebuffer = FrameBuffer::Create(specs);
+			}
 
 
 			ASSERTM( MAX_TEX_UNIT >= s_pAPI->GetMaxTextureUnit(), "We have %d texture unit available, we need 32", s_pAPI->GetMaxTextureUnit() );
@@ -89,14 +96,12 @@ namespace Plop
 			s_xShader->Bind();
 			s_xShader->SetUniformVec4( "u_color", glm::vec4( 1.f ) );
 
-
 			// init the indices for the texture units
 			int* textures = NEW int[MAX_TEX_UNIT];
 			for (uint32_t i = 0; i < MAX_TEX_UNIT; ++i)
 				textures[i] = i;
 			s_xShader->SetUniformIntArray( "u_textures", textures, MAX_TEX_UNIT );
 			delete[] textures;
-
 
 			s_xVertexArray = VertexArray::Create();
 			s_xVertexArray->Bind();
@@ -110,7 +115,6 @@ namespace Plop
 
 			s_sceneData.vecVertices.reserve( MAX_VERTICES );
 			s_sceneData.vecIndices.reserve( MAX_INDICES );
-
 		}
 
 		void OnResize( uint32_t _uWidth, uint32_t _uHeight )
@@ -118,8 +122,6 @@ namespace Plop
 			s_pAPI->Resize( _uWidth, _uHeight );
 			if (s_xFramebuffer)
 				s_xFramebuffer->Resize( _uWidth, _uHeight );
-			else
-				s_xFramebuffer = FrameBuffer::Create( _uWidth, _uHeight );
 		}
 
 		void Renderer::NewFrame()
@@ -132,7 +134,11 @@ namespace Plop
 		{
 			s_xFramebuffer->Unbind();
 
-			//s_pAPI->DrawFrameBuffer( s_xFramebuffer );
+			if constexpr (USE_EDITOR)
+			{
+				if (!Application::Get()->IsInEditor())
+					s_pAPI->DrawFrameBuffer(s_xFramebuffer);
+			}
 		}
 
 		void PrepareScene( const glm::mat4& _mProjectionMatrix, const glm::mat4& _mViewMatrix )
@@ -158,6 +164,7 @@ namespace Plop
 		void Clear()
 		{
 			s_pAPI->Clear();
+			s_xFramebuffer->ClearRT();
 		}
 
 		void SubmitDraw( const MeshPtr& _xMesh )
@@ -182,6 +189,25 @@ namespace Plop
 		}
 
 
+		void PushEntityId(entt::id_type _entityId)
+		{
+			s_sceneData.currentEntityId.push(_entityId);
+		}
+
+		void PopEntityId()
+		{
+			s_sceneData.currentEntityId.pop();
+		}
+
+		entt::id_type GetEntityId(const glm::ivec2 &_vCoord)
+		{
+			if (s_xFramebuffer)
+			{
+				return s_xFramebuffer->ReadPixelUInt32(1, _vCoord.x, _vCoord.y);
+			}
+
+			return {};
+		}
 
 		void DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize )
 		{
@@ -212,7 +238,7 @@ namespace Plop
 
 			Vertex v;
 			v.vColor = _vColor;
-
+			v.fEntityId = (float)s_sceneData.currentEntityId.top();
 
 			bool bTexFound = false;
 			for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
@@ -283,6 +309,7 @@ namespace Plop
 
 			Vertex v;
 			v.vColor = _vTint;
+			v.fEntityId = (float)s_sceneData.currentEntityId.top();
 
 			bool bTexFound = false;
 			for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
@@ -345,6 +372,7 @@ namespace Plop
 
 			Vertex v;
 			v.vColor = _sprite.GetTint();
+			v.fEntityId = (float)s_sceneData.currentEntityId.top();
 
 			bool bTexFound = false;
 			for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)

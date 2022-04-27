@@ -59,8 +59,8 @@ namespace Plop
 		static float GetTimeDown(KeyCode eKeyCode);
 		static char GetCharFromCode(KeyCode eKeyCode);
 
-		static glm::vec2 GetCursorPixelPos();
-		static glm::vec2 GetCursorScreenPos();
+		static const glm::vec2& GetCursorPixelPos();
+		static const glm::vec2& GetCursorWindowPos();
 
 
 	protected:

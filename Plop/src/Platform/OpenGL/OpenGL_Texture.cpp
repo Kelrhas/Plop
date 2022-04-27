@@ -79,6 +79,10 @@ namespace Plop
 		
 		if (_pData)
 			glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, m_eDataFormat, GL_UNSIGNED_BYTE, _pData );
+
+
+		glObjectLabel(GL_TEXTURE, m_uID, 0, _sName.c_str());
+		m_sName = _sName;
 	}
 
 	OpenGL_Texture2D::~OpenGL_Texture2D()

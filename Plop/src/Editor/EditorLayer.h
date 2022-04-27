@@ -36,7 +36,7 @@ namespace Plop
 		virtual uint8_t			GetPriority() const { return 190; }
 
 				EditorCameraPtr GetEditorCamera() const { return m_xEditorCamera; }
-				glm::vec2		GetViewportPosFromScreenPos( const glm::vec2& _vScreenPos, bool _bClamp = false ) const;
+				glm::vec2		GetViewportPosFromWindowPos( const glm::vec2& _vScreenPos, bool _bClamp = false ) const;
 
 
 		static	json			GetJsonEntity( const Entity& _entity );
@@ -124,10 +124,10 @@ namespace Plop
 
 		// viewport
 		glm::vec2			m_vViewportSize = VEC2_0;
-		glm::vec2			m_vViewportPosMinWindow = VEC2_0;	// position on the app window
-		glm::vec2			m_vViewportPosMaxWindow = VEC2_0;	// position on the app window
-		glm::vec2			m_vViewportPosMinScreen = VEC2_0;	// position on the physical screen
-		glm::vec2			m_vViewportPosMaxScreen = VEC2_0;	// position on the physical screen
+		glm::vec2			m_vViewportPosMinWindowSpace = VEC2_0;	// position on the app window
+		glm::vec2			m_vViewportPosMaxWindowSpace = VEC2_0;	// position on the app window
+		glm::vec2			m_vViewportPosMinScreenSpace = VEC2_0;	// position on the physical screen
+		glm::vec2			m_vViewportPosMaxScreenSpace = VEC2_0;	// position on the physical screen
 		
 		
 		static ::MM::EntityEditor<entt::entity>* s_pENTTEditor;

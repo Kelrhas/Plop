@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stack>
+
+#include <entt/core/fwd.hpp>
+
 #include <Renderer/Mesh.h>
 #include <Renderer/Sprite.h>
 #include <Renderer/FrameBuffer.h>
@@ -63,6 +67,7 @@ namespace Plop
 			glm::vec4	vColor;
 			glm::vec2	vUV;
 			float		fTexUnit; // must be float because it will be varying
+			float		fEntityId = -1.f; // must be float because it will be varying
 
 			static const BufferLayout layout;
 		};
@@ -77,6 +82,7 @@ namespace Plop
 			uint32_t				uNbTex = 0;
 			const Texture**			pTextureUnits = nullptr; // [MAX_TEX_UNIT]
 			Stats					frameStat;
+			std::stack<entt::id_type> currentEntityId;
 		};
 
 
@@ -96,7 +102,9 @@ namespace Plop
 
 		ShaderPtr		LoadShader( const String& _sFile );
 
-
+		void			PushEntityId(entt::id_type _entityId);
+		void			PopEntityId();
+		entt::id_type	GetEntityId(const glm::ivec2 &_vCoord);
 
 		void			DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize );
 		void			DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad );

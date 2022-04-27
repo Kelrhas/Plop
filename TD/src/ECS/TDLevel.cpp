@@ -36,7 +36,7 @@ TDLevel::~TDLevel()
 void TDLevel::Init()
 {
 	Plop::LevelBase::Init();
-
+	/*
 	LevelGrid::LevelConstraints constraints;
 	constraints.m_uLevelHeight = 10;
 	constraints.m_uLevelWidth = 10;
@@ -83,7 +83,6 @@ void TDLevel::Init()
 		spawnerComp.xPathCurve->vecControlPoints.push_back(glm::vec3(endTile.vCoord, fDepth) - vSpawnerPos);
 	}
 
-
 	m_BaseEntity = CreateEntity( "Base" );
 	m_BaseEntity.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
 	m_BaseEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition( glm::vec3( constraints.m_vEnd, 1.f ) );
@@ -92,6 +91,7 @@ void TDLevel::Init()
 
 	auto& baseSpriteComp = m_BaseEntity.AddComponent<Plop::Component_SpriteRenderer>();
 	baseSpriteComp.xSprite->SetSpritesheet( hSpritesheet, "player_base" );
+	*/
 }
 
 void TDLevel::Shutdown()
@@ -110,7 +110,7 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 
 	if (Plop::Input::IsMouseLeftPressed() && !m_xCurrentCamera.expired())
 	{
-		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorScreenPos(), 0.f );
+		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorWindowPos(), 0.f );
 
 		
 		Plop::Entity newEnemy = CreateEntity( "Enemy" );
@@ -178,15 +178,16 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 {
 	Plop::LevelBase::UpdateInEditor( _ts );
 
-	auto& editor = Plop::Application::Get()->GetEditor();
-	auto& xCamera = editor.GetEditorCamera();
 
-	glm::vec2 vScreenPos = Plop::Input::GetCursorScreenPos();
-	vScreenPos = editor.GetViewportPosFromScreenPos( vScreenPos );
-	glm::vec3 vMousePos = xCamera->GetWorldPosFromViewportPos( vScreenPos, 0.f );
-
-	if (Plop::Input::IsMouseLeftDown())
+	if (Plop::Input::IsMouseLeftDown() && false)
 	{
+		auto &editor = Plop::Application::Get()->GetEditor();
+		auto &xCamera = editor.GetEditorCamera();
+
+		glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
+		vScreenPos = editor.GetViewportPosFromWindowPos(vScreenPos);
+		glm::vec3 vMousePos = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
+
 		//Plop::Log::Info( "Clicking at {}, {}", vMousePos.x, vMousePos.y );
 		if (vMousePos.x >= 0.f && vMousePos.y >= 0.f)
 		{

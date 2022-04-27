@@ -10,13 +10,50 @@
           "perspFOV": 1.1344640254974365
         },
         "Transform": {
-          "Position": [3.0940001010894775,4.308000087738037,6.900000095367432],
+          "Position": [3.394674062728882,0.4186843931674957,1.600000023841858],
           "Rotation": [0.0,0.0,0.0,1.0],
           "Scale": [1.0,1.0,1.0]
         }
       },
       "HintID": 103,
       "Name": "Camera"
+    },
+    {
+      "Components": {
+        "EnemySpawner": {
+          "Delay": 0.5,
+          "NbEnemies": 5,
+          "Points": [[0.0,0.0,0.0],[1.0,0.0,0.0],[4.5,1.600000023841858,0.0],[6.0,3.0,0.0],[7.5,2.299999952316284,0.0],[8.399999618530273,0.699999988079071,0.0],[9.699999809265137,0.0,0.0]]
+        },
+        "SpriteRenderer": {
+          "Coord": [22,5],
+          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [0.0,0.0,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "HintID": 102,
+      "Name": "Spawner"
+    },
+    {
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [19,5],
+          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [8.422913551330566,0.6930689811706543,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "HintID": 101,
+      "Name": "Base"
     }
   ]
 }

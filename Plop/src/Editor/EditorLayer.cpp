@@ -14,7 +14,6 @@
 
 #include "Application.h"
 #include "Audio/AudioManager.h"
-#include "Editor/Console.h"
 #include "ECS/Components/ComponentDefinition.h"
 #include "ECS/Components/BaseComponents.h"
 #include "ECS/Components/Component_Camera.h"
@@ -229,9 +228,6 @@ namespace Plop
 
 			if (m_bShowCameraSettings)
 				m_xEditorCamera->DisplaySettings( m_bShowCameraSettings );
-
-			// TODO set docking to bottom
-			Console::Draw();
 
 
 			if (m_eLevelState == LevelState::EDITING ||
@@ -514,6 +510,10 @@ namespace Plop
 					SaveLevelAs();
 				else
 					SaveLevel();
+			}
+			if (Input::IsKeyPressed(KeyCode::KEY_D) && m_SelectedEntity)
+			{
+				DuplicateEntity(m_SelectedEntity);
 			}
 		}
 
@@ -841,7 +841,7 @@ namespace Plop
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )
 	{
 		LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
-		const String& sName = _entity.GetComponent<Component_Name>().sName;
+		const String& sName = _entity.GetComponent<Component_Name>().sName + " - copy";
 		Entity dupEntity = xLevel->CreateEntity( sName );
 		dupEntity.SetParent( _entity.GetParent() );
 

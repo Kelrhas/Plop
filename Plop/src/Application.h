@@ -67,6 +67,7 @@ namespace Plop
 
 				// Editor
 				bool			IsUsingEditorCamera() const;
+				bool			IsInEditor() const { return m_bEditorMode; }
 				EditorLayer&	GetEditor() { return m_EditorLayer; }
 				const EditorLayer&	GetEditor() const { return m_EditorLayer; }
 
@@ -75,6 +76,7 @@ namespace Plop
 		static Config&			GetConfig() { return s_pInstance->m_Config; }
 		static TimeStep&		GetTimeStep() { return s_pInstance->m_timeStep; }
 
+				void			ToggleSceneGraph();
 
 	protected:
 		template<typename Comp, bool RegisterEditor = true>
@@ -92,15 +94,15 @@ namespace Plop
 		virtual void			RegisterComponents() {}
 
 
+
 		static Application*		s_pInstance;
 				Config			m_Config;
 				std::unique_ptr<Window> m_xWindow;
 				TimeStep		m_timeStep;
 				bool			m_bRunning = true;
-#ifdef _MASTER
-				bool			m_bEditorMode = false;
-#else
+#ifndef _MASTER
 				bool			m_bEditorMode = true;
+				bool			m_bShowSceneGraph = true;
 #endif
 
 				std::vector<ApplicationLayer*> m_vecAppLayers;

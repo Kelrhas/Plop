@@ -53,6 +53,7 @@ namespace Plop
 
 			Application::GetTimeStep().SetGameScale( fScale );
 		});
+		RegisterCommand("SceneGraph", [](const String &_args) { Application::Get()->ToggleSceneGraph(); });
 	}
 
 	void Console::AddOutput( const String& _str, LogEntry::Type _eType /*= LogEntry::Type::Info*/ )

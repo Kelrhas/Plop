@@ -10,6 +10,7 @@
 #include "Input/Input.h"
 #include "Debug/Debug.h"
 #include "Debug/Log.h"
+#include "Editor/Console.h"
 #include "Events/EventDispatcher.h"
 #include "Events/WindowEvent.h"
 #include "ECS/ComponentManager.h"
@@ -96,10 +97,13 @@ namespace Plop
 	{
 		for (const String& sArg : _Arguments)
 		{
-			if (sArg == "-editor")
-				m_bEditorMode = true;
+#ifndef _MASTER
 			if (sArg == "-noeditor")
+			{
 				m_bEditorMode = false;
+				m_bShowSceneGraph = false;
+			}
+#endif
 		}
 	}
 
@@ -169,8 +173,10 @@ namespace Plop
 
 		m_timeStep.Advance();
 		RegisterAppLayer( &m_ImGuiLayer );
-		if(m_bEditorMode)
-			RegisterAppLayer( &m_EditorLayer );
+		if constexpr (USE_EDITOR)
+		{
+			RegisterAppLayer(&m_EditorLayer);
+		}
 
 		RegisterMandatoryComponents();
 		RegisterComponents();
@@ -179,7 +185,10 @@ namespace Plop
 		if (m_bEditorMode)
 			m_EditorLayer.m_xEditingLevel = xLevel;
 		else
+		{
+			m_EditorLayer.m_eLevelState = EditorLayer::LevelState::RUNNING;
 			m_xLoadedLevel = xLevel;
+		}
 
 		if (!m_Config.sLastLevelActive.empty())
 		{
@@ -251,8 +260,23 @@ namespace Plop
 			m_ImGuiLayer.NewFrame();
 			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
 			{
+				if (pAppLayer == &m_EditorLayer && !m_bEditorMode)
+					continue;
 				pAppLayer->OnImGuiRender( m_timeStep );
 			}
+
+			if constexpr (USE_EDITOR)
+			{
+				if (!m_bEditorMode)
+				{
+					if (m_bShowSceneGraph)
+						m_EditorLayer.ShowSceneGraph();
+				}
+			}
+
+			// TODO set docking to bottom
+			Console::Draw();
+
 			m_ImGuiLayer.EndFrame();
 
 
@@ -280,6 +304,17 @@ namespace Plop
 				m_xLoadedLevel->StopToEditor();
 
 				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::EDITING;
+			}
+
+			if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING)
+			{
+				if (Input::IsMouseLeftPressed())
+				{
+					const glm::vec2 &vWindowPos = Input::GetCursorWindowPos();
+					glm::vec2 vViewportPos = m_EditorLayer.GetViewportPosFromWindowPos(vWindowPos, true);
+					vViewportPos *= m_EditorLayer.m_vViewportPosMaxWindowSpace - m_EditorLayer.m_vViewportPosMinWindowSpace;
+					m_EditorLayer.m_SelectedEntity = Entity((entt::entity)Renderer::GetEntityId(vViewportPos), Application::GetCurrentLevel());
+				}
 			}
 		}
 
@@ -323,20 +358,27 @@ namespace Plop
 	{
 		if (s_pInstance != nullptr)
 		{
-			switch (s_pInstance->m_EditorLayer.m_eLevelState)
+			if (s_pInstance->m_bEditorMode)
 			{
-				case EditorLayer::LevelState::EDITING:
-					return s_pInstance->m_EditorLayer.m_xEditingLevel;
+				switch (s_pInstance->m_EditorLayer.m_eLevelState)
+				{
+					case EditorLayer::LevelState::EDITING:
+						return s_pInstance->m_EditorLayer.m_xEditingLevel;
 
-				case EditorLayer::LevelState::STARTING:
-				case EditorLayer::LevelState::RUNNING:
-				case EditorLayer::LevelState::PAUSED:
-					return s_pInstance->m_xLoadedLevel;
+					case EditorLayer::LevelState::STARTING:
+					case EditorLayer::LevelState::RUNNING:
+					case EditorLayer::LevelState::PAUSED:
+						return s_pInstance->m_xLoadedLevel;
 
-				case EditorLayer::LevelState::STOPPING:
-					ASSERTM(false, "Access to current level during stop is forbidden");
-				default:
-					break;
+					case EditorLayer::LevelState::STOPPING:
+						ASSERTM(false, "Access to current level during stop is forbidden");
+					default:
+						break;
+				}
+			}
+			else
+			{
+				return s_pInstance->m_xLoadedLevel;
 			}
 		}
 
@@ -349,6 +391,12 @@ namespace Plop
 			return m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING;
 
 		return FALSE;
+	}
+
+	void Application::ToggleSceneGraph()
+	{
+		if (!m_bEditorMode)
+			m_bShowSceneGraph = !m_bShowSceneGraph;
 	}
 
 	GameConfig* Application::CreateGameConfig()

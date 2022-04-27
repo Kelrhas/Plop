@@ -10,3 +10,10 @@
 
 
 #define USE_COMPONENT_MGR
+
+
+#ifdef _MASTER
+constexpr bool USE_EDITOR = false;
+#else
+constexpr bool USE_EDITOR = true;
+#endif

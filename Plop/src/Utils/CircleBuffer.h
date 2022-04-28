@@ -22,12 +22,13 @@ namespace Plop
 
 		// Modifiers
 		template<typename...Args>
-		void						emplace_back( Args...args );
+		void						emplace_back( Args&&...args );
 		void						push_back( const value_type& _Element );
 		void						push_back( value_type&& _Element );
 		void						clear();
 
 		// Getters
+		bool						empty() const { return m_Size == 0; }
 		size_type					size() const { return m_Size; }
 		reference					front();				// retrieves the first element inserted
 		const_reference				front() const;			// retrieves the first element inserted

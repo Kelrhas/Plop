@@ -71,14 +71,29 @@ namespace Plop
 			size_type index = 0;
 		};
 
+		struct const_iterator
+		{
+			friend class DynamicArray<value_type>;
+
+			const_iterator& operator=(const const_iterator& _Other) { dataRef = _Other.dataRef; index = _Other.index; return *this; }
+			bool operator==(const const_iterator& _Other) const { ASSERT(&dataRef == &_Other.dataRef, "Iterators are not for the same DynamicArray"); return index == _Other.index; }
+			bool operator!=(const const_iterator& _Other) const { return !(*this == _Other); }
+			const_iterator operator++() const { return const_iterator(dataRef, index + 1); }			// pre-increment
+			const_iterator operator++(int) const { const_iterator it = *this; index++; return it; }		// post-increment
+			const_reference operator*() const { return dataRef[index]; }
+			const_pointer operator->() const { return &dataRef[index]; }
+
+		private:
+			const_iterator(const DynamicArray<value_type>& _vecRef, size_type _Index = 0) : dataRef(_vecRef), index(_Index) {}
+
+			const DynamicArray<value_type>& dataRef;
+			size_type index = 0;
+		};
+
 		iterator		begin() { return iterator( *this, 0 ); }
-		//const_iterator	begin() const;
+		const_iterator	begin() const { return const_iterator(*this, 0); }
 		iterator		end() { return iterator( *this, m_Size ); }
-		//const_iterator	end() const;
-		//iterator		rbegin();
-		//const_iterator	rbegin() const;
-		//iterator		rend();
-		//const_iterator	rend() const;
+		const_iterator	end() const { return const_iterator( *this, m_Size ); }
 
 	private:
 		void			Reallocate( size_type _NewCapacity );

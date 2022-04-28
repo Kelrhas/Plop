@@ -2,7 +2,7 @@
 
 namespace Plop
 {
-	/* DynamicArray is a simple version of std::vector
+	/* StaticArray is a simple version of std::array
 	 */
 	template<class T, size_t Size>
 	class StaticArray final
@@ -63,15 +63,29 @@ namespace Plop
 			size_type index = 0;
 		};
 
-		iterator		begin() { return iterator( *this, 0 ); }
-		//const_iterator	begin() const;
-		iterator		end() { return iterator( *this, Size ); }
-		//const_iterator	end() const;
-		//iterator		rbegin();
-		//const_iterator	rbegin() const;
-		//iterator		rend();
-		//const_iterator	rend() const;
+		struct const_iterator
+		{
+			friend class StaticArray<value_type, Size>;
 
+			const_iterator& operator=(const const_iterator& _Other) { dataRef = _Other.dataRef; index = _Other.index; return *this; }
+			bool operator==(const const_iterator& _Other) const { ASSERT(&dataRef == &_Other.dataRef, "Iterators are not for the same StaticArray"); return index == _Other.index; }
+			bool operator!=(const const_iterator& _Other) const { return !(*this == _Other); }
+			const_iterator operator++() const { return const_iterator(dataRef, index+1); }				// pre-increment
+			const_iterator operator++(int) const { const_iterator it = *this; index++; return it; }		// post-increment
+			const_reference operator*() const { return dataRef[index]; }
+			const_pointer operator->() const { return &dataRef[index]; }
+
+		private:
+			const_iterator(const StaticArray<value_type, Size>& _vecRef, size_type _Index = 0) : dataRef(_vecRef), index(_Index) {}
+
+			const StaticArray<value_type, Size>& dataRef;
+			size_type index = 0;
+		};
+
+		iterator		begin() { return iterator( *this, 0 ); }
+		const_iterator	begin() const { return const_iterator( *this, 0 ); }
+		iterator		end() { return iterator( *this, Size ); }
+		const_iterator	end() const { return const_iterator( *this, Size ); }
 
 	private:
 		value_type		m_pData[Size];

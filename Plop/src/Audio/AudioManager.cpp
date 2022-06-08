@@ -48,6 +48,7 @@ namespace Plop
 			return false;
 
 		ASSERT( alcIsExtensionPresent( NULL, "ALC_enumeration_EXT" ) == AL_TRUE );
+		Debug::Assert_AL();
 		
 		if( alcIsExtensionPresent( NULL, "ALC_enumerate_all_EXT" ) )
 			m_pAllDevices = alcGetString( NULL, ALC_ALL_DEVICES_SPECIFIER );
@@ -123,6 +124,8 @@ namespace Plop
 
 	void AudioManager::DrawEditorPanel( bool* _bOpen )
 	{
+		static constexpr char* TEST_SOUND_PATH = "../data/audio/test.wav";
+
 		if (ImGui::Begin( "Audio manager", _bOpen ))
 		{
 			if (ImGui::Combo( "Devices", &m_iDeviceIndex, m_pAllDevices ))
@@ -136,7 +139,7 @@ namespace Plop
 
 			if (ImGui::Button( "Test sound" ))
 			{
-				SoundHandle hSnd = AssetLoader::GetSound( "D:\\Prog\\Plop\\data\\audio\\test.wav" );
+				SoundHandle hSnd = AssetLoader::GetSound(TEST_SOUND_PATH);
 				alSourcei( m_uSourceID, AL_BUFFER, hSnd->GetBufferID() );
 				Debug::Assert_AL();
 				alSourcePlay( m_uSourceID );
@@ -149,7 +152,7 @@ namespace Plop
 				auto& view = reg.view<Component_AudioEmitter>();
 				view.each( [&]( Component_AudioEmitter& emitter) {
 
-					SoundHandle hSnd = AssetLoader::GetSound( "D:\\Prog\\Plop\\data\\audio\\test.wav" );
+					SoundHandle hSnd = AssetLoader::GetSound(TEST_SOUND_PATH);
 					emitter.AttachSound( hSnd );
 					emitter.PlaySound( true );
 				});

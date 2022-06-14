@@ -670,7 +670,7 @@ namespace Plop
 				}
 
 				if (entityToDestroy)
-					entityToDestroy.Destroy();
+					xLevel->DestroyEntity(entityToDestroy);
 
 				ImGui::EndChild();
 				if (ImGui::Button( "New entity" ))

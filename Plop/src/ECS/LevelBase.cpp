@@ -29,7 +29,7 @@ namespace Plop
 	void LevelBase::Init()
 	{
 		m_ENTTRegistry.sort<Component_GraphNode, Component_Transform>(); // minimizes cache misses when iterating together
-
+		m_ENTTRegistry.ctx_or_set<GUIDPlop>() = (GUIDPlop)rand();
 
 #define MACRO_COMPONENT(comp)	BindOnCreate<Component_##comp>( m_ENTTRegistry ); \
 								BindOnDestroy<Component_##comp>( m_ENTTRegistry );

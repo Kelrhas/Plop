@@ -155,7 +155,7 @@ namespace Plop
 	//////////////////////////////////////////////////////////////////////////
 
 	template <class Component, class RegistryType, class EntityType>
-	void CallDuplicateComponent( RegistryType& _reg, const EntityType& _entitySrc, EntityType& _entityDest )
+	void CallDuplicateComponent( RegistryType& _reg, EntityType _entitySrc, EntityType _entityDest )
 	{
 		if (_reg.has<Component>( _entitySrc ))
 		{

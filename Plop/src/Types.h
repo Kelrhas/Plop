@@ -14,3 +14,6 @@ using S8			= int8_t;
 using S16			= int16_t;
 using S32			= int32_t;
 using S64			= int64_t;
+
+
+using GUIDPlop			= uint64_t; // TODO proper GUID

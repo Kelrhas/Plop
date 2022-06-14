@@ -99,7 +99,7 @@ namespace Plop
 			xLevelFrameBufer->Bind();
 			Renderer::Clear();
 
-			if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == Application::GetCurrentLevel().lock() && m_SelectedEntity.HasComponent<Component_Camera>())
+			if (IsSelectedEntityForLevel(Application::GetCurrentLevel()) && m_SelectedEntity.HasComponent<Component_Camera>())
 			{
 				CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
 				Renderer::PrepareScene(xCamera->GetProjectionMatrix(), xCamera->GetViewMatrix());
@@ -124,7 +124,7 @@ namespace Plop
 				xLevel->UpdateInEditor( _timeStep );
 
 
-				if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == Application::GetCurrentLevel().lock())
+				if (IsSelectedEntityForLevel(Application::GetCurrentLevel()))
 				{
 					if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
 					{
@@ -239,7 +239,7 @@ namespace Plop
 				if (!xCurrentLevel.expired())
 				{
 					LevelBasePtr xLevel = xCurrentLevel.lock();
-					bool bValidEntity = m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == xLevel;
+					bool bValidEntity = IsSelectedEntityForLevel(xLevel);
 #ifndef USE_COMPONENT_MGR
 					if (bValidEntity && !s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId ))
 						m_SelectedEntity = {};
@@ -713,7 +713,7 @@ namespace Plop
 			bOrthographic = m_xEditorCamera->IsOrthographic();
 
 
-			if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() == Application::GetCurrentLevel().lock())
+			if (IsSelectedEntityForLevel(Application::GetCurrentLevel()))
 			{
 				if (m_SelectedEntity.HasComponent<Component_Camera>())
 				{
@@ -832,10 +832,23 @@ namespace Plop
 	{
 		m_eLevelState = LevelState::STOPPING;
 		// reset the selected entity if it was selected from the playing level
-		if (m_SelectedEntity && m_SelectedEntity.m_xLevel.lock() != m_xEditingLevel)
+		if (!IsSelectedEntityForLevel(m_xEditingLevel))
 		{
 			m_SelectedEntity = {};
 		}
+	}
+
+	bool EditorLayer::IsSelectedEntityForLevel(LevelBaseWeakPtr _xLevel) const
+	{
+		if (_xLevel.expired())
+			return false;
+
+		if (!m_SelectedEntity)
+			return false;
+
+		LevelBasePtr xLevel = _xLevel.lock();
+
+		return xLevel == m_SelectedEntity.m_xLevel.lock();
 	}
 
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )

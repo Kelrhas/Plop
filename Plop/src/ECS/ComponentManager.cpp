@@ -6,7 +6,7 @@
 namespace Plop
 {
 
-	void ComponentManager::EditorUI( Registry& _reg, EntityType& _e )
+	void ComponentManager::EditorUI( Registry& _reg, EntityType _e )
 	{
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -53,7 +53,7 @@ namespace Plop
 		}
 	}
 
-	void ComponentManager::FromJson( Registry& _reg, EntityType& _e, const Json& _j )
+	void ComponentManager::FromJson( Registry& _reg, EntityType _e, const Json& _j )
 	{
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -62,7 +62,7 @@ namespace Plop
 		}
 	}
 
-	void ComponentManager::ToJson( Registry& _reg, const EntityType& _e, Json& _j )
+	void ComponentManager::ToJson( Registry& _reg, EntityType _e, Json& _j )
 	{
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -75,7 +75,7 @@ namespace Plop
 		}
 	}
 
-	void ComponentManager::DuplicateComponent( Registry& _reg, const EntityType& _entitySrc, EntityType& _entityDest )
+	void ComponentManager::DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest )
 	{
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -85,7 +85,7 @@ namespace Plop
 
 	std::unordered_map<ComponentManager::ComponentTypeId, ComponentManager::ComponentInfo> ComponentManager::s_mapComponents;
 
-	bool ComponentManager::HasComponent( const Registry& _reg, const EntityType& _e, ComponentTypeId _id )
+	bool ComponentManager::HasComponent( const Registry& _reg, EntityType _e, ComponentTypeId _id )
 	{
 		ComponentTypeId type[] = { _id };
 		return _reg.runtime_view( std::cbegin( type ), std::cend( type ) ).contains( _e );

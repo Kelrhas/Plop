@@ -48,12 +48,12 @@ namespace Plop
 
 #ifndef _MASTER
 	#define BREAK()						__debugbreak()
-	#define ASSERT(action)				{bool b = (action); if(!b){ if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define ASSERTM(action, ...)		{bool b = (action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define VERIFY(action)				{bool b = (action); if(!b){ if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define VERIFYM(action, ...)		{bool b = (action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define EXCEPTION(action)			{bool b = (action); if(!b){ BREAK(); }}
-	#define EXCEPTIONM(action, ...)		{bool b = (action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK(); }}
+	#define ASSERT(action)				{bool b = (bool)(action); if(!b){ if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
+	#define ASSERTM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
+	#define VERIFY(action)				{bool b = (bool)(action); if(!b){ if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
+	#define VERIFYM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
+	#define EXCEPTION(action)			{bool b = (bool)(action); if(!b){ BREAK(); }}
+	#define EXCEPTIONM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK(); }}
 
 	#define PROFILING_INIT()			{}
 	#define PROFILING_SHUTDOWN()		OPTICK_SHUTDOWN()
@@ -66,9 +66,9 @@ namespace Plop
 	#define ASSERT(action)				do{}while(0)
 	#define ASSERTM(action, ...)		do{}while(0)
 	#define VERIFY(action)				do{(action);}while(0)
-	#define VERIFYM(action, ...)		{bool b = (action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define EXCEPTION(action)			{bool b = (action); if(!b){ BREAK(); }}
-	#define EXCEPTIONM(action, ...)		{bool b = (action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK();}}
+	#define VERIFYM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
+	#define EXCEPTION(action)			{bool b = (bool)(action); if(!b){ BREAK(); }}
+	#define EXCEPTIONM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK();}}
 
 	#define PROFILING_INIT()			{}
 	#define PROFILING_SHUTDOWN()		{}

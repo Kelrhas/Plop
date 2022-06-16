@@ -63,7 +63,7 @@ namespace Plop
 
 
 		template<class Comp>
-		static Comp& GetComponent( Registry& _reg, const EntityType& _e );
+		static Comp& MetaGetComponent( Registry& _reg, const EntityType& _e );
 
 		static std::unordered_map<ComponentTypeId, ComponentInfo> s_mapComponents;
 
@@ -102,9 +102,10 @@ namespace Plop
 
 		/// meta/reflection stuff
 
-		auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
-		factory.func<&CloneRegistryComponents<Comp, Registry&>>( "clone"_hs );
-		factory.func<&GetComponent<Comp>, entt::as_ref_t>( "get"_hs );
+		auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) ).prop("name"_hs, String(_pName));
+		factory.func<&CloneAllRegistryComponents<Comp, Registry &>>("cloneAllComponents"_hs);
+		factory.func<&CloneRegistryComponent<Comp, Registry &, EntityType>>("clone"_hs);
+		factory.func<&MetaGetComponent<Comp>, entt::as_ref_t>("get"_hs);
 
 		/*if constexpr (std::is_invocable_v<Comp::SetupReflection>)
 		{
@@ -136,7 +137,7 @@ namespace Plop
 	}
 
 	template<class Comp>
-	Comp& ComponentManager::GetComponent( ComponentManager::Registry& _reg, const EntityType& _e ) {
+	Comp& ComponentManager::MetaGetComponent( ComponentManager::Registry& _reg, const EntityType& _e ) {
 		return _reg.get_or_emplace<Comp>( _e );
 	}
 }

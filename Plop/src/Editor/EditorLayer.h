@@ -91,7 +91,7 @@ namespace Plop
 #endif
 
 			auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
-			factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "clone"_hs );
+			factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "cloneAllComponents"_hs );
 		}
 		template<typename Comp>
 		static	void		CloneRegistryComponents( entt::registry& _src, entt::registry& _dst )

@@ -194,11 +194,11 @@ namespace Plop
 		destReg.assign( srcReg.data(), srcReg.data() + srcReg.size() );
 
 		srcReg.visit( [&srcReg, &destReg]( auto _comp )
-			{
-				auto& type = entt::resolve_type( _comp );
-				auto& f = type.func( "clone"_hs );
-				f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
-			} );
+		{
+			auto& type = entt::resolve_type( _comp );
+			auto& f = type.func( "cloneAllComponents"_hs );
+			f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
+		} );
 	}
 
 	json LevelBase::ToJson()

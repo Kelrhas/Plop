@@ -13,4 +13,7 @@ namespace Plop
 		return Entity( entt::to_entity( _xLevel->GetEntityRegistry(), _comp ), _xLevel );
 	}
 
+
+	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &_dst);
+
 }

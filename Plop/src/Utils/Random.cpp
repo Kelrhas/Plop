@@ -56,5 +56,26 @@ namespace Plop
 		memcpy( &f, &u, sizeof( u ) );
 		return f - 3.f;
 	}
+
+
+
+
+
+	Random g_globalRandom;
+
+	void RandomSeed(uint64_t _uSeed)
+	{
+		g_globalRandom.SetSeed(_uSeed);
+	}
+
+	U32 RandomInt32()
+	{
+		return g_globalRandom.NextInt();
+	}
+
+	float RandomFloat01()
+	{
+		return g_globalRandom.NextFloat01();
+	}
 	
 }

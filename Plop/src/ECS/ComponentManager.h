@@ -22,7 +22,7 @@ namespace Plop
 			using Callback = std::function<void( Registry&, EntityType )>;
 			using CallbackDuplicate = std::function<void( Registry&, const EntityType&, EntityType& )>;
 			using CallbackFromJson = std::function<void( Registry&, EntityType&, const Json& )>;
-			using CallbackToJson = std::function<Json( Registry&, const EntityType& )>;
+			using CallbackToJson = std::function<Json( const Registry&, const EntityType& )>;
 
 
 			const char* pName = nullptr;
@@ -52,11 +52,11 @@ namespace Plop
 
 		static void EditorUI( Registry& _reg, EntityType& _e );
 		static void FromJson( Registry& _reg, EntityType& _e, const Json& _j);
-		static void ToJson( Registry& _reg, const EntityType& _e, Json& _j);
+		static void ToJson( const Registry& _reg, const EntityType& _e, Json& _j);
 		static void DuplicateComponent( Registry& _reg, const EntityType& _entitySrc, EntityType& _entityDest );
 		
 		template<typename Visitor>
-		static void ComponentsVisitor( Registry& _reg, const EntityType& _e, Visitor _v );
+		static void ComponentsVisitor( Registry& _reg, const EntityType& _e, Visitor &&_v );
 
 	private:
 		static bool HasComponent( const Registry& _reg, const EntityType& _e, ComponentTypeId _id );
@@ -64,6 +64,12 @@ namespace Plop
 
 		template<class Comp>
 		static Comp& MetaGetComponent( Registry& _reg, const EntityType& _e );
+		template<class Comp>
+		static bool MetaHasComponent( const Registry& _reg, const EntityType& _e );
+		template<class Comp>
+		static Comp& MetaAddComponent( Registry& _reg, const EntityType& _e );
+		//template<class Comp>
+		//static void MetaCloneComponent( const Registry& _regSrc, const EntityType& _eSrc, Registry &_regDst, const EntityType &_eDst);
 
 		static std::unordered_map<ComponentTypeId, ComponentInfo> s_mapComponents;
 

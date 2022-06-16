@@ -604,17 +604,17 @@ namespace Plop
 
 					if (ImGui::BeginPopupContextItem( "EntityContextMenu" ))
 					{
-						if (ImGui::Selectable( "New entity" ))
+						if (ImGui::MenuItem( "New entity" ))
 						{
 							LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
 							Entity e = xLevel->CreateEntity();
 							e.SetParent( _Entity );
 						}
-						if (ImGui::Selectable( "Duplicate entity" ))
+						if (ImGui::MenuItem( "Duplicate entity" ))
 						{
 							DuplicateEntity( _Entity );
 						}
-						if (ImGui::Selectable( "Delete entity" ))
+						if (ImGui::MenuItem( "Delete entity" ))
 							entityToDestroy = _Entity;
 
 						ImGui::EndPopup();

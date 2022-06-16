@@ -9,14 +9,16 @@
 
 #include "Application.h"
 #include "Renderer/Renderer.h"
+#include "ECS/Components/BaseComponents.h"
+#include "ECS/Components/ComponentDefinition.h"
+#include "ECS/Components/ComponentIncludes.h"
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Entity.h"
-#include "ECS/Components/ComponentDefinition.h"
-#include "ECS/Components/BaseComponents.h"
-#include "ECS/Components/ComponentIncludes.h"
-
+#include "ECS/PrefabManager.h"
+#include "ECS/Serialisation.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
+#include "Utils/JsonTypes.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
@@ -94,7 +96,9 @@ namespace Plop
 		entt::entity entityID = m_ENTTRegistry.create();
 		Entity e = { entityID, Application::GetCurrentLevel()};
 
-		e.AddComponent<Component_Name>( _sName );
+		auto &nameComp = e.AddComponent<Component_Name>( _sName );
+		ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
+		m_mapGUIDToEntt[nameComp.guid] = entityID;
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
@@ -103,12 +107,14 @@ namespace Plop
 		return e;
 	}
 
-	Entity LevelBase::CreateEntityWithHint( entt::entity _id )
+	Entity LevelBase::CreateEntityWithGUID(GUID _guid)
 	{
-		entt::entity entityID = m_ENTTRegistry.create( _id );
+		entt::entity entityID = m_ENTTRegistry.create();
 		Entity e = { entityID, Application::GetCurrentLevel()};
 
-		e.AddComponent<Component_Name>();
+		e.AddComponent<Component_Name>(_guid);
+		ASSERTM(m_mapGUIDToEntt.find(_guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", _guid);
+		m_mapGUIDToEntt[_guid] = entityID;
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
@@ -117,11 +123,15 @@ namespace Plop
 		return e;
 	}
 
-	Entity LevelBase::GetEntityFromHint( entt::entity _id )
+	Entity LevelBase::GetEntityFromGUID(GUID _guid)
 	{
-		Entity e = {_id, Application::GetCurrentLevel() };
+		auto it = m_mapGUIDToEntt.find(_guid);
 
-		return e;
+		if (it != m_mapGUIDToEntt.end())
+			return Entity {it->second, Application::GetCurrentLevel()};
+
+		ASSERT(false);
+		return Entity();
 	}
 
 	void LevelBase::DestroyEntity( Entity& _entity )
@@ -210,7 +220,7 @@ namespace Plop
 			if (!entity.HasFlag( EntityFlag::DYNAMIC_GENERATION ))
 			{
 				String& sName = entity.GetComponent<Component_Name>().sName;
-				j["entities"].push_back( entity.ToJson() );
+				j[JSON_ENTITIES].push_back( entity.ToJson() );
 			}
 		});
 
@@ -219,18 +229,18 @@ namespace Plop
 
 	void LevelBase::FromJson( const json& _j )
 	{
-		if (_j.contains( "entities" ))
+		if (_j.contains(JSON_ENTITIES))
 		{
-			// create all entities so that everything is created to apply GraphNode links
-			for (auto j : _j["entities"])
+			// create all entities so that everything is created when to apply GraphNode links
+			for (const auto &j : _j[JSON_ENTITIES])
 			{
-				CreateEntityWithHint( j["HintID"] );
+				CreateEntityWithGUID(j[JSON_GUID]);
 			}
 
 			// and apply whatever we need to
-			for (auto j : _j["entities"])
+			for (const auto &j : _j[JSON_ENTITIES])
 			{
-				Entity e = GetEntityFromHint(j["HintID"]);
+				Entity e = GetEntityFromGUID(j[JSON_GUID]);
 				e.FromJson(j);
 			}
 		}

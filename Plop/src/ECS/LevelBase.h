@@ -7,8 +7,9 @@ using json = nlohmann::json;
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 
-#include <TimeStep.h>
-#include <Camera/Camera.h>
+#include "TimeStep.h"
+#include "Camera/Camera.h"
+#include "Utils/GUID.h"
 
 namespace Plop
 {
@@ -41,9 +42,9 @@ namespace Plop
 				void AfterUpdate();				// close the rendering
 
 				Entity CreateEntity( const String& _sName = "New Entity" );
-				Entity CreateEntityWithHint( entt::entity _id );
-				Entity GetEntityFromHint( entt::entity _id );
-				void DestroyEntity( Entity& _entity );
+				Entity CreateEntityWithGUID(Plop::GUID _guid);
+				Entity GetEntityFromGUID(Plop::GUID _guid);
+				void DestroyEntity(Entity &_entity);
 
 
 				entt::registry& GetEntityRegistry() { return m_ENTTRegistry; }
@@ -70,6 +71,10 @@ namespace Plop
 
 				void	DrawSprites();
 				void	DrawParticles( const TimeStep& _ts );
+
+
+
+		std::unordered_map<GUID, entt::entity> m_mapGUIDToEntt;
 
 	};
 }

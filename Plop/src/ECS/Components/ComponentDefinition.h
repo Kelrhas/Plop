@@ -124,7 +124,7 @@ namespace Plop
 	constexpr static JsonType AmbiguousCallComponentToJson( RegistryType& registry, EntityType _entity)
 	{
 		ASSERTM( registry.has<Comp>( _entity ), "The entity does not have this component" );
-		Comp& comp = registry.get<Comp>( _entity );
+		const Comp& comp = registry.get<Comp>( _entity );
 		return comp.ToJson();
 	}
 

@@ -93,7 +93,7 @@ namespace Plop
 		info.funcRemove = RemoveComponent<Comp, Registry&, EntityType>;
 		info.funcDuplicate = CallDuplicateComponent<Comp, Registry&, EntityType>;
 		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType&, const Json&>;
-		info.funcToJson = CallComponentToJson<Comp, Json, Registry&, const EntityType&>;
+		info.funcToJson = CallComponentToJson<Comp, Json, const Registry&, const EntityType&>;
 
 
 		s_mapComponents.insert_or_assign( id, info );
@@ -106,6 +106,8 @@ namespace Plop
 		factory.func<&CloneAllRegistryComponents<Comp, Registry &>>("cloneAllComponents"_hs);
 		factory.func<&CloneRegistryComponent<Comp, Registry &, EntityType>>("clone"_hs);
 		factory.func<&MetaGetComponent<Comp>, entt::as_ref_t>("get"_hs);
+		factory.func<&MetaHasComponent<Comp>>("has"_hs);
+		factory.func<&MetaAddComponent<Comp>, entt::as_ref_t>("add"_hs);
 
 		/*if constexpr (std::is_invocable_v<Comp::SetupReflection>)
 		{
@@ -114,7 +116,7 @@ namespace Plop
 	}
 
 	template<typename Visitor>
-	void ComponentManager::ComponentsVisitor( Registry& _reg, const ComponentManager::EntityType& _e, Visitor _v )
+	void ComponentManager::ComponentsVisitor( Registry& _reg, const ComponentManager::EntityType& _e, Visitor &&_v )
 	{/*
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -131,8 +133,11 @@ namespace Plop
 
 		_reg.visit( _e, [&]( const auto compId ) {
 			const auto type = entt::resolve_type( compId );
-			const auto compObj = type.func( "get"_hs ).invoke( {}, std::ref( _reg ), _e );
-			_v( compObj );
+			if (type.func("has"_hs).invoke({}, std::ref(_reg), _e))
+			{
+				const entt::meta_any &compObj = type.func("get"_hs).invoke({}, std::ref(_reg), _e);
+				_v(compObj);
+			}
 		} );
 	}
 
@@ -140,4 +145,23 @@ namespace Plop
 	Comp& ComponentManager::MetaGetComponent( ComponentManager::Registry& _reg, const EntityType& _e ) {
 		return _reg.get_or_emplace<Comp>( _e );
 	}
+
+	template<class Comp>
+	bool ComponentManager::MetaHasComponent( const ComponentManager::Registry& _reg, const EntityType& _e ) {
+		return _reg.has<Comp>( _e );
+	}
+
+	template<class Comp>
+	Comp& ComponentManager::MetaAddComponent( ComponentManager::Registry& _reg, const EntityType& _e ) {
+		return _reg.emplace<Comp>( _e );
+	}
+
+
+	//template<class Comp>
+	//void ComponentManager::MetaCloneComponent(const ComponentManager::Registry &_regSrc, const EntityType &_eSrc,
+	//										  ComponentManager::Registry &_regDst, const EntityType &_eDst)
+	//{
+	//	const Comp &compSrc = _regSrc.get<Comp>(_eSrc);
+	//	Comp &compDst = _regDst.get_or_emplace<Comp>(_eDst, compSrc);
+	//}
 }

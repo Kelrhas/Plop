@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "Utils/GUID.h"
 #include "ECS/Components/Component_ParticleSystem.h"
 
 #include <json.hpp>
@@ -43,6 +44,12 @@ namespace nlohmann {
 		static void from_json( const json& j, glm::quat& _quat );
 	};
 
+	template<>
+	struct adl_serializer<Plop::GUID>
+	{
+		static void to_json(json &j, const Plop::GUID &_guid);
+		static void from_json(const json &j, Plop::GUID &_guid);
+	};
 
 	template<>
 	struct adl_serializer<Plop::Component_ParticleSystem::ParticleSpawnerPtr> {

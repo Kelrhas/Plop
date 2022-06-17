@@ -48,13 +48,6 @@ namespace Plop
 		m_EntityId = entt::null;
 		m_xLevel.reset();
 	}
-
-	void Entity::Destroy()
-	{
-		auto xLevel = m_xLevel.lock();
-		xLevel->DestroyEntity(*this);
-		Reset();
-	}
 #pragma endregion
 
 #pragma region OPERATORS

@@ -29,7 +29,7 @@ namespace EnemySystem
 			if (enemy.IsDead())
 			{
 				Plop::Entity e{ entity, Plop::Application::GetCurrentLevel() };
-				e.Destroy();
+				Plop::Application::GetCurrentLevel().lock()->DestroyEntity(e);
 			}
 			else
 			{

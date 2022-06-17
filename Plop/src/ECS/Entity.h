@@ -26,7 +26,6 @@ namespace Plop
 		Entity( Entity&& _other ) noexcept;
 
 		void												Reset();
-		void												Destroy();
 
 
 		//// OPERATORS & ACCESS

@@ -17,12 +17,14 @@ namespace Plop
 		using ComponentTypeId = entt::id_type;
 		using Json = nlohmann::json;
 
+		static_assert(std::is_trivially_copyable_v<EntityType>);
+
 		struct ComponentInfo
 		{
 			using Callback = std::function<void( Registry&, EntityType )>;
-			using CallbackDuplicate = std::function<void( Registry&, const EntityType&, EntityType& )>;
-			using CallbackFromJson = std::function<void( Registry&, EntityType&, const Json& )>;
-			using CallbackToJson = std::function<Json( const Registry&, const EntityType& )>;
+			using CallbackDuplicate = std::function<void( Registry&, EntityType, EntityType )>;
+			using CallbackFromJson = std::function<void( Registry&, EntityType, const Json& )>;
+			using CallbackToJson = std::function<Json( Registry&, EntityType )>;
 
 
 			const char* pName = nullptr;
@@ -50,26 +52,27 @@ namespace Plop
 			s_mapComponents.begin()->second.funcEditorUI( _reg, _e );
 		}
 
-		static void EditorUI( Registry& _reg, EntityType& _e );
-		static void FromJson( Registry& _reg, EntityType& _e, const Json& _j);
-		static void ToJson( const Registry& _reg, const EntityType& _e, Json& _j);
-		static void DuplicateComponent( Registry& _reg, const EntityType& _entitySrc, EntityType& _entityDest );
+		static void EditorUI( Registry& _reg, EntityType _e );
+		static void FromJson( Registry& _reg, EntityType _e, const Json& _j);
+		static void ToJson( Registry& _reg, EntityType _e, Json& _j);
+		static void DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest );
 		
 		template<typename Visitor>
-		static void ComponentsVisitor( Registry& _reg, const EntityType& _e, Visitor &&_v );
+		static void ComponentsVisitor( Registry& _reg, EntityType _e, Visitor _v );
 
 	private:
-		static bool HasComponent( const Registry& _reg, const EntityType& _e, ComponentTypeId _id );
+		static bool HasComponent( const Registry& _reg, EntityType _e, ComponentTypeId _id );
 
 
 		template<class Comp>
-		static Comp& MetaGetComponent( Registry& _reg, const EntityType& _e );
+		static Comp& MetaGetComponent( Registry& _reg, EntityType _e );
 		template<class Comp>
-		static bool MetaHasComponent( const Registry& _reg, const EntityType& _e );
+		static bool MetaHasComponent( const Registry& _reg, EntityType _e );
 		template<class Comp>
-		static Comp& MetaAddComponent( Registry& _reg, const EntityType& _e );
+		static Comp& MetaAddComponent( Registry& _reg, EntityType _e );
 		//template<class Comp>
-		//static void MetaCloneComponent( const Registry& _regSrc, const EntityType& _eSrc, Registry &_regDst, const EntityType &_eDst);
+		//static void MetaCloneComponent( const Registry& _regSrc, EntityType _eSrc, Registry &_regDst, const EntityType &_eDst);
+
 
 		static std::unordered_map<ComponentTypeId, ComponentInfo> s_mapComponents;
 
@@ -98,8 +101,8 @@ namespace Plop
 		info.funcAdd = AddComponent<Comp, Registry&, EntityType>;
 		info.funcRemove = RemoveComponent<Comp, Registry&, EntityType>;
 		info.funcDuplicate = CallDuplicateComponent<Comp, Registry&, EntityType>;
-		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType&, const Json&>;
-		info.funcToJson = CallComponentToJson<Comp, Json, const Registry&, const EntityType&>;
+		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType, const Json&>;
+		info.funcToJson = CallComponentToJson<Comp, Json, Registry&, EntityType>;
 
 
 		s_mapComponents.insert_or_assign( id, info );
@@ -122,7 +125,7 @@ namespace Plop
 	}
 
 	template<typename Visitor>
-	void ComponentManager::ComponentsVisitor( Registry& _reg, const ComponentManager::EntityType& _e, Visitor &&_v )
+	void ComponentManager::ComponentsVisitor( Registry& _reg, ComponentManager::EntityType _e, Visitor _v )
 	{/*
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -148,7 +151,7 @@ namespace Plop
 	}
 
 	template<class Comp>
-	Comp& ComponentManager::MetaGetComponent( ComponentManager::Registry& _reg, const EntityType& _e ) {
+	Comp& ComponentManager::GetComponent( ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.get_or_emplace<Comp>( _e );
 	}
 

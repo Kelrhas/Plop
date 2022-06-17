@@ -79,6 +79,8 @@ namespace Plop
 				void		StopLevel();
 
 
+				bool		IsSelectedEntityForLevel(LevelBaseWeakPtr _xLevel) const;
+
 		template<typename Comp, bool RegisterEditor>
 				void		RegisterComponent( const char* _pName )
 		{

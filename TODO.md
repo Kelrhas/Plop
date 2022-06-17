@@ -1,4 +1,10 @@
 
+**[General]**
+- use an engine executable that calls the game dll (faster to compile ? easier to iterate on gameplay code by hot reloading the dll)
+- use a code style file
+- passer sur CMake
+
+
 **[Plop]**
 
 - fix memory tracking (the std::map are released before every delete is called so we try to access freed memory, problem of static order initialization)
@@ -10,6 +16,11 @@
 - fix resolution of 0 when minimizing
 - save the window being maximized
 - ~~use entt::handle~~
+- update EnTT
+  - use registry storage to store multiple component of the same type
+- use commands for editor modification 
+- use commands for rendering (probably vulkan switch)
+  - add debug render command (cube, line, sphere ...)
 
 
 **[Editor]**

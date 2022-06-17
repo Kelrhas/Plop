@@ -50,7 +50,7 @@ usage:
 
 
 		PrefabLibrary &library = s_mapPrefabLibs.at(_sLibName);
-		auto rootId = CopyEntityHierarchyToRegistry(entt::handle(_entitySrc.GetRegistry(), _entitySrc), library.registry);
+		auto rootId = CopyEntityHierarchyToRegistry(_entitySrc, library.registry);
 
 		library.vecPrefabs.emplace_back(rootId);
 
@@ -95,11 +95,11 @@ usage:
 
 
 
-				Entity child(newId, Application::GetCurrentLevel());
+				Entity child(newId, _reg);
 
 				if (_parent != entt::null)
 				{
-					Entity parent(_parent, Application::GetCurrentLevel());
+					Entity parent(_parent, _reg);
 					child.SetParent(parent);
 				}
 

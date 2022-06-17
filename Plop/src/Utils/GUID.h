@@ -10,6 +10,7 @@ namespace Plop
 		GUID(base_t);
 		explicit operator base_t() const { return m_uID; }
 		bool operator==(const GUID &_o) const { return m_uID == _o.m_uID; }
+		bool operator!=(const GUID& _o) const { return !(*this == _o); }
 
 	private:
 		base_t m_uID;
@@ -33,7 +34,7 @@ namespace fmt
 	template <>
 	struct formatter<Plop::GUID> : formatter<Plop::GUID::base_t>
 	{
-		constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin())
+		constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
 		{
 			auto it = ctx.begin(), end = ctx.end();
 			if (it != end && *it != '}') throw format_error("invalid format");
@@ -42,7 +43,7 @@ namespace fmt
 
 
 		template <typename FormatContext>
-		auto format(const Plop::GUID &guid, FormatContext &ctx)
+		auto format(const Plop::GUID& guid, FormatContext& ctx)
 		{
 			return formatter<Plop::GUID::base_t>::format((Plop::GUID::base_t)guid, ctx);
 		}

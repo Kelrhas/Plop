@@ -46,12 +46,10 @@ namespace Plop
 		bool operator !=(const Entity& _other);
 #ifdef USE_ENTITY_HANDLE
 		operator entt::entity() const { return m_hEntity.entity(); }
+		operator entt::handle() const { return m_hEntity; }
 #else
 		operator entt::entity() const { return m_EntityId; }
 #endif
-
-
-		entt::registry &GetRegistry() const { return m_xLevel.lock()->GetEntityRegistry(); }
 
 		//// HIERARCHY
 	public:

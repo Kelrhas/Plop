@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef PLATFORM_WINDOWS
-#include <Windows.h>
-#endif
-
 namespace Plop
 {
 	class TimeStep
@@ -25,9 +21,6 @@ namespace Plop
 
 		static	float s_fGameScale;
 
-#ifdef PLATFORM_WINDOWS
-		LARGE_INTEGER m_clockFrequency;
-		LARGE_INTEGER m_lastCounter;
-#endif
+		void* m_pData = nullptr;
 	};
 }

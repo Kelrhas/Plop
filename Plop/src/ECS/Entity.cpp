@@ -67,8 +67,8 @@ namespace Plop
 		if (!_other.m_hEntity)
 			return false;
 
-		GUIDPlop* guidThis = m_hEntity.registry().try_ctx<GUIDPlop>();
-		GUIDPlop* guidOther = _other.m_hEntity.registry().try_ctx<GUIDPlop>();
+		GUID* guidThis = m_hEntity.registry().try_ctx<Plop::GUID>();
+		GUID* guidOther = _other.m_hEntity.registry().try_ctx<Plop::GUID>();
 		if (guidThis && guidOther)
 		{
 			if (*guidThis != *guidOther)
@@ -306,8 +306,12 @@ namespace Plop
 		{
 			for (auto &id : _jEntity["Children"])
 			{
-				Entity e = xLevel->GetEntityFromGUID(id);
-				e.SetParent(*this);
+				LevelBase** ppLevel = m_hEntity.registry().try_ctx<LevelBase*>();
+				if (ppLevel && *ppLevel)
+				{
+					Entity e = (*ppLevel)->GetEntityFromGUID(id);
+					e.SetParent(*this);
+				}
 			}
 		}
 

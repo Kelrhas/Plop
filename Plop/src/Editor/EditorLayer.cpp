@@ -393,7 +393,7 @@ namespace Plop
 			std::stack<entt::entity> todo;
 			todo.push(entityEvent.entity);
 
-			const auto &reg = entityEvent.entity.GetRegistry();
+			const auto &reg = entityEvent.entity.m_hEntity.registry();
 
 			while (!todo.empty())
 			{
@@ -816,7 +816,7 @@ namespace Plop
 							else if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "InstantiatePrefab" ))
 							{
 								ASSERTM( pPayload->DataSize == sizeof( Prefab ), "Wrong Drag&Drop payload" );
-								PrefabManager::InstantiatePrefab((Prefab*)pPayload->Data, _Entity.m_xLevel.lock()->GetEntityRegistry(), _Entity);
+								PrefabManager::InstantiatePrefab((Prefab*)pPayload->Data, _Entity.m_hEntity.registry(), _Entity);
 							}
 							ImGui::EndDragDropTarget();
 						}
@@ -1069,8 +1069,8 @@ namespace Plop
 		LevelBasePtr xLevel = _xLevel.lock();
 
 #ifdef USE_ENTITY_HANDLE
-		GUIDPlop* guidLevel = xLevel->GetEntityRegistry().try_ctx<GUIDPlop>();
-		GUIDPlop* guidEntity = m_SelectedEntity.m_hEntity.registry().try_ctx<GUIDPlop>();
+		GUID* guidLevel = xLevel->GetEntityRegistry().try_ctx<Plop::GUID>();
+		GUID* guidEntity = m_SelectedEntity.m_hEntity.registry().try_ctx<Plop::GUID>();
 		if(guidLevel && guidEntity)
 			return *guidLevel == *guidEntity;
 

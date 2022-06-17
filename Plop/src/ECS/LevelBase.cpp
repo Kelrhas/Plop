@@ -31,7 +31,8 @@ namespace Plop
 	void LevelBase::Init()
 	{
 		m_ENTTRegistry.sort<Component_GraphNode, Component_Transform>(); // minimizes cache misses when iterating together
-		m_ENTTRegistry.ctx_or_set<GUID>() = GUID();
+		m_ENTTRegistry.ctx_or_set<Plop::GUID>() = GUID();
+		m_ENTTRegistry.ctx_or_set<LevelBase*>() = this;
 
 #define MACRO_COMPONENT(comp)	BindOnCreate<Component_##comp>( m_ENTTRegistry ); \
 								BindOnDestroy<Component_##comp>( m_ENTTRegistry );
@@ -142,7 +143,7 @@ namespace Plop
 
 	Entity LevelBase::CreateEntityWithGUID(GUID _guid)
 	{
-		entt::entity entityID = m_ENTTRegistry.create(_guid);
+		entt::entity entityID = m_ENTTRegistry.create();
 #ifdef USE_ENTITY_HANDLE
 		Entity e = { entityID, m_ENTTRegistry };
 #else

@@ -3,6 +3,8 @@
 #include <string>
 #include <filesystem>
 
+#include "Utils/GUID.h"
+
 using String		= std::string;
 using StringVec		= std::vector<String>;
 using StringPath	= std::filesystem::path;

@@ -313,7 +313,11 @@ namespace Plop
 					const glm::vec2 &vWindowPos = Input::GetCursorWindowPos();
 					glm::vec2 vViewportPos = m_EditorLayer.GetViewportPosFromWindowPos(vWindowPos, true);
 					vViewportPos *= m_EditorLayer.m_vViewportPosMaxWindowSpace - m_EditorLayer.m_vViewportPosMinWindowSpace;
+#ifdef USE_ENTITY_HANDLE
+					m_EditorLayer.m_SelectedEntity = Entity((entt::entity)Renderer::GetEntityId(vViewportPos), Application::GetCurrentLevel().lock()->GetEntityRegistry());
+#else
 					m_EditorLayer.m_SelectedEntity = Entity((entt::entity)Renderer::GetEntityId(vViewportPos), Application::GetCurrentLevel());
+#endif
 				}
 			}
 		}

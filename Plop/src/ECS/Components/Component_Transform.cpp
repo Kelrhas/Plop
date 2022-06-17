@@ -181,8 +181,13 @@ namespace Plop
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = Application::GetCurrentLevel().lock();
-		auto owner = GetComponentOwner( xLevel, *this );
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel->GetEntityRegistry() );
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
 		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
+#endif
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
@@ -202,8 +207,13 @@ namespace Plop
 
 		auto xLevel = Application::GetCurrentLevel().lock();
 
-		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel->GetEntityRegistry());
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel);
+#endif
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
@@ -218,8 +228,13 @@ namespace Plop
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = Application::GetCurrentLevel().lock();
-		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel->GetEntityRegistry());
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel);
+#endif
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
@@ -239,8 +254,13 @@ namespace Plop
 
 		auto xLevel = Application::GetCurrentLevel().lock();
 
-		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel->GetEntityRegistry());
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel);
+#endif
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
@@ -255,8 +275,13 @@ namespace Plop
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = Application::GetCurrentLevel().lock();
-		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel->GetEntityRegistry());
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel);
+#endif
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix
@@ -280,8 +305,13 @@ namespace Plop
 		glm::mat4 mParentWorldMatrix = glm::identity<glm::mat4>();
 
 		auto xLevel = Application::GetCurrentLevel().lock();
-		auto owner = GetComponentOwner( xLevel, *this );
-		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel );
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel->GetEntityRegistry());
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
+		Entity parent( owner.GetComponent<Component_GraphNode>().parent, xLevel);
+#endif
 		if (parent)
 		{
 			// TODO: cache the parent worldmatrix or our own world and local matrix

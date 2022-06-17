@@ -10,6 +10,7 @@
 
 
 #define USE_COMPONENT_MGR
+#define USE_ENTITY_HANDLE
 
 
 #ifdef _MASTER

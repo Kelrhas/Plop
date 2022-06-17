@@ -15,7 +15,11 @@ namespace Plop
 	bool Component_AABBCollider::IsInside( const glm::vec3& _vPoint ) const
 	{
 		auto xLevel = Application::GetCurrentLevel().lock();
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner( xLevel->GetEntityRegistry(), *this );
+#else
 		auto owner = GetComponentOwner( xLevel, *this );
+#endif
 
 		const glm::vec3& vWorldPos = owner.GetComponent<Component_Transform>().GetWorldPosition();
 		glm::vec3 vLocalPoint = _vPoint - vWorldPos;
@@ -28,7 +32,11 @@ namespace Plop
 	bool Component_AABBCollider::IsColliding( const Component_AABBCollider& _o, const glm::vec3& _vCenter ) const
 	{
 		auto xLevel = Application::GetCurrentLevel().lock();
-		auto owner = GetComponentOwner( xLevel, *this );
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
+#endif
 
 		const glm::vec3& vWorldPos = owner.GetComponent<Component_Transform>().GetWorldPosition();
 		glm::vec3 vWorldMinA = vMin + vWorldPos;
@@ -49,8 +57,12 @@ namespace Plop
 
 
 		auto xLevel = Application::GetCurrentLevel().lock();
-		Entity e = GetComponentOwner( xLevel, *this );
-		const auto& transform = e.GetComponent<Component_Transform>();
+#ifdef USE_ENTITY_HANDLE
+		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+#else
+		auto owner = GetComponentOwner(xLevel, *this);
+#endif
+		const auto& transform = owner.GetComponent<Component_Transform>();
 		const glm::vec3& vWorldPos = transform.GetWorldPosition();
 		Plop::EditorGizmo::AABB( vMin + vWorldPos, vMax + vWorldPos );
 	}

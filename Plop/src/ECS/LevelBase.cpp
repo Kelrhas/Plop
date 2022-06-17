@@ -92,7 +92,11 @@ namespace Plop
 	Entity LevelBase::CreateEntity( const String& _sName /*= "New Entity"*/ )
 	{
 		entt::entity entityID = m_ENTTRegistry.create();
-		Entity e = { entityID, Application::GetCurrentLevel()};
+#ifdef USE_ENTITY_HANDLE
+		Entity e = { entityID, m_ENTTRegistry };
+#else
+		Entity e = { entityID, Application::GetCurrentLevel() };
+#endif
 
 		e.AddComponent<Component_Name>( _sName );
 		e.AddComponent<Component_GraphNode>();
@@ -105,8 +109,12 @@ namespace Plop
 
 	Entity LevelBase::CreateEntityWithHint( entt::entity _id )
 	{
-		entt::entity entityID = m_ENTTRegistry.create( _id );
-		Entity e = { entityID, Application::GetCurrentLevel()};
+		entt::entity entityID = m_ENTTRegistry.create(_id);
+#ifdef USE_ENTITY_HANDLE
+		Entity e = { entityID, m_ENTTRegistry };
+#else
+		Entity e = { entityID, Application::GetCurrentLevel() };
+#endif
 
 		e.AddComponent<Component_Name>();
 		e.AddComponent<Component_GraphNode>();
@@ -119,7 +127,11 @@ namespace Plop
 
 	Entity LevelBase::GetEntityFromHint( entt::entity _id )
 	{
-		Entity e = {_id, Application::GetCurrentLevel() };
+#ifdef USE_ENTITY_HANDLE
+		Entity e = { _id, m_ENTTRegistry };
+#else
+		Entity e = { _id, Application::GetCurrentLevel() };
+#endif
 
 		return e;
 	}
@@ -205,8 +217,13 @@ namespace Plop
 	{
 		json j;
 
-		m_ENTTRegistry.each( [&j, this]( entt::entity _entityID ) {
-			Entity entity{ _entityID, Application::GetCurrentLevel() };
+		m_ENTTRegistry.each([&j, this] (entt::entity _entityID)
+		{
+#ifdef USE_ENTITY_HANDLE
+			Entity entity = { _entityID, m_ENTTRegistry };
+#else
+			Entity entity = { _entityID, Application::GetCurrentLevel() };
+#endif
 			if (!entity.HasFlag( EntityFlag::DYNAMIC_GENERATION ))
 			{
 				String& sName = entity.GetComponent<Component_Name>().sName;

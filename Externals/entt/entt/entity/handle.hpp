@@ -27,6 +27,11 @@ struct basic_handle {
         basic_registry<entity_type>
     >;
 
+	/*! @brief Constructs an invalid handle. */
+	basic_handle() noexcept
+		: reg{},
+		entt{ null } {}
+
     /**
      * @brief Constructs a handle from a given registry and entity.
      * @param ref An instance of the registry class.
@@ -75,7 +80,7 @@ struct basic_handle {
      * @return True if the handle refers to a valid entity, false otherwise.
      */
     [[nodiscard]] explicit operator bool() const {
-        return reg->valid(entt);
+        return reg && reg->valid(entt);
     }
 
     /**

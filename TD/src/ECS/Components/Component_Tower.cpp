@@ -21,7 +21,7 @@ bool Component_Tower::CanFire() const
 
 namespace TowerSystem
 {
-	auto ShootAt = []( entt::entity entityTower, Component_Tower& tower, Plop::Component_Transform& transformTower, const glm::vec3& _vEnemyPosition ) {
+	auto ShootAt = []( entt::handle hEntityTower, Component_Tower& tower, Plop::Component_Transform& transformTower, const glm::vec3& _vEnemyPosition ) {
 
 		tower.fFireDelay += 1.f / tower.fFiringRate;
 
@@ -36,6 +36,12 @@ namespace TowerSystem
 		vTowerRotation.z = fAngle;
 		transformTower.SetLocalRotation( glm::quat( vTowerRotation ) );
 
+#ifdef USE_ENTITY_HANDLE
+		Plop::Entity towerEntity(hEntityTower);
+#else
+		Plop::Entity towerEntity{ hEntityTower.entity(), xLevel };
+#endif
+
 		// Instantiate a Bullet
 		{
 			Plop::Entity bullet = xLevel->CreateEntity( "Bullet" );
@@ -44,7 +50,7 @@ namespace TowerSystem
 			spriteComp.xSprite->SetTint( COLOR_RED );
 
 			Component_Bullet& bulletComp = bullet.AddComponent<Component_Bullet>();
-			bulletComp.emitting = { entityTower, xLevel };
+			bulletComp.emitting = towerEntity;
 			bulletComp.vVelocity = glm::vec3( bulletComp.fSpeed * vEnemyDir2D, 0.f );
 
 			Plop::Component_AABBCollider& colliderComp = bullet.AddComponent<Plop::Component_AABBCollider>();
@@ -59,7 +65,6 @@ namespace TowerSystem
 		}
 
 		// play sound
-		Plop::Entity towerEntity{ entityTower, Plop::Application::GetCurrentLevel() };
 		auto& audioComp = towerEntity.GetComponent<Plop::Component_AudioEmitter>();
 		audioComp.PlaySound();
 
@@ -95,7 +100,7 @@ namespace TowerSystem
 
 				if (iBestEnemy != entt::null)
 				{
-					ShootAt( entityTower, tower, transform, vEnemyPos );
+					ShootAt( entt::handle(_registry, entityTower), tower, transform, vEnemyPos );
 					//tower.Fire( Plop::Entity{ iBestEnemy, Plop::Application::GetCurrentLevel() }, vEnemyPos );
 				}
 			}

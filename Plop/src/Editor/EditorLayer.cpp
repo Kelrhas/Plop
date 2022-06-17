@@ -346,7 +346,13 @@ namespace Plop
 						if (bValidEntity)
 						{
 							if (ImGui::IsItemHovered())
+							{
+#ifdef USE_ENTITY_HANDLE
+								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_hEntity.entity()));
+#else
 								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_EntityId));
+#endif
+							}
 
 							ImGui::Separator();
 
@@ -366,7 +372,7 @@ namespace Plop
 		if (_event.GetEventType() == EventType::EntityCreatedEvent)
 		{
 			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
-			entt::entity enttId = entityEvent.entity.m_EntityId;
+			entt::entity enttId = entityEvent.entity;
 			m_mapEntityEditorInfo.insert( { enttId, {} } );
 		}
 		else if (_event.GetEventType() == EventType::EntityDestroyedEvent)
@@ -377,7 +383,7 @@ namespace Plop
 				m_SelectedEntity.Reset();
 			}
 
-			m_mapEntityEditorInfo.erase( entityEvent.entity.m_EntityId );
+			m_mapEntityEditorInfo.erase( (entt::entity)entityEvent.entity );
 		}
 
 		return false;
@@ -404,8 +410,13 @@ namespace Plop
 	json EditorLayer::GetJsonEntity( const Entity& _entity )
 	{
 		json j;
+#ifdef USE_ENTITY_HANDLE
+		entt::entity entityID = _entity.m_hEntity.entity();
+		entt::registry& reg = _entity.m_hEntity.registry();
+#else
 		entt::entity entityID = _entity.m_EntityId;
 		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
+#endif
 
 #ifndef USE_COMPONENT_MGR
 		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
@@ -649,20 +660,23 @@ namespace Plop
 				LevelBasePtr xLevel = xCurrentLevel.lock();
 				const auto& registry = xLevel->m_ENTTRegistry;
 
-
 				static Entity entityToDestroy;
 				static std::function<void( Entity& )> DrawEntity;
 				DrawEntity = [this, &registry]( Entity& _Entity ) {
 
+#ifdef USE_ENTITY_HANDLE
+					ImGui::PushID( entt::to_integral( _Entity.m_hEntity.entity() ) );
+#else
 					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
+#endif
 
-					auto& itEntityInfo = m_mapEntityEditorInfo.find( _Entity.m_EntityId );
+					auto& itEntityInfo = m_mapEntityEditorInfo.find( _Entity );
 					ASSERT( itEntityInfo != m_mapEntityEditorInfo.end() );
 
 					bool bSelected = _Entity == m_SelectedEntity;
 					bool bOpen = itEntityInfo->second.bHierarchyOpen;
 
-					const auto& graphNodeParent = registry.get<Component_GraphNode>( _Entity.m_EntityId );
+					const auto& graphNodeParent = registry.get<Component_GraphNode>( _Entity );
 					bool bHasChildren = graphNodeParent.firstChild != entt::null;
 
 					if (bHasChildren)
@@ -734,7 +748,11 @@ namespace Plop
 					{
 						if (ImGui::BeginDragDropSource( ImGuiDragDropFlags_None ))
 						{
+#ifdef USE_ENTITY_HANDLE
+							ImGui::SetDragDropPayload( "ReparentEntity", &_Entity.m_hEntity, sizeof( _Entity.m_hEntity ) );
+#else
 							ImGui::SetDragDropPayload( "ReparentEntity", &_Entity.m_EntityId, sizeof( _Entity.m_EntityId ) );
+#endif
 
 							ImGui::Text( sName.c_str() );
 							ImGui::EndDragDropSource();
@@ -743,13 +761,18 @@ namespace Plop
 						{
 							if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "ReparentEntity" ))
 							{
-								ASSERTM( pPayload->DataSize == sizeof( entt::entity ), "Wrong Drag&Drop payload" );
+#ifdef USE_ENTITY_HANDLE
+								ASSERTM(pPayload->DataSize == sizeof(entt::handle), "Wrong Drag&Drop payload");
+								Entity child( ((entt::handle*)pPayload->Data)->entity(), _Entity.m_hEntity.registry() );
+#else
+								ASSERTM(pPayload->DataSize == sizeof(entt::entity), "Wrong Drag&Drop payload");
 								Entity child( *(entt::entity*)pPayload->Data, _Entity.m_xLevel );
+#endif
 
 								if (child.GetParent() != _Entity)
 									child.SetParent( _Entity );
 								else
-									child.SetParent( Entity{ entt::null, _Entity.m_xLevel } );
+									child.SetParent( Entity() );
 							}
 							ImGui::EndDragDropTarget();
 						}
@@ -770,7 +793,11 @@ namespace Plop
 				auto& view = xLevel->m_ENTTRegistry.view<Component_Name>();
 				for (auto& e : view)
 				{
-					Entity entity{ e, Application::GetCurrentLevel()};
+#ifdef USE_ENTITY_HANDLE
+					Entity entity = { e, xLevel->m_ENTTRegistry };
+#else
+					Entity entity = { e, xLevel };
+#endif
 					Entity parent = entity.GetParent();
 
 					// only draw those without parent, and each one will draw their children
@@ -791,7 +818,6 @@ namespace Plop
 			}
 		}
 		ImGui::End();
-
 	}
 
 	void EditorLayer::ShowGizmos()
@@ -982,7 +1008,16 @@ namespace Plop
 
 		LevelBasePtr xLevel = _xLevel.lock();
 
+#ifdef USE_ENTITY_HANDLE
+		GUIDPlop* guidLevel = xLevel->GetEntityRegistry().try_ctx<GUIDPlop>();
+		GUIDPlop* guidEntity = m_SelectedEntity.m_hEntity.registry().try_ctx<GUIDPlop>();
+		if(guidLevel && guidEntity)
+			return *guidLevel == *guidEntity;
+
+		return false;
+#else
 		return xLevel == m_SelectedEntity.m_xLevel.lock();
+#endif
 	}
 
 	Entity EditorLayer::DuplicateEntity( const Entity& _entity )
@@ -996,7 +1031,11 @@ namespace Plop
 
 
 #ifdef USE_COMPONENT_MGR
+#ifdef USE_ENTITY_HANDLE
+		ComponentManager::DuplicateComponent( reg, _entity.m_hEntity.entity(), dupEntity.m_hEntity.entity() );
+#else
 		ComponentManager::DuplicateComponent( reg, _entity.m_EntityId, dupEntity.m_EntityId );
+#endif
 #else
 		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
 		{

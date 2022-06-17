@@ -23,7 +23,11 @@ Component_EnemySpawner::Component_EnemySpawner()
 void Component_EnemySpawner::EditorUI()
 {
 	Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
+#ifdef USE_ENTITY_HANDLE
+	Plop::Entity owner = Plop::GetComponentOwner( xLevel->GetEntityRegistry(), *this );
+#else
 	Plop::Entity owner = Plop::GetComponentOwner( xLevel, *this );
+#endif
 	const auto& vSpawnerPosition = owner.GetComponent<Plop::Component_Transform>().GetWorldPosition();
 
 
@@ -111,7 +115,7 @@ void Component_EnemySpawner::FromJson( const json& _j )
 void EnemySpawnerSystem::OnUpdate( const Plop::TimeStep& _ts, entt::registry& _registry )
 {
 	auto& viewEnemySpawner = _registry.view<Component_EnemySpawner>();
-	viewEnemySpawner.each([&_ts]( const entt::entity entity, Component_EnemySpawner& spawner) {
+	viewEnemySpawner.each([&_ts, &_registry]( const entt::entity entity, Component_EnemySpawner& spawner) {
 
 		if (spawner.fTimer >= 0 && spawner.iNbEnemySpawned < spawner.wave.nbEnemies)
 		{
@@ -127,7 +131,11 @@ void EnemySpawnerSystem::OnUpdate( const Plop::TimeStep& _ts, entt::registry& _r
 				Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
 				auto entityEnemy = xLevel->CreateEntity( "Enemy" );
 
+#ifdef USE_ENTITY_HANDLE
+				Plop::Entity owner{ entity, _registry };
+#else
 				Plop::Entity owner{ entity, xLevel };
+#endif
 				entityEnemy.SetParent( owner );
 
 				auto& enemyComp = entityEnemy.AddComponent<Component_Enemy>();

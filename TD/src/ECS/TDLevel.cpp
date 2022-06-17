@@ -146,7 +146,11 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 				if (collider.IsColliding( colliderEnemy, transformEnemy.GetWorldPosition() ))
 				{
 					bDestroyBullet = true;
-					Plop::Entity enemy{ entityID, Plop::Application::GetCurrentLevel()};
+#ifdef USE_ENTITY_HANDLE
+					Plop::Entity enemy(entityID, m_ENTTRegistry);
+#else
+					Plop::Entity enemy(entityID, Plop::Application::GetCurrentLevel());
+#endif
 					if (enemy.HasComponent<Plop::Component_ParticleSystem>())
 					{
 						auto& enemyParticles = enemy.GetComponent<Plop::Component_ParticleSystem>();
@@ -167,7 +171,12 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 
 		if (bDestroyBullet)
 		{
-			DestroyEntity( Plop::Entity{ entityID, Plop::Application::GetCurrentLevel()} );
+
+#ifdef USE_ENTITY_HANDLE
+			DestroyEntity(Plop::Entity(entityID, m_ENTTRegistry));
+#else
+			DestroyEntity(Plop::Entity(entityID, Plop::Application::GetCurrentLevel()));
+#endif
 		}
 	});
 

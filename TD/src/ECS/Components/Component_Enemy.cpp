@@ -24,11 +24,15 @@ namespace EnemySystem
 		const float fDeltaTime = _ts.GetGameDeltaTime();
 
 		auto& viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();
-		viewEnemy.each( [fDeltaTime]( const entt::entity entity, Component_Enemy& enemy, Plop::Component_Transform& transform ) {
+		viewEnemy.each( [fDeltaTime, &_registry]( const entt::entity entity, Component_Enemy& enemy, Plop::Component_Transform& transform ) {
 			
 			if (enemy.IsDead())
 			{
-				Plop::Entity e{ entity, Plop::Application::GetCurrentLevel() };
+#ifdef USE_ENTITY_HANDLE
+				Plop::Entity e = { entity, _registry };
+#else
+				Plop::Entity e = { entity, Plop::Application::GetCurrentLevel() };
+#endif
 				Plop::Application::GetCurrentLevel().lock()->DestroyEntity(e);
 			}
 			else

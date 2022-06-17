@@ -10,6 +10,7 @@
 #include "ECS/LevelBase.h"
 #include "ECS/ECSHelper.h"
 #include "ECS/Components/BaseComponents.h"
+#include "Editor/UndoManager.h"
 #include "Utils/JsonTypes.h"
 
 namespace Plop
@@ -18,50 +19,97 @@ namespace Plop
 
 	void Component_Transform::EditorUI()
 	{
-		float fResetBtnWidth = ImGui::CalcTextSize( "X" ).x + ImGui::GetStyle().FramePadding.x * 2;
+		const float fResetBtnWidth = ImGui::CalcTextSize( "X" ).x + ImGui::GetStyle().FramePadding.x * 2;
 
-		// TODO: add a switch local/world
+		// TODO: Use matrices in Runtime environment and 2 vec3 & 1 quat in editor environment ?
+		// TODO: add a switch local/world ?
 		ImGui::Text( "Local space" );
 		ImGui::Separator();
 
-		ImGui::DragFloat3( "Pos", glm::value_ptr( vPosition ), 0.1f );
-		ImGui::SameLine( ImGui::GetWindowContentRegionMax().x - fResetBtnWidth );
-		if (ImGui::SmallButton( "X##Pos" ))
-			SetLocalPosition( VEC3_0 );
-		ImGui::Custom::Tooltip( "Reset" );
-
-		// TODO: Use matrices in Runtime environment and 2 vec3 & 1 quat in editor environment
-
-		static bool bIsEditing = false;
-		static glm::vec3 vTemp = VEC3_0;
-		glm::vec3 vRot = bIsEditing ? vTemp : glm::degrees( glm::eulerAngles( GetLocalRotation() ) );
-		bool bChanged = ImGui::DragFloat3( "Rot", glm::value_ptr( vRot ) );
-
-		if (ImGui::IsItemActivated())
+		// Position
 		{
-			vTemp = vRot;
-			bIsEditing = true;
-		}
-		else if (!ImGui::IsItemActive())
-			bIsEditing = false;
-
-		if (bIsEditing && bChanged)
-		{
-			vTemp = vRot;
-			SetLocalRotation( glm::quat( glm::radians( vRot ) ) );
+			static glm::vec3 vBackup;
+			ImGui::DragFloat3("Pos", glm::value_ptr(vPosition), 0.1f);
+			if (ImGui::IsItemActivated())
+				vBackup = vPosition;
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
+				UndoManager::RegisterAction(UndoAction::MoveEntity(enttID, vBackup, vPosition));
+			}
+			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - fResetBtnWidth);
+			if (ImGui::SmallButton("X##Pos"))
+			{
+				static constexpr glm::vec3 vNew = glm::zero<glm::vec3>();
+				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
+				UndoManager::RegisterAction(UndoAction::MoveEntity(enttID, vPosition, vNew));
+				SetLocalPosition(vNew);
+			}
+			ImGui::Custom::Tooltip("Reset");
 		}
 
-		ImGui::SameLine( ImGui::GetWindowContentRegionMax().x - fResetBtnWidth );
-		if (ImGui::SmallButton( "X##Rot" ))
-			SetLocalRotation( glm::identity<glm::quat>() );
-		ImGui::Custom::Tooltip( "Reset" );
+		// Rotation
+		{
+			static glm::quat qBackup;
+			static bool bIsEditing = false;
+			static glm::vec3 vTemp;
+			glm::vec3 vRot = bIsEditing ? vTemp : glm::degrees(glm::eulerAngles(GetLocalRotation()));
+			bool bChanged = ImGui::DragFloat3("Rot", glm::value_ptr(vRot));
 
+			if (ImGui::IsItemActivated())
+				qBackup = qRotation;
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
+				UndoManager::RegisterAction(UndoAction::RotateEntity(enttID, qBackup, qRotation));
+			}
 
-		ImGui::DragFloat3( "Sca", glm::value_ptr( vScale ), 0.1f, 0.01f );
-		ImGui::SameLine( ImGui::GetWindowContentRegionMax().x - fResetBtnWidth );
-		if (ImGui::SmallButton( "X##Sca" ))
-			SetLocalScale( VEC3_1 );
-		ImGui::Custom::Tooltip( "Reset" );
+			if (ImGui::IsItemActivated())
+			{
+				vTemp = vRot;
+				bIsEditing = true;
+			}
+			else if (!ImGui::IsItemActive())
+				bIsEditing = false;
+
+			if (bIsEditing && bChanged)
+			{
+				vTemp = vRot;
+				SetLocalRotation(glm::quat(glm::radians(vRot)));
+			}
+
+			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - fResetBtnWidth);
+			if (ImGui::SmallButton("X##Rot"))
+			{
+				static constexpr glm::quat qNew = glm::identity<glm::quat>();
+				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
+				UndoManager::RegisterAction(UndoAction::RotateEntity(enttID, qRotation, qNew));
+				SetLocalRotation(qNew);
+			}
+			ImGui::Custom::Tooltip("Reset");
+		}
+
+		// Scale
+		{
+			static glm::vec3 vBackup;
+			ImGui::DragFloat3("Sca", glm::value_ptr(vScale), 0.1f, 0.01f);
+			if (ImGui::IsItemActivated())
+				vBackup = vScale;
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
+				UndoManager::RegisterAction(UndoAction::ScaleEntity(enttID, vBackup, vScale));
+			}
+			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - fResetBtnWidth);
+			if (ImGui::SmallButton("X##Sca"))
+			{
+				static constexpr glm::vec3 vNew = glm::one<glm::vec3>();
+				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
+				UndoManager::RegisterAction(UndoAction::ScaleEntity(enttID, vScale, vNew));
+				SetLocalScale(vNew);
+			}
+			ImGui::Custom::Tooltip("Reset");
+		}
 	}
 
 	void Component_Transform::FromJson( const json& _j )

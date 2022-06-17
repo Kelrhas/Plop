@@ -20,6 +20,7 @@
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/LevelBase.h"
+#include "Editor/UndoManager.h"
 #include "Input/Input.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
@@ -51,6 +52,97 @@ namespace Plop
 		s_pENTTEditor = NEW ::MM::EntityEditor<entt::entity>;
 #endif
 		m_xEditorCamera = std::make_shared<EditorCamera>();
+
+
+
+		UndoManager::RegisterActionCommands(UndoAction::Type::MOVE,
+											[this] (const UndoAction::UndoData& _data) -> bool
+		{
+			if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+			{
+				auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+				transformComp.SetLocalPosition(_data.entityVec3.vOld);
+				return true;
+			}
+			return false;
+		},
+											[this] (const UndoAction::UndoData& _data) -> bool
+		{
+			if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+			{
+				auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+				transformComp.SetLocalPosition(_data.entityVec3.vNew);
+				return true;
+			}
+			return false;
+		});
+
+		UndoManager::RegisterActionCommands(UndoAction::Type::ROTATE,
+											[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityQuat.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityQuat.enttID);
+					transformComp.SetLocalRotation(_data.entityQuat.qOld);
+					return true;
+				}
+				return false;
+			},
+												[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityQuat.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityQuat.enttID);
+					transformComp.SetLocalRotation(_data.entityQuat.qNew);
+					return true;
+				}
+				return false;
+			});
+
+		UndoManager::RegisterActionCommands(UndoAction::Type::SCALE,
+											[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+					transformComp.SetLocalScale(_data.entityVec3.vOld);
+					return true;
+				}
+				return false;
+			},
+												[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+					transformComp.SetLocalScale(_data.entityVec3.vNew);
+					return true;
+				}
+				return false;
+			});
+
+		UndoManager::RegisterActionCommands(UndoAction::Type::GIZMO_MANIPULATE,
+											[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityMat4.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityMat4.enttID);
+					transformComp.SetWorldMatrix(_data.entityMat4.mOld);
+					return true;
+				}
+				return false;
+			},
+												[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityMat4.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityMat4.enttID);
+					transformComp.SetWorldMatrix(_data.entityMat4.mNew);
+					return true;
+				}
+				return false;
+			});
+
 	}
 
 	EditorLayer::~EditorLayer()
@@ -472,7 +564,11 @@ namespace Plop
 
 			if (ImGui::BeginMenu( "Editor" ))
 			{
-				ImGui::MenuItem( "Show camera settings", nullptr, &m_bShowCameraSettings );
+				if (ImGui::MenuItem("Undo", "CTRL + Z", nullptr, UndoManager::CanUndo()))
+					UndoManager::Undo();
+				if (ImGui::MenuItem("Redo", "CTRL + Y", nullptr, UndoManager::CanRedo()))
+					UndoManager::Redo();
+				ImGui::MenuItem("Show camera settings", nullptr, &m_bShowCameraSettings);
 
 				ImGui::EndMenu();
 			}
@@ -515,6 +611,21 @@ namespace Plop
 			{
 				DuplicateEntity(m_SelectedEntity);
 			}
+			if (Input::IsKeyPressed(KeyCode::KEY_Z))
+			{
+				UndoManager::Undo();
+			}
+			if (Input::IsKeyPressed(KeyCode::KEY_Y))
+			{
+				UndoManager::Redo();
+			}
+
+#ifdef _DEBUG
+			if (Input::IsKeyPressed(KeyCode::KEY_H))
+			{
+				UndoManager::Clear();
+			}
+#endif
 		}
 
 		if (m_SelectedEntity)
@@ -730,6 +841,29 @@ namespace Plop
 					Private::eGuizmoOperation, Private::eGuizmoSpace, glm::value_ptr( mTransform ) ))
 				{
 					m_SelectedEntity.GetComponent<Component_Transform>().SetWorldMatrix( mTransform );
+				}
+
+
+				// Undo
+				{
+					static glm::mat4 mBackup;
+					static bool bUsing = false;
+					if (ImGuizmo::IsUsing())
+					{
+						if (!bUsing)
+						{
+							mBackup = mTransform;
+							bUsing = true;
+						}
+					}
+					else
+					{
+						if (bUsing)
+						{
+							UndoManager::RegisterAction(UndoAction::GizmoManipulateEntity(m_SelectedEntity, mBackup, mTransform));
+							bUsing = false;
+						}
+					}
 				}
 			}
 

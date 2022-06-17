@@ -24,7 +24,7 @@ namespace Plop
 			using Callback = std::function<void( Registry&, EntityType )>;
 			using CallbackDuplicate = std::function<void( Registry&, EntityType, EntityType )>;
 			using CallbackFromJson = std::function<void( Registry&, EntityType, const Json& )>;
-			using CallbackToJson = std::function<Json( Registry&, EntityType )>;
+			using CallbackToJson = std::function<Json( const Registry&, EntityType )>;
 
 
 			const char* pName = nullptr;
@@ -54,7 +54,7 @@ namespace Plop
 
 		static void EditorUI( Registry& _reg, EntityType _e );
 		static void FromJson( Registry& _reg, EntityType _e, const Json& _j);
-		static void ToJson( Registry& _reg, EntityType _e, Json& _j);
+		static void ToJson( const Registry& _reg, EntityType _e, Json& _j);
 		static void DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest );
 		
 		template<typename Visitor>
@@ -102,7 +102,7 @@ namespace Plop
 		info.funcRemove = RemoveComponent<Comp, Registry&, EntityType>;
 		info.funcDuplicate = CallDuplicateComponent<Comp, Registry&, EntityType>;
 		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType, const Json&>;
-		info.funcToJson = CallComponentToJson<Comp, Json, Registry&, EntityType>;
+		info.funcToJson = CallComponentToJson<Comp, Json, const Registry&, EntityType>;
 
 
 		s_mapComponents.insert_or_assign( id, info );
@@ -151,17 +151,17 @@ namespace Plop
 	}
 
 	template<class Comp>
-	Comp& ComponentManager::GetComponent( ComponentManager::Registry& _reg, EntityType _e ) {
+	Comp& ComponentManager::MetaGetComponent( ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.get_or_emplace<Comp>( _e );
 	}
 
 	template<class Comp>
-	bool ComponentManager::MetaHasComponent( const ComponentManager::Registry& _reg, const EntityType& _e ) {
+	bool ComponentManager::MetaHasComponent( const ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.has<Comp>( _e );
 	}
 
 	template<class Comp>
-	Comp& ComponentManager::MetaAddComponent( ComponentManager::Registry& _reg, const EntityType& _e ) {
+	Comp& ComponentManager::MetaAddComponent( ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.emplace<Comp>( _e );
 	}
 

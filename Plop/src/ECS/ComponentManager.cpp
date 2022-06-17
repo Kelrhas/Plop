@@ -53,7 +53,7 @@ namespace Plop
 		}
 	}
 
-	void ComponentManager::FromJson( const Registry& _reg, EntityType _e, const Json& _j )
+	void ComponentManager::FromJson( Registry& _reg, EntityType _e, const Json& _j )
 	{
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -62,7 +62,7 @@ namespace Plop
 		}
 	}
 
-	void ComponentManager::ToJson( const Registry& _reg, const EntityType& _e, Json& _j )
+	void ComponentManager::ToJson( const Registry& _reg, EntityType _e, Json& _j )
 	{
 		for (auto& [id, info] : s_mapComponents)
 		{

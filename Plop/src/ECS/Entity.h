@@ -29,7 +29,7 @@ namespace Plop
 		void												Destroy();
 
 
-		//// OPERATORS
+		//// OPERATORS & ACCESS
 	public:
 		operator bool() const;
 		Entity& operator =( const Entity& _other );
@@ -37,6 +37,7 @@ namespace Plop
 		bool operator !=( const Entity& _other );
 		operator entt::entity() const { return m_EntityId; }
 
+		entt::registry &GetRegistry() const { return m_xLevel.lock()->GetEntityRegistry(); }
 
 		//// HIERARCHY
 	public:
@@ -63,10 +64,12 @@ namespace Plop
 		template <class Comp, class Registry>	void		EditorUIComponent(const char* _pComponentName, Registry& registry );
 		void												EditorUI();
 
+		// @check
 		static std::map<String, std::function<void( Entity )>>	s_mapAddComponent;
 
 
 		//// FLAGS
+	public:
 		void												AddFlag( EntityFlag _flag );
 		void												RemoveFlag( EntityFlag _flag );
 		void												SetFlag( EntityFlag _flag, bool _bSet );
@@ -75,6 +78,7 @@ namespace Plop
 
 
 		//// SERIALIZATION
+	public:
 		virtual nlohmann::json								ToJson() const;
 		virtual void										FromJson(const nlohmann::json& _jEntity );
 

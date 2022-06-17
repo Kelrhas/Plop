@@ -27,5 +27,12 @@ namespace Plop
 		EntityDestroyedEvent( const Entity& _entity ) : EntityEvent( _entity ) {}
 		MACRO_EVENT_TYPE( EntityDestroyedEvent );
 	};
+
+	class PrefabInstantiatedEvent : public EntityEvent
+	{
+	public:
+		PrefabInstantiatedEvent( const Entity& _entity ) : EntityEvent( _entity ) {}
+		MACRO_EVENT_TYPE( PrefabInstantiatedEvent );
+	};
 }
 

@@ -13,6 +13,7 @@ namespace Plop
 
 		EntityCreatedEvent,
 		EntityDestroyedEvent,
+		PrefabInstantiatedEvent,
 	};
 
 #define MACRO_EVENT_TYPE(type) \

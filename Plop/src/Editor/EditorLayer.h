@@ -38,6 +38,7 @@ namespace Plop
 				EditorCameraPtr GetEditorCamera() const { return m_xEditorCamera; }
 				glm::vec2		GetViewportPosFromWindowPos( const glm::vec2& _vScreenPos, bool _bClamp = false ) const;
 
+				bool			IsEditing() const { return m_eLevelState == LevelState::EDITING; }
 
 		static	json			GetJsonEntity( const Entity& _entity );
 		static	void			SetJsonEntity( const Entity& _entity, const json& _j );

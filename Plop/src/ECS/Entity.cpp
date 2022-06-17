@@ -139,7 +139,7 @@ namespace Plop
 			auto &reg = m_xLevel.lock()->m_ENTTRegistry;
 			if (reg.valid(m_EntityId))
 			{
-				auto &graphNodeParent = reg.get<Component_GraphNode>(m_EntityId);
+				const auto &graphNodeParent = reg.get<Component_GraphNode>(m_EntityId);
 
 #ifdef ALLOW_DYNAMIC_CHILDREN
 				auto childEntity = graphNodeParent.firstChild;

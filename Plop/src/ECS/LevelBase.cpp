@@ -44,6 +44,35 @@ namespace Plop
 		m_ENTTRegistry.clear();
 	}
 
+	bool LevelBase::OnEvent(Event &_event)
+	{
+		if (_event.GetEventType() == EventType::PrefabInstantiatedEvent)
+		{
+			PrefabInstantiatedEvent &entityEvent = (PrefabInstantiatedEvent &)_event;
+			std::stack<entt::entity> todo;
+			todo.push(entityEvent.entity);
+
+
+			while (!todo.empty())
+			{
+				entt::entity enttID = todo.top();
+				todo.pop();
+
+				auto &nameComp = m_ENTTRegistry.get<Component_Name>(enttID);
+				ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
+				m_mapGUIDToEntt[nameComp.guid] = enttID;
+
+				auto &graphComp = m_ENTTRegistry.get<Component_GraphNode>(enttID);
+				if (graphComp.firstChild != entt::null)
+					todo.push(graphComp.firstChild);
+				if (graphComp.nextSibling != entt::null)
+					todo.push(graphComp.nextSibling);
+			}
+		}
+
+		return false;
+	}
+
 	void LevelBase::StartFromEditor()
 	{
 		Init();
@@ -140,11 +169,11 @@ namespace Plop
 
 		_entity.SetParent( Entity() );
 
-		static std::vector<Entity> vecChildren;
+		std::vector<Entity> vecChildren;
 		_entity.GetChildren(vecChildren);
 		for (Entity& e : vecChildren)
 		{
-			DestroyEntity( std::move(e) );
+			DestroyEntity( e );
 		}
 		m_ENTTRegistry.destroy( _entity );
 	}
@@ -215,6 +244,12 @@ namespace Plop
 	{
 		json j;
 
+		PrefabManager::VisitAllLibraries([&j](const String &_sName, const PrefabLibrary &_lib) {
+
+			j[JSON_PREFABLIBS].push_back(_lib.sPath.string());
+			return VisitorFlow::CONTINUE;
+		});
+
 		m_ENTTRegistry.each( [&j, this]( entt::entity _entityID ) {
 			Entity entity{ _entityID, Application::GetCurrentLevel() };
 			if (!entity.HasFlag( EntityFlag::DYNAMIC_GENERATION ))
@@ -229,6 +264,14 @@ namespace Plop
 
 	void LevelBase::FromJson( const json& _j )
 	{
+		if (_j.contains(JSON_PREFABLIBS))
+		{
+			for (const String &s : _j[JSON_PREFABLIBS])
+			{
+				PrefabManager::LoadPrefabLibrary(s);
+			}
+		}
+
 		if (_j.contains(JSON_ENTITIES))
 		{
 			// create all entities so that everything is created when to apply GraphNode links

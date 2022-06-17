@@ -9,6 +9,7 @@ using json = nlohmann::json;
 
 #include "TimeStep.h"
 #include "Camera/Camera.h"
+#include "Events/IEventListener.h"
 #include "Utils/GUID.h"
 
 namespace Plop
@@ -22,7 +23,7 @@ namespace Plop
 	/**
 	 * Hold entities
 	 */
-	class LevelBase
+	class LevelBase : IEventListener
 	{
 		friend class Entity;
 		friend class EditorLayer;
@@ -32,6 +33,7 @@ namespace Plop
 
 		virtual void Init();
 		virtual void Shutdown();
+		virtual bool OnEvent(Event &_event) override;
 
 		virtual void StartFromEditor();
 		virtual void StopToEditor();

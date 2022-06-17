@@ -1,101 +1,27 @@
 {
   "Entities": [
     {
+      "Children": [2253303594192775278],
       "Components": {
-        "SpriteRenderer": {
-          "Coord": [19,2],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Tower": {
-          "Damage": 1.0,
-          "Firing rate": 1.0
+        "Camera": {
+          "far": 20.899999618530273,
+          "near": 0.10000000149011612,
+          "ortho": true,
+          "orthoSize": 10.0,
+          "perspFOV": 1.1344640254974365
         },
         "Transform": {
-          "Position": [0.0,0.15129661560058594,0.0],
+          "Position": [3.394674062728882,0.4186843931674957,1.600000023841858],
           "Rotation": [0.0,0.0,0.0,1.0],
           "Scale": [1.0,1.0,1.0]
         }
       },
       "GUID": 9456491065477009195,
       "HintID": 7,
-      "Name": "Canon"
+      "Name": "Camera"
     },
     {
-      "Children": [9456491065477009195],
-      "Components": {
-        "Transform": {
-          "Position": [0.0,0.0,0.699999988079071],
-          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 2253303594192775278,
-      "HintID": 6,
-      "Name": "New Entity"
-    },
-    {
-      "Children": [2253303594192775278],
-      "Components": {
-        "SpriteRenderer": {
-          "Coord": [19,5],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Transform": {
-          "Position": [-3.472623109817505,2.161383628845215,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 12082912537500868387,
-      "HintID": 5,
-      "Name": "Fire tower"
-    },
-    {
-      "Components": {
-        "Transform": {
-          "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 13046159515043005239,
-      "HintID": 4,
-      "Name": "Child"
-    },
-    {
-      "Children": [13046159515043005239],
-      "Components": {
-        "Transform": {
-          "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 10549214579106995820,
-      "HintID": 3,
-      "Name": "Parent"
-    },
-    {
-      "Components": {
-        "SpriteRenderer": {
-          "Coord": [19,5],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Transform": {
-          "Position": [8.422913551330566,0.6930689811706543,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 9320358978599754087,
-      "HintID": 2,
-      "Name": "Base"
-    },
-    {
-      "Children": [9320358978599754087],
+      "Children": [12082912537500868387],
       "Components": {
         "EnemySpawner": {
           "Delay": 0.5,
@@ -113,29 +39,78 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 5984931210572052772,
-      "HintID": 1,
+      "GUID": 2253303594192775278,
+      "HintID": 6,
       "Name": "Spawner"
     },
     {
-      "Children": [5984931210572052772],
       "Components": {
-        "Camera": {
-          "far": 20.899999618530273,
-          "near": 0.10000000149011612,
-          "ortho": true,
-          "orthoSize": 10.0,
-          "perspFOV": 1.1344640254974365
+        "SpriteRenderer": {
+          "Coord": [19,5],
+          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
-          "Position": [3.394674062728882,0.4186843931674957,1.600000023841858],
+          "Position": [8.422913551330566,0.6930689811706543,0.0],
           "Rotation": [0.0,0.0,0.0,1.0],
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 5064851703322906817,
-      "HintID": 0,
-      "Name": "Camera"
+      "GUID": 12082912537500868387,
+      "HintID": 5,
+      "Name": "Base"
+    },
+    {
+      "Children": [11605988186001749786],
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [19,5],
+          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [-3.472623109817505,2.161383628845215,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 17811569128712175176,
+      "HintID": 1048580,
+      "Name": "Fire tower"
+    },
+    {
+      "Children": [2215445466011810460],
+      "Components": {
+        "Transform": {
+          "Position": [0.0,0.0,0.699999988079071],
+          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 11605988186001749786,
+      "HintID": 1048579,
+      "Name": "New Entity"
+    },
+    {
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [19,2],
+          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Tower": {
+          "Damage": 1.0,
+          "Firing rate": 1.0
+        },
+        "Transform": {
+          "Position": [0.0,0.15129661560058594,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 2215445466011810460,
+      "HintID": 1048578,
+      "Name": "Canon"
     }
   ],
   "PrefabLibraries": ["data\\prefabs\\Towers.prefablib"]

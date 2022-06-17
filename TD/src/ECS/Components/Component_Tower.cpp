@@ -14,6 +14,34 @@
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
+void Component_Tower::EditorUI()
+{
+	ImGui::DragFloat("Damage", &fDamage, 0.1f, 1.f);
+	ImGui::DragFloat("Firing rate", &fFiringRate, 0.005f, 0.01f, FLT_MAX);
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::Text("Fire per seconds, which corresponds to a delay of %.3fs between firing", 1.f / fFiringRate);
+		ImGui::EndTooltip();
+	}
+}
+
+json Component_Tower::ToJson() const
+{
+	json j;
+	j["Damage"] = fDamage;
+	j["Firing rate"] = fFiringRate;
+	return j;
+}
+
+void Component_Tower::FromJson(const json &_j)
+{
+	if (_j.contains("Damage"))
+		fDamage = _j["Damage"];
+	if (_j.contains("Firing rate"))
+		fFiringRate = _j["Firing rate"];
+}
+
 bool Component_Tower::CanFire() const
 {
 	return fFireDelay <= 0.f;

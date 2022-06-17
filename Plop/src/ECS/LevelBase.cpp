@@ -9,14 +9,16 @@
 
 #include "Application.h"
 #include "Renderer/Renderer.h"
+#include "ECS/Components/BaseComponents.h"
+#include "ECS/Components/ComponentDefinition.h"
+#include "ECS/Components/ComponentIncludes.h"
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Entity.h"
-#include "ECS/Components/ComponentDefinition.h"
-#include "ECS/Components/BaseComponents.h"
-#include "ECS/Components/ComponentIncludes.h"
-
+#include "ECS/PrefabManager.h"
+#include "ECS/Serialisation.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
+#include "Utils/JsonTypes.h"
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
@@ -29,7 +31,7 @@ namespace Plop
 	void LevelBase::Init()
 	{
 		m_ENTTRegistry.sort<Component_GraphNode, Component_Transform>(); // minimizes cache misses when iterating together
-		m_ENTTRegistry.ctx_or_set<GUIDPlop>() = (GUIDPlop)rand();
+		m_ENTTRegistry.ctx_or_set<GUID>() = GUID();
 
 #define MACRO_COMPONENT(comp)	BindOnCreate<Component_##comp>( m_ENTTRegistry ); \
 								BindOnDestroy<Component_##comp>( m_ENTTRegistry );
@@ -40,6 +42,35 @@ namespace Plop
 	void LevelBase::Shutdown()
 	{
 		m_ENTTRegistry.clear();
+	}
+
+	bool LevelBase::OnEvent(Event &_event)
+	{
+		if (_event.GetEventType() == EventType::PrefabInstantiatedEvent)
+		{
+			PrefabInstantiatedEvent &entityEvent = (PrefabInstantiatedEvent &)_event;
+			std::stack<entt::entity> todo;
+			todo.push(entityEvent.entity);
+
+
+			while (!todo.empty())
+			{
+				entt::entity enttID = todo.top();
+				todo.pop();
+
+				auto &nameComp = m_ENTTRegistry.get<Component_Name>(enttID);
+				ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
+				m_mapGUIDToEntt[nameComp.guid] = enttID;
+
+				auto &graphComp = m_ENTTRegistry.get<Component_GraphNode>(enttID);
+				if (graphComp.firstChild != entt::null)
+					todo.push(graphComp.firstChild);
+				if (graphComp.nextSibling != entt::null)
+					todo.push(graphComp.nextSibling);
+			}
+		}
+
+		return false;
 	}
 
 	void LevelBase::StartFromEditor()
@@ -98,7 +129,9 @@ namespace Plop
 		Entity e = { entityID, Application::GetCurrentLevel() };
 #endif
 
-		e.AddComponent<Component_Name>( _sName );
+		auto &nameComp = e.AddComponent<Component_Name>( _sName );
+		ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
+		m_mapGUIDToEntt[nameComp.guid] = entityID;
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
@@ -107,16 +140,18 @@ namespace Plop
 		return e;
 	}
 
-	Entity LevelBase::CreateEntityWithHint( entt::entity _id )
+	Entity LevelBase::CreateEntityWithGUID(GUID _guid)
 	{
-		entt::entity entityID = m_ENTTRegistry.create(_id);
+		entt::entity entityID = m_ENTTRegistry.create(_guid);
 #ifdef USE_ENTITY_HANDLE
 		Entity e = { entityID, m_ENTTRegistry };
 #else
 		Entity e = { entityID, Application::GetCurrentLevel() };
 #endif
 
-		e.AddComponent<Component_Name>();
+		e.AddComponent<Component_Name>(_guid);
+		ASSERTM(m_mapGUIDToEntt.find(_guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", _guid);
+		m_mapGUIDToEntt[_guid] = entityID;
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
@@ -125,15 +160,20 @@ namespace Plop
 		return e;
 	}
 
-	Entity LevelBase::GetEntityFromHint( entt::entity _id )
+	Entity LevelBase::GetEntityFromGUID(GUID _guid)
 	{
+		auto it = m_mapGUIDToEntt.find(_guid);
+		if (it != m_mapGUIDToEntt.end())
+		{
 #ifdef USE_ENTITY_HANDLE
-		Entity e = { _id, m_ENTTRegistry };
+			return Entity {it->second, m_ENTTRegistry};
 #else
-		Entity e = { _id, Application::GetCurrentLevel() };
+			return Entity {it->second, Application::GetCurrentLevel()};
 #endif
+		}
 
-		return e;
+		ASSERT(false);
+		return Entity();
 	}
 
 	void LevelBase::DestroyEntity( Entity& _entity )
@@ -142,11 +182,11 @@ namespace Plop
 
 		_entity.SetParent( Entity() );
 
-		static std::vector<Entity> vecChildren;
+		std::vector<Entity> vecChildren;
 		_entity.GetChildren(vecChildren);
 		for (Entity& e : vecChildren)
 		{
-			DestroyEntity( std::move(e) );
+			DestroyEntity( e );
 		}
 		m_ENTTRegistry.destroy( _entity );
 	}
@@ -206,16 +246,22 @@ namespace Plop
 		destReg.assign( srcReg.data(), srcReg.data() + srcReg.size() );
 
 		srcReg.visit( [&srcReg, &destReg]( auto _comp )
-			{
-				auto& type = entt::resolve_type( _comp );
-				auto& f = type.func( "clone"_hs );
-				f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
-			} );
+		{
+			auto& type = entt::resolve_type( _comp );
+			auto& f = type.func( "cloneAllComponents"_hs );
+			f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
+		} );
 	}
 
 	json LevelBase::ToJson()
 	{
 		json j;
+
+		PrefabManager::VisitAllLibraries([&j](const String &_sName, const PrefabLibrary &_lib) {
+
+			j[JSON_PREFABLIBS].push_back(_lib.sPath.string());
+			return VisitorFlow::CONTINUE;
+		});
 
 		m_ENTTRegistry.each([&j, this] (entt::entity _entityID)
 		{
@@ -227,7 +273,7 @@ namespace Plop
 			if (!entity.HasFlag( EntityFlag::DYNAMIC_GENERATION ))
 			{
 				String& sName = entity.GetComponent<Component_Name>().sName;
-				j["entities"].push_back( entity.ToJson() );
+				j[JSON_ENTITIES].push_back( entity.ToJson() );
 			}
 		});
 
@@ -236,18 +282,26 @@ namespace Plop
 
 	void LevelBase::FromJson( const json& _j )
 	{
-		if (_j.contains( "entities" ))
+		if (_j.contains(JSON_PREFABLIBS))
 		{
-			// create all entities so that everything is created to apply GraphNode links
-			for (auto j : _j["entities"])
+			for (const String &s : _j[JSON_PREFABLIBS])
 			{
-				CreateEntityWithHint( j["HintID"] );
+				PrefabManager::LoadPrefabLibrary(s);
+			}
+		}
+
+		if (_j.contains(JSON_ENTITIES))
+		{
+			// create all entities so that everything is created when to apply GraphNode links
+			for (const auto &j : _j[JSON_ENTITIES])
+			{
+				CreateEntityWithGUID(j[JSON_GUID]);
 			}
 
 			// and apply whatever we need to
-			for (auto j : _j["entities"])
+			for (const auto &j : _j[JSON_ENTITIES])
 			{
-				Entity e = GetEntityFromHint(j["HintID"]);
+				Entity e = GetEntityFromGUID(j[JSON_GUID]);
 				e.FromJson(j);
 			}
 		}

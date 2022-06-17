@@ -68,13 +68,19 @@ namespace Plop
 		{
 			return NextFloat01() * (max - min) + min;
 		}
+
 		
 	private:
 		uint64_t 	m_uSeed;
 		uint64_t 	m_uState;
+
+		static Random s_globalRandom;
 	};
 	
-	
+
+	void	RandomSeed(uint64_t _uSeed);
+	U32		RandomInt32();
+	float	RandomFloat01();
 	
 	
 	

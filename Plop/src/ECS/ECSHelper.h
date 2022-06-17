@@ -22,4 +22,7 @@ namespace Plop
 }
 #endif
 
+
+	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &_dst);
+
 }

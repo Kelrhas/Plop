@@ -2,9 +2,9 @@
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
-#include <imgui_entt_entity_editor.hpp>
 
-#include <ECS/EntityFlag.h>
+#include "ECS/EntityFlag.h"
+#include "Utils/GUID.h"
 
 
 // dynamic children allows for N children per entity, and keep the ordering of children
@@ -16,9 +16,13 @@ namespace Plop
 
 	struct Component_Name
 	{
-		String sName;
+		String	sName;
+		GUID	guid;
 
-		Component_Name( const String& _sName = "Entity" ) : sName( _sName ) {}
+		Component_Name(const String &_sName = "Entity");
+		Component_Name(const GUID &_guid);
+
+		Component_Name& operator=(const Component_Name &_o);
 	};
 
 	using EntityFlagBits = EnumFlags<EntityFlag>;
@@ -41,5 +45,4 @@ namespace Plop
 		
 		EntityFlagBits	uFlags = EntityFlag::NONE;
 	};
-	// TODO: merge GraphNode & Transform ?
 }

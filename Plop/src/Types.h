@@ -15,5 +15,9 @@ using S16			= int16_t;
 using S32			= int32_t;
 using S64			= int64_t;
 
+enum class VisitorFlow : uint8_t
+{
+	CONTINUE,
+	BREAK
+};
 
-using GUIDPlop			= uint64_t; // TODO proper GUID

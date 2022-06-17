@@ -38,6 +38,7 @@ namespace Plop
 				EditorCameraPtr GetEditorCamera() const { return m_xEditorCamera; }
 				glm::vec2		GetViewportPosFromWindowPos( const glm::vec2& _vScreenPos, bool _bClamp = false ) const;
 
+				bool			IsEditing() const { return m_eLevelState == LevelState::EDITING; }
 
 		static	json			GetJsonEntity( const Entity& _entity );
 		static	void			SetJsonEntity( const Entity& _entity, const json& _j );
@@ -93,7 +94,7 @@ namespace Plop
 #endif
 
 			auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
-			factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "clone"_hs );
+			factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "cloneAllComponents"_hs );
 		}
 		template<typename Comp>
 		static	void		CloneRegistryComponents( entt::registry& _src, entt::registry& _dst )

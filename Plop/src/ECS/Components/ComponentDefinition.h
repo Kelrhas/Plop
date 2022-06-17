@@ -124,7 +124,7 @@ namespace Plop
 	constexpr static JsonType AmbiguousCallComponentToJson( RegistryType& registry, EntityType _entity)
 	{
 		ASSERTM( registry.has<Comp>( _entity ), "The entity does not have this component" );
-		Comp& comp = registry.get<Comp>( _entity );
+		const Comp& comp = registry.get<Comp>( _entity );
 		return comp.ToJson();
 	}
 
@@ -135,7 +135,7 @@ namespace Plop
 	//////////////////////////////////////////////////////////////////////////
 
 	template<class Comp, class RegistryType>
-	constexpr static void CloneRegistryComponents( RegistryType& _src, RegistryType& _dst )
+	constexpr static void CloneAllRegistryComponents(const RegistryType &_src, RegistryType &_dst)
 	{
 		auto view = _src.view<Comp>();
 		if constexpr (ENTT_IS_EMPTY( Comp )::value)
@@ -149,6 +149,18 @@ namespace Plop
 	}
 
 
+	template<class Comp, class RegistryType, class EntityType>
+	constexpr static void CloneRegistryComponent(const RegistryType &_regSrc, const EntityType &_entitySrc, RegistryType &_regDst, EntityType &_entityDst)
+	{
+		if (_regSrc.has<Comp>(_entitySrc))
+		{
+			const Comp &compSrc = _regSrc.template get<Comp>(_entitySrc);
+			Comp &compDst = _regDst.template get_or_emplace<Comp>(_entityDst);
+			compDst = compSrc;
+		}
+	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// DuplicateComponent
@@ -157,6 +169,8 @@ namespace Plop
 	template <class Component, class RegistryType, class EntityType>
 	void CallDuplicateComponent( RegistryType& _reg, EntityType _entitySrc, EntityType _entityDest )
 	{
+		// @check
+		Debug::TODO();
 		if (_reg.has<Component>( _entitySrc ))
 		{
 			auto& compDest = _reg.template get_or_emplace<Component>( _entityDest );

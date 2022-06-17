@@ -62,7 +62,7 @@ namespace Plop
 		}
 	}
 
-	void ComponentManager::ToJson( Registry& _reg, EntityType _e, Json& _j )
+	void ComponentManager::ToJson( const Registry& _reg, EntityType _e, Json& _j )
 	{
 		for (auto& [id, info] : s_mapComponents)
 		{
@@ -77,6 +77,7 @@ namespace Plop
 
 	void ComponentManager::DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest )
 	{
+		// @check
 		for (auto& [id, info] : s_mapComponents)
 		{
 			info.funcDuplicate( _reg, _entitySrc, _entityDest );

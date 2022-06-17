@@ -140,6 +140,12 @@ namespace Plop
 
 	void Application::Init()
 	{
+#ifdef USE_CONSTANT_RANDOM
+		RandomSeed(42llu);
+#else
+		RandomSeed(time(0));
+#endif
+
 		ASSERTM( s_pInstance == nullptr, "Only one instance of Application authorized" );
 		s_pInstance = this;
 

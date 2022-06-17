@@ -24,7 +24,7 @@ namespace Plop
 			using Callback = std::function<void( Registry&, EntityType )>;
 			using CallbackDuplicate = std::function<void( Registry&, EntityType, EntityType )>;
 			using CallbackFromJson = std::function<void( Registry&, EntityType, const Json& )>;
-			using CallbackToJson = std::function<Json( Registry&, EntityType )>;
+			using CallbackToJson = std::function<Json( const Registry&, EntityType )>;
 
 
 			const char* pName = nullptr;
@@ -54,7 +54,7 @@ namespace Plop
 
 		static void EditorUI( Registry& _reg, EntityType _e );
 		static void FromJson( Registry& _reg, EntityType _e, const Json& _j);
-		static void ToJson( Registry& _reg, EntityType _e, Json& _j);
+		static void ToJson( const Registry& _reg, EntityType _e, Json& _j);
 		static void DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest );
 		
 		template<typename Visitor>
@@ -65,7 +65,14 @@ namespace Plop
 
 
 		template<class Comp>
-		static Comp& GetComponent( Registry& _reg, EntityType _e );
+		static Comp& MetaGetComponent( Registry& _reg, EntityType _e );
+		template<class Comp>
+		static bool MetaHasComponent( const Registry& _reg, EntityType _e );
+		template<class Comp>
+		static Comp& MetaAddComponent( Registry& _reg, EntityType _e );
+		//template<class Comp>
+		//static void MetaCloneComponent( const Registry& _regSrc, EntityType _eSrc, Registry &_regDst, const EntityType &_eDst);
+
 
 		static std::unordered_map<ComponentTypeId, ComponentInfo> s_mapComponents;
 
@@ -95,7 +102,7 @@ namespace Plop
 		info.funcRemove = RemoveComponent<Comp, Registry&, EntityType>;
 		info.funcDuplicate = CallDuplicateComponent<Comp, Registry&, EntityType>;
 		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType, const Json&>;
-		info.funcToJson = CallComponentToJson<Comp, Json, Registry&, EntityType>;
+		info.funcToJson = CallComponentToJson<Comp, Json, const Registry&, EntityType>;
 
 
 		s_mapComponents.insert_or_assign( id, info );
@@ -104,9 +111,12 @@ namespace Plop
 
 		/// meta/reflection stuff
 
-		auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
-		factory.func<&CloneRegistryComponents<Comp, Registry&>>( "clone"_hs );
-		factory.func<&GetComponent<Comp>, entt::as_ref_t>( "get"_hs );
+		auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) ).prop("name"_hs, String(_pName));
+		factory.func<&CloneAllRegistryComponents<Comp, Registry &>>("cloneAllComponents"_hs);
+		factory.func<&CloneRegistryComponent<Comp, Registry &, EntityType>>("clone"_hs);
+		factory.func<&MetaGetComponent<Comp>, entt::as_ref_t>("get"_hs);
+		factory.func<&MetaHasComponent<Comp>>("has"_hs);
+		factory.func<&MetaAddComponent<Comp>, entt::as_ref_t>("add"_hs);
 
 		/*if constexpr (std::is_invocable_v<Comp::SetupReflection>)
 		{
@@ -132,13 +142,35 @@ namespace Plop
 
 		_reg.visit( _e, [&]( const auto compId ) {
 			const auto type = entt::resolve_type( compId );
-			const auto compObj = type.func( "get"_hs ).invoke( {}, std::ref( _reg ), _e );
-			_v( compObj );
+			if (type.func("has"_hs).invoke({}, std::ref(_reg), _e))
+			{
+				const entt::meta_any &compObj = type.func("get"_hs).invoke({}, std::ref(_reg), _e);
+				_v(compObj);
+			}
 		} );
 	}
 
 	template<class Comp>
-	Comp& ComponentManager::GetComponent( ComponentManager::Registry& _reg, EntityType _e ) {
+	Comp& ComponentManager::MetaGetComponent( ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.get_or_emplace<Comp>( _e );
 	}
+
+	template<class Comp>
+	bool ComponentManager::MetaHasComponent( const ComponentManager::Registry& _reg, EntityType _e ) {
+		return _reg.has<Comp>( _e );
+	}
+
+	template<class Comp>
+	Comp& ComponentManager::MetaAddComponent( ComponentManager::Registry& _reg, EntityType _e ) {
+		return _reg.emplace<Comp>( _e );
+	}
+
+
+	//template<class Comp>
+	//void ComponentManager::MetaCloneComponent(const ComponentManager::Registry &_regSrc, const EntityType &_eSrc,
+	//										  ComponentManager::Registry &_regDst, const EntityType &_eDst)
+	//{
+	//	const Comp &compSrc = _regSrc.get<Comp>(_eSrc);
+	//	Comp &compDst = _regDst.get_or_emplace<Comp>(_eDst, compSrc);
+	//}
 }

@@ -16,6 +16,7 @@ project "Plop"
 		"%{prj.location}/src/**.hpp",
 		"%{prj.location}/src/**.inl",
 		"../Externals/json/nlohmann_json.natvis",
+		"../Externals/entt/entt/natvis/*.natvis",
 		"../Externals/glm/util/*",
 		"../Externals/stb/stb.cpp"
 	}

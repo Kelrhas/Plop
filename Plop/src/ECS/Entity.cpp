@@ -8,6 +8,7 @@
 #include "ECS/Components/BaseComponents.h"
 #include "ECS/Components/ComponentIncludes.h"
 #include "ECS/Components/ComponentDefinition.h"
+#include "ECS/Serialisation.h"
 #include "Utils/JsonTypes.h"
 #include "Editor/EditorLayer.h"
 
@@ -281,9 +282,13 @@ namespace Plop
 
 		j["HintID"] = m_hEntity.entity();
 		j["Name"] = GetComponent<Component_Name>().sName;
+		j[JSON_GUID] = GetComponent<Component_Name>().guid;
 		ChildVisitor([&j](Entity &_child) {
 			if (!_child.HasFlag(EntityFlag::DYNAMIC_GENERATION))
-				j["Children"].push_back(_child.m_hEntity.entity());
+			{
+				GUID guid = _child.GetComponent<Component_Name>().guid;
+				j[JSON_CHILDREN].push_back(guid);
+			}
 		});
 
 		ComponentManager::ToJson(registry, m_hEntity.entity(), j);
@@ -299,12 +304,11 @@ namespace Plop
 
 		if (_jEntity.contains("Children"))
 		{
-			Debug::TODO("Make sure to create children outside of this, an entity should not create other entities");
-			/*for (auto &id : _jEntity["Children"])
+			for (auto &id : _jEntity["Children"])
 			{
-				Entity e = xLevel->GetEntityFromHint(id);
+				Entity e = xLevel->GetEntityFromGUID(id);
 				e.SetParent(*this);
-			}*/
+			}
 		}
 
 		if (_jEntity.contains("Components"))
@@ -612,9 +616,9 @@ void Entity::FromJson(const json& _jEntity)
 	if (_jEntity.contains("Children"))
 	{
 		ASSERTM(xLevel != nullptr, "No current level");
-		for (auto& id : _jEntity["Children"])
+		for (auto &id : _jEntity["Children"])
 		{
-			Entity e = xLevel->GetEntityFromHint(id);
+			Entity e = xLevel->GetEntityFromGUID(id);
 			e.SetParent(*this);
 		}
 	}

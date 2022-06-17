@@ -21,6 +21,7 @@
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/LevelBase.h"
 #include "Editor/UndoManager.h"
+#include "ECS/PrefabManager.h"
 #include "Input/Input.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EntityEvent.h"
@@ -276,7 +277,7 @@ namespace Plop
 			ImGui::DockSpace( id, ImVec2( 0, 0 ), flags );
 
 
-			if (ImGui::Begin( "Scene", nullptr, 0 ))
+			if (ImGui::Begin( "Scene", nullptr, ImGuiWindowFlags_None))
 			{
 				if (ImGui::IsWindowHovered( ImGuiHoveredFlags_None ))
 				{
@@ -321,6 +322,7 @@ namespace Plop
 			if (m_bShowCameraSettings)
 				m_xEditorCamera->DisplaySettings( m_bShowCameraSettings );
 
+			PrefabManager::ImGuiRenderLibraries();
 
 			if (m_eLevelState == LevelState::EDITING ||
 				m_eLevelState == LevelState::PAUSED)
@@ -371,7 +373,7 @@ namespace Plop
 	{
 		if (_event.GetEventType() == EventType::EntityCreatedEvent)
 		{
-			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
+			EntityCreatedEvent& entityEvent = (EntityCreatedEvent &)_event;
 			entt::entity enttId = entityEvent.entity;
 			m_mapEntityEditorInfo.insert( { enttId, {} } );
 		}
@@ -384,6 +386,28 @@ namespace Plop
 			}
 
 			m_mapEntityEditorInfo.erase( (entt::entity)entityEvent.entity );
+		}
+		else if (_event.GetEventType() == EventType::PrefabInstantiatedEvent)
+		{
+			PrefabInstantiatedEvent &entityEvent = (PrefabInstantiatedEvent &)_event;
+			std::stack<entt::entity> todo;
+			todo.push(entityEvent.entity);
+
+			const auto &reg = entityEvent.entity.GetRegistry();
+
+			while (!todo.empty())
+			{
+				entt::entity enttID = todo.top();
+				todo.pop();
+
+				m_mapEntityEditorInfo.insert({enttID, {}});
+
+				auto &graphComp = reg.get<Component_GraphNode>(enttID);
+				if (graphComp.firstChild != entt::null)
+					todo.push(graphComp.firstChild);
+				if (graphComp.nextSibling != entt::null)
+					todo.push(graphComp.nextSibling);
+			}
 		}
 
 		return false;
@@ -729,18 +753,33 @@ namespace Plop
 
 					if (ImGui::BeginPopupContextItem( "EntityContextMenu" ))
 					{
-						if (ImGui::Selectable( "New entity" ))
+						if (ImGui::MenuItem( "New entity" ))
 						{
 							LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
 							Entity e = xLevel->CreateEntity();
 							e.SetParent( _Entity );
 						}
-						if (ImGui::Selectable( "Duplicate entity" ))
+						if (ImGui::MenuItem( "Duplicate entity" ))
 						{
 							DuplicateEntity( _Entity );
 						}
-						if (ImGui::Selectable( "Delete entity" ))
+						if (ImGui::MenuItem( "Delete entity" ))
 							entityToDestroy = _Entity;
+						ImGui::Separator();
+
+						if (ImGui::BeginMenu("Create prefab"))
+						{
+							PrefabManager::VisitAllLibraries([_Entity](const String &_sName, const PrefabLibrary &_lib) {
+								if (ImGui::MenuItem(_sName.c_str()))
+								{
+									PrefabManager::CreatePrefab(_Entity, _sName);
+									return VisitorFlow::BREAK;
+								}
+								return VisitorFlow::CONTINUE;
+							});
+
+							ImGui::EndMenu();
+						}
 
 						ImGui::EndPopup();
 					}
@@ -773,6 +812,11 @@ namespace Plop
 									child.SetParent( _Entity );
 								else
 									child.SetParent( Entity() );
+							}
+							else if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "InstantiatePrefab" ))
+							{
+								ASSERTM( pPayload->DataSize == sizeof( Prefab ), "Wrong Drag&Drop payload" );
+								PrefabManager::InstantiatePrefab((Prefab*)pPayload->Data, _Entity.m_xLevel.lock()->GetEntityRegistry(), _Entity);
 							}
 							ImGui::EndDragDropTarget();
 						}
@@ -811,6 +855,18 @@ namespace Plop
 					xLevel->DestroyEntity(entityToDestroy);
 
 				ImGui::EndChild();
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload *pPayload = ImGui::AcceptDragDropPayload("InstantiatePrefab"))
+					{
+						ASSERTM(pPayload->DataSize == sizeof(Prefab), "Wrong Drag&Drop payload");
+						PrefabManager::InstantiatePrefab((Prefab *)pPayload->Data, Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), entt::null);
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+
 				if (ImGui::Button( "New entity" ))
 				{
 					xLevel->CreateEntity();
@@ -954,8 +1010,11 @@ namespace Plop
 
 	void EditorLayer::SaveLevel()
 	{
-		if(!m_sCurrentLevel.empty())
-			Application::GetCurrentLevel().lock()->Save( m_sCurrentLevel );
+		if (!m_sCurrentLevel.empty())
+		{
+			Application::GetCurrentLevel().lock()->Save(m_sCurrentLevel);
+			PrefabManager::SaveLibraries();
+		}
 	}
 
 	void EditorLayer::SaveLevelAs()
@@ -969,6 +1028,7 @@ namespace Plop
 
 
 			Application::GetCurrentLevel().lock()->Save( sLevelPath );
+			PrefabManager::SaveLibraries();
 			m_sCurrentLevel = sLevelPath;
 		}
 	}

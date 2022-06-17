@@ -11,7 +11,7 @@
 
 #define USE_COMPONENT_MGR
 #define USE_ENTITY_HANDLE
-
+//#define USE_CONSTANT_RANDOM
 
 #ifdef _MASTER
 constexpr bool USE_EDITOR = false;

@@ -46,7 +46,7 @@ namespace Plop
 				Entity CreateEntity( const String& _sName = "New Entity" );
 				Entity CreateEntityWithGUID(Plop::GUID _guid);
 				Entity GetEntityFromGUID(Plop::GUID _guid);
-				void DestroyEntity(Entity &_entity);
+				void DestroyEntity(Entity _entity);
 
 
 				entt::registry& GetEntityRegistry() { return m_ENTTRegistry; }

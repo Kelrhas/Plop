@@ -665,10 +665,19 @@ namespace Plop
 
 		if (m_SelectedEntity)
 		{
-			if (m_eEditMode == EditMode::NONE && Input::IsKeyPressed( KeyCode::KEY_F2 ))
+			if (m_eEditMode == EditMode::NONE)
 			{
-				Private::sNewName = m_SelectedEntity.GetComponent<Component_Name>().sName;
-				m_eEditMode = EditMode::RENAMING_ENTITY;
+				if (Input::IsKeyPressed(KeyCode::KEY_F2))
+				{
+					Private::sNewName = m_SelectedEntity.GetComponent<Component_Name>().sName;
+					m_eEditMode = EditMode::RENAMING_ENTITY;
+				}
+
+				if (Input::IsKeyPressed(KeyCode::KEY_Delete))
+				{
+					Application::GetCurrentLevel().lock()->DestroyEntity(m_SelectedEntity);
+					m_SelectedEntity.Reset();
+				}
 			}
 		}
 	}

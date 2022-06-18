@@ -64,7 +64,11 @@ namespace Plop
 
 	bool Entity::operator==(const Entity &_other)
 	{
-		if (!_other.m_hEntity)
+		if (!m_hEntity && !_other.m_hEntity)
+			return true;
+		else if (!_other.m_hEntity)
+			return false;
+		else if (!m_hEntity)
 			return false;
 
 		GUID* guidThis = m_hEntity.registry().try_ctx<Plop::GUID>();

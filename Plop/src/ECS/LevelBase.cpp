@@ -177,10 +177,8 @@ namespace Plop
 		return Entity();
 	}
 
-	void LevelBase::DestroyEntity( Entity& _entity )
+	void LevelBase::DestroyEntity( Entity _entity )
 	{
-		EventDispatcher::SendEvent( EntityDestroyedEvent( _entity ) );
-
 		_entity.SetParent( Entity() );
 
 		std::vector<Entity> vecChildren;
@@ -190,6 +188,8 @@ namespace Plop
 			DestroyEntity( e );
 		}
 		m_ENTTRegistry.destroy( _entity );
+
+		EventDispatcher::SendEvent(EntityDestroyedEvent(_entity));
 	}
 
 	void LevelBase::Save( const StringPath& _path )

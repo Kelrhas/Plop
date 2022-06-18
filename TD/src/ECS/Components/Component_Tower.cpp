@@ -93,9 +93,11 @@ namespace TowerSystem
 		}
 
 		// play sound
-		auto& audioComp = towerEntity.GetComponent<Plop::Component_AudioEmitter>();
-		audioComp.PlaySound();
-
+		if (towerEntity.HasComponent<Plop::Component_AudioEmitter>())
+		{
+			auto &audioComp = towerEntity.GetComponent<Plop::Component_AudioEmitter>();
+			audioComp.PlaySound();
+		}
 	};
 
 

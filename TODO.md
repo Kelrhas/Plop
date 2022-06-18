@@ -17,10 +17,9 @@
 - save the window being maximized
 - ~~use entt::handle~~
 - update EnTT
-  - use registry storage to store multiple component of the same type
-- use commands for editor modification 
+	- use registry storage to store multiple component of the same type
 - use commands for rendering (probably vulkan switch)
-  - add debug render command (cube, line, sphere ...)
+	- add debug render command (cube, line, sphere ...)
 
 
 **[Editor]**
@@ -31,10 +30,14 @@
 - snapped transformation with CTRL or SHIFT (see blender)
 - multi selection
 - ~~simple undo/redo~~
+	- ~~use commands for editor modification~~
+- make sure serialisation produces the same output everytime
+	- might mean loading the registry in a different manner, see snapshot & archive
 
 
 **[TD]**
 
 - implements pathfind in grid
+- add a quadtree to keep track of ennemies
 
 

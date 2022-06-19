@@ -925,6 +925,7 @@ namespace Plop
 			mViewMatrix = m_xEditorCamera->GetViewMatrix();
 			mProjMatrix = m_xEditorCamera->GetProjectionMatrix();
 			bOrthographic = m_xEditorCamera->IsOrthographic();
+			xCurrentCamera = m_xEditorCamera;
 
 
 			if (IsSelectedEntityForLevel(Application::GetCurrentLevel()))
@@ -935,6 +936,7 @@ namespace Plop
 					mViewMatrix = xCamera->GetViewMatrix();
 					mProjMatrix = xCamera->GetProjectionMatrix();
 					bOrthographic = xCamera->IsOrthographic();
+					xCurrentCamera = xCamera;
 				}
 
 				ImGuizmo::SetOrthographic( bOrthographic );
@@ -999,7 +1001,7 @@ namespace Plop
 			}
 
 
-			EditorGizmo::SetViewProjMatrix( mViewMatrix, mProjMatrix );
+			EditorGizmo::SetCamera( xCurrentCamera );
 		}
 
 
@@ -1139,12 +1141,13 @@ namespace Plop
 	//////////////////////////////////////////////////////////////////////////
 	// EditorGizmo
 
-	glm::mat4	EditorGizmo::s_mViewProj = glm::identity<glm::mat4>();
-	glm::vec2	EditorGizmo::s_vViewportPos = VEC2_0;
-	glm::vec2	EditorGizmo::s_vViewportSize = VEC2_1;
+	CameraWeakPtr		EditorGizmo::s_xCamera;
+	glm::mat4			EditorGizmo::s_mViewProj = glm::identity<glm::mat4>();
+	glm::vec2			EditorGizmo::s_vViewportPos = VEC2_0;
+	glm::vec2			EditorGizmo::s_vViewportSize = VEC2_1;
 
 
-	void EditorGizmo::FilledCircle( const glm::vec2& _vPoint, glm::vec3 _vColor /*= VEC3_1*/ )
+	void EditorGizmo::Point( const glm::vec2& _vPoint, glm::vec3 _vColor /*= VEC3_1*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "Scene" ); // TODO: handle multiple scene viewport
 		ImDrawList* drawList = window ? window->DrawList : ImGui::GetBackgroundDrawList();
@@ -1153,7 +1156,39 @@ namespace Plop
 
 		glm::vec2 vSSPoint = GetSSPosition( glm::vec3( _vPoint, 0.f ) );
 
-		drawList->AddCircleFilled( vSSPoint, 6.f, ImColor( _vColor.x, _vColor.y, _vColor.z ) );
+		drawList->AddCircle( vSSPoint, 6.f, ImColor( _vColor.x, _vColor.y, _vColor.z ) );
+
+		if (window)
+			drawList->PopClipRect();
+	}
+
+	void EditorGizmo::Circle(const glm::vec3 &_vPos, float _fRadius, glm::vec3 _vColor /*= COLOR_WHITE*/)
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "Scene" ); // TODO: handle multiple scene viewport
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetBackgroundDrawList();
+		if (window)
+			drawList->PushClipRect( window->Rect().Min, window->Rect().Max );
+
+		glm::vec2 vSSPoint = GetSSPosition(_vPos);
+		float fRadiusPixel = GetSSDistance(_vPos, _fRadius);
+
+		drawList->AddCircle( vSSPoint, fRadiusPixel, ImColor( _vColor.x, _vColor.y, _vColor.z ) );
+
+		if (window)
+			drawList->PopClipRect();
+	}
+
+	void EditorGizmo::FilledCircle(const glm::vec3 &_vPos, float _fRadius, glm::vec3 _vColor /*= COLOR_WHITE*/)
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "Scene" ); // TODO: handle multiple scene viewport
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetBackgroundDrawList();
+		if (window)
+			drawList->PushClipRect( window->Rect().Min, window->Rect().Max );
+
+		glm::vec2 vSSPoint = GetSSPosition(_vPos);
+		float fRadiusPixel = GetSSDistance(_vPos, _fRadius);
+
+		drawList->AddCircleFilled( vSSPoint, fRadiusPixel, ImColor( _vColor.x, _vColor.y, _vColor.z ) );
 
 		if (window)
 			drawList->PopClipRect();
@@ -1259,10 +1294,25 @@ namespace Plop
 	}
 
 
-	void EditorGizmo::SetViewProjMatrix( const glm::mat4& _mView, const glm::mat4& _mProj )
+	void EditorGizmo::SetCamera( CameraWeakPtr _xCamera)
 	{
-		s_mViewProj = _mProj * _mView;
+		s_xCamera = _xCamera;
+		if (!s_xCamera.expired())
+		{
+			const glm::mat4 &mView = s_xCamera.lock()->GetViewMatrix();
+			const glm::mat4 &mProj = s_xCamera.lock()->GetProjectionMatrix();
+			s_mViewProj = mProj * mView;
+		}
+		else
+		{
+			s_mViewProj = glm::identity<glm::mat4>();
+		}
 	}
+
+	//void EditorGizmo::SetViewProjMatrix( const glm::mat4& _mView, const glm::mat4& _mProj )
+	//{
+	//	s_mViewProj = _mProj * _mView;
+	//}
 
 	void EditorGizmo::SetViewportPosAndSize( const glm::vec2& _vPos, const glm::vec2& _vSize )
 	{
@@ -1272,6 +1322,7 @@ namespace Plop
 
 	glm::vec2 EditorGizmo::GetSSPosition( const glm::vec3& _vPos )
 	{
+		ASSERT(!s_xCamera.expired());
 		glm::vec4 vClipSpace = s_mViewProj * glm::vec4(_vPos, 1.f);
 		glm::vec3 vNDCSpace = glm::vec3(vClipSpace.xyz) / vClipSpace.w; // [-1; 1]
 		glm::vec2 vScreenSpace = ((glm::vec2( vNDCSpace.xy ) + VEC2_1) / 2.f);  // [0; 1]
@@ -1282,5 +1333,31 @@ namespace Plop
 		vScreenSpace.y += s_vViewportPos.y;
 
 		return vScreenSpace;
+	}
+
+	float EditorGizmo::GetSSDistance(const glm::vec3 &_vPos, float _fDist)
+	{
+		ASSERT(!s_xCamera.expired());
+
+		auto xCamera = s_xCamera.lock();
+
+		if (xCamera->IsPerspective())
+		{
+			// @check
+			glm::vec3 vCamPos = xCamera->GetPosition();
+			float fDist = glm::length(vCamPos - _vPos);
+			float fFov = xCamera->GetPerspectiveFOV();
+			float fSSDist = tan(fFov) * fDist;
+
+			return fSSDist;
+		}
+		else
+		{
+			float fSize = xCamera->GetOrthographicSize();
+			float fRatio = _fDist / fSize;
+			float fDist = fRatio * s_vViewportSize.y;
+
+			return fDist;
+		}
 	}
 }

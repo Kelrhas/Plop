@@ -49,7 +49,7 @@ void Component_EnemySpawner::EditorUI()
 
 
 			const glm::vec3 vCurrentPoint = xPathCurve->vecControlPoints[i] + vSpawnerPosition;
-			Plop::EditorGizmo::FilledCircle( vCurrentPoint );
+			Plop::EditorGizmo::Point( vCurrentPoint );
 
 			// draw the curve
 			if (i > 0 && i < iNbPoint - 2)
@@ -70,7 +70,7 @@ void Component_EnemySpawner::EditorUI()
 			ImGui::SliderFloat( "Test point", &fTest, 0.f, (float)iNbPoint - 3 );
 
 			glm::vec vTestPos = xPathCurve->Interpolate( fTest ) + vSpawnerPosition;
-			Plop::EditorGizmo::FilledCircle( vTestPos, COLOR_RED );
+			Plop::EditorGizmo::Point( vTestPos, COLOR_RED );
 
 			glm::vec vTangent = xPathCurve->GetTangent( fTest );
 			Plop::EditorGizmo::Line( vTestPos - vTangent, vTestPos + vTangent, COLOR_GREEN );

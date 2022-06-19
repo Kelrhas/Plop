@@ -54,6 +54,7 @@ namespace Plop
 		//// HIERARCHY
 	public:
 		Entity												GetParent() const;
+		// TODO: make sure the parent is not one of the (recursive) child
 		void												SetParent( Entity& _Parent );
 
 		void												GetChildren(std::vector<Entity>& _outvecChildren ) const;

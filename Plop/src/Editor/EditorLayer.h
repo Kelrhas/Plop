@@ -143,24 +143,28 @@ namespace Plop
 	class EditorGizmo
 	{
 	public:
-		static void FilledCircle( const glm::vec2& _vPoint, glm::vec3 _vColor = VEC3_1 );
+		static void Point( const glm::vec2& _vPoint, glm::vec3 _vColor = COLOR_WHITE );
+		static void Circle( const glm::vec3& _vPos, float _fRadius, glm::vec3 _vColor = COLOR_WHITE);
+		static void FilledCircle( const glm::vec3& _vPos, float _fRadius, glm::vec3 _vColor = COLOR_WHITE);
 
 		// Lines & Curves
-		static void Line( const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3 _vColor = VEC3_1 );
-		static void AABB( const glm::vec3& _vMin, const glm::vec3& _vMax, glm::vec3 _vColor = VEC3_1 );
+		static void Line( const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3 _vColor = COLOR_WHITE);
+		static void AABB( const glm::vec3& _vMin, const glm::vec3& _vMax, glm::vec3 _vColor = COLOR_WHITE);
 		static void Bezier( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor = VEC3_1 );
 		static void CatmullRom( const glm::vec3& _v1, const glm::vec3& _v2, const glm::vec3& _v3, const glm::vec3& _v4, glm::vec3 _vColor = VEC3_1 );
 
 
-		static void SetViewProjMatrix( const glm::mat4& _mView, const glm::mat4& _mProj );
+		static void SetCamera(CameraWeakPtr _xCamera);
 		static void SetViewportPosAndSize( const glm::vec2& _vPos, const glm::vec2& _vSize );
 
 	private:
 		static glm::vec2 GetSSPosition( const glm::vec3& _vPos );
+		static float GetSSDistance( const glm::vec3& _vPos, float _fDist );
 
 
-		static glm::mat4	s_mViewProj;
-		static glm::vec2	s_vViewportPos;
-		static glm::vec2	s_vViewportSize;
+		static CameraWeakPtr	s_xCamera;
+		static glm::mat4		s_mViewProj; // cache from camera
+		static glm::vec2		s_vViewportPos;
+		static glm::vec2		s_vViewportSize;
 	};
 }

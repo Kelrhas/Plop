@@ -24,6 +24,7 @@
 
 **[Editor]**
 
+- add Panel class to ease the use of mouse pos computation (mostly for viewport panel)
 - adapt the camera focus to encapsulate the object size
 	- obviously compute the object size first
 - ~~select with mouse -> picking~~

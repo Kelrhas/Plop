@@ -110,7 +110,10 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 
 	if (Plop::Input::IsMouseLeftPressed() && !m_xCurrentCamera.expired())
 	{
-		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos( Plop::Input::GetCursorWindowPos(), 0.f );
+		// TODO viewport panel
+		auto &editor = Plop::Application::Get()->GetEditor();
+		const glm::vec2 vViewportPos = editor.GetViewportPosFromWindowPos(Plop::Input::GetCursorWindowPos());
+		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos(vViewportPos, 0.f );
 
 		
 		Plop::Entity newEnemy = CreateEntity( "Enemy" );

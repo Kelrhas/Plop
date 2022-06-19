@@ -811,7 +811,7 @@ namespace Plop
 							{
 #ifdef USE_ENTITY_HANDLE
 								ASSERTM(pPayload->DataSize == sizeof(entt::handle), "Wrong Drag&Drop payload");
-								Entity child( ((entt::handle*)pPayload->Data)->entity(), _Entity.m_hEntity.registry() );
+								Entity child( *((entt::handle*)pPayload->Data) );
 #else
 								ASSERTM(pPayload->DataSize == sizeof(entt::entity), "Wrong Drag&Drop payload");
 								Entity child( *(entt::entity*)pPayload->Data, _Entity.m_xLevel );
@@ -867,7 +867,19 @@ namespace Plop
 
 				if (ImGui::BeginDragDropTarget())
 				{
-					if (const ImGuiPayload *pPayload = ImGui::AcceptDragDropPayload("InstantiatePrefab"))
+
+					if (const ImGuiPayload *pPayload = ImGui::AcceptDragDropPayload("ReparentEntity"))
+					{
+#ifdef USE_ENTITY_HANDLE
+						ASSERTM(pPayload->DataSize == sizeof(entt::handle), "Wrong Drag&Drop payload");
+						Entity child(*((entt::handle *)pPayload->Data));
+#else
+						ASSERTM(pPayload->DataSize == sizeof(entt::entity), "Wrong Drag&Drop payload");
+						Entity child(*(entt::entity *)pPayload->Data, xLevel);
+#endif
+						child.SetParent(Entity());
+					}
+					else if (const ImGuiPayload *pPayload = ImGui::AcceptDragDropPayload("InstantiatePrefab"))
 					{
 						ASSERTM(pPayload->DataSize == sizeof(Prefab), "Wrong Drag&Drop payload");
 						PrefabManager::InstantiatePrefab((Prefab *)pPayload->Data, Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), entt::null);

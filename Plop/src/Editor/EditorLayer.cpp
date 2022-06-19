@@ -1014,7 +1014,9 @@ namespace Plop
 
 	void EditorLayer::NewLevel()
 	{
-		auto xLevel = Application::Get()->CreateNewLevel();
+		if (m_xEditingLevel)
+			m_xEditingLevel->Shutdown();
+		m_xEditingLevel = Application::Get()->CreateNewLevel();
 		m_SelectedEntity.Reset();
 		m_sCurrentLevel.clear();
 	}
@@ -1024,9 +1026,11 @@ namespace Plop
 		StringPath sLevelPath;
 		if (Dialog::OpenFile( sLevelPath, Dialog::LEVEL_FILTER ))
 		{
-			auto xLevel = Application::Get()->CreateNewLevel();
+			if (m_xEditingLevel)
+				m_xEditingLevel->Shutdown();
+			m_xEditingLevel = Application::Get()->CreateNewLevel();
 			m_SelectedEntity.Reset();
-			xLevel->Load( sLevelPath );
+			m_xEditingLevel->Load( sLevelPath );
 			m_sCurrentLevel = sLevelPath;
 		}
 	}
@@ -1035,7 +1039,7 @@ namespace Plop
 	{
 		if (!m_sCurrentLevel.empty())
 		{
-			Application::GetCurrentLevel().lock()->Save(m_sCurrentLevel);
+			m_xEditingLevel->Save(m_sCurrentLevel);
 			PrefabManager::SaveLibraries();
 		}
 	}

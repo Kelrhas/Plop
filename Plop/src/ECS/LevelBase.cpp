@@ -42,6 +42,7 @@ namespace Plop
 
 	void LevelBase::Shutdown()
 	{
+		// @check
 		m_ENTTRegistry.clear();
 	}
 

@@ -10,6 +10,7 @@ struct Component_Tower
 {
 	float fDamage = 1.f;
 	float fFiringRate = 1.f; // fire per second
+	float fRange = 5.f;
 
 	void EditorUI();
 	json ToJson() const;

@@ -14,6 +14,12 @@
 
 #pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
 
+
+static constexpr const char *JSON_DAMAGE = "Damage";
+static constexpr const char *JSON_FIRING_RATE = "Firing rate";
+static constexpr const char *JSON_RANGE = "Range";
+
+
 void Component_Tower::EditorUI()
 {
 	ImGui::DragFloat("Damage", &fDamage, 0.1f, 1.f);
@@ -24,28 +30,37 @@ void Component_Tower::EditorUI()
 		ImGui::Text("Fire per seconds, which corresponds to a delay of %.3fs between firing", 1.f / fFiringRate);
 		ImGui::EndTooltip();
 	}
+	ImGui::DragFloat("Range", &fRange, 0.005f, 0.01f, FLT_MAX);
+	if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+	{
+		auto &reg = Plop::Application::GetCurrentLevel().lock()->GetEntityRegistry();
+		Plop::Entity owner = Plop::GetComponentOwner(reg, *this);
+		Plop::EditorGizmo::Circle(owner.GetComponent<Plop::Component_Transform>().GetWorldPosition(), fRange);
+	}
 }
 
 json Component_Tower::ToJson() const
 {
 	json j;
-	j["Damage"] = fDamage;
-	j["Firing rate"] = fFiringRate;
+	j[JSON_DAMAGE]							= fDamage;
+	j[JSON_FIRING_RATE]						= fFiringRate;
+	j[JSON_RANGE]							= fRange;
 	return j;
 }
 
 void Component_Tower::FromJson(const json &_j)
 {
-	if (_j.contains("Damage"))
-		fDamage = _j["Damage"];
-	if (_j.contains("Firing rate"))
-		fFiringRate = _j["Firing rate"];
+	if (_j.contains(JSON_DAMAGE))			fDamage = _j[JSON_DAMAGE];
+	if (_j.contains(JSON_FIRING_RATE))		fFiringRate = _j[JSON_FIRING_RATE];
+	if (_j.contains(JSON_RANGE))			fRange = _j[JSON_RANGE];
 }
 
 bool Component_Tower::CanFire() const
 {
 	return fFireDelay <= 0.f;
 }
+
+
 
 namespace TowerSystem
 {
@@ -114,13 +129,14 @@ namespace TowerSystem
 
 			if (tower.CanFire())
 			{
+				const float fTowerRangeSq = tower.fRange * tower.fRange;
 				float fShortestDistanceSq = -1.f;
 				entt::entity iBestEnemy = entt::null;
 				glm::vec3 vEnemyPos;
 
 				viewEnemy.each( [&]( entt::entity entityID, const Component_Enemy&, const Plop::Component_Transform& transformEnemy ) {
 					float fDistanceSq = transform.Distance2DSquare( transformEnemy );
-					if (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null)
+					if (fDistanceSq < fTowerRangeSq && (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null))
 					{
 						fShortestDistanceSq = fDistanceSq;
 						iBestEnemy = entityID;

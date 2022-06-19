@@ -1,7 +1,6 @@
 {
   "Entities": [
     {
-      "Children": [2253303594192775278],
       "Components": {
         "Camera": {
           "far": 20.899999618530273,
@@ -16,12 +15,12 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 9456491065477009195,
-      "HintID": 7,
+      "GUID": 2386109442958456680,
+      "HintID": 5,
       "Name": "Camera"
     },
     {
-      "Children": [12082912537500868387],
+      "Children": [9690251855750264975],
       "Components": {
         "EnemySpawner": {
           "Delay": 0.5,
@@ -39,8 +38,8 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 2253303594192775278,
-      "HintID": 6,
+      "GUID": 15932331247032044847,
+      "HintID": 4,
       "Name": "Spawner"
     },
     {
@@ -56,8 +55,8 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 12082912537500868387,
-      "HintID": 5,
+      "GUID": 9690251855750264975,
+      "HintID": 3,
       "Name": "Base"
     },
     {
@@ -75,7 +74,7 @@
         }
       },
       "GUID": 17811569128712175176,
-      "HintID": 1048580,
+      "HintID": 2,
       "Name": "Fire tower"
     },
     {
@@ -88,7 +87,7 @@
         }
       },
       "GUID": 11605988186001749786,
-      "HintID": 1048579,
+      "HintID": 1,
       "Name": "New Entity"
     },
     {
@@ -100,7 +99,8 @@
         },
         "Tower": {
           "Damage": 1.0,
-          "Firing rate": 1.0
+          "Firing rate": 5.0,
+          "Range": 2.0
         },
         "Transform": {
           "Position": [0.0,0.15129661560058594,0.0],
@@ -109,7 +109,7 @@
         }
       },
       "GUID": 2215445466011810460,
-      "HintID": 1048578,
+      "HintID": 0,
       "Name": "Canon"
     }
   ],

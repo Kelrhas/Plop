@@ -38,7 +38,8 @@
         },
         "Tower": {
           "Damage": 1.0,
-          "Firing rate": 1.0
+          "Firing rate": 1.0,
+          "Range": 5.0
         },
         "Transform": {
           "Position": [0.0,0.15129661560058594,0.0],
@@ -98,7 +99,8 @@
         },
         "Tower": {
           "Damage": 1.0,
-          "Firing rate": 1.0
+          "Firing rate": 1.0,
+          "Range": 5.0
         },
         "Transform": {
           "Position": [0.0,0.05859637260437012,0.0],
@@ -147,7 +149,8 @@
         },
         "Tower": {
           "Damage": 1.0,
-          "Firing rate": 1.0
+          "Firing rate": 1.0,
+          "Range": 5.0
         },
         "Transform": {
           "Position": [0.0,0.15129661560058594,0.0],

@@ -326,11 +326,11 @@ namespace Plop
 			if (m_bShowCameraSettings)
 				m_xEditorCamera->DisplaySettings( m_bShowCameraSettings );
 
-			PrefabManager::ImGuiRenderLibraries();
-
 			if (m_eLevelState == LevelState::EDITING ||
 				m_eLevelState == LevelState::PAUSED)
 			{
+				PrefabManager::ImGuiRenderLibraries();
+
 				ShowSceneGraph();
 
 				LevelBaseWeakPtr xCurrentLevel = Application::GetCurrentLevel();

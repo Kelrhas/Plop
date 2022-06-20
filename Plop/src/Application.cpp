@@ -103,6 +103,10 @@ namespace Plop
 				m_bEditorMode = false;
 				m_bShowSceneGraph = false;
 			}
+			if (sArg == "-noaudio")
+			{
+				m_bUseAudio = false;
+			}
 #endif
 		}
 	}
@@ -172,8 +176,11 @@ namespace Plop
 
 		Input::Init( m_xWindow->GetNativeWindow() );
 
-		g_pAudioManager = new AudioManager();
-		VERIFYM( g_pAudioManager->Init(), "Audio manager did not init properly" );
+		if (m_bUseAudio)
+		{
+			g_pAudioManager = new AudioManager();
+			VERIFYM(g_pAudioManager->Init(), "Audio manager did not init properly");
+		}
 
 		Renderer::Init();
 

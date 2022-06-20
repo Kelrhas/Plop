@@ -103,6 +103,7 @@ namespace Plop
 #ifndef _MASTER
 				bool			m_bEditorMode = true;
 				bool			m_bShowSceneGraph = true;
+				bool			m_bUseAudio = true;
 #endif
 
 				std::vector<ApplicationLayer*> m_vecAppLayers;

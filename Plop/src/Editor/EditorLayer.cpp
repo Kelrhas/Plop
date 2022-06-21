@@ -199,21 +199,22 @@ namespace Plop
 			xLevelFrameBufer->Bind();
 			Renderer::Clear();
 
+			CameraPtr xCamera;
 			if (IsSelectedEntityForLevel(Application::GetCurrentLevel()) && m_SelectedEntity.HasComponent<Component_Camera>())
 			{
-				CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
-				Renderer::PrepareScene(xCamera->GetProjectionMatrix(), xCamera->GetViewMatrix());
+				xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
 			}
 			else if (Application::Get()->IsUsingEditorCamera())
 			{
-				Renderer::PrepareScene( m_xEditorCamera->GetProjectionMatrix(), m_xEditorCamera->GetViewMatrix() );
+				xCamera = m_xEditorCamera;
 			}
 			else
 			{
-				ASSERT( !xLevel->GetCamera().expired() );
-				CameraPtr xCamera = xLevel->GetCamera().lock();
-				Renderer::PrepareScene( xCamera->GetProjectionMatrix(), xCamera->GetViewMatrix() );
+				xCamera = xLevel->GetCamera().lock();
 			}
+
+			if (xCamera)
+				Renderer::PrepareScene(xCamera->GetProjectionMatrix(), xCamera->GetViewMatrix());
 
 			if (m_eLevelState == EditorLayer::LevelState::RUNNING)
 			{
@@ -241,8 +242,11 @@ namespace Plop
 				}
 			}
 
-			Renderer::EndScene();
-			Renderer::GetFrameBuffer()->Unbind();
+			if (xCamera)
+			{
+				Renderer::EndScene();
+				Renderer::GetFrameBuffer()->Unbind();
+			}
 		}
 
 
@@ -329,11 +333,11 @@ namespace Plop
 			if (m_bShowCameraSettings)
 				m_xEditorCamera->DisplaySettings( m_bShowCameraSettings );
 
-			PrefabManager::ImGuiRenderLibraries();
-
 			if (m_eLevelState == LevelState::EDITING ||
 				m_eLevelState == LevelState::PAUSED)
 			{
+				PrefabManager::ImGuiRenderLibraries();
+
 				ShowSceneGraph();
 
 				LevelBaseWeakPtr xCurrentLevel = Application::GetCurrentLevel();
@@ -960,10 +964,13 @@ namespace Plop
 				if (m_SelectedEntity.HasComponent<Component_Camera>())
 				{
 					CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
-					mViewMatrix = xCamera->GetViewMatrix();
-					mProjMatrix = xCamera->GetProjectionMatrix();
-					bOrthographic = xCamera->IsOrthographic();
-					xCurrentCamera = xCamera;
+					if (xCamera)
+					{
+						mViewMatrix = xCamera->GetViewMatrix();
+						mProjMatrix = xCamera->GetProjectionMatrix();
+						bOrthographic = xCamera->IsOrthographic();
+						xCurrentCamera = xCamera;
+					}
 				}
 
 				ImGuizmo::SetOrthographic( bOrthographic );
@@ -1044,6 +1051,7 @@ namespace Plop
 		if (m_xEditingLevel)
 			m_xEditingLevel->Shutdown();
 		m_xEditingLevel = Application::Get()->CreateNewLevel();
+		m_xEditingLevel->Init();
 		m_SelectedEntity.Reset();
 		m_sCurrentLevel.clear();
 	}

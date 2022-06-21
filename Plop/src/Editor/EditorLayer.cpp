@@ -56,7 +56,7 @@ namespace Plop
 
 
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::MOVE,
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_MOVE,
 											[this] (const UndoAction::UndoData& _data) -> bool
 		{
 			if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
@@ -78,7 +78,7 @@ namespace Plop
 			return false;
 		});
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::ROTATE,
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_ROTATE,
 											[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityQuat.enttID))
@@ -100,7 +100,7 @@ namespace Plop
 				return false;
 			});
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::SCALE,
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_SCALE,
 											[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
@@ -122,7 +122,7 @@ namespace Plop
 				return false;
 			});
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::GIZMO_MANIPULATE,
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_GIZMO_MANIPULATE,
 											[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityMat4.enttID))
@@ -965,7 +965,7 @@ namespace Plop
 					{
 						if (bUsing)
 						{
-							UndoManager::RegisterAction(UndoAction::GizmoManipulateEntity(m_SelectedEntity, mBackup, mTransform));
+							UndoManager::RegisterAction(UndoAction::EntityGizmoManipulate(m_SelectedEntity, mBackup, mTransform));
 							bUsing = false;
 						}
 					}

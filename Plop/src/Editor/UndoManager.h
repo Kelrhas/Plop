@@ -33,10 +33,10 @@ namespace Plop
 
 		enum class Type
 		{
-			MOVE,
-			ROTATE,
-			SCALE,
-			GIZMO_MANIPULATE,
+			ENTITY_MOVE,
+			ENTITY_ROTATE,
+			ENTITY_SCALE,
+			ENTITY_GIZMO_MANIPULATE,
 
 			COUNT
 		};
@@ -73,10 +73,10 @@ namespace Plop
 		Type m_eType;
 
 	public:
-		[[nodiscard]] static UndoAction MoveEntity(entt::entity _enttID, const glm::vec3 &_vOld, const glm::vec3 &_vNew);
-		[[nodiscard]] static UndoAction RotateEntity(entt::entity _enttID, const glm::quat &_qOld, const glm::quat &_qNew);
-		[[nodiscard]] static UndoAction ScaleEntity(entt::entity _enttID, const glm::vec3 &_vOld, const glm::vec3 &_vNew);
-		[[nodiscard]] static UndoAction GizmoManipulateEntity(entt::entity _enttID, const glm::mat4 &_mOld, const glm::mat4& _mNew);
+		[[nodiscard]] static UndoAction EntityMove(entt::entity _enttID, const glm::vec3 &_vOld, const glm::vec3 &_vNew);
+		[[nodiscard]] static UndoAction EntityRotate(entt::entity _enttID, const glm::quat &_qOld, const glm::quat &_qNew);
+		[[nodiscard]] static UndoAction EntityScale(entt::entity _enttID, const glm::vec3 &_vOld, const glm::vec3 &_vNew);
+		[[nodiscard]] static UndoAction EntityGizmoManipulate(entt::entity _enttID, const glm::mat4& _mOld, const glm::mat4& _mNew);
 	};
 
 	class UndoManager

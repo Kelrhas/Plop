@@ -228,7 +228,8 @@ namespace Plop
 
 		EventDispatcher::Destroy();
 
-		VERIFY( g_pAudioManager->Shutdown() );
+		if(g_pAudioManager)
+			VERIFY( g_pAudioManager->Shutdown() );
 
 		AssetLoader::ClearSoundCache();
 

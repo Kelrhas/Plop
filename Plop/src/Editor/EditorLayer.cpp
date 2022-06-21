@@ -20,6 +20,7 @@
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/LevelBase.h"
+#include "ECS/Serialisation.h"
 #include "Editor/UndoManager.h"
 #include "ECS/PrefabManager.h"
 #include "Input/Input.h"
@@ -41,6 +42,12 @@ namespace Plop
 		static const ImVec2 vEditorIconSize( 48, 48 );
 		static ImGuizmo::OPERATION eGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		static ImGuizmo::MODE eGuizmoSpace = ImGuizmo::MODE::LOCAL;
+
+		enum class CopyType : U8
+		{
+			NONE,
+			ENTITY,
+		};
 	}
 
 #ifndef USE_COMPONENT_MGR
@@ -350,7 +357,7 @@ namespace Plop
 							if (ImGui::IsItemHovered())
 							{
 #ifdef USE_ENTITY_HANDLE
-								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_hEntity.entity()));
+								ImGui::SetTooltip("GUID: %llX\nEnTT id:%llu", m_SelectedEntity.GetComponent<Component_Name>().guid, entt::to_integral(m_SelectedEntity.m_hEntity.entity()));
 #else
 								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_EntityId));
 #endif
@@ -642,10 +649,22 @@ namespace Plop
 				else
 					SaveLevel();
 			}
-			if (Input::IsKeyPressed(KeyCode::KEY_D) && m_SelectedEntity)
+			if (m_SelectedEntity)
 			{
-				DuplicateEntity(m_SelectedEntity);
+				if (Input::IsKeyPressed(KeyCode::KEY_D))
+				{
+					DuplicateEntity(m_SelectedEntity);
+				}
+				if (Input::IsKeyPressed(KeyCode::KEY_C))
+				{
+					CopyEntity(m_SelectedEntity);
+				}
 			}
+			if (Input::IsKeyPressed(KeyCode::KEY_V) && CanPasteEntity(m_SelectedEntity))
+			{
+				PasteEntity(m_SelectedEntity);
+			}
+
 			if (Input::IsKeyPressed(KeyCode::KEY_Z))
 			{
 				UndoManager::Undo();
@@ -768,11 +787,19 @@ namespace Plop
 							Entity e = xLevel->CreateEntity();
 							e.SetParent( _Entity );
 						}
-						if (ImGui::MenuItem( "Duplicate entity" ))
+						if (ImGui::MenuItem("Duplicate entity", "CTRL + D"))
 						{
-							DuplicateEntity( _Entity );
+							DuplicateEntity(_Entity);
 						}
-						if (ImGui::MenuItem( "Delete entity" ))
+						if (ImGui::MenuItem("Copy entity", "CTRL + C"))
+						{
+							CopyEntity(_Entity);
+						}
+						if (ImGui::MenuItem("Paste entity", "CTRL + V", nullptr, CanPasteEntity(_Entity)))
+						{
+							PasteEntity(_Entity);
+						}
+						if (ImGui::MenuItem( "Delete entity", "Del" ))
 							entityToDestroy = _Entity;
 						ImGui::Separator();
 
@@ -1139,7 +1166,37 @@ namespace Plop
 		return dupEntity;
 	}
 
+	void EditorLayer::CopyEntity(const Entity& _entity)
+	{
+		json j = _entity.ToJson();
+		j[JSON_CHILDREN].clear(); // do not include children
+		j[JSON_COPY_TYPE] = Private::CopyType::ENTITY;
+		ImGui::SetClipboardText(j.dump(2).c_str());
+	}
 
+	bool EditorLayer::CanPasteEntity(const Entity& _entityParent)
+	{
+		json j;
+		try
+		{
+			j = json::parse(ImGui::GetClipboardText());
+			return j.contains(JSON_COPY_TYPE) && j[JSON_COPY_TYPE] == Private::CopyType::ENTITY;
+		}
+		catch (json::parse_error&)
+		{
+		}
+
+		return false;
+	}
+
+	Entity EditorLayer::PasteEntity(Entity& _entityParent)
+	{
+		json j = json::parse(ImGui::GetClipboardText());
+		Entity newEntity = Application::GetCurrentLevel().lock()->CreateEntity(j[JSON_NAME]);
+		newEntity.FromJson(j);
+		newEntity.SetParent(_entityParent);
+		return newEntity;
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////

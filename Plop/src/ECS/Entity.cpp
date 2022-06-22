@@ -47,6 +47,18 @@ namespace Plop
 		 m_hEntity = static_cast<entt::entity>(entt::null);
 	}
 
+	bool Entity::IsFromLevel(GUID _guidLevel) const
+	{
+		if (m_hEntity)
+		{
+			GUID *pGUID = m_hEntity.registry().try_ctx<GUID>();
+			ASSERTM(pGUID, "No GUID for the level of this Entity");
+			if (pGUID && *pGUID == _guidLevel)
+				return true;
+		}
+		return false;
+	}
+
 #pragma endregion
 
 #pragma region OPERATORS

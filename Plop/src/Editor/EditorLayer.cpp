@@ -828,8 +828,8 @@ namespace Plop
 							}
 							else if (const ImGuiPayload* pPayload = ImGui::AcceptDragDropPayload( "InstantiatePrefab" ))
 							{
-								ASSERTM( pPayload->DataSize == sizeof( Prefab ), "Wrong Drag&Drop payload" );
-								PrefabManager::InstantiatePrefab((Prefab*)pPayload->Data, _Entity.m_hEntity.registry(), _Entity);
+								ASSERTM( pPayload->DataSize == sizeof( GUID ), "Wrong Drag&Drop payload" );
+								PrefabManager::InstantiatePrefab(*(GUID*)pPayload->Data, _Entity.m_hEntity.registry(), _Entity);
 							}
 							ImGui::EndDragDropTarget();
 						}
@@ -885,8 +885,8 @@ namespace Plop
 					}
 					else if (const ImGuiPayload *pPayload = ImGui::AcceptDragDropPayload("InstantiatePrefab"))
 					{
-						ASSERTM(pPayload->DataSize == sizeof(Prefab), "Wrong Drag&Drop payload");
-						PrefabManager::InstantiatePrefab((Prefab *)pPayload->Data, Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), entt::null);
+						ASSERTM(pPayload->DataSize == sizeof(GUID), "Wrong Drag&Drop payload");
+						PrefabManager::InstantiatePrefab(*(GUID *)pPayload->Data, Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), entt::null);
 					}
 					ImGui::EndDragDropTarget();
 				}

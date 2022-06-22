@@ -31,7 +31,8 @@ namespace Plop
 	public:
 		static bool					CreatePrefab(Entity _entity, const String &_sLibName);
 		static void					DeletePrefab(const Prefab *_pPrefab);
-		static void					InstantiatePrefab(Prefab* _pPrefab, entt::registry &_reg, entt::entity _parent);
+		static Entity				InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent);
+		//static Entity				InstantiatePrefab(Prefab* _pPrefab, entt::registry &_reg, entt::entity _parent);
 
 		static bool					CreatePrefabLibrary(const String &_sName, const StringPath &_sPath);
 		static bool					DoesPrefabLibExist(const String &_sName);
@@ -50,6 +51,7 @@ namespace Plop
 
 	private:
 		static void					SaveLibraries();
+		static Entity				InstantiatePrefab(PrefabLibrary &_lib, Prefab& _prefab, entt::registry &_reg, entt::entity _parent);
 	};
 }
 

@@ -71,7 +71,21 @@ usage:
 		}
 	}
 
-	void PrefabManager::InstantiatePrefab(Prefab *_pPrefab, entt::registry &_reg, entt::entity _parent)
+	Entity PrefabManager::InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent)
+	{
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_guid](const Prefab &_p) { return _p.guid == _guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				return InstantiatePrefab(lib, *it, _reg, _parent);
+			}
+		}
+
+		return Entity();
+	}
+
+	/*Entity PrefabManager::InstantiatePrefab(Prefab *_pPrefab, entt::registry &_reg, entt::entity _parent)
 	{
 		ASSERT(_pPrefab);
 		for (auto &[sKey, lib] : s_mapPrefabLibs)
@@ -79,34 +93,12 @@ usage:
 			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_pPrefab](const Prefab &_p) { return _p.guid == _pPrefab->guid; });
 			if (it != lib.vecPrefabs.end())
 			{
-				auto &nameComp = lib.registry.get<Component_Name>(_pPrefab->rootId);
-				Log::Info("Instantiating prefab {}", nameComp.sName);
-
-				auto newId = CopyEntityHierarchyToRegistry(entt::handle(lib.registry, _pPrefab->rootId), _reg);
-
-
-				/*
-				* To support instantiating prefabs outside of edition (which is planned),
-				* we need to make sure the recieving level gets the update to
-				* bind GUID to entities
-				*/
-				ASSERT(Application::Get()->GetEditor().IsEditing());
-
-
-
-
-				Entity child(newId, _reg);
-
-				if (_parent != entt::null)
-				{
-					Entity parent(_parent, _reg);
-					child.SetParent(parent);
-				}
-
-				EventDispatcher::SendEvent(PrefabInstantiatedEvent(child));
+				return InstantiatePrefab(lib, *it, _reg, _parent);
 			}
 		}
-	}
+
+		return Entity();
+	}*/
 
 	bool PrefabManager::CreatePrefabLibrary(const String &_sName, const StringPath &_sPath)
 	{
@@ -122,7 +114,7 @@ usage:
 	{
 		return s_mapPrefabLibs.find(_sName) != s_mapPrefabLibs.end();
 	}
-	
+
 	void PrefabManager::ImGuiRenderLibraries()
 	{
 		if (ImGui::Begin("Prefab libraries"))
@@ -169,7 +161,7 @@ usage:
 
 								ImGui::PushID((int)(uint64_t)comp.guid);
 								ImGui::Indent();
-								
+
 								ImGui::Selectable(comp.sName.c_str(), false);
 
 
@@ -184,7 +176,7 @@ usage:
 								{
 									if (ImGui::BeginDragDropSource())
 									{
-										ImGui::SetDragDropPayload("InstantiatePrefab", &prefab, sizeof(prefab));
+										ImGui::SetDragDropPayload("InstantiatePrefab", &prefab.guid, sizeof(prefab.guid));
 
 										ImGui::Text(comp.sName.c_str());
 										ImGui::EndDragDropSource();
@@ -235,58 +227,23 @@ usage:
 		ImGui::End();
 	}
 
-	void PrefabManager::SaveLibraries()
-	{
-		for (const auto &itPair : s_mapPrefabLibs)
-		{
-			auto &sKey = itPair.first;
-			auto &lib = itPair.second;
-
-			StringPath filePath = lib.sPath.is_absolute() ? lib.sPath : Application::Get()->GetRootDirectory() / lib.sPath;
-			std::filesystem::create_directories(filePath.parent_path());
-			std::ofstream libraryFile(filePath, std::ios::out | std::ios::trunc);
-			if (libraryFile.is_open())
-			{
-				json jLib;
-				jLib[JSON_NAME] = sKey;
-
-
-				lib.registry.each([&jLib, &lib](entt::entity enttID) {
-					// TODO maybe merge with Entity::ToJson ?
-					auto &nameComp = lib.registry.get<Component_Name>(enttID);
-					json j;
-					j[JSON_NAME] = nameComp.sName;
-					j[JSON_GUID] = nameComp.guid;
-					const auto &graphNode = lib.registry.get<Component_GraphNode>(enttID);
-					auto childEntity = graphNode.firstChild;
-					while (childEntity != entt::null)
-					{
-						auto &nameCompChild = lib.registry.get<Component_Name>(childEntity);
-						j[JSON_CHILDREN].push_back(nameCompChild.guid);
-
-						childEntity = lib.registry.get<Component_GraphNode>(childEntity).nextSibling;
-					}
-
-					ComponentManager::ToJson(lib.registry, enttID, j);
-					jLib[JSON_ENTITIES].emplace_back(std::move(j));
-				});
-
-				for (const auto &prefab : lib.vecPrefabs)
-				{
-					auto &nameComp = lib.registry.get<Component_Name>(prefab.rootId);
-					json &jPrefab = jLib[JSON_PREFABS].emplace_back();
-					jPrefab[JSON_ROOT] = nameComp.guid;
-					jPrefab[JSON_NAME] = nameComp.sName;
-					jPrefab[JSON_GUID] = prefab.guid;
-				}
-
-				libraryFile << jLib.dump(2);
-			}
-		}
-	}
-
 	void PrefabManager::LoadPrefabLibrary(const StringPath &_sPath)
 	{
+		bool bAlreadyLoaded = false;
+		VisitAllLibraries([&](const String&, const PrefabLibrary &lib) {
+			if (lib.sPath == _sPath)
+			{
+				bAlreadyLoaded = true;
+				return VisitorFlow::BREAK;
+			}
+
+			return VisitorFlow::CONTINUE;
+		});
+
+		if (bAlreadyLoaded)
+			return;
+
+
 		StringPath filePath = _sPath.is_absolute() ? _sPath : Application::Get()->GetRootDirectory() / _sPath;
 		std::filesystem::create_directories(filePath.parent_path());
 		std::ifstream libraryFile(filePath, std::ios::in);
@@ -376,4 +333,75 @@ usage:
 		else
 			Plop::Log::Error("Prefab library not found: {}", _sPath.string());
 	}
+
+	void PrefabManager::SaveLibraries()
+	{
+		for (const auto &itPair : s_mapPrefabLibs)
+		{
+			auto &sKey = itPair.first;
+			auto &lib = itPair.second;
+
+			StringPath filePath = lib.sPath.is_absolute() ? lib.sPath : Application::Get()->GetRootDirectory() / lib.sPath;
+			std::filesystem::create_directories(filePath.parent_path());
+			std::ofstream libraryFile(filePath, std::ios::out | std::ios::trunc);
+			if (libraryFile.is_open())
+			{
+				json jLib;
+				jLib[JSON_NAME] = sKey;
+
+
+				lib.registry.each([&jLib, &lib](entt::entity enttID) {
+					// TODO maybe merge with Entity::ToJson ?
+					auto &nameComp = lib.registry.get<Component_Name>(enttID);
+					json j;
+					j[JSON_NAME] = nameComp.sName;
+					j[JSON_GUID] = nameComp.guid;
+					const auto &graphNode = lib.registry.get<Component_GraphNode>(enttID);
+					auto childEntity = graphNode.firstChild;
+					while (childEntity != entt::null)
+					{
+						auto &nameCompChild = lib.registry.get<Component_Name>(childEntity);
+						j[JSON_CHILDREN].push_back(nameCompChild.guid);
+
+						childEntity = lib.registry.get<Component_GraphNode>(childEntity).nextSibling;
+					}
+
+					ComponentManager::ToJson(lib.registry, enttID, j);
+					jLib[JSON_ENTITIES].emplace_back(std::move(j));
+				});
+
+				for (const auto &prefab : lib.vecPrefabs)
+				{
+					auto &nameComp = lib.registry.get<Component_Name>(prefab.rootId);
+					json &jPrefab = jLib[JSON_PREFABS].emplace_back();
+					jPrefab[JSON_ROOT] = nameComp.guid;
+					jPrefab[JSON_NAME] = nameComp.sName;
+					jPrefab[JSON_GUID] = prefab.guid;
+				}
+
+				libraryFile << jLib.dump(2);
+			}
+		}
+	}
+
+	Entity PrefabManager::InstantiatePrefab(PrefabLibrary &_lib, Prefab &_prefab, entt::registry &_reg, entt::entity _parent)
+	{
+		auto &nameComp = _lib.registry.get<Component_Name>(_prefab.rootId);
+		Log::Info("Instantiating prefab {}", nameComp.sName);
+
+		auto newId = CopyEntityHierarchyToRegistry(entt::handle(_lib.registry, _prefab.rootId), _reg);
+
+		Entity child(newId, _reg);
+
+		if (_parent != entt::null)
+		{
+			Entity parent(_parent, _reg);
+			child.SetParent(parent);
+		}
+
+		EventDispatcher::SendEvent(PrefabInstantiatedEvent(child));
+
+		return child;
+	}
+
 }

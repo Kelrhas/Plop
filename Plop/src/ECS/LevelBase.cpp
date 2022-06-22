@@ -51,24 +51,33 @@ namespace Plop
 		if (_event.GetEventType() == EventType::PrefabInstantiatedEvent)
 		{
 			PrefabInstantiatedEvent &entityEvent = (PrefabInstantiatedEvent &)_event;
-			std::stack<entt::entity> todo;
-			todo.push(entityEvent.entity);
 
+			GUID *pGUIDLevel = m_ENTTRegistry.try_ctx<GUID>();
+			ASSERTM(pGUIDLevel, "No GUID for this level");
+			if (!pGUIDLevel)
+				return false;
 
-			while (!todo.empty())
+			if (entityEvent.entity.IsFromLevel(*pGUIDLevel))
 			{
-				entt::entity enttID = todo.top();
-				todo.pop();
+				std::stack<entt::entity> todo;
+				todo.push(entityEvent.entity);
 
-				auto &nameComp = m_ENTTRegistry.get<Component_Name>(enttID);
-				ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
-				m_mapGUIDToEntt[nameComp.guid] = enttID;
 
-				auto &graphComp = m_ENTTRegistry.get<Component_GraphNode>(enttID);
-				if (graphComp.firstChild != entt::null)
-					todo.push(graphComp.firstChild);
-				if (graphComp.nextSibling != entt::null)
-					todo.push(graphComp.nextSibling);
+				while (!todo.empty())
+				{
+					entt::entity enttID = todo.top();
+					todo.pop();
+
+					auto &nameComp = m_ENTTRegistry.get<Component_Name>(enttID);
+					ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
+					m_mapGUIDToEntt[nameComp.guid] = enttID;
+
+					auto &graphComp = m_ENTTRegistry.get<Component_GraphNode>(enttID);
+					if (graphComp.firstChild != entt::null)
+						todo.push(graphComp.firstChild);
+					if (graphComp.nextSibling != entt::null)
+						todo.push(graphComp.nextSibling);
+				}
 			}
 		}
 

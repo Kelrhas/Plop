@@ -50,6 +50,7 @@ namespace Plop
 #else
 		operator entt::entity() const { return m_EntityId; }
 #endif
+		bool												IsFromLevel(GUID _guidLevel) const;
 
 		//// HIERARCHY
 	public:

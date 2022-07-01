@@ -93,17 +93,17 @@ struct EnumFlags
 		return *this;
 	}
 
-	bool Has( Enum e )
+	bool Has( Enum e ) const
 	{
 		return m_bitset.test( (size_t)e );
 	}
 
-	bool HasAll( const EnumFlags<Enum>& e )
+	bool HasAll( const EnumFlags<Enum>& e ) const
 	{
 		return (m_bitset & e.m_bitset) == e.m_bitset;
 	}
 
-	bool HasOne( const EnumFlags<Enum>& e )
+	bool HasOne( const EnumFlags<Enum>& e ) const
 	{
 		return (m_bitset & e.m_bitset) != 0;
 	}

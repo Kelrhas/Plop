@@ -272,7 +272,7 @@ namespace Plop
 #else
 			Entity entity = { _entityID, Application::GetCurrentLevel() };
 #endif
-			if (!entity.HasFlag( EntityFlag::DYNAMIC_GENERATION ))
+			if (!entity.HasFlag( EntityFlag::NO_SERIALISATION))
 			{
 				String& sName = entity.GetComponent<Component_Name>().sName;
 				j[JSON_ENTITIES].push_back( entity.ToJson() );
@@ -313,9 +313,13 @@ namespace Plop
 	{
 		using tuple_t = std::tuple<SpritePtr, glm::mat4, entt::id_type>;
 		std::vector<tuple_t> vecSpriteMat;
-		auto& group = m_ENTTRegistry.group<Component_Transform, Component_SpriteRenderer>();
+		auto& group = m_ENTTRegistry.group<Component_GraphNode, Component_Transform, Component_SpriteRenderer>();
 		for (auto entityID : group)
 		{
+			Component_GraphNode& graphComp = group.get<Component_GraphNode>(entityID);
+			if (graphComp.uFlags.Has(EntityFlag::HIDE))
+				continue;
+
 			Component_SpriteRenderer& renderer = group.get<Component_SpriteRenderer>( entityID );
 			if (!renderer.xSprite)
 				continue;

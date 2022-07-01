@@ -7,9 +7,13 @@ namespace Plop
 	enum class EntityFlag
 	{
 		NONE,
-		DYNAMIC_GENERATION, // means no serialization
+		NO_SERIALISATION,					// means no serialization
+		HIDE,								// do not render this entity (does not take care of children)
 
-		COUNT
+		COUNT,
+
+		// shortcuts & aliases
+		DYNAMIC_GENERATION = NO_SERIALISATION,
 	};
 	using EntityFlagBits = EnumFlags<EntityFlag>;
 }

@@ -663,6 +663,10 @@ namespace Plop
 				{
 					CopyEntity(m_SelectedEntity);
 				}
+				if (Input::IsKeyPressed(KeyCode::KEY_H))
+				{
+					ToggleEntity(m_SelectedEntity);
+				}
 			}
 			if (Input::IsKeyPressed(KeyCode::KEY_V) && CanPasteEntity(m_SelectedEntity))
 			{
@@ -678,12 +682,6 @@ namespace Plop
 				UndoManager::Redo();
 			}
 
-#ifdef _DEBUG
-			if (Input::IsKeyPressed(KeyCode::KEY_H))
-			{
-				UndoManager::Clear();
-			}
-#endif
 		}
 
 		if (m_SelectedEntity)
@@ -732,8 +730,8 @@ namespace Plop
 					bool bSelected = _Entity == m_SelectedEntity;
 					bool bOpen = itEntityInfo->second.bHierarchyOpen;
 
-					const auto& graphNodeParent = registry.get<Component_GraphNode>( _Entity );
-					bool bHasChildren = graphNodeParent.firstChild != entt::null;
+					const auto& graphComp = registry.get<Component_GraphNode>( _Entity );
+					bool bHasChildren = graphComp.firstChild != entt::null;
 
 					if (bHasChildren)
 					{
@@ -802,6 +800,10 @@ namespace Plop
 						if (ImGui::MenuItem("Paste entity", "CTRL + V", nullptr, CanPasteEntity(_Entity)))
 						{
 							PasteEntity(_Entity);
+						}
+						if (ImGui::MenuItem("Visible", "CTRL + H", _Entity.IsVisible()))
+						{
+							ToggleEntity(_Entity);
 						}
 						if (ImGui::MenuItem( "Delete entity", "Del" ))
 							entityToDestroy = _Entity;
@@ -1206,6 +1208,10 @@ namespace Plop
 		return newEntity;
 	}
 
+	void EditorLayer::ToggleEntity(Entity& _entity)
+	{
+		_entity.SetVisible(!_entity.IsVisible());
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// EditorGizmo

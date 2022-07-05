@@ -65,29 +65,29 @@ namespace Plop
 
 
 		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_MOVE,
-											[this] (const UndoAction::UndoData& _data) -> bool
-		{
-			if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
-				auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
-				transformComp.SetLocalPosition(_data.entityVec3.vOld);
-				return true;
-			}
-			return false;
-		},
-											[this] (const UndoAction::UndoData& _data) -> bool
-		{
-			if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+					transformComp.SetLocalPosition(_data.entityVec3.vOld);
+					return true;
+				}
+				return false;
+			},
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
-				auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
-				transformComp.SetLocalPosition(_data.entityVec3.vNew);
-				return true;
-			}
-			return false;
-		});
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+					transformComp.SetLocalPosition(_data.entityVec3.vNew);
+					return true;
+				}
+				return false;
+			});
 
 		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_ROTATE,
-											[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityQuat.enttID))
 				{
@@ -97,7 +97,7 @@ namespace Plop
 				}
 				return false;
 			},
-												[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityQuat.enttID))
 				{
@@ -109,7 +109,7 @@ namespace Plop
 			});
 
 		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_SCALE,
-											[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
 				{
@@ -119,7 +119,7 @@ namespace Plop
 				}
 				return false;
 			},
-												[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
 				{
@@ -131,7 +131,7 @@ namespace Plop
 			});
 
 		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_GIZMO_MANIPULATE,
-											[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityMat4.enttID))
 				{
@@ -141,12 +141,34 @@ namespace Plop
 				}
 				return false;
 			},
-												[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityMat4.enttID))
 				{
 					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityMat4.enttID);
 					transformComp.SetWorldMatrix(_data.entityMat4.mNew);
+					return true;
+				}
+				return false;
+			});
+
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_VISIBILITY,
+			[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVisibility.enttID))
+				{
+					Entity e(_data.entityVisibility.enttID, m_xEditingLevel->GetEntityRegistry());
+					e.SetVisible(_data.entityVisibility.bValueBefore);
+					return true;
+				}
+				return false;
+			},
+			[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVisibility.enttID))
+				{
+					Entity e(_data.entityVisibility.enttID, m_xEditingLevel->GetEntityRegistry());
+					e.SetVisible(_data.entityVisibility.bValueAfter);
 					return true;
 				}
 				return false;
@@ -1004,7 +1026,7 @@ namespace Plop
 					{
 						if (bUsing)
 						{
-							UndoManager::RegisterAction(UndoAction::EntityGizmoManipulate(m_SelectedEntity, mBackup, mTransform));
+							UndoManager::PushAction(UndoAction::EntityGizmoManipulate(m_SelectedEntity, mBackup, mTransform));
 							bUsing = false;
 						}
 					}
@@ -1213,7 +1235,10 @@ namespace Plop
 
 	void EditorLayer::ToggleEntity(Entity& _entity)
 	{
-		_entity.SetVisible(!_entity.IsVisible());
+		bool bWasVisible = _entity.IsVisible();
+		_entity.SetVisible(!bWasVisible);
+
+		UndoManager::PushAction(UndoAction::EntityVisibility(_entity, bWasVisible, !bWasVisible));
 	}
 
 	//////////////////////////////////////////////////////////////////////////

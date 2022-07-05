@@ -44,6 +44,16 @@ namespace Plop
 		return action;
 	}
 
+	UndoAction UndoAction::EntityVisibility(entt::entity _enttID, bool _bBefore, bool _bAfter)
+	{
+		UndoAction action;
+		action.m_eType = Type::ENTITY_VISIBILITY;
+		action.m_data.entityVisibility.enttID = _enttID;
+		action.m_data.entityVisibility.bValueBefore = _bBefore;
+		action.m_data.entityVisibility.bValueAfter = _bAfter;
+		return action;
+	}
+
 	std::stack<UndoAction> UndoManager::m_undoStack;
 	std::stack<UndoAction> UndoManager::m_redoStack;
 	UndoManager::Callback UndoManager::m_undoCommands[(std::size_t)UndoAction::Type::COUNT];
@@ -55,7 +65,7 @@ namespace Plop
 		m_redoCommands[(std::size_t)_eType] = _cbRedo;
 	}
 
-	void UndoManager::RegisterAction(UndoAction &&_action)
+	void UndoManager::PushAction(UndoAction &&_action)
 	{
 		m_undoStack.push(_action);
 
@@ -84,7 +94,6 @@ namespace Plop
 				}
 				m_undoStack.pop();
 			}
-
 		}
 	}
 

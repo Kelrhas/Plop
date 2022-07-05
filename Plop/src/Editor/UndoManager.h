@@ -8,16 +8,21 @@ namespace Plop
 {
 	/*
 	
-	usage:
+		Usage:
 
-	register what to do with
-	UndoManager::RegisterActionCommands([](whatev){ return true;}, [](whatev){ return true;});
+		- register what to do with
+		UndoManager::RegisterActionCommands([](const UndoAction::UndoData&)->bool{ foo; return true;}, [](const UndoAction::UndoData&)->bool{ bar; return true;});
 
-	register an action with
-	UndoManager::RegisterAction(UndoAction::Move(vOldPos, vNewPos));
+		- register an action with
+		UndoManager::RegisterAction(UndoAction::Whatever(old, new));
 
-	undo with
-	UndoManager::Undo();	
+		- undo with
+		UndoManager::Undo();	
+
+
+		TODO:
+		- use a circle buffer to avoid having to many operations
+		- add Undo group to register multiple actions into one operation
 	
 	*/
 
@@ -37,6 +42,7 @@ namespace Plop
 			ENTITY_ROTATE,
 			ENTITY_SCALE,
 			ENTITY_GIZMO_MANIPULATE,
+			ENTITY_VISIBILITY,
 
 			COUNT
 		};
@@ -45,6 +51,12 @@ namespace Plop
 		{
 			union
 			{
+				struct
+				{
+					entt::entity enttID;
+					bool bValueBefore;
+					bool bValueAfter;
+				} entityVisibility;
 				struct
 				{
 					entt::entity enttID;
@@ -77,17 +89,22 @@ namespace Plop
 		[[nodiscard]] static UndoAction EntityRotate(entt::entity _enttID, const glm::quat &_qOld, const glm::quat &_qNew);
 		[[nodiscard]] static UndoAction EntityScale(entt::entity _enttID, const glm::vec3 &_vOld, const glm::vec3 &_vNew);
 		[[nodiscard]] static UndoAction EntityGizmoManipulate(entt::entity _enttID, const glm::mat4& _mOld, const glm::mat4& _mNew);
+		[[nodiscard]] static UndoAction EntityVisibility(entt::entity _enttID, bool _bBefore, bool _bAfter);
 	};
 
 	class UndoManager
 	{
 	public:
 
+		/// <summary>
+		/// return true if the undo/redo was correctly applied
+		/// return false otherwise (allows to see discrepancies and to avoid adding back to the redo/undo stack)
+		/// </summary>
 		using Callback = std::function<bool(const UndoAction::UndoData&)>;
 
 		static void RegisterActionCommands(UndoAction::Type _eType, Callback &&_cbUndo, Callback &&_cbRedo);
 
-		static void RegisterAction(UndoAction &&_action);
+		static void PushAction(UndoAction &&_action);
 		static void Undo();
 		static void Redo();
 		static void Clear();

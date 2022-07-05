@@ -22,6 +22,7 @@
 #include "ECS/LevelBase.h"
 #include "ECS/Serialisation.h"
 #include "Editor/UndoManager.h"
+#include "Editor/EditorStyle.h"
 #include "ECS/PrefabManager.h"
 #include "Input/Input.h"
 #include "Events/EventDispatcher.h"
@@ -774,11 +775,13 @@ namespace Plop
 					}
 					else
 					{
+						ImGui::PushStyleColor(graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID);
 						if (ImGui::Selectable( sName.c_str(), bSelected ))
 						{
 							m_SelectedEntity = _Entity;
 							m_eEditMode = EditMode::NONE;
 						}
+						ImGui::PopStyleColor(graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID);
 					}
 
 					if (ImGui::BeginPopupContextItem( "EntityContextMenu" ))

@@ -27,8 +27,11 @@ constexpr glm::vec3 VEC3_Z(0, 0, 1);
 #define VEC3_FORWARD -VEC3_Z
 
 
-constexpr glm::vec4 COLOR_BLACK	( 0, 0, 0, 1 );
-constexpr glm::vec4 COLOR_RED	( 1, 0, 0, 1 );
-constexpr glm::vec4 COLOR_GREEN	( 0, 1, 0, 1 );
-constexpr glm::vec4 COLOR_BLUE	( 0, 0, 1, 1 );
-constexpr glm::vec4 COLOR_WHITE	( 1, 1, 1, 1 );
+constexpr glm::vec4 COLOR_BLACK		( 0, 0, 0, 1 );
+constexpr glm::vec4 COLOR_RED		( 1, 0, 0, 1 );
+constexpr glm::vec4 COLOR_GREEN		( 0, 1, 0, 1 );
+constexpr glm::vec4 COLOR_BLUE		( 0, 0, 1, 1 );
+constexpr glm::vec4 COLOR_WHITE		( 1, 1, 1, 1 );
+constexpr glm::vec4 COLOR_GREY64	( 0.25f, 0.25f, 0.25f, 1 );
+constexpr glm::vec4 COLOR_GREY128	( 0.5f, 0.5f, 0.5f, 1 );
+constexpr glm::vec4 COLOR_GREY192	( 0.75f, 0.75f, 0.75f, 1 );

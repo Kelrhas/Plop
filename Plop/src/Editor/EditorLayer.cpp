@@ -934,6 +934,10 @@ namespace Plop
 
 			if (IsSelectedEntityForLevel(Application::GetCurrentLevel()))
 			{
+				glm::mat4 mTransform = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldMatrix();
+
+				EditorGizmo::Cube(glm::vec3(0.5f, 0.5f, 0.01f), mTransform);
+
 				if (m_SelectedEntity.HasComponent<Component_Camera>())
 				{
 					CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
@@ -947,7 +951,6 @@ namespace Plop
 				}
 
 				ImGuizmo::SetOrthographic( bOrthographic );
-				glm::mat4 mTransform = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldMatrix();
 
 				if (ImGuizmo::Manipulate( glm::value_ptr( mViewMatrix ), glm::value_ptr( mProjMatrix ),
 					Private::eGuizmoOperation, Private::eGuizmoSpace, glm::value_ptr( mTransform ) ))
@@ -1206,7 +1209,7 @@ namespace Plop
 			drawList->PopClipRect();
 	}
 
-	void EditorGizmo::Line( const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3 _vColor /*= VEC3_1*/ )
+	void EditorGizmo::Line( const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3 _vColor /*= COLOR_WHITE*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "Scene" ); // TODO: handle multiple scene viewport
 		ImDrawList* drawList = window ? window->DrawList : ImGui::GetBackgroundDrawList();
@@ -1222,28 +1225,28 @@ namespace Plop
 			drawList->PopClipRect();
 	}
 
-	void EditorGizmo::AABB( const glm::vec3& _vMin, const glm::vec3& _vMax, glm::vec3 _vColor /*= VEC3_1*/ )
+	void EditorGizmo::AABB( const glm::vec3& _vMin, const glm::vec3& _vMax, glm::vec3 _vColor /*= COLOR_WHITE*/ )
 	{
 		ImGuiWindow* window = ImGui::FindWindowByName( "Scene" ); // TODO: handle multiple scene viewport
 		ImDrawList* drawList = window ? window->DrawList : ImGui::GetBackgroundDrawList();
 		if (window)
 			drawList->PushClipRect( window->Rect().Min, window->Rect().Max );
 
-		glm::vec3 vMinMaxX = glm::vec3( _vMax.x, _vMin.y, _vMin.z );
-		glm::vec3 vMinMaxY = glm::vec3( _vMin.x, _vMax.y, _vMin.z );
-		glm::vec3 vMinMaxZ = glm::vec3( _vMin.x, _vMin.y, _vMax.z );
-		glm::vec3 vMaxMinX = glm::vec3( _vMin.x, _vMax.y, _vMax.z );
-		glm::vec3 vMaxMinY = glm::vec3( _vMax.x, _vMin.y, _vMax.z );
-		glm::vec3 vMaxMinZ = glm::vec3( _vMax.x, _vMax.y, _vMin.z );
+		const glm::vec3 vMinMaxX = glm::vec3( _vMax.x, _vMin.y, _vMin.z );
+		const glm::vec3 vMinMaxY = glm::vec3( _vMin.x, _vMax.y, _vMin.z );
+		const glm::vec3 vMinMaxZ = glm::vec3( _vMin.x, _vMin.y, _vMax.z );
+		const glm::vec3 vMaxMinX = glm::vec3( _vMin.x, _vMax.y, _vMax.z );
+		const glm::vec3 vMaxMinY = glm::vec3( _vMax.x, _vMin.y, _vMax.z );
+		const glm::vec3 vMaxMinZ = glm::vec3( _vMax.x, _vMax.y, _vMin.z );
 
-		glm::vec2 vSSMin = GetSSPosition( _vMin );
-		glm::vec2 vSSMax = GetSSPosition( _vMax );
-		glm::vec2 vSSMinMaxX = GetSSPosition( vMinMaxX );
-		glm::vec2 vSSMinMaxY = GetSSPosition( vMinMaxY );
-		glm::vec2 vSSMinMaxZ = GetSSPosition( vMinMaxZ );
-		glm::vec2 vSSMaxMinX = GetSSPosition( vMaxMinX );
-		glm::vec2 vSSMaxMinY = GetSSPosition( vMaxMinY );
-		glm::vec2 vSSMaxMinZ = GetSSPosition( vMaxMinZ );
+		const glm::vec2 vSSMin = GetSSPosition( _vMin );
+		const glm::vec2 vSSMax = GetSSPosition( _vMax );
+		const glm::vec2 vSSMinMaxX = GetSSPosition( vMinMaxX );
+		const glm::vec2 vSSMinMaxY = GetSSPosition( vMinMaxY );
+		const glm::vec2 vSSMinMaxZ = GetSSPosition( vMinMaxZ );
+		const glm::vec2 vSSMaxMinX = GetSSPosition( vMaxMinX );
+		const glm::vec2 vSSMaxMinY = GetSSPosition( vMaxMinY );
+		const glm::vec2 vSSMaxMinZ = GetSSPosition( vMaxMinZ );
 
 		const float fThickness = 2.f;
 		ImColor col( _vColor.x, _vColor.y, _vColor.z );
@@ -1265,6 +1268,53 @@ namespace Plop
 		drawList->AddLine( vSSMaxMinX, vSSMax, col, fThickness );
 		// Min Z && Max Z already done
 		
+		if (window)
+			drawList->PopClipRect();
+	}
+	
+	void EditorGizmo::Cube(const glm::vec3 &_vHalfSize, const glm::mat4 &_mTransform, glm::vec3 _vColor /*= COLOR_WHITE*/)
+	{
+		ImGuiWindow *window = ImGui::FindWindowByName("Scene"); // TODO: handle multiple scene viewport
+		ImDrawList *drawList = window ? window->DrawList : ImGui::GetBackgroundDrawList();
+		if (window)
+			drawList->PushClipRect(window->Rect().Min, window->Rect().Max);
+
+		const glm::vec3 vMinMaxX = _mTransform * glm::vec4(_vHalfSize.x, -_vHalfSize.y, -_vHalfSize.z, 1.f);
+		const glm::vec3 vMinMaxY = _mTransform * glm::vec4(-_vHalfSize.x, _vHalfSize.y, -_vHalfSize.z, 1.f);
+		const glm::vec3 vMinMaxZ = _mTransform * glm::vec4(-_vHalfSize.x, -_vHalfSize.y, _vHalfSize.z, 1.f);
+		const glm::vec3 vMaxMinX = _mTransform * glm::vec4(-_vHalfSize.x, _vHalfSize.y, _vHalfSize.z, 1.f);
+		const glm::vec3 vMaxMinY = _mTransform * glm::vec4(_vHalfSize.x, -_vHalfSize.y, _vHalfSize.z, 1.f);
+		const glm::vec3 vMaxMinZ = _mTransform * glm::vec4(_vHalfSize.x, _vHalfSize.y, -_vHalfSize.z, 1.f);
+
+		const glm::vec2 vSSMin = GetSSPosition(_mTransform * glm::vec4(-_vHalfSize, 1.f));
+		const glm::vec2 vSSMax = GetSSPosition(_mTransform * glm::vec4(_vHalfSize, 1.f));
+		const glm::vec2 vSSMinMaxX = GetSSPosition(vMinMaxX);
+		const glm::vec2 vSSMinMaxY = GetSSPosition(vMinMaxY);
+		const glm::vec2 vSSMinMaxZ = GetSSPosition(vMinMaxZ);
+		const glm::vec2 vSSMaxMinX = GetSSPosition(vMaxMinX);
+		const glm::vec2 vSSMaxMinY = GetSSPosition(vMaxMinY);
+		const glm::vec2 vSSMaxMinZ = GetSSPosition(vMaxMinZ);
+
+		const float fThickness = 2.f;
+		ImColor col(_vColor.x, _vColor.y, _vColor.z);
+		// Min X
+		drawList->AddLine(vSSMin, vSSMinMaxY, col, fThickness);
+		drawList->AddLine(vSSMin, vSSMinMaxZ, col, fThickness);
+		drawList->AddLine(vSSMinMaxY, vSSMaxMinX, col, fThickness);
+		drawList->AddLine(vSSMinMaxZ, vSSMaxMinX, col, fThickness);
+		// Max X
+		drawList->AddLine(vSSMinMaxX, vSSMaxMinY, col, fThickness);
+		drawList->AddLine(vSSMinMaxX, vSSMaxMinZ, col, fThickness);
+		drawList->AddLine(vSSMaxMinY, vSSMax, col, fThickness);
+		drawList->AddLine(vSSMaxMinZ, vSSMax, col, fThickness);
+		// Min Y
+		drawList->AddLine(vSSMin, vSSMinMaxX, col, fThickness);
+		drawList->AddLine(vSSMinMaxZ, vSSMaxMinY, col, fThickness);
+		// Max Y
+		drawList->AddLine(vSSMinMaxY, vSSMaxMinZ, col, fThickness);
+		drawList->AddLine(vSSMaxMinX, vSSMax, col, fThickness);
+		// Min Z && Max Z already done
+
 		if (window)
 			drawList->PopClipRect();
 	}

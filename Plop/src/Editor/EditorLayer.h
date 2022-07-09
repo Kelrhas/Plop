@@ -150,6 +150,7 @@ namespace Plop
 		// Lines & Curves
 		static void Line( const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3 _vColor = COLOR_WHITE);
 		static void AABB( const glm::vec3& _vMin, const glm::vec3& _vMax, glm::vec3 _vColor = COLOR_WHITE);
+		static void Cube( const glm::vec3& _vHalfSize, const glm::mat4 &_mTransform, glm::vec3 _vColor = COLOR_WHITE);
 		static void Bezier( const glm::vec2& _v1, const glm::vec2& _v2, const glm::vec2& _v3, const glm::vec2& _v4, glm::vec3 _vColor = VEC3_1 );
 		static void CatmullRom( const glm::vec3& _v1, const glm::vec3& _v2, const glm::vec3& _v3, const glm::vec3& _v4, glm::vec3 _vColor = VEC3_1 );
 

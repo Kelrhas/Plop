@@ -90,7 +90,7 @@ void Component_EnemySpawner::EditorUI()
 	}
 
 	ImGui::DragInt( "Nb enemies", &wave.nbEnemies, 0.1f, 1 );
-	ImGui::DragFloat( "Spawn delay", &wave.fSpawnDelay, 0.1f, 0.01f );
+	ImGui::DragFloat("Spawn delay", &wave.fSpawnDelay, 0.1f, 0.01f, FLT_MAX);
 }
 
 json Component_EnemySpawner::ToJson() const

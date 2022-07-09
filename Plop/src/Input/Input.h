@@ -55,7 +55,9 @@ namespace Plop
 		static bool IsMouseLeftDown();
 		static bool IsMouseLeftPressed();
 		static bool IsMouseRightDown();
+		static bool IsMouseRightPressed();
 		static bool IsMouseMiddleDown();
+		static bool IsMouseMiddlePressed();
 		static float GetTimeDown(KeyCode eKeyCode);
 		static char GetCharFromCode(KeyCode eKeyCode);
 
@@ -67,11 +69,11 @@ namespace Plop
 
 		static HWND									m_hWindow;
 		static KeyInfo								m_oKeyMap[MAX_INPUT_KEYS];
-		static KeyInfo								m_oMouseInfos[5];
+		static KeyInfo								m_oMouseInfos[MAX_MOUSE_BUTTON];
 		static std::vector<VoidFuncKeyCodeBool>		m_oEventKey;
 		static std::map<KeyCode, VoidFuncBoolVec>	m_oEventKeyMap;
 		static VoidFuncCharVec						m_oEventChar;
-		static VoidFuncBoolVec						m_oEventMouse[3];
+		static VoidFuncBoolVec						m_oEventMouse[MAX_MOUSE_BUTTON];
 		static BoolFuncFloatVec						m_oEventMouseWheel;
 		static MouseMoveCallbackVec					m_oEventMouseMove;
 		static glm::vec2							m_vMousePixelPos;

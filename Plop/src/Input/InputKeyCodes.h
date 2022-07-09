@@ -3,10 +3,11 @@
 // for binded action, see https://github.com/depp/keycode/
 // we really need to use ScanCode (physical place on the keyboard) instead of virtual keys (mapped keys depending on layout)
 
-#define MAX_INPUT_KEYS 256
-
 namespace Plop
 {
+	constexpr U32 MAX_INPUT_KEYS = 256;
+	constexpr U8 MAX_MOUSE_BUTTON = 5;
+
 	enum class KeyCode : uint32_t
 	{
 		KEY_Backspace = VK_BACK,

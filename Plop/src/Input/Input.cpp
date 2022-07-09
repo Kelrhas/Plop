@@ -5,11 +5,11 @@ namespace Plop
 {
 	HWND										Input::m_hWindow;
 	Input::KeyInfo								Input::m_oKeyMap[MAX_INPUT_KEYS];
-	Input::KeyInfo								Input::m_oMouseInfos[5];
+	Input::KeyInfo								Input::m_oMouseInfos[MAX_MOUSE_BUTTON];
 	std::vector<Input::VoidFuncKeyCodeBool>		Input::m_oEventKey;
 	std::map<KeyCode, Input::VoidFuncBoolVec>	Input::m_oEventKeyMap;
 	Input::VoidFuncCharVec						Input::m_oEventChar;
-	Input::VoidFuncBoolVec						Input::m_oEventMouse[3];
+	Input::VoidFuncBoolVec						Input::m_oEventMouse[MAX_MOUSE_BUTTON];
 	Input::BoolFuncFloatVec						Input::m_oEventMouseWheel;
 	Input::MouseMoveCallbackVec					Input::m_oEventMouseMove;
 	glm::vec2									Input::m_vMousePixelPos;
@@ -37,7 +37,7 @@ namespace Plop
 			}
 		}
 
-		for (int i = 0; i < 5; ++i)
+		for (int i = 0; i < MAX_MOUSE_BUTTON; ++i)
 		{
 			if (m_oMouseInfos[i].uFlags & KEY_DOWN_FLAG)
 			{
@@ -108,7 +108,7 @@ namespace Plop
 
 	bool Input::IsMouseLeftPressed()
 	{
-		return (m_oMouseInfos[0].uFlags & KEY_DOWN_FLAG) && !(m_oMouseInfos[0].uFlags & KEY_WASDOWN_FLAG);;
+		return (m_oMouseInfos[0].uFlags & KEY_DOWN_FLAG) && !(m_oMouseInfos[0].uFlags & KEY_WASDOWN_FLAG);
 	}
 
 	bool Input::IsMouseRightDown()
@@ -116,9 +116,19 @@ namespace Plop
 		return m_oMouseInfos[1].uFlags & KEY_DOWN_FLAG;
 	}
 
+	bool Input::IsMouseRightPressed()
+	{
+		return (m_oMouseInfos[1].uFlags & KEY_DOWN_FLAG) && !(m_oMouseInfos[1].uFlags & KEY_WASDOWN_FLAG);
+	}
+
 	bool Input::IsMouseMiddleDown()
 	{
 		return m_oMouseInfos[2].uFlags & KEY_DOWN_FLAG;
+	}
+
+	bool Input::IsMouseMiddlePressed()
+	{
+		return (m_oMouseInfos[2].uFlags & KEY_DOWN_FLAG) && !(m_oMouseInfos[2].uFlags & KEY_WASDOWN_FLAG);
 	}
 
 	float Input::GetTimeDown(KeyCode eKeyCode)

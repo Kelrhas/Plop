@@ -4,43 +4,53 @@
 namespace Plop
 {
 
-	UndoAction UndoAction::MoveEntity(entt::entity _enttID, const glm::vec3& _vOld, const glm::vec3& _vNew)
+	UndoAction UndoAction::EntityMove(entt::entity _enttID, const glm::vec3& _vOld, const glm::vec3& _vNew)
 	{
 		UndoAction action;
-		action.m_eType = Type::MOVE;
+		action.m_eType = Type::ENTITY_MOVE;
 		action.m_data.entityVec3.enttID = _enttID;
 		action.m_data.entityVec3.vOld = _vOld;
 		action.m_data.entityVec3.vNew = _vNew;
 		return action;
 	}
 
-	UndoAction UndoAction::RotateEntity(entt::entity _enttID, const glm::quat& _qOld, const glm::quat& _qNew)
+	UndoAction UndoAction::EntityRotate(entt::entity _enttID, const glm::quat& _qOld, const glm::quat& _qNew)
 	{
 		UndoAction action;
-		action.m_eType = Type::ROTATE;
+		action.m_eType = Type::ENTITY_ROTATE;
 		action.m_data.entityQuat.enttID = _enttID;
 		action.m_data.entityQuat.qOld = _qOld;
 		action.m_data.entityQuat.qNew = _qNew;
 		return action;
 	}
 
-	UndoAction UndoAction::ScaleEntity(entt::entity _enttID, const glm::vec3& _vOld, const glm::vec3& _vNew)
+	UndoAction UndoAction::EntityScale(entt::entity _enttID, const glm::vec3& _vOld, const glm::vec3& _vNew)
 	{
 		UndoAction action;
-		action.m_eType = Type::SCALE;
+		action.m_eType = Type::ENTITY_SCALE;
 		action.m_data.entityVec3.enttID = _enttID;
 		action.m_data.entityVec3.vOld = _vOld;
 		action.m_data.entityVec3.vNew = _vNew;
 		return action;
 	}
 
-	UndoAction UndoAction::GizmoManipulateEntity(entt::entity _enttID, const glm::mat4& _mOld, const glm::mat4& _mNew)
+	UndoAction UndoAction::EntityGizmoManipulate(entt::entity _enttID, const glm::mat4& _mOld, const glm::mat4& _mNew)
 	{
 		UndoAction action;
-		action.m_eType = Type::GIZMO_MANIPULATE;
+		action.m_eType = Type::ENTITY_GIZMO_MANIPULATE;
 		action.m_data.entityMat4.enttID = _enttID;
 		action.m_data.entityMat4.mOld = _mOld;
 		action.m_data.entityMat4.mNew = _mNew;
+		return action;
+	}
+
+	UndoAction UndoAction::EntityVisibility(entt::entity _enttID, bool _bBefore, bool _bAfter)
+	{
+		UndoAction action;
+		action.m_eType = Type::ENTITY_VISIBILITY;
+		action.m_data.entityVisibility.enttID = _enttID;
+		action.m_data.entityVisibility.bValueBefore = _bBefore;
+		action.m_data.entityVisibility.bValueAfter = _bAfter;
 		return action;
 	}
 
@@ -55,7 +65,7 @@ namespace Plop
 		m_redoCommands[(std::size_t)_eType] = _cbRedo;
 	}
 
-	void UndoManager::RegisterAction(UndoAction &&_action)
+	void UndoManager::PushAction(UndoAction &&_action)
 	{
 		m_undoStack.push(_action);
 
@@ -84,7 +94,6 @@ namespace Plop
 				}
 				m_undoStack.pop();
 			}
-
 		}
 	}
 

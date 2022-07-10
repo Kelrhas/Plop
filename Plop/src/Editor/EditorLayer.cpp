@@ -20,7 +20,9 @@
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/LevelBase.h"
+#include "ECS/Serialisation.h"
 #include "Editor/UndoManager.h"
+#include "Editor/EditorStyle.h"
 #include "ECS/PrefabManager.h"
 #include "Input/Input.h"
 #include "Events/EventDispatcher.h"
@@ -41,6 +43,12 @@ namespace Plop
 		static const ImVec2 vEditorIconSize( 48, 48 );
 		static ImGuizmo::OPERATION eGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		static ImGuizmo::MODE eGuizmoSpace = ImGuizmo::MODE::LOCAL;
+
+		enum class CopyType : U8
+		{
+			NONE,
+			ENTITY,
+		};
 	}
 
 #ifndef USE_COMPONENT_MGR
@@ -56,30 +64,30 @@ namespace Plop
 
 
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::MOVE,
-											[this] (const UndoAction::UndoData& _data) -> bool
-		{
-			if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_MOVE,
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
-				auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
-				transformComp.SetLocalPosition(_data.entityVec3.vOld);
-				return true;
-			}
-			return false;
-		},
-											[this] (const UndoAction::UndoData& _data) -> bool
-		{
-			if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+					transformComp.SetLocalPosition(_data.entityVec3.vOld);
+					return true;
+				}
+				return false;
+			},
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
-				auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
-				transformComp.SetLocalPosition(_data.entityVec3.vNew);
-				return true;
-			}
-			return false;
-		});
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
+				{
+					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityVec3.enttID);
+					transformComp.SetLocalPosition(_data.entityVec3.vNew);
+					return true;
+				}
+				return false;
+			});
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::ROTATE,
-											[this] (const UndoAction::UndoData& _data) -> bool
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_ROTATE,
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityQuat.enttID))
 				{
@@ -89,7 +97,7 @@ namespace Plop
 				}
 				return false;
 			},
-												[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityQuat.enttID))
 				{
@@ -100,8 +108,8 @@ namespace Plop
 				return false;
 			});
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::SCALE,
-											[this] (const UndoAction::UndoData& _data) -> bool
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_SCALE,
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
 				{
@@ -111,7 +119,7 @@ namespace Plop
 				}
 				return false;
 			},
-												[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVec3.enttID))
 				{
@@ -122,8 +130,8 @@ namespace Plop
 				return false;
 			});
 
-		UndoManager::RegisterActionCommands(UndoAction::Type::GIZMO_MANIPULATE,
-											[this] (const UndoAction::UndoData& _data) -> bool
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_GIZMO_MANIPULATE,
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityMat4.enttID))
 				{
@@ -133,12 +141,34 @@ namespace Plop
 				}
 				return false;
 			},
-												[this] (const UndoAction::UndoData& _data) -> bool
+			[this] (const UndoAction::UndoData& _data) -> bool
 			{
 				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityMat4.enttID))
 				{
 					auto& transformComp = m_xEditingLevel->GetEntityRegistry().get<Component_Transform>(_data.entityMat4.enttID);
 					transformComp.SetWorldMatrix(_data.entityMat4.mNew);
+					return true;
+				}
+				return false;
+			});
+
+		UndoManager::RegisterActionCommands(UndoAction::Type::ENTITY_VISIBILITY,
+			[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVisibility.enttID))
+				{
+					Entity e(_data.entityVisibility.enttID, m_xEditingLevel->GetEntityRegistry());
+					e.SetVisible(_data.entityVisibility.bValueBefore);
+					return true;
+				}
+				return false;
+			},
+			[this] (const UndoAction::UndoData& _data) -> bool
+			{
+				if (m_xEditingLevel->GetEntityRegistry().valid(_data.entityVisibility.enttID))
+				{
+					Entity e(_data.entityVisibility.enttID, m_xEditingLevel->GetEntityRegistry());
+					e.SetVisible(_data.entityVisibility.bValueAfter);
 					return true;
 				}
 				return false;
@@ -354,7 +384,7 @@ namespace Plop
 							if (ImGui::IsItemHovered())
 							{
 #ifdef USE_ENTITY_HANDLE
-								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_hEntity.entity()));
+								ImGui::SetTooltip("GUID: %llX\nEnTT id:%llu", m_SelectedEntity.GetComponent<Component_Name>().guid, entt::to_integral(m_SelectedEntity.m_hEntity.entity()));
 #else
 								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_EntityId));
 #endif
@@ -646,10 +676,26 @@ namespace Plop
 				else
 					SaveLevel();
 			}
-			if (Input::IsKeyPressed(KeyCode::KEY_D) && m_SelectedEntity)
+			if (m_SelectedEntity)
 			{
-				DuplicateEntity(m_SelectedEntity);
+				if (Input::IsKeyPressed(KeyCode::KEY_D))
+				{
+					DuplicateEntity(m_SelectedEntity);
+				}
+				if (Input::IsKeyPressed(KeyCode::KEY_C))
+				{
+					CopyEntity(m_SelectedEntity);
+				}
+				if (Input::IsKeyPressed(KeyCode::KEY_H))
+				{
+					ToggleEntity(m_SelectedEntity);
+				}
 			}
+			if (Input::IsKeyPressed(KeyCode::KEY_V) && CanPasteEntity(m_SelectedEntity))
+			{
+				PasteEntity(m_SelectedEntity);
+			}
+
 			if (Input::IsKeyPressed(KeyCode::KEY_Z))
 			{
 				UndoManager::Undo();
@@ -659,12 +705,6 @@ namespace Plop
 				UndoManager::Redo();
 			}
 
-#ifdef _DEBUG
-			if (Input::IsKeyPressed(KeyCode::KEY_H))
-			{
-				UndoManager::Clear();
-			}
-#endif
 		}
 
 		if (m_SelectedEntity)
@@ -713,8 +753,8 @@ namespace Plop
 					bool bSelected = _Entity == m_SelectedEntity;
 					bool bOpen = itEntityInfo->second.bHierarchyOpen;
 
-					const auto& graphNodeParent = registry.get<Component_GraphNode>( _Entity );
-					bool bHasChildren = graphNodeParent.firstChild != entt::null;
+					const auto& graphComp = registry.get<Component_GraphNode>( _Entity );
+					bool bHasChildren = graphComp.firstChild != entt::null;
 
 					if (bHasChildren)
 					{
@@ -757,11 +797,13 @@ namespace Plop
 					}
 					else
 					{
+						ImGui::PushStyleColor(graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID);
 						if (ImGui::Selectable( sName.c_str(), bSelected ))
 						{
 							m_SelectedEntity = _Entity;
 							m_eEditMode = EditMode::NONE;
 						}
+						ImGui::PopStyleColor(graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID);
 					}
 
 					if (ImGui::BeginPopupContextItem( "EntityContextMenu" ))
@@ -772,11 +814,23 @@ namespace Plop
 							Entity e = xLevel->CreateEntity();
 							e.SetParent( _Entity );
 						}
-						if (ImGui::MenuItem( "Duplicate entity" ))
+						if (ImGui::MenuItem("Duplicate entity", "CTRL + D"))
 						{
-							DuplicateEntity( _Entity );
+							DuplicateEntity(_Entity);
 						}
-						if (ImGui::MenuItem( "Delete entity" ))
+						if (ImGui::MenuItem("Copy entity", "CTRL + C"))
+						{
+							CopyEntity(_Entity);
+						}
+						if (ImGui::MenuItem("Paste entity", "CTRL + V", nullptr, CanPasteEntity(_Entity)))
+						{
+							PasteEntity(_Entity);
+						}
+						if (ImGui::MenuItem("Visible", "CTRL + H", _Entity.IsVisible()))
+						{
+							ToggleEntity(_Entity);
+						}
+						if (ImGui::MenuItem( "Delete entity", "Del" ))
 							entityToDestroy = _Entity;
 						ImGui::Separator();
 
@@ -975,7 +1029,7 @@ namespace Plop
 					{
 						if (bUsing)
 						{
-							UndoManager::RegisterAction(UndoAction::GizmoManipulateEntity(m_SelectedEntity, mBackup, mTransform));
+							UndoManager::PushAction(UndoAction::EntityGizmoManipulate(m_SelectedEntity, mBackup, mTransform));
 							bUsing = false;
 						}
 					}
@@ -1150,8 +1204,45 @@ namespace Plop
 		return dupEntity;
 	}
 
+	void EditorLayer::CopyEntity(const Entity& _entity)
+	{
+		json j = _entity.ToJson();
+		j[JSON_CHILDREN].clear(); // do not include children
+		j[JSON_COPY_TYPE] = Private::CopyType::ENTITY;
+		ImGui::SetClipboardText(j.dump(2).c_str());
+	}
 
+	bool EditorLayer::CanPasteEntity(const Entity& _entityParent)
+	{
+		json j;
+		try
+		{
+			j = json::parse(ImGui::GetClipboardText());
+			return j.contains(JSON_COPY_TYPE) && j[JSON_COPY_TYPE] == Private::CopyType::ENTITY;
+		}
+		catch (json::parse_error&)
+		{
+		}
 
+		return false;
+	}
+
+	Entity EditorLayer::PasteEntity(Entity& _entityParent)
+	{
+		json j = json::parse(ImGui::GetClipboardText());
+		Entity newEntity = Application::GetCurrentLevel().lock()->CreateEntity(j[JSON_NAME]);
+		newEntity.FromJson(j);
+		newEntity.SetParent(_entityParent);
+		return newEntity;
+	}
+
+	void EditorLayer::ToggleEntity(Entity& _entity)
+	{
+		bool bWasVisible = _entity.IsVisible();
+		_entity.SetVisible(!bWasVisible);
+
+		UndoManager::PushAction(UndoAction::EntityVisibility(_entity, bWasVisible, !bWasVisible));
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// EditorGizmo

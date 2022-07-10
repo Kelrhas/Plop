@@ -109,6 +109,10 @@ namespace Plop
 		}
 
 		static	Entity		DuplicateEntity( const Entity& _entity );
+		static	void		CopyEntity(const Entity& _entity );
+		static	bool		CanPasteEntity(const Entity& _entityParent);
+		static	Entity		PasteEntity(Entity& _entityParent);
+		static	void		ToggleEntity(Entity& _entity);
 
 
 

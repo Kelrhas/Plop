@@ -89,6 +89,8 @@ namespace Plop
 		void												SetFlag( EntityFlag _flag, bool _bSet );
 		bool												HasFlag( EntityFlag _flag ) const;
 
+		bool												IsVisible() const;
+		void												SetVisible(bool _bVisible);
 
 
 		//// SERIALIZATION

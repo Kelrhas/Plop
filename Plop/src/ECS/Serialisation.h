@@ -10,4 +10,5 @@ namespace Plop
 	static constexpr const char *JSON_PREFABLIBS =	"PrefabLibraries";
 	static constexpr const char *JSON_PREFABS =		"Prefabs";
 	static constexpr const char *JSON_ROOT =		"Root";
+	static constexpr const char *JSON_COPY_TYPE =	"CopyType";
 }

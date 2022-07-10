@@ -249,9 +249,13 @@ namespace Plop
 
 		if (ImGui::CollapsingHeader("Node"))
 		{
-			bool bFlag = HasFlag(EntityFlag::DYNAMIC_GENERATION);
-			if (ImGui::Checkbox("DYNAMIC_GENERATION", &bFlag))
-				SetFlag(EntityFlag::DYNAMIC_GENERATION, bFlag);
+			bool bFlag = HasFlag(EntityFlag::NO_SERIALISATION);
+			if (ImGui::Checkbox("NO_SERIALISATION", &bFlag))
+				SetFlag(EntityFlag::NO_SERIALISATION, bFlag);
+
+			bFlag = HasFlag(EntityFlag::HIDE);
+			if (ImGui::Checkbox("HIDE", &bFlag))
+				SetFlag(EntityFlag::HIDE, bFlag);
 		}
 
 		ComponentManager::EditorUI(m_hEntity.registry(), m_hEntity.entity());
@@ -282,6 +286,17 @@ namespace Plop
 	{
 		return GetComponent<Component_GraphNode>().uFlags.Has(_flag);
 	}
+
+	bool Entity::IsVisible() const
+	{
+		return !HasFlag(EntityFlag::HIDE);
+	}
+
+	void Entity::SetVisible(bool _bVisible)
+	{
+		SetFlag(EntityFlag::HIDE, !_bVisible);
+	}
+
 #pragma endregion
 
 #pragma region SERIALIZATION
@@ -300,7 +315,7 @@ namespace Plop
 		j["Name"] = GetComponent<Component_Name>().sName;
 		j[JSON_GUID] = GetComponent<Component_Name>().guid;
 		ChildVisitor([&j](Entity &_child) {
-			if (!_child.HasFlag(EntityFlag::DYNAMIC_GENERATION))
+			if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
 			{
 				GUID guid = _child.GetComponent<Component_Name>().guid;
 				j[JSON_CHILDREN].push_back(guid);
@@ -563,9 +578,9 @@ void Entity::EditorUI()
 
 	if (ImGui::CollapsingHeader("Node"))
 	{
-		bool bFlag = HasFlag(EntityFlag::DYNAMIC_GENERATION);
-		if (ImGui::Checkbox("DYNAMIC_GENERATION", &bFlag))
-			SetFlag(EntityFlag::DYNAMIC_GENERATION, bFlag);
+		bool bFlag = HasFlag(EntityFlag::NO_SERIALISATION);
+		if (ImGui::Checkbox("NO_SERIALISATION", &bFlag))
+			SetFlag(EntityFlag::NO_SERIALISATION, bFlag);
 	}
 
 	ComponentManager::EditorUI(registry, m_EntityId);
@@ -619,7 +634,7 @@ json Entity::ToJson() const
 	j["Name"] = GetComponent<Component_Name>().sName;
 	ChildVisitor([&j] (Entity& _child)
 	{
-		if (!_child.HasFlag(EntityFlag::DYNAMIC_GENERATION))
+		if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
 			j["Children"].push_back(_child.m_EntityId);
 	});
 

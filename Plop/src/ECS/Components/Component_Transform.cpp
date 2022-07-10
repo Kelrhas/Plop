@@ -35,14 +35,14 @@ namespace Plop
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
 				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
-				UndoManager::RegisterAction(UndoAction::MoveEntity(enttID, vBackup, vPosition));
+				UndoManager::PushAction(UndoAction::EntityMove(enttID, vBackup, vPosition));
 			}
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - fResetBtnWidth);
 			if (ImGui::SmallButton("X##Pos"))
 			{
 				static constexpr glm::vec3 vNew = glm::zero<glm::vec3>();
 				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
-				UndoManager::RegisterAction(UndoAction::MoveEntity(enttID, vPosition, vNew));
+				UndoManager::PushAction(UndoAction::EntityMove(enttID, vPosition, vNew));
 				SetLocalPosition(vNew);
 			}
 			ImGui::Custom::Tooltip("Reset");
@@ -61,7 +61,7 @@ namespace Plop
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
 				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
-				UndoManager::RegisterAction(UndoAction::RotateEntity(enttID, qBackup, qRotation));
+				UndoManager::PushAction(UndoAction::EntityRotate(enttID, qBackup, qRotation));
 			}
 
 			if (ImGui::IsItemActivated())
@@ -83,7 +83,7 @@ namespace Plop
 			{
 				static constexpr glm::quat qNew = glm::identity<glm::quat>();
 				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
-				UndoManager::RegisterAction(UndoAction::RotateEntity(enttID, qRotation, qNew));
+				UndoManager::PushAction(UndoAction::EntityRotate(enttID, qRotation, qNew));
 				SetLocalRotation(qNew);
 			}
 			ImGui::Custom::Tooltip("Reset");
@@ -98,14 +98,14 @@ namespace Plop
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
 				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
-				UndoManager::RegisterAction(UndoAction::ScaleEntity(enttID, vBackup, vScale));
+				UndoManager::PushAction(UndoAction::EntityScale(enttID, vBackup, vScale));
 			}
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - fResetBtnWidth);
 			if (ImGui::SmallButton("X##Sca"))
 			{
 				static constexpr glm::vec3 vNew = glm::one<glm::vec3>();
 				entt::entity enttID = entt::to_entity(Application::Get()->GetCurrentLevel().lock()->GetEntityRegistry(), *this);
-				UndoManager::RegisterAction(UndoAction::ScaleEntity(enttID, vScale, vNew));
+				UndoManager::PushAction(UndoAction::EntityScale(enttID, vScale, vNew));
 				SetLocalScale(vNew);
 			}
 			ImGui::Custom::Tooltip("Reset");

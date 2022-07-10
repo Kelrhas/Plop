@@ -3,6 +3,7 @@
 #include <Renderer/Sprite.h>
 #include <ECS/LevelBase.h>
 
+#include "ECS/Hexgrid.h"
 #include "ECS/LevelGrid.h"
 
 class TDLevel : public Plop::LevelBase
@@ -20,7 +21,7 @@ public:
 
 
 private:
-	LevelGrid m_grid;
+	Hexgrid m_grid;
 	Plop::Entity m_SpawnerEntity;
 	Plop::Entity m_BaseEntity;
 };

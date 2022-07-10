@@ -3,17 +3,10 @@
 #include <glm/gtx/hash.hpp>
 
 #include <ECS/Entity.h>
+#include <ECS/Pathfind.h>
 #include <Renderer/Spritesheet.h>
 
 
-
-template<typename CellType>
-struct GridPathFind
-{
-	bool bValid = false;
-	float fTotalCost = 0.f;
-	std::vector<CellType> vecPath;
-};
 
 class LevelGrid
 {

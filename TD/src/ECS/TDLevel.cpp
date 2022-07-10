@@ -13,7 +13,9 @@
 #include <ECS/Components/Component_Physics.h>
 #include <ECS/Components/Component_SpriteRenderer.h>
 #include <ECS/ParticleSpawners.h>
+#include <ECS/PrefabManager.h>
 #include <Debug/Log.h>
+#include <Math/Math.h>
 
 #include "Components/Component_PlayerBase.h"
 #include "Components/Component_Bullet.h"
@@ -36,62 +38,31 @@ TDLevel::~TDLevel()
 void TDLevel::Init()
 {
 	Plop::LevelBase::Init();
-	/*
-	LevelGrid::LevelConstraints constraints;
-	constraints.m_uLevelHeight = 10;
-	constraints.m_uLevelWidth = 10;
-	constraints.m_vecStarts.push_back( { 0, 1 } );
-	constraints.m_vEnd = { constraints.m_uLevelWidth - 1, constraints.m_uLevelHeight - 2 };
 
-	m_grid.Init( constraints );
+	StringPath sSpritesheet = std::filesystem::canonical(Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef");
+	Plop::SpritesheetHandle hSpritesheet = Plop::AssetLoader::GetSpritesheet(sSpritesheet);
 
-	StringPath sSpritesheet = std::filesystem::canonical( Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef" );
-	Plop::SpritesheetHandle hSpritesheet = Plop::AssetLoader::GetSpritesheet( sSpritesheet );
-
-
-	//this level is not the current one if started from editor ...
-
+	Plop::PrefabManager::LoadPrefabLibrary(Plop::Application::Get()->GetRootDirectory() / "data/prefabs/Towers.prefablib");
 
 
 	m_SpawnerEntity = CreateEntity( "Spawner" );
 	m_SpawnerEntity.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
-	const glm::vec3 vSpawnerPos(constraints.m_vecStarts.front(), 1.f);
+	constexpr glm::vec3 vSpawnerPos(0.f, 0.f, 1.f);
 	m_SpawnerEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition(vSpawnerPos);
 	m_SpawnerEntity.AddComponent<Component_EnemySpawner>();
 	auto& spawnerSpriteComp = m_SpawnerEntity.AddComponent<Plop::Component_SpriteRenderer>();
 	spawnerSpriteComp.xSprite->SetSpritesheet( hSpritesheet, "0" );
 
-	const auto &startTile = m_grid.GetTile(0, 1);
-	const auto &endTile = m_grid.GetTile(constraints.m_uLevelWidth - 1, constraints.m_uLevelHeight - 2);
-	auto &pf = m_grid.GetPathfind(startTile, endTile);
-	auto &spawnerComp = m_SpawnerEntity.GetComponent<Component_EnemySpawner>();
-
-	if (pf.bValid)
-	{
-		const float fDepth = 0.f;
-		spawnerComp.xPathCurve->vecControlPoints.clear();
-		spawnerComp.xPathCurve->vecControlPoints.push_back(glm::vec3(startTile.vCoord, fDepth) - vSpawnerPos);
-
-		glm::vec3 vLastCoord = glm::vec3(pf.vecPath.front().vCoord, fDepth);
-		for (auto &path : pf.vecPath)
-		{
-			const glm::vec3 vCoord = glm::vec3(path.vCoord, fDepth);
-			spawnerComp.xPathCurve->vecControlPoints.push_back((vCoord + vLastCoord) / 2.f - vSpawnerPos);
-			vLastCoord = vCoord;
-		}
-
-		spawnerComp.xPathCurve->vecControlPoints.push_back(glm::vec3(endTile.vCoord, fDepth) - vSpawnerPos);
-	}
 
 	m_BaseEntity = CreateEntity( "Base" );
 	m_BaseEntity.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
-	m_BaseEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition( glm::vec3( constraints.m_vEnd, 1.f ) );
 	auto& baseComp = m_BaseEntity.AddComponent<Component_PlayerBase>();
 	baseComp.fLife = 10.f;
 
 	auto& baseSpriteComp = m_BaseEntity.AddComponent<Plop::Component_SpriteRenderer>();
 	baseSpriteComp.xSprite->SetSpritesheet( hSpritesheet, "player_base" );
-	*/
+
+	m_grid.Init(30, 20);
 }
 
 void TDLevel::Shutdown()
@@ -115,16 +86,36 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 		const glm::vec2 vViewportPos = editor.GetViewportPosFromWindowPos(Plop::Input::GetCursorWindowPos());
 		glm::vec3 vMousePos = m_xCurrentCamera.lock()->GetWorldPosFromViewportPos(vViewportPos, 0.f );
 
-		
-		Plop::Entity newEnemy = CreateEntity( "Enemy" );
-		auto& enemyComp = newEnemy.AddComponent<Component_Enemy>();
-		enemyComp.fLife = 1.f;
-		auto& transform = newEnemy.GetComponent<Plop::Component_Transform>();
-		transform.SetLocalPosition( vMousePos );
-		transform.SetLocalScale( VEC3_1 * 0.2f );
-		auto& xSprite = newEnemy.AddComponent<Plop::Component_SpriteRenderer>().xSprite;
-		xSprite->SetTint( COLOR_GREEN );
-		
+		Hexgrid::CellCoord coord = Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy);
+		Plop::Log::Info("Coords: {},{},{} -> {},{},{}", vMousePos.x, vMousePos.y, vMousePos.z, coord.x, coord.y, coord.z);
+		Plop::Log::Info("	Dist: {}", glm::manhattanDistance(coord, Hexgrid::CellCoord(0, 0, 0)) / 2.f);
+
+		Hexgrid::Cell cellClick;
+		if (m_grid.GetCell(coord, &cellClick))
+		{
+			bool bOverlap = false;
+			auto view = m_ENTTRegistry.view<Plop::Component_Transform, Component_Tower>();
+			for (auto enttID : view)
+			{
+				auto &transform = view.get<Plop::Component_Transform>(enttID);
+
+				if (bOverlap)
+					return;
+
+				if (glm::length2(transform.GetWorldPosition() - vMousePos) < 1)
+				{
+					bOverlap = true;
+					break;
+				}
+			}
+
+			if (!bOverlap)
+			{
+				const Plop::GUID guidTower = 12598841727129875697llu;
+				Plop::Entity tower = Plop::PrefabManager::InstantiatePrefab(guidTower, m_ENTTRegistry, Plop::Entity());
+				tower.GetComponent<Plop::Component_Transform>().SetWorldPosition(glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(coord), 1.f));
+			}
+		}
 	}
 
 	EnemySpawnerSystem::OnUpdate( _ts, m_ENTTRegistry );
@@ -191,7 +182,7 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 	Plop::LevelBase::UpdateInEditor( _ts );
 
 
-	if (Plop::Input::IsMouseLeftDown() && false)
+	if (Plop::Input::IsMouseRightPressed())
 	{
 		auto &editor = Plop::Application::Get()->GetEditor();
 		auto &xCamera = editor.GetEditorCamera();
@@ -200,44 +191,36 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 		vScreenPos = editor.GetViewportPosFromWindowPos(vScreenPos);
 		glm::vec3 vMousePos = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
 
-		//Plop::Log::Info( "Clicking at {}, {}", vMousePos.x, vMousePos.y );
-		if (vMousePos.x >= 0.f && vMousePos.y >= 0.f)
+
+		Hexgrid::Cell cellClick;
+		if (m_grid.GetCell(Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy), &cellClick))
 		{
-			U32 uXCoord = (U32)round( vMousePos.x );
-			U32 uYCoord = (U32)round( vMousePos.y );
-			if (uXCoord <= m_grid.uLevelWidth - 1 &&
-				uYCoord <= m_grid.uLevelHeight - 1)
+			Hexgrid::Cell startCell;
+			m_grid.GetCell(Hexgrid::CellCoord(0, 0, 0), &startCell);
+			auto &pf = m_grid.GetPathfind(startCell, cellClick);
+
+			auto &spawnerComp = m_SpawnerEntity.GetComponent<Component_EnemySpawner>();
+			const glm::vec3 vSpawnerPos = m_SpawnerEntity.GetComponent<Plop::Component_Transform>().GetWorldPosition();
+
+			if (pf.bValid)
 			{
-				auto& endTile = m_grid.GetTile( uXCoord, uYCoord );
+				const float fDepth = 0.f;
+				spawnerComp.xPathCurve->vecControlPoints.clear();
+				spawnerComp.xPathCurve->vecControlPoints.push_back(glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(startCell.coord), fDepth) - vSpawnerPos);
 
-				const auto& startTile = m_grid.GetTile( 1, 1 );
-				auto& pf = m_grid.GetPathfind( startTile, endTile );
-				auto& spawnerComp = m_SpawnerEntity.GetComponent<Component_EnemySpawner>();
-				const glm::vec3 vSpawnerPos = m_SpawnerEntity.GetComponent<Plop::Component_Transform>().GetWorldPosition();
-
-				if (pf.bValid)
+				glm::vec3 vLastCoord = glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(pf.vecPath.front().coord), fDepth);
+				for (auto &path : pf.vecPath)
 				{
-					const float fDepth = 0.f;
-					spawnerComp.xPathCurve->vecControlPoints.clear();
-					spawnerComp.xPathCurve->vecControlPoints.push_back(glm::vec3(startTile.vCoord, fDepth) - vSpawnerPos);
-
-					glm::vec3 vLastCoord = glm::vec3(pf.vecPath.front().vCoord, fDepth);
-					for (auto &path : pf.vecPath)
-					{
-						const glm::vec3 vCoord = glm::vec3(path.vCoord, fDepth);
-						spawnerComp.xPathCurve->vecControlPoints.push_back((vCoord + vLastCoord) / 2.f - vSpawnerPos);
-						vLastCoord = vCoord;
-					}
-
-					spawnerComp.xPathCurve->vecControlPoints.push_back(glm::vec3(endTile.vCoord, fDepth) - vSpawnerPos);
+					const glm::vec3 vCoord = glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(path.coord), fDepth);
+					spawnerComp.xPathCurve->vecControlPoints.push_back((vCoord + vLastCoord) / 2.f - vSpawnerPos);
+					vLastCoord = vCoord;
 				}
+
+				glm::vec3 vTarget = glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(cellClick.coord), fDepth);
+				spawnerComp.xPathCurve->vecControlPoints.push_back(vTarget - vSpawnerPos);
+
+				m_BaseEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition(vTarget);
 			}
 		}
 	}
-	else
-	{
-//		Plop::Log::Warn( "Screen coord {},{} -> {}, {}, {}", vScreenPos.x, vScreenPos.y, vMousePos.x, vMousePos.y, vMousePos.z );
-	}
-
-	//m_particlesBullet.Update( _ts );
 }

@@ -1,6 +1,56 @@
 {
   "Entities": [
     {
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [19,2],
+          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [0.0,0.15129661560058594,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 17551503759130965159,
+      "Name": "Canon"
+    },
+    {
+      "Children": [17551503759130965159],
+      "Components": {
+        "Tower": {
+          "Damage": 1.0,
+          "Firing rate": 1.0,
+          "Range": 2.0
+        },
+        "Transform": {
+          "Position": [0.0,0.0,0.699999988079071],
+          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 6245648090127512782,
+      "Name": "New Entity"
+    },
+    {
+      "Children": [6245648090127512782],
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [19,5],
+          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [2.6000192165374756,3.0167977809906006,1.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 8112480734364184747,
+      "Name": "Fire tower"
+    },
+    {
       "Children": [2253303594192775278],
       "Components": {
         "SpriteRenderer": {
@@ -165,9 +215,9 @@
   "Name": "Towers",
   "Prefabs": [
     {
-      "GUID": 6526301464658577465,
+      "GUID": 12598841727129875697,
       "Name": "Fire tower",
-      "Root": 16570911987029872563
+      "Root": 8112480734364184747
     }
   ]
 }

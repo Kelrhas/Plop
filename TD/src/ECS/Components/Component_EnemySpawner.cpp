@@ -142,7 +142,7 @@ void EnemySpawnerSystem::OnUpdate( const Plop::TimeStep& _ts, entt::registry& _r
 				enemyComp.xPathCurve = spawner.xPathCurve;
 
 				auto& spriteComp = entityEnemy.AddComponent<Plop::Component_SpriteRenderer>();
-				auto hSpritesheet = Plop::AssetLoader::GetSpritesheet( Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef" );
+				auto hSpritesheet = Plop::AssetLoader::GetSpritesheet("assets/textures/tiles.ssdef");
 				if (hSpritesheet)
 				{
 					spriteComp.xSprite->SetSpritesheet( hSpritesheet, "enemy" );

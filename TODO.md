@@ -9,7 +9,9 @@
 
 - change window title depending on level & configuration
 - fix memory tracking (the std::map are released before every delete is called so we try to access freed memory, problem of static order initialization)
-- use Asset for Texture inheritance
+- Assets
+	- use Asset class for Texture inheritance
+	- change the path stored in definition files to be relative to said definition file
 - Serialise a level into an object before opening the file
 	- Prevents erasing the whole file when something goes wrong during serialisation 
 	- Centralise all the Assets to load before creating the Entities
@@ -27,6 +29,7 @@
 	- add PrefabInstance (store GUID) component to track from what prefab it comes from
 	- only serialise difference between prefab and instance
 	- update prefab from instance
+- add a virtual file system to load from different mount points (to load from the Editor/Engine/Game folder)
 
 
 **[Editor]**

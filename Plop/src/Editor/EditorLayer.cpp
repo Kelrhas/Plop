@@ -187,7 +187,7 @@ namespace Plop
 	{
 		EventDispatcher::RegisterListener( this );
 
-		Private::hIconSpriteSheet = AssetLoader::GetSpritesheet( "Plop\\assets\\icons\\editor.ssdef" );
+		Private::hIconSpriteSheet = AssetLoader::GetSpritesheet( Application::Get()->GetEditorDirectory() / "assets/icons/editor.ssdef" );
 
 		m_xEditorCamera->Init();
 		m_xEditorCamera->SetNear( 0.01f );

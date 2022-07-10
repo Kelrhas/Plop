@@ -60,7 +60,7 @@ constexpr float Hexgrid::Cell::GetPathFindCost() const
 void Hexgrid::Init(U32 _uWidth, U32 _uHeight)
 {
 	Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
-	StringPath sSpritesheet = std::filesystem::canonical(Plop::Application::Get()->GetRootDirectory() / "assets/textures/hexagons.ssdef");
+	StringPath sSpritesheet = std::filesystem::canonical("assets/textures/hexagons.ssdef");
 	auto hSpritesheet = Plop::AssetLoader::GetSpritesheet(sSpritesheet);
 
 	Plop::Entity grid = xLevel->CreateEntity("grid");

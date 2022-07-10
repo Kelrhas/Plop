@@ -244,9 +244,8 @@ usage:
 			return;
 
 
-		StringPath filePath = _sPath.is_absolute() ? _sPath : Application::Get()->GetRootDirectory() / _sPath;
-		std::filesystem::create_directories(filePath.parent_path());
-		std::ifstream libraryFile(filePath, std::ios::in);
+		//std::filesystem::create_directories(_sPath.parent_path());
+		std::ifstream libraryFile(_sPath, std::ios::in);
 
 		if (libraryFile.is_open())
 		{
@@ -341,9 +340,8 @@ usage:
 			auto &sKey = itPair.first;
 			auto &lib = itPair.second;
 
-			StringPath filePath = lib.sPath.is_absolute() ? lib.sPath : Application::Get()->GetRootDirectory() / lib.sPath;
-			std::filesystem::create_directories(filePath.parent_path());
-			std::ofstream libraryFile(filePath, std::ios::out | std::ios::trunc);
+			std::filesystem::create_directories(lib.sPath.parent_path());
+			std::ofstream libraryFile(lib.sPath, std::ios::out | std::ios::trunc);
 			if (libraryFile.is_open())
 			{
 				json jLib;

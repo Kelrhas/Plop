@@ -65,7 +65,7 @@ namespace Plop
 	void Config::Load()
 	{
 		using json = nlohmann::json;
-		std::ifstream configFile( Application::Get()->GetRootDirectory() / Config::CONFIG_FILE_NAME, std::ios::in );
+		std::ifstream configFile(Config::CONFIG_FILE_NAME, std::ios::in);
 		if (configFile.is_open())
 		{
 			json config;
@@ -78,7 +78,7 @@ namespace Plop
 	{
 		using json = nlohmann::json;
 
-		std::ofstream configFile( Application::Get()->GetRootDirectory() / Config::CONFIG_FILE_NAME, std::ios::out );
+		std::ofstream configFile(Config::CONFIG_FILE_NAME, std::ios::out);
 		if (configFile.is_open())
 		{
 			json config = *this;
@@ -144,14 +144,16 @@ namespace Plop
 
 	void Application::Init()
 	{
+		ASSERTM(s_pInstance == nullptr, "Only one instance of Application authorized");
+		s_pInstance = this;
+
+		std::filesystem::current_path(GetRootDirectory());
+
 #ifdef USE_CONSTANT_RANDOM
 		RandomSeed(42llu);
 #else
 		RandomSeed(time(0));
 #endif
-
-		ASSERTM( s_pInstance == nullptr, "Only one instance of Application authorized" );
-		s_pInstance = this;
 
 		Console::Init();
 		VERIFYM( Log::Init(), "Log did not init properly" );

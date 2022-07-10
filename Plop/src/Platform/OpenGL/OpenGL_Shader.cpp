@@ -24,18 +24,18 @@ namespace Plop
 		glDeleteProgram( m_uProgram );
 	}
 
-	void OpenGL_Shader::Load(const String& _sFile)
+	void OpenGL_Shader::Load(const StringPath& _sFile)
 	{
 		GL_DEBUG_GROUP_SCOPED("Shader::Load");
 
 		String sContent;
 		std::ifstream file(_sFile, std::ios::in | std::ios::binary);
-		ASSERTM(file.is_open(), "File not found: %s", _sFile.c_str());
+		ASSERTM(file.is_open(), "File not found: {}", _sFile.string().c_str());
 		if (file.is_open())
 		{
 			file.seekg(0, std::ios::end);
 			size_t size = file.tellg();
-			ASSERTM(size > 0, "The file %s is empty", _sFile);
+			ASSERTM(size > 0, "The file %s is empty", _sFile.string().c_str());
 			if (size > 0)
 			{
 				sContent.resize(size);

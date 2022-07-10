@@ -24,10 +24,10 @@ namespace Plop
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		io.ConfigDockingTransparentPayload = true;
 
-		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Light.ttf", 18.f );
-		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Regular.ttf", 18.f );
-		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Italic.ttf", 18.f );
-		io.Fonts->AddFontFromFileTTF( "Plop/assets/fonts/open_sans/OpenSans-Bold.ttf", 18.f );
+		io.Fonts->AddFontFromFileTTF((Application::Get()->GetEngineDirectory() / "assets/fonts/open_sans/OpenSans-Light.ttf").string().c_str(), 18.f);
+		io.Fonts->AddFontFromFileTTF((Application::Get()->GetEngineDirectory() / "assets/fonts/open_sans/OpenSans-Regular.ttf").string().c_str(), 18.f);
+		io.Fonts->AddFontFromFileTTF((Application::Get()->GetEngineDirectory() / "assets/fonts/open_sans/OpenSans-Italic.ttf").string().c_str(), 18.f);
+		io.Fonts->AddFontFromFileTTF((Application::Get()->GetEngineDirectory() / "assets/fonts/open_sans/OpenSans-Bold.ttf").string().c_str(), 18.f);
 		io.FontDefault = io.Fonts->Fonts[(int)ImGui::FontWeight::REGULAR];
 
 		ImGui::StyleColorsDark();

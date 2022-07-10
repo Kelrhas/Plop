@@ -100,7 +100,7 @@ namespace Plop
 
 		void			SubmitDraw(const MeshPtr& _xMesh);
 
-		ShaderPtr		LoadShader( const String& _sFile );
+		ShaderPtr		LoadShader( const StringPath& _sFile );
 
 		void			PushEntityId(entt::id_type _entityId);
 		void			PopEntityId();

@@ -11,13 +11,12 @@ namespace Plop
 	//////////////////////////////////////////////////////////////////////////
 	// Shader
 
-	String Shader::GetNameFromFile(const String& _sFile)
+	String Shader::GetNameFromFile(const StringPath &_sFile)
 	{
-		std::filesystem::path sPath = _sFile;
-		return sPath.filename().string();
+		return _sFile.filename().string();
 	}
 
-	ShaderPtr Shader::Create(const String& _sFile)
+	ShaderPtr Shader::Create(const StringPath & _sFile)
 	{
 		ShaderPtr xShader = nullptr;
 		switch (Renderer::GetAPI())
@@ -40,7 +39,7 @@ namespace Plop
 	//////////////////////////////////////////////////////////////////////////
 	// ShaderLibrary
 
-	ShaderPtr ShaderLibrary::Load( const String& _sFile )
+	ShaderPtr ShaderLibrary::Load( const StringPath& _sFile )
 	{
 		auto& it = m_mapShaders.find(Shader::GetNameFromFile(_sFile));
 		if (it != m_mapShaders.end())

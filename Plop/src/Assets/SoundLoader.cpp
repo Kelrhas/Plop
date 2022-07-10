@@ -18,13 +18,11 @@ namespace Plop::AssetLoader
 	{
 		SoundPtr load( const StringPath& _path ) const
 		{
-			StringPath sAssetpath = Application::Get()->GetRootDirectory() / _path;
-
 			SoundPtr xSnd;
 			if (_path.extension() == ".wav")
-				xSnd = LoadWAV( sAssetpath );
+				xSnd = LoadWAV(_path);
 			else if (_path.extension() == ".mp3")
-				xSnd = LoadMP3( sAssetpath );
+				xSnd = LoadMP3(_path);
 			else
 				Debug::TODO();
 

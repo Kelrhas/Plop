@@ -9,7 +9,7 @@ namespace Plop
 	class OpenGL_Texture2D : public Texture2D
 	{
 	public:
-		OpenGL_Texture2D( const String& _sFile );
+		OpenGL_Texture2D(const StringPath &_sFile);
 		OpenGL_Texture2D( uint32_t _uWidth, uint32_t _uHeight, FlagsType _eFlags, void* _pData, const String& _sName = "" );
 		virtual ~OpenGL_Texture2D();
 

@@ -207,9 +207,8 @@ namespace Plop
 
 	void LevelBase::Save( const StringPath& _path )
 	{
-		StringPath filePath = _path.is_absolute() ? _path : Application::Get()->GetRootDirectory() / _path;
-		std::filesystem::create_directories( filePath.parent_path() );
-		std::ofstream levelFile( filePath, std::ios::out | std::ios::trunc );
+		std::filesystem::create_directories(_path.parent_path() );
+		std::ofstream levelFile(_path, std::ios::out | std::ios::trunc );
 		if (levelFile.is_open())
 		{
 			json jLevel = this->ToJson();
@@ -223,8 +222,7 @@ namespace Plop
 
 	bool LevelBase::Load( const StringPath& _path )
 	{
-		StringPath filePath = _path.is_absolute() ? _path : Application::Get()->GetRootDirectory() / _path;
-		std::ifstream levelFile( filePath, std::ios::in );
+		std::ifstream levelFile(_path, std::ios::in );
 		if (levelFile.is_open())
 		{
 			Application::GetConfig().sLastLevelActive = _path.string();

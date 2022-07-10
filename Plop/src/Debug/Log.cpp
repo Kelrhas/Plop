@@ -10,7 +10,7 @@ namespace Plop
 
 	bool Log::Init()
 	{
-		s_LogFile.open( Application::Get()->GetRootDirectory() / LOG_FILE, std::ios::out );
+		s_LogFile.open(LOG_FILE, std::ios::out);
 
 		Info("Info");
 		Assert("Assert");

@@ -92,7 +92,7 @@ namespace Plop
 			uint32_t checker[4] = { 0xAAAAAAFF, 0x333333FF, 0x333333FF, 0xAAAAAAFF };
 			s_defaultTextures[(int)DefaultTexture::CHECKER] = Texture::Create2D( 2, 2, (Texture::FlagsType)Texture::Flags::UV_REPEAT, &checker, "checker" );
 
-			s_xShader = LoadShader( "data/shaders/textured.glsl" );
+			s_xShader = LoadShader( Application::Get()->GetEngineDirectory() / "data/shaders/textured.glsl" );
 			s_xShader->Bind();
 			s_xShader->SetUniformVec4( "u_color", glm::vec4( 1.f ) );
 
@@ -183,7 +183,7 @@ namespace Plop
 			s_pAPI->DrawIndexed( _xMesh->m_xVertexArray );
 		}
 
-		ShaderPtr LoadShader( const String& _sFile )
+		ShaderPtr LoadShader( const StringPath& _sFile )
 		{
 			return s_shaderLibrary.Load( _sFile );
 		}

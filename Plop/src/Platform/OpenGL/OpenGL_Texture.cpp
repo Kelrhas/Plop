@@ -5,13 +5,15 @@
 
 namespace Plop
 {
-	OpenGL_Texture2D::OpenGL_Texture2D( const String& _sFile )
+	OpenGL_Texture2D::OpenGL_Texture2D(const StringPath &_sFile)
 		: Texture2D()
 	{
 		int iWidth, iHeight, iChannels;
 		stbi_set_flip_vertically_on_load( true );
-		stbi_uc* pData = stbi_load( _sFile.c_str(), &iWidth, &iHeight, &iChannels, 0 );
-		ASSERTM( pData, "File '%s' has failed to load", _sFile.c_str() );
+		stbi_uc* pData = stbi_load( _sFile.string().c_str(), &iWidth, &iHeight, &iChannels, 0 );
+		ASSERTM( pData, "Texture file '{}' has failed to load", _sFile.string().c_str() );
+		if (!pData)
+			return;
 
 		m_uWidth = iWidth;
 		m_uHeight = iHeight;
@@ -44,11 +46,11 @@ namespace Plop
 
 		glTextureSubImage2D( m_uID, 0, 0, 0, m_uWidth, m_uHeight, m_eDataFormat, GL_UNSIGNED_BYTE, pData );
 
-		glObjectLabel( GL_TEXTURE, m_uID, 0, _sFile.c_str() );
+		glObjectLabel( GL_TEXTURE, m_uID, 0, _sFile.string().c_str() );
 
 		stbi_image_free( pData );
 
-		m_sName = _sFile;
+		m_sName = _sFile.filename().string();
 	}
 
 	OpenGL_Texture2D::OpenGL_Texture2D( uint32_t _uWidth, uint32_t _uHeight, FlagsType _eFlags, void* _pData, const String& _sName /*= ""*/ )

@@ -39,10 +39,10 @@ void TDLevel::Init()
 {
 	Plop::LevelBase::Init();
 
-	StringPath sSpritesheet = std::filesystem::canonical(Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef");
+	StringPath sSpritesheet = std::filesystem::canonical("assets/textures/tiles.ssdef");
 	Plop::SpritesheetHandle hSpritesheet = Plop::AssetLoader::GetSpritesheet(sSpritesheet);
 
-	Plop::PrefabManager::LoadPrefabLibrary(Plop::Application::Get()->GetRootDirectory() / "data/prefabs/Towers.prefablib");
+	Plop::PrefabManager::LoadPrefabLibrary("data/prefabs/Towers.prefablib");
 
 
 	m_SpawnerEntity = CreateEntity( "Spawner" );

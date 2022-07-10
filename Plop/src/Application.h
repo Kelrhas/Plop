@@ -52,7 +52,8 @@ namespace Plop
 
 				void			Run();
 		virtual String			GetName() const = 0;
-		virtual StringPath		GetRootDirectory() const = 0;
+		virtual StringPath		GetEngineDirectory() const = 0 { return StringPath("Plop"); }
+		virtual	StringPath		GetEditorDirectory() const = 0 { return StringPath("Editor"); }
 
 				Window&			GetWindow() const { return *m_xWindow; }
 
@@ -88,6 +89,7 @@ namespace Plop
 
 	private:
 
+		virtual StringPath		GetRootDirectory() const = 0;
 		virtual GameConfig*		CreateGameConfig();
 		virtual LevelBasePtr	CreateNewLevelPrivate();
 				void			RegisterMandatoryComponents();

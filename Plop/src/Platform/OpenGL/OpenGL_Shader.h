@@ -12,7 +12,7 @@ namespace Plop
 		OpenGL_Shader();
 		~OpenGL_Shader();
 
-		virtual void Load( const String& _sFile ) override;
+		virtual void Load(const StringPath &_sFile) override;
 		virtual void Load( const String& _sVertSrc, const String& _sFragSrc ) override;
 		virtual void Bind() const override;
 		virtual void Unbind() const override;

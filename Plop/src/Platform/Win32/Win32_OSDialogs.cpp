@@ -31,7 +31,7 @@ namespace Plop
 		ofn.nFilterIndex = 1;
 		ofn.lpstrFileTitle = NULL;
 		ofn.nMaxFileTitle = 0;
-		StringPath rootAbsolute = std::filesystem::canonical( Application::Get()->GetRootDirectory() );
+		StringPath rootAbsolute = std::filesystem::current_path();
 		String sRootAbs = rootAbsolute.string(); // keep memory alive for lpstrInitialDir
 		ofn.lpstrInitialDir = sRootAbs.c_str();
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_DONTADDTORECENT | OFN_ENABLESIZING | OFN_NOCHANGEDIR | OFN_NONETWORKBUTTON;
@@ -43,7 +43,7 @@ namespace Plop
 			// make relative
 			if (_sFilePath.is_absolute())
 			{
-				StringPath activeDirectory = std::filesystem::canonical( Application::Get()->GetRootDirectory() );
+				StringPath activeDirectory = std::filesystem::current_path();
 				StringPath relativePath = _sFilePath.lexically_relative( activeDirectory );
 
 				if (!relativePath.empty())
@@ -72,7 +72,7 @@ namespace Plop
 		ofn.nFilterIndex = 1;
 		ofn.lpstrFileTitle = NULL;
 		ofn.nMaxFileTitle = 0;
-		StringPath rootAbsolute = std::filesystem::canonical( Application::Get()->GetRootDirectory() );
+		StringPath rootAbsolute = std::filesystem::current_path();
 		String sRootAbs = rootAbsolute.string(); // keep memory alive for lpstrInitialDir
 		ofn.lpstrInitialDir = sRootAbs.c_str();
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT | OFN_ENABLESIZING | OFN_NOCHANGEDIR | OFN_NONETWORKBUTTON | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT;
@@ -84,7 +84,7 @@ namespace Plop
 			// make relative
 			if (_sFilePath.is_absolute())
 			{
-				StringPath activeDirectory = std::filesystem::canonical( Application::Get()->GetRootDirectory() );
+				StringPath activeDirectory = std::filesystem::current_path();
 				StringPath relativePath = _sFilePath.lexically_relative( activeDirectory );
 
 				if (!relativePath.empty())

@@ -116,7 +116,7 @@ void LevelGrid::Init( const LevelConstraints& _constraints )
 
 	//// generate entities according to the definitions generated
 
-	m_sSpritesheet = std::filesystem::canonical( Plop::Application::Get()->GetRootDirectory() / "assets/textures/tiles.ssdef" );
+	m_sSpritesheet = std::filesystem::canonical("assets/textures/tiles.ssdef");
 	m_hSpritesheet = Plop::AssetLoader::GetSpritesheet( m_sSpritesheet );
 
 

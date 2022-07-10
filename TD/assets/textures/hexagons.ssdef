@@ -1,5 +1,5 @@
 {
-	"TexturePath": "TD/assets/textures/hex.png",
+	"TexturePath": "assets/textures/hex.png",
 	"Columns": 1,
 	"Rows": 1,
 	"Aliases": {

@@ -16,6 +16,7 @@ namespace Plop::AssetLoader
 			SpritesheetPtr xSpritesheet;
 
 			std::ifstream assetFile( _path, std::ios::in );
+			ASSERTM(assetFile.is_open(), "Spritesheet file not found: {}", _path.string().c_str());
 			if (assetFile.is_open())
 			{
 				json jSpritesheet;
@@ -28,7 +29,7 @@ namespace Plop::AssetLoader
 					return xSpritesheet;
 
 				xSpritesheet = std::make_shared<Spritesheet>();
-				xSpritesheet->LoadFromFile( _path );
+				xSpritesheet->LoadFromFile(std::filesystem::canonical(_path));
 
 				xSpritesheet->m_hTexture = GetTexture( jSpritesheet["TexturePath"] );
 				if (jSpritesheet.contains( "Columns" ))
@@ -39,7 +40,6 @@ namespace Plop::AssetLoader
 					jSpritesheet["Aliases"].get_to( xSpritesheet->m_mapAliases );
 			}
 
-
 			return xSpritesheet;
 		}
 	};
@@ -48,7 +48,8 @@ namespace Plop::AssetLoader
 
 	SpritesheetHandle GetSpritesheet( const StringPath& _sFilepath )
 	{
-		return s_CacheSpritesheet.load<SpritesheetLoader>( entt::hashed_string( _sFilepath.string().c_str() ), _sFilepath );
+		String sName = _sFilepath.stem().string();
+		return s_CacheSpritesheet.load<SpritesheetLoader>(entt::hashed_string(sName.c_str()), _sFilepath);
 	}
 
 	void ClearSpritesheetCache()
@@ -98,7 +99,8 @@ namespace Plop::AssetLoader
 						if (ImGui::IsItemHovered())
 						{
 							ImGui::BeginTooltip();
-							ImGui::Text( _hSpritesheet->GetFilePathStr().c_str() );
+							ImGui::Text(_hSpritesheet->GetFilePath().stem().string().c_str());
+							ImGui::Text(_hSpritesheet->GetFilePath().parent_path().string().c_str());
 							ImGui::EndTooltip();
 						}
 						ImGui::NextColumn();
@@ -113,7 +115,7 @@ namespace Plop::AssetLoader
 				StringPath filePath;
 				if (Dialog::OpenFile( filePath, Dialog::SPRITESHEET_FILTER ))
 				{
-					hNewSpritesheet = GetSpritesheet( Application::Get()->GetRootDirectory() / filePath );
+					hNewSpritesheet = GetSpritesheet(filePath);
 				}
 			}
 

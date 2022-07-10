@@ -4,7 +4,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,2],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
@@ -38,7 +38,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,5],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
@@ -55,7 +55,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,5],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
@@ -83,7 +83,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,2],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Tower": {
@@ -116,7 +116,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [20,5],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
@@ -144,7 +144,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [20,4],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Tower": {
@@ -166,7 +166,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,5],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
@@ -194,7 +194,7 @@
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,2],
-          "Spritesheet": "TD\\assets\\textures\\tiles.ssdef",
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Tower": {

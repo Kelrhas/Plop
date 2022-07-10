@@ -1,5 +1,5 @@
 {
-	"TexturePath": "TD/assets/textures/tilesheet.png",
+	"TexturePath": "assets/textures/tilesheet.png",
 	"Columns": 23,
 	"Rows": 13,
 	"Aliases": {

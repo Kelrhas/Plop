@@ -30,7 +30,10 @@ namespace Plop
 
 	void LevelBase::Init()
 	{
-		m_ENTTRegistry.sort<Component_GraphNode, Component_Transform>(); // minimizes cache misses when iterating together
+		// minimizes cache misses when iterating together
+		// CAREFUL sorting is incompatible with group and will assert
+		//m_ENTTRegistry.sort 
+
 		m_ENTTRegistry.ctx_or_set<Plop::GUID>() = GUID();
 		m_ENTTRegistry.ctx_or_set<LevelBase*>() = this;
 

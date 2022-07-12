@@ -1,0 +1,70 @@
+﻿---
+BasedOnStyle: Mozilla
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: 'true'
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveDeclarations: 'true'
+AlignEscapedNewlines: Left
+AlignOperands: 'true'
+AlignTrailingComments: 'true'
+AllowAllArgumentsOnNextLine: 'false'
+AllowAllConstructorInitializersOnNextLine: 'false'
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortCaseLabelsOnASingleLine: 'true'
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: Inline
+AllowShortLoopsOnASingleLine: 'false'
+AlwaysBreakAfterReturnType: TopLevel
+AlwaysBreakBeforeMultilineStrings: 'false'
+AlwaysBreakTemplateDeclarations: 'Yes'
+BinPackArguments: 'false'
+BinPackParameters: 'true'
+BreakBeforeBraces: Allman
+BreakBeforeTernaryOperators: 'false'
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+ColumnLimit: 100
+CompactNamespaces: 'false'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+DerivePointerAlignment: 'false'
+FixNamespaceComments: 'true'
+IncludeBlocks: Regroup
+IndentCaseLabels: 'true'
+IncludeCategories:
+     - Regex:           '.*pch\.h'
+       Priority:        -1
+IndentPPDirectives: BeforeHash
+IndentWidth: '4'
+IndentWrappedFunctionNames: 'false'
+KeepEmptyLinesAtTheStartOfBlocks: 'false'
+Language: Cpp
+MaxEmptyLinesToKeep: '2'
+NamespaceIndentation: All
+PenaltyBreakAssignment: '10'
+PenaltyBreakBeforeFirstCallParameter: '10'
+PenaltyBreakFirstLessLess: '20'
+PenaltyReturnTypeOnItsOwnLine: '100'
+PointerAlignment: Right
+SortIncludes: 'true'
+SpaceAfterCStyleCast: 'false'
+SpaceAfterLogicalNot: 'false'
+SpaceAfterTemplateKeyword: 'false'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeCpp11BracedList: 'true'
+SpaceBeforeCtorInitializerColon: 'true'
+SpaceBeforeInheritanceColon: 'true'
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: 'true'
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInContainerLiterals: 'false'
+SpacesInParentheses: 'false'
+SpacesInSquareBrackets: 'false'
+Standard: Cpp11
+TabWidth: '4'
+UseTab: Always
+
+...

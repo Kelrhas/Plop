@@ -140,6 +140,22 @@ namespace Plop
 		}
 	}
 
+	bool Entity::HasChildren() const
+	{
+		if (m_hEntity)
+		{
+			auto &graphNodeParent = m_hEntity.get<Component_GraphNode>();
+
+#ifdef ALLOW_DYNAMIC_CHILDREN
+			return graphNodeParent.firstChild != entt::null;
+#else
+			return graphNodeParent.nbChild != 0;
+#endif
+		}
+
+		return false;
+	}
+
 	void Entity::GetChildren(std::vector<Entity> &_outvecChildren) const
 	{
 		_outvecChildren.clear();
@@ -162,6 +178,29 @@ namespace Plop
 			}
 #endif
 		}
+	}
+
+	size_t Entity::GetChildrenCount() const
+	{
+		if (m_hEntity)
+		{
+			auto &graphNodeParent = m_hEntity.get<Component_GraphNode>();
+
+#ifdef ALLOW_DYNAMIC_CHILDREN
+			size_t count = 0;
+			auto childEntity = graphNodeParent.firstChild;
+			while (childEntity != entt::null)
+			{
+				childEntity = m_hEntity.registry().get<Component_GraphNode>(childEntity).nextSibling;
+				++count;
+			}
+			return count;
+#else
+			return graphNodeParent.nbChild;
+#endif
+		}
+
+		return 0;
 	}
 
 	void Entity::AddChild(Entity &_Child)
@@ -218,6 +257,7 @@ namespace Plop
 				auto &graphNodePrev = reg.get<Component_GraphNode>(graphNodeChild.prevSibling);
 				graphNodePrev.nextSibling = graphNodeChild.nextSibling;
 			}
+
 			if (graphNodeChild.nextSibling != entt::null)
 			{
 				auto &graphNodeNext = reg.get<Component_GraphNode>(graphNodeChild.nextSibling);

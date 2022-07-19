@@ -3,7 +3,7 @@ namespace Plop
 {
 #ifdef USE_ENTITY_HANDLE
 	template<typename Visitor>
-	void Entity::ChildVisitor(Visitor visitor) const
+	void Entity::ChildVisitor(Visitor &&visitor) const
 	{
 		const auto& graphNodeParent = m_hEntity.get<Component_GraphNode>();
 		auto childEntity = graphNodeParent.firstChild;
@@ -11,10 +11,11 @@ namespace Plop
 
 		while (childEntity != entt::null)
 		{
+			const auto& graphNodeChild = reg.get<Component_GraphNode>(childEntity);
+			const auto next = graphNodeChild.nextSibling;
 			visitor(Entity(childEntity, reg));
 
-			const auto& graphNodeChild = reg.get<Component_GraphNode>(childEntity);
-			childEntity = reg.get<Component_GraphNode>(childEntity).nextSibling;
+			childEntity = next;
 		}
 	}
 

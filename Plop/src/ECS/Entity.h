@@ -58,10 +58,12 @@ namespace Plop
 		// TODO: make sure the parent is not one of the (recursive) child
 		void												SetParent( Entity& _Parent );
 
-		void												GetChildren(std::vector<Entity>& _outvecChildren ) const;
+		bool												HasChildren() const;
+		void												GetChildren(std::vector<Entity> &_outvecChildren) const;
+		size_t												GetChildrenCount() const;
 		
 		template<typename Visitor>
-		void												ChildVisitor( Visitor visitor ) const;
+		void												ChildVisitor(Visitor &&visitor) const;
 
 	private:
 		void												AddChild( Entity& _Child );

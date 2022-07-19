@@ -19,6 +19,7 @@
 #include "ECS/Components/Component_Camera.h"
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Components/Component_Transform.h"
+#include "ECS/Components/Component_SpriteRenderer.h"
 #include "ECS/LevelBase.h"
 #include "ECS/Serialisation.h"
 #include "Editor/UndoManager.h"
@@ -993,7 +994,8 @@ namespace Plop
 			{
 				glm::mat4 mTransform = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldMatrix();
 
-				EditorGizmo::Cube(glm::vec3(0.5f, 0.5f, 0.01f), mTransform);
+				if (m_SelectedEntity.HasComponent<Component_SpriteRenderer>())
+					EditorGizmo::Cube(glm::vec3(0.5f, 0.5f, 0.01f), mTransform);
 
 				if (m_SelectedEntity.HasComponent<Component_Camera>())
 				{

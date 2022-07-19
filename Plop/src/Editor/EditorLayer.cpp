@@ -798,7 +798,10 @@ namespace Plop
 					else
 					{
 						ImGui::PushStyleColor(graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID);
-						if (ImGui::Selectable( sName.c_str(), bSelected ))
+						ImGuiSelectableFlags flags = ImGuiSelectableFlags_None;
+						if (!m_bAllowPicking)
+							flags |= ImGuiSelectableFlags_Disabled;
+						if (ImGui::Selectable( sName.c_str(), bSelected, flags))
 						{
 							m_SelectedEntity = _Entity;
 							m_eEditMode = EditMode::NONE;

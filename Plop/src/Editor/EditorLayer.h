@@ -43,6 +43,9 @@ namespace Plop
 		static	json			GetJsonEntity( const Entity& _entity );
 		static	void			SetJsonEntity( const Entity& _entity, const json& _j );
 
+				void			PreventPicking() { m_bAllowPicking = false; }
+				void			RestorePicking() { m_bAllowPicking = true; }
+
 
 	private:
 		enum class EditMode
@@ -126,6 +129,7 @@ namespace Plop
 		LevelBasePtr		m_xEditingLevel = nullptr;
 		LevelState			m_eLevelState = LevelState::EDITING;
 		Entity				m_SelectedEntity;
+		bool				m_bAllowPicking = true;
 		EditMode			m_eEditMode = EditMode::NONE;
 		StringPath			m_sCurrentLevel;
 

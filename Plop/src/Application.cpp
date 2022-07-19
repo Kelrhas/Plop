@@ -324,7 +324,7 @@ namespace Plop
 
 			if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING)
 			{
-				if (Input::IsMouseLeftPressed())
+				if (Input::IsMouseLeftPressed() && m_EditorLayer.m_bAllowPicking)
 				{
 					const glm::vec2 &vWindowPos = Input::GetCursorWindowPos();
 					glm::vec2 vViewportPos = m_EditorLayer.GetViewportPosFromWindowPos(vWindowPos, true);

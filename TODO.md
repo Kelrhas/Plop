@@ -30,6 +30,8 @@
 	- only serialise difference between prefab and instance
 	- update prefab from instance
 - add a virtual file system to load from different mount points (to load from the Editor/Engine/Game folder)
+- fix picking (enttID that change version have a big int value, that may be rounded when converting to float)
+- fix closing app
 
 
 **[Editor]**
@@ -51,14 +53,15 @@
 	- might mean loading the registry in a different manner, see snapshot & archive
 - fix render while playing is paused
 - fix EditorCamera rotation when a Camera entity is selected and possibly when level is playing
+- fix zoom
 
 
 **[TD]**
 
 - using a hexgrid
 	- ~~pathfind~~
-	- make a component to be serialised -> rebuild all the grid from data, and not entities
+	- ~~make a component to be serialised -> rebuild all the grid from data, and not entities~~
+	- make sure Private::bPickingCell is reset when cliking outside the viewport
 - quadtree but for hex ?
 - clean LevelGrid
-
 

@@ -241,7 +241,7 @@ namespace Plop
 		{
 			if (xSprite->GetSpritesheetHandle())
 			{
-				j["Spritesheet"] = xSprite->GetSpritesheetHandle()->GetFilePathStr();
+				j["Spritesheet"] = xSprite->GetSpritesheetHandle()->GetFilePath().lexically_relative(std::filesystem::current_path()).string().c_str();
 				if (auto sAlias = xSprite->GetAlias(); !sAlias.empty())
 					j["Alias"] = sAlias;
 				else

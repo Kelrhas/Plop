@@ -352,6 +352,12 @@ namespace Plop
 			ComponentManager::FromJson(m_hEntity.registry(), m_hEntity.entity(), _jEntity["Components"]);
 		}
 	}
+
+	void Entity::AfterLoad()
+	{
+		ComponentManager::AfterLoad(m_hEntity.registry(), m_hEntity.entity());
+	}
+
 #pragma endregion
 
 #else

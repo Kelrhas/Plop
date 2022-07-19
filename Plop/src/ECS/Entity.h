@@ -97,9 +97,7 @@ namespace Plop
 	public:
 		virtual nlohmann::json								ToJson() const;
 		virtual void										FromJson(const nlohmann::json& _jEntity );
-
-
-
+		virtual void										AfterLoad();
 	};
 }
 

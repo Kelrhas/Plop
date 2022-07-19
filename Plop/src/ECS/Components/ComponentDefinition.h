@@ -105,6 +105,21 @@ namespace Plop
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// FromJson
+	//////////////////////////////////////////////////////////////////////////
+	
+	MACRO_ALL_DEFAULT(AfterLoad)
+
+	template<class Comp, class RegistryType, class EntityType, std::enable_if_t<HasAfterLoad<Comp>::value, bool> = true>
+	constexpr static void AmbiguousCallComponentAfterLoad(RegistryType &registry, EntityType _entity)
+	{
+		ASSERTM(registry.has<Comp>(_entity), "The entity does not have this component");
+		Comp &comp = registry.get<Comp>(_entity);
+		comp.AfterLoad();
+	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// ToJson

@@ -37,6 +37,7 @@ namespace Plop
 			CallbackDuplicate funcDuplicate;
 			CallbackFromJson funcFromJson;
 			CallbackToJson funcToJson;
+			Callback funcAfterLoad;
 
 		};
 
@@ -55,6 +56,7 @@ namespace Plop
 		static void EditorUI( Registry& _reg, EntityType _e );
 		static void FromJson( Registry& _reg, EntityType _e, const Json& _j);
 		static void ToJson( const Registry& _reg, EntityType _e, Json& _j);
+		static void AfterLoad(Registry &_reg, EntityType _e);
 		static void DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest );
 		
 		template<typename Visitor>
@@ -103,6 +105,7 @@ namespace Plop
 		info.funcDuplicate = CallDuplicateComponent<Comp, Registry&, EntityType>;
 		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType, const Json&>;
 		info.funcToJson = CallComponentToJson<Comp, Json, const Registry&, EntityType>;
+		info.funcAfterLoad = CallComponentAfterLoad<Comp, Registry &, EntityType>;
 
 
 		s_mapComponents.insert_or_assign( id, info );

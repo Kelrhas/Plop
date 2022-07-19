@@ -28,6 +28,9 @@ namespace Plop
 			}
 		}
 
+		ImGui::NewLine();
+		ImGui::Separator();
+		ImGui::Separator();
 		if (ImGui::Button( "+ Add Component" ))
 		{
 			ImGui::OpenPopup( "Add Component" );
@@ -71,6 +74,17 @@ namespace Plop
 				auto j = info.funcToJson(_reg, _e);
 				if (!j.empty())
 					_j["Components"][info.pName] = j;
+			}
+		}
+	}
+
+	void ComponentManager::AfterLoad(Registry &_reg, EntityType _e)
+	{
+		for (auto &[id, info] : s_mapComponents)
+		{
+			if (HasComponent(_reg, _e, id))
+			{
+				info.funcAfterLoad(_reg, _e);
 			}
 		}
 	}

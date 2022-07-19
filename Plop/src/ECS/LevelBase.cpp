@@ -316,6 +316,13 @@ namespace Plop
 				Entity e = GetEntityFromGUID(j[JSON_GUID]);
 				e.FromJson(j);
 			}
+
+			// notify after every entities and components are created
+			for (const auto &j : _j[JSON_ENTITIES])
+			{
+				Entity e = GetEntityFromGUID(j[JSON_GUID]);
+				e.AfterLoad();
+			}
 		}
 	}
 

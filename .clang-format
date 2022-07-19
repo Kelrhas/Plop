@@ -16,7 +16,8 @@ AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: Inline
 AllowShortLoopsOnASingleLine: 'false'
-AlwaysBreakAfterReturnType: TopLevel
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: 'false'
 AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'false'
@@ -25,7 +26,7 @@ BreakBeforeBraces: Allman
 BreakBeforeTernaryOperators: 'false'
 BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: BeforeComma
-ColumnLimit: 100
+ColumnLimit: 160
 CompactNamespaces: 'false'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
 DerivePointerAlignment: 'false'
@@ -45,7 +46,7 @@ NamespaceIndentation: All
 PenaltyBreakAssignment: '10'
 PenaltyBreakBeforeFirstCallParameter: '10'
 PenaltyBreakFirstLessLess: '20'
-PenaltyReturnTypeOnItsOwnLine: '100'
+PenaltyReturnTypeOnItsOwnLine: '1000000'
 PointerAlignment: Right
 SortIncludes: 'true'
 SpaceAfterCStyleCast: 'false'

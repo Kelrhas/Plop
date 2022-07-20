@@ -1,7 +1,8 @@
 
 **[General]**
 - use an engine executable that calls the game dll (faster to compile ? easier to iterate on gameplay code by hot reloading the dll)
-- use a code style file
+- use C++20
+- ~~use a code style file~~
 - passer sur CMake
 
 

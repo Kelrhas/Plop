@@ -21,8 +21,5 @@ public:
 
 
 private:
-	Hexgrid m_grid;
-	Plop::Entity m_SpawnerEntity;
-	Plop::Entity m_BaseEntity;
 };
 

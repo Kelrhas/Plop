@@ -17,12 +17,13 @@
 #include <Debug/Log.h>
 #include <Math/Math.h>
 
-#include "Components/Component_PlayerBase.h"
 #include "Components/Component_Bullet.h"
 #include "Components/Component_Enemy.h"
 #include "Components/Component_EnemySpawner.h"
+#include "Components/Component_Hexgrid.h"
+#include "Components/Component_PlayerBase.h"
 #include "Components/Component_Tower.h"
-#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
+#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122
 
 
 TDLevel::TDLevel()
@@ -39,12 +40,12 @@ void TDLevel::Init()
 {
 	Plop::LevelBase::Init();
 
-	StringPath sSpritesheet = std::filesystem::canonical("assets/textures/tiles.ssdef");
-	Plop::SpritesheetHandle hSpritesheet = Plop::AssetLoader::GetSpritesheet(sSpritesheet);
-
 	Plop::PrefabManager::LoadPrefabLibrary("data/prefabs/Towers.prefablib");
 
+	/** /
 
+	StringPath sSpritesheet = std::filesystem::canonical("assets/textures/tiles.ssdef");
+	Plop::SpritesheetHandle hSpritesheet = Plop::AssetLoader::GetSpritesheet(sSpritesheet);
 	m_SpawnerEntity = CreateEntity( "Spawner" );
 	m_SpawnerEntity.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
 	constexpr glm::vec3 vSpawnerPos(0.f, 0.f, 1.f);
@@ -61,15 +62,12 @@ void TDLevel::Init()
 
 	auto& baseSpriteComp = m_BaseEntity.AddComponent<Plop::Component_SpriteRenderer>();
 	baseSpriteComp.xSprite->SetSpritesheet( hSpritesheet, "player_base" );
-
-	m_grid.Init(30, 20);
+	/**/
 }
 
 void TDLevel::Shutdown()
 {
 	Plop::LevelBase::Shutdown();
-
-	m_grid.Reset();
 }
 
 
@@ -78,7 +76,7 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 {
 	PROFILING_FUNCTION();
 
-
+	/*
 	if (Plop::Input::IsMouseLeftPressed() && !m_xCurrentCamera.expired())
 	{
 		// TODO viewport panel
@@ -117,10 +115,12 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 			}
 		}
 	}
+	*/
 
 	EnemySpawnerSystem::OnUpdate( _ts, m_ENTTRegistry );
 	EnemySystem::OnUpdate( _ts, m_ENTTRegistry );
 	TowerSystem::OnUpdate( _ts, m_ENTTRegistry );
+	HexgridSystem::OnUpdate( _ts, m_ENTTRegistry );
 
 	auto& viewEnemy = m_ENTTRegistry.view<Component_Enemy, Plop::Component_Transform, Plop::Component_AABBCollider>();
 
@@ -181,7 +181,8 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 {
 	Plop::LevelBase::UpdateInEditor( _ts );
 
-
+	HexgridSystem::OnUpdateEditor(_ts, m_ENTTRegistry);
+	/** /
 	if (Plop::Input::IsMouseRightPressed())
 	{
 		auto &editor = Plop::Application::Get()->GetEditor();
@@ -192,12 +193,20 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 		glm::vec3 vMousePos = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
 
 
+		Hexgrid *pGrid = nullptr;
+		m_ENTTRegistry.view<Component_Hexgrid>().each(
+		  [&pGrid](entt::entity _e, Component_Hexgrid &gridComp) {
+			  ASSERTM(pGrid == nullptr, "Hexgrid already found");
+			  pGrid = &gridComp.m_grid;
+		  });
+
+
 		Hexgrid::Cell cellClick;
-		if (m_grid.GetCell(Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy), &cellClick))
+		if (pGrid->GetCell(Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy), &cellClick))
 		{
 			Hexgrid::Cell startCell;
-			m_grid.GetCell(Hexgrid::CellCoord(0, 0, 0), &startCell);
-			auto &pf = m_grid.GetPathfind(startCell, cellClick);
+			pGrid->GetCell(Hexgrid::CellCoord(0, 0, 0), &startCell);
+			auto &pf = pGrid->GetPathfind(startCell, cellClick);
 
 			auto &spawnerComp = m_SpawnerEntity.GetComponent<Component_EnemySpawner>();
 			const glm::vec3 vSpawnerPos = m_SpawnerEntity.GetComponent<Plop::Component_Transform>().GetWorldPosition();
@@ -219,8 +228,9 @@ void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 				glm::vec3 vTarget = glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(cellClick.coord), fDepth);
 				spawnerComp.xPathCurve->vecControlPoints.push_back(vTarget - vSpawnerPos);
 
-				m_BaseEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition(vTarget);
+				m_BaseEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition(vTarget - VEC3_FORWARD);
 			}
 		}
 	}
+	/**/
 }

@@ -1,4 +1,6 @@
 
+#include "ECS/Components/BaseComponents.h"
+
 namespace Plop
 {
 #ifdef USE_ENTITY_HANDLE

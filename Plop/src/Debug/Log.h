@@ -79,5 +79,50 @@ namespace Plop
 
 	private:
 	};
-}
+} // namespace Plop
 
+namespace fmt
+{
+	template<glm::length_t L, typename T, glm::qualifier Q>
+	struct formatter<glm::vec<L, T, Q>> : formatter<T>
+	{
+		using Vec = glm::vec<L, T, Q>;
+
+		template<typename FormatContext>
+		auto format(const Vec &_v, FormatContext &ctx) -> decltype(ctx.out())
+		{
+			auto out = std::copy_n("{", 1, ctx.out());
+			for (int i = 0; i < L; ++i)
+			{
+				out = formatter<T>::format(_v[i], ctx);
+				if (i < L - 1)
+					out = std::copy_n(",", 1, out);
+			}
+			out = std::copy_n("}", 1, out);
+
+			return out;
+		}
+	};
+
+
+	template<glm::length_t Row, glm::length_t Col, typename T, glm::qualifier Q>
+	struct formatter<glm::mat<Row, Col, T, Q>> : formatter<typename glm::mat<Row, Col, T, Q>::col_type>
+	{
+		using Mat = glm::mat<Row, Col, T, Q>;
+
+		template<typename FormatContext>
+		auto format(const Mat &_m, FormatContext &ctx) -> decltype(ctx.out())
+		{
+			auto out = std::copy_n("{", 1, ctx.out());
+			for (int i = 0; i < Row; ++i)
+			{
+				formatter<typename Mat::col_type>::format(_m[i], ctx);
+				if (i < Row - 1)
+					out = std::copy_n(",", 1, out);
+			}
+			out = std::copy_n("}", 1, out);
+
+			return out;
+		}
+	};
+} // namespace fmt

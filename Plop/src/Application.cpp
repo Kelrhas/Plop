@@ -210,6 +210,7 @@ namespace Plop
 			if (xLevel->Load( m_Config.sLastLevelActive ))
 			{
 				m_EditorLayer.m_sCurrentLevel = m_Config.sLastLevelActive;
+				m_xWindow->SetTitleSuffix(m_EditorLayer.m_sCurrentLevel.stem().string());
 			}
 			else
 			{

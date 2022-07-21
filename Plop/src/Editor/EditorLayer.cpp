@@ -1089,6 +1089,8 @@ namespace Plop
 		m_xEditingLevel->Init();
 		m_SelectedEntity.Reset();
 		m_sCurrentLevel.clear();
+
+		Application::Get()->GetWindow().SetTitleSuffix("*unsaved*");
 	}
 
 	void EditorLayer::OpenLevel()
@@ -1102,6 +1104,8 @@ namespace Plop
 			m_SelectedEntity.Reset();
 			m_xEditingLevel->Load( sLevelPath );
 			m_sCurrentLevel = sLevelPath;
+
+			Application::Get()->GetWindow().SetTitleSuffix(sLevelPath.stem().string());
 		}
 	}
 
@@ -1127,6 +1131,8 @@ namespace Plop
 			Application::GetCurrentLevel().lock()->Save( sLevelPath );
 			PrefabManager::SaveLibraries();
 			m_sCurrentLevel = sLevelPath;
+
+			Application::Get()->GetWindow().SetTitleSuffix(sLevelPath.stem().string());
 		}
 	}
 

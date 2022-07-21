@@ -8,7 +8,7 @@
 
 **[Plop]**
 
-- change window title depending on level & configuration
+- ~~change window title depending on level & configuration~~
 - fix memory tracking (the std::map are released before every delete is called so we try to access freed memory, problem of static order initialization)
 - Assets
 	- use Asset class for Texture inheritance

@@ -15,7 +15,6 @@
 #include <ECS/ParticleSpawners.h>
 #include <ECS/PrefabManager.h>
 #include <Debug/Log.h>
-#include <Math/Math.h>
 
 #include "Components/Component_Bullet.h"
 #include "Components/Component_Enemy.h"
@@ -41,28 +40,6 @@ void TDLevel::Init()
 	Plop::LevelBase::Init();
 
 	Plop::PrefabManager::LoadPrefabLibrary("data/prefabs/Towers.prefablib");
-
-	/** /
-
-	StringPath sSpritesheet = std::filesystem::canonical("assets/textures/tiles.ssdef");
-	Plop::SpritesheetHandle hSpritesheet = Plop::AssetLoader::GetSpritesheet(sSpritesheet);
-	m_SpawnerEntity = CreateEntity( "Spawner" );
-	m_SpawnerEntity.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
-	constexpr glm::vec3 vSpawnerPos(0.f, 0.f, 1.f);
-	m_SpawnerEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition(vSpawnerPos);
-	m_SpawnerEntity.AddComponent<Component_EnemySpawner>();
-	auto& spawnerSpriteComp = m_SpawnerEntity.AddComponent<Plop::Component_SpriteRenderer>();
-	spawnerSpriteComp.xSprite->SetSpritesheet( hSpritesheet, "0" );
-
-
-	m_BaseEntity = CreateEntity( "Base" );
-	m_BaseEntity.AddFlag( Plop::EntityFlag::DYNAMIC_GENERATION );
-	auto& baseComp = m_BaseEntity.AddComponent<Component_PlayerBase>();
-	baseComp.fLife = 10.f;
-
-	auto& baseSpriteComp = m_BaseEntity.AddComponent<Plop::Component_SpriteRenderer>();
-	baseSpriteComp.xSprite->SetSpritesheet( hSpritesheet, "player_base" );
-	/**/
 }
 
 void TDLevel::Shutdown()
@@ -70,6 +47,12 @@ void TDLevel::Shutdown()
 	Plop::LevelBase::Shutdown();
 }
 
+void TDLevel::OnStart()
+{
+	LevelBase::OnStart();
+
+	HexgridSystem::OnStart(m_ENTTRegistry);
+}
 
 void TDLevel::Update( Plop::TimeStep& _ts ) 
 
@@ -117,10 +100,10 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 	}
 	*/
 
-	EnemySpawnerSystem::OnUpdate( _ts, m_ENTTRegistry );
-	EnemySystem::OnUpdate( _ts, m_ENTTRegistry );
-	TowerSystem::OnUpdate( _ts, m_ENTTRegistry );
-	HexgridSystem::OnUpdate( _ts, m_ENTTRegistry );
+	EnemySpawnerSystem::OnUpdate(_ts, m_ENTTRegistry);
+	EnemySystem::OnUpdate(_ts, m_ENTTRegistry);
+	TowerSystem::OnUpdate(_ts, m_ENTTRegistry);
+	HexgridSystem::OnUpdate(_ts, m_ENTTRegistry);
 
 	auto& viewEnemy = m_ENTTRegistry.view<Component_Enemy, Plop::Component_Transform, Plop::Component_AABBCollider>();
 
@@ -177,60 +160,16 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 	Plop::LevelBase::Update( _ts );
 }
 
+void TDLevel::OnStop()
+{
+	LevelBase::OnStop();
+
+	HexgridSystem::OnStop(m_ENTTRegistry);
+}
+
 void TDLevel::UpdateInEditor( Plop::TimeStep _ts )
 {
 	Plop::LevelBase::UpdateInEditor( _ts );
 
 	HexgridSystem::OnUpdateEditor(_ts, m_ENTTRegistry);
-	/** /
-	if (Plop::Input::IsMouseRightPressed())
-	{
-		auto &editor = Plop::Application::Get()->GetEditor();
-		auto &xCamera = editor.GetEditorCamera();
-
-		glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
-		vScreenPos = editor.GetViewportPosFromWindowPos(vScreenPos);
-		glm::vec3 vMousePos = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
-
-
-		Hexgrid *pGrid = nullptr;
-		m_ENTTRegistry.view<Component_Hexgrid>().each(
-		  [&pGrid](entt::entity _e, Component_Hexgrid &gridComp) {
-			  ASSERTM(pGrid == nullptr, "Hexgrid already found");
-			  pGrid = &gridComp.m_grid;
-		  });
-
-
-		Hexgrid::Cell cellClick;
-		if (pGrid->GetCell(Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy), &cellClick))
-		{
-			Hexgrid::Cell startCell;
-			pGrid->GetCell(Hexgrid::CellCoord(0, 0, 0), &startCell);
-			auto &pf = pGrid->GetPathfind(startCell, cellClick);
-
-			auto &spawnerComp = m_SpawnerEntity.GetComponent<Component_EnemySpawner>();
-			const glm::vec3 vSpawnerPos = m_SpawnerEntity.GetComponent<Plop::Component_Transform>().GetWorldPosition();
-
-			if (pf.bValid)
-			{
-				const float fDepth = 0.f;
-				spawnerComp.xPathCurve->vecControlPoints.clear();
-				spawnerComp.xPathCurve->vecControlPoints.push_back(glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(startCell.coord), fDepth) - vSpawnerPos);
-
-				glm::vec3 vLastCoord = glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(pf.vecPath.front().coord), fDepth);
-				for (auto &path : pf.vecPath)
-				{
-					const glm::vec3 vCoord = glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(path.coord), fDepth);
-					spawnerComp.xPathCurve->vecControlPoints.push_back((vCoord + vLastCoord) / 2.f - vSpawnerPos);
-					vLastCoord = vCoord;
-				}
-
-				glm::vec3 vTarget = glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(cellClick.coord), fDepth);
-				spawnerComp.xPathCurve->vecControlPoints.push_back(vTarget - vSpawnerPos);
-
-				m_BaseEntity.GetComponent<Plop::Component_Transform>().SetWorldPosition(vTarget - VEC3_FORWARD);
-			}
-		}
-	}
-	/**/
 }

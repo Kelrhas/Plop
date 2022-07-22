@@ -23,6 +23,8 @@ struct Component_Hexgrid
 
 namespace HexgridSystem
 {
+	void OnStart(entt::registry &_registry);
 	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry);
 	void OnUpdateEditor(const Plop::TimeStep &_ts, entt::registry &_registry);
+	void OnStop(entt::registry &_registry);
 }

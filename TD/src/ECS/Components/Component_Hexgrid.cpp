@@ -248,7 +248,7 @@ void HexgridSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registr
 		Plop::Log::Info("	Dist: {}", glm::manhattanDistance(coord, Hexgrid::CellCoord(0, 0, 0)) / 2.f);
 
 		Hexgrid::Cell cellClick;
-		if (pHexgrid->GetCell(coord, &cellClick))
+		if (pHexgrid->GetCell(coord, &cellClick) && cellClick.eType == CellType::TOWER_SUPPORT)
 		{
 			bool bOverlap = false;
 			auto view	  = xLevel->GetEntityRegistry().view<Plop::Component_Transform, Component_Tower>();

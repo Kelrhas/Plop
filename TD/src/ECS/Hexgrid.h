@@ -12,6 +12,7 @@ enum class CellType
 
 	PATH,
 	WALL,
+	TOWER_SUPPORT,
 
 	COUNT
 };
@@ -19,6 +20,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(CellType, {
 	{CellType::INVALID, nullptr},
 	{CellType::PATH, "PATH"},
 	{CellType::WALL, "WALL"},
+	{CellType::TOWER_SUPPORT, "TOWER_SUPPORT"},
 })
 
 class Hexgrid

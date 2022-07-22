@@ -62,6 +62,7 @@ constexpr float Hexgrid::Cell::GetPathFindCost() const
 	{
 		case CellType::PATH: return 1.f;
 		case CellType::WALL: return -1.f;
+		case CellType::TOWER_SUPPORT: return -1.f;
 	}
 
 	return 1.f;
@@ -74,7 +75,8 @@ void Hexgrid::Cell::ApplyCellType() const
 	switch (eType)
 	{
 		case CellType::PATH: spriteComp.xSprite->SetTint(COLOR_WHITE); break;
-		case CellType::WALL: spriteComp.xSprite->SetTint(COLOR_RED); break;
+		case CellType::WALL: spriteComp.xSprite->SetTint(COLOR_BLACK); break;
+		case CellType::TOWER_SUPPORT: spriteComp.xSprite->SetTint(COLOR_RED); break;
 		case CellType::INVALID:
 		default: spriteComp.xSprite->SetTint(COLOR_GREY192); break;
 	}

@@ -82,6 +82,7 @@ usage:
 			}
 		}
 
+		Plop::Log::Error("Prefab not found with the GUID {}", _guid);
 		return Entity();
 	}
 
@@ -169,6 +170,11 @@ usage:
 								{
 									if (ImGui::MenuItem("Delete prefab"))
 										pPrefabToDelete = &prefab;
+									if (ImGui::MenuItem("Copy GUID"))
+									{
+										String s = fmt::format("{}", prefab.guid);
+										ImGui::SetClipboardText(s.c_str());
+									}
 
 									ImGui::EndPopup();
 								}

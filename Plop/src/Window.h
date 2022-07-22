@@ -44,9 +44,19 @@ namespace Plop
 
 		static Window*		Create(WindowConfig& _config);
 
+		void				SetTitleSuffix(const String &_sSuffix)
+		{
+			m_sTitleSuffix = _sSuffix;
+			SetFullTitle();
+		}
+
 	protected:
-		WindowConfig& m_config;
+		virtual void		SetFullTitle() const = 0;
+
+		WindowConfig &	 m_config;
 		RenderContextPtr m_xRenderContext = nullptr;
+		String			 m_sTitlePrefix;
+		String			 m_sTitleSuffix;
 	};
 }
 

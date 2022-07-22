@@ -89,18 +89,20 @@ namespace Plop
 
 	void LevelBase::StartFromEditor()
 	{
-		Init();
+		OnStart();
 	}
 
 	void LevelBase::StopToEditor()
 	{
-		Shutdown();
+		OnStop();
 	}
 
 	void LevelBase::UpdateInEditor( TimeStep _ts )
 	{
 		DrawSprites();
 	}
+
+	void LevelBase::OnStart() {}
 
 	bool LevelBase::BeforeUpdate()
 	{
@@ -133,6 +135,8 @@ namespace Plop
 	{
 
 	}
+
+	void LevelBase::OnStop() {}
 
 	Entity LevelBase::CreateEntity( const String& _sName /*= "New Entity"*/ )
 	{

@@ -39,9 +39,11 @@ namespace Plop
 		virtual void StopToEditor();
 		virtual	void UpdateInEditor( TimeStep _ts );
 
-				bool BeforeUpdate();			// prepare the rendering
+		virtual void OnStart();
+				bool BeforeUpdate();			// prepare the rendering, returns if rendering can proceed
 		virtual	void Update( TimeStep& _ts );	// update & submit rendering
 				void AfterUpdate();				// close the rendering
+		virtual void OnStop();
 
 				Entity CreateEntity( const String& _sName = "New Entity" );
 				Entity CreateEntityWithGUID(Plop::GUID _guid);

@@ -37,6 +37,7 @@ namespace Plop
 
 	class Application : public IEventListener
 	{
+		friend class EditorLayer;
 	public:
 		Application( const StringVec& _Arguments );
 		Application( const Application& ) = delete;

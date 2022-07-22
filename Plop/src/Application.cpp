@@ -197,6 +197,7 @@ namespace Plop
 		RegisterComponents();
 
 		LevelBasePtr xLevel = CreateNewLevel();
+		xLevel->Init();
 		if (m_bEditorMode)
 			m_EditorLayer.m_xEditingLevel = xLevel;
 		else
@@ -307,10 +308,13 @@ namespace Plop
 			{
 				// TODO make async
 				if (m_xLoadedLevel == nullptr)
+				{
 					m_xLoadedLevel = Application::Get()->CreateNewLevel();
+					m_xLoadedLevel->Init();
+				}
 
-				m_xLoadedLevel->StartFromEditor();
 				m_xLoadedLevel->CopyFrom( m_EditorLayer.m_xEditingLevel );
+				m_xLoadedLevel->StartFromEditor();
 
 				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::RUNNING;
 			}

@@ -1085,6 +1085,11 @@ namespace Plop
 	{
 		if (m_xEditingLevel)
 			m_xEditingLevel->Shutdown();
+		if (Application::Get()->m_xLoadedLevel)
+		{
+			Application::Get()->m_xLoadedLevel->Shutdown();
+			Application::Get()->m_xLoadedLevel = nullptr;
+		}
 		m_xEditingLevel = Application::Get()->CreateNewLevel();
 		m_xEditingLevel->Init();
 		m_SelectedEntity.Reset();
@@ -1098,6 +1103,11 @@ namespace Plop
 		{
 			if (m_xEditingLevel)
 				m_xEditingLevel->Shutdown();
+			if (Application::Get()->m_xLoadedLevel)
+			{
+				Application::Get()->m_xLoadedLevel->Shutdown();
+				Application::Get()->m_xLoadedLevel = nullptr;
+			}
 			m_xEditingLevel = Application::Get()->CreateNewLevel();
 			m_SelectedEntity.Reset();
 			m_xEditingLevel->Load( sLevelPath );

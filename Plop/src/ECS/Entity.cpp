@@ -281,12 +281,8 @@ namespace Plop
 
 #pragma region COMPONENTS
 
-	std::map<String, std::function<void(Entity)>>	Entity::s_mapAddComponent;
-
 	void Entity::EditorUI()
 	{
-		s_mapAddComponent.clear();
-
 		if (ImGui::CollapsingHeader("Node"))
 		{
 			bool bFlag = HasFlag(EntityFlag::NO_SERIALISATION);
@@ -614,12 +610,8 @@ void Entity::RemoveChild(Entity& _Child)
 
 #pragma region COMPONENTS
 
-std::map<String, std::function<void(Entity)>>	Entity::s_mapAddComponent;
-
 void Entity::EditorUI()
 {
-	s_mapAddComponent.clear();
-
 	auto& registry = m_xLevel.lock()->m_ENTTRegistry;
 
 	if (ImGui::CollapsingHeader("Node"))

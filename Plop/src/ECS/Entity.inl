@@ -53,46 +53,6 @@ namespace Plop
 		return m_hEntity.get<Comp>();
 	}
 
-
-
-	template <class Comp, class Registry>
-	void Entity::EditorUIComponent(const char* _pComponentName, Registry& __registry)
-	{
-		if constexpr (!HasEditorUI<Comp>())
-			return;
-
-
-		if (HasComponent<Comp>())
-		{
-
-			bool bNoRemove = true;
-			bool* pNoRemove = CanRemoveComponent<Comp>() ? &bNoRemove : nullptr;
-
-			if (ImGui::CollapsingHeader(_pComponentName, pNoRemove))
-			{
-				ImGui::Indent(30.f);
-				ImGui::PushID("Widget");
-
-				CallEditorUI<Comp>(m_hEntity.registry(), m_hEntity.entity());
-
-				ImGui::PopID();
-				ImGui::Unindent(30.f);
-			}
-
-			if (!bNoRemove)
-			{
-				RemoveComponent<Comp>();
-			}
-		}
-		else
-		{
-			std::function func = [] (Entity _entity)
-			{
-				_entity.AddComponent<Comp>();
-			};
-			s_mapAddComponent[_pComponentName] = func;
-		}
-	}
 #else
 	template<typename Visitor>
 	void Entity::ChildVisitor( Visitor visitor ) const
@@ -143,43 +103,5 @@ namespace Plop
 	}
 
 
-
-	template <class Comp, class Registry>
-	void Entity::EditorUIComponent( const char* _pComponentName, Registry& registry )
-	{
-		if constexpr (!HasEditorUI<Comp>())
-			return;
-
-
-		if (HasComponent<Comp>())
-		{
-
-			bool bNoRemove = true;
-			bool* pNoRemove = CanRemoveComponent<Comp>() ? &bNoRemove : nullptr;
-
-			if (ImGui::CollapsingHeader( _pComponentName, pNoRemove ))
-			{
-				ImGui::Indent( 30.f );
-				ImGui::PushID( "Widget" );
-
-				CallEditorUI<Comp>( registry, *this );
-
-				ImGui::PopID();
-				ImGui::Unindent( 30.f );
-			}
-
-			if (!bNoRemove)
-			{
-				RemoveComponent<Comp>();
-			}
-		}
-		else
-		{
-			std::function func = []( Entity _entity ) {
-				_entity.AddComponent<Comp>();
-			};
-			s_mapAddComponent[_pComponentName] = func;
-		}
-	}
 #endif
 }

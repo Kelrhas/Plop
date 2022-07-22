@@ -77,11 +77,7 @@ namespace Plop
 		template <class Comp, typename ...Args>	void		RemoveComponent();
 		template <class Comp>					bool		HasComponent() const;
 		template <class Comp>					Comp&		GetComponent() const;
-		template <class Comp, class Registry>	void		EditorUIComponent(const char* _pComponentName, Registry& registry );
 		void												EditorUI();
-
-		// @check
-		static std::map<String, std::function<void( Entity )>>	s_mapAddComponent;
 
 
 		//// FLAGS

@@ -2,12 +2,14 @@
 **[General]**
 - use an engine executable that calls the game dll (faster to compile ? easier to iterate on gameplay code by hot reloading the dll)
 - use C++20
+	- VS2022 ou autre éditeur + compilo + RemedyBG
 - ~~use a code style file~~
 - passer sur CMake
 
 
 **[Plop]**
 
+- add a RuntimeLayer to replace EditorLayer when not using the editor
 - ~~change window title depending on level & configuration~~
 - fix memory tracking (the std::map are released before every delete is called so we try to access freed memory, problem of static order initialization)
 - Assets
@@ -17,7 +19,7 @@
 	- Prevents erasing the whole file when something goes wrong during serialisation 
 	- Centralise all the Assets to load before creating the Entities
 - improve world/local matrices computation, use caching ? or a WorldMatrixComponent
-- fix resolution of 0 when minimizing
+- fix resolution of 0 when minimizing -> split rendering from game update ...
 - save the window being maximized
 - ~~use entt::handle~~
 - update EnTT
@@ -27,12 +29,30 @@
 - spritesheet creator/modification
 - prefab system
 	- ~~simple instanciation~~
-	- add PrefabInstance (store GUID) component to track from what prefab it comes from
+	- add PrefabInstance component (store GUID) to track from what prefab it comes
 	- only serialise difference between prefab and instance
 	- update prefab from instance
 - add a virtual file system to load from different mount points (to load from the Editor/Engine/Game folder)
 - fix picking (enttID that change version have a big int value, that may be rounded when converting to float)
 - fix closing app
+- add drag and drop for component input
+	- entity
+	- components
+
+
+**[UI]**
+
+Immediate mode like ImGUI ?
+- UI::IUIElement interface for every following element
+- UI::IVisibleElement interface for every visible element
+- UI::IContainer (has alignement constraints)
+- 
+- UI::Dialog (root + screen positionning)
+- UI::Button (interaction, not )
+- UI::Text (font rendering)
+- UI::Image (texture rendering)
+
+
 
 
 **[Editor]**

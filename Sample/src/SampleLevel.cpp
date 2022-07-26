@@ -6,11 +6,17 @@
 #include "SampleComponents.h"
 
 #include <ECS/Components/Component_Transform.h>
+#include <UI/IUIElement.h>
 
 void SampleLevel::Init()
 {
 	LevelBase::Init();
 
+	m_xRoot = std::make_unique<UI::Dialog>();
+	m_xRoot->SetPosition(VEC2_0); // top left corner
+	m_xRoot->SetSize(VEC2_1);	  // fullscreen
+	
+	m_xRoot->CreateElement<UI::Text>("Text");
 }
 
 void SampleLevel::Update(Plop::TimeStep &_ts)
@@ -27,4 +33,7 @@ void SampleLevel::Update(Plop::TimeStep &_ts)
 		qRot		   = glm::rotate(qRot, rotComp.fSpeed * _ts.GetGameDeltaTime(), rotComp.vAxis);
 		transform.SetLocalRotation(qRot);
 	}
+
+	m_xRoot->OnUpdate();
+	m_xRoot->OnRender();
 }

@@ -227,6 +227,8 @@ namespace Plop
 			if (IsSelectedEntityForLevel(Application::GetCurrentLevel()) && m_SelectedEntity.HasComponent<Component_Camera>())
 			{
 				xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
+				if (!xCamera && Application::Get()->IsUsingEditorCamera())
+					xCamera = m_xEditorCamera;
 			}
 			else if (Application::Get()->IsUsingEditorCamera())
 			{

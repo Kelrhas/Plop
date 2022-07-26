@@ -7,6 +7,9 @@ project "Sample"
 	
 	location "./"
 	debugdir "../"
+	
+	pchheader "Sample_pch.h"
+	pchsource "%{prj.location}/src/Sample_pch.cpp"
 		
 	files
 	{

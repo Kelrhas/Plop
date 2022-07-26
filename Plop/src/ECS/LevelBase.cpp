@@ -1,4 +1,5 @@
 #include "Plop_pch.h"
+
 #include "LevelBase.h"
 
 #include <fstream>
@@ -235,19 +236,23 @@ namespace Plop
 			Shutdown();
 			Init();
 
-			size_t fileSize = levelFile.tellg();
-			levelFile.seekg( 0, std::ios::end );
-			fileSize = (size_t)levelFile.tellg() - fileSize;
-			if (fileSize > 10)
+			json jLevel;
+
+			try
 			{
-				levelFile.seekg( std::ios::beg );
-				json jLevel;
-
 				levelFile >> jLevel;
-
 				FromJson( jLevel );
+				
+				return true;
 			}
-			return true;
+			catch (const json::parse_error &e)
+			{
+				Log::Error("JSON parsing error for {}:\n\t{}", _path.string().c_str(), e.what());
+			}
+			catch (const std::exception &e)
+			{
+				Log::Error("Unkown error when parsing {}:\n\t{}", _path.string().c_str(), e.what());
+			}
 		}
 
 		return false;

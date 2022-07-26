@@ -2,6 +2,25 @@
   "Entities": [
     {
       "Components": {
+        "Camera": {
+          "far": 100.0,
+          "near": 0.10000000149011612,
+          "ortho": false,
+          "orthoSize": 10.0,
+          "perspFOV": 1.1344640254974365
+        },
+        "Transform": {
+          "Position": [0.0,0.0,6.5],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 6046650454211506274,
+      "HintID": 1,
+      "Name": "Camera"
+    },
+    {
+      "Components": {
         "SpriteRenderer": {
           "Coord": [0,1],
           "Spritesheet": "..\\Editor\\assets\\icons\\editor.ssdef",
@@ -9,7 +28,7 @@
         },
         "Transform": {
           "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
+          "Rotation": [0.0,0.0,0.258819043636322,0.9659258127212524],
           "Scale": [1.0,1.0,1.0]
         }
       },

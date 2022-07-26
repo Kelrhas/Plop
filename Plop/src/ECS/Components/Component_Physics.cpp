@@ -64,7 +64,8 @@ namespace Plop
 #endif
 		const auto& transform = owner.GetComponent<Component_Transform>();
 		const glm::vec3& vWorldPos = transform.GetWorldPosition();
-		Plop::EditorGizmo::AABB( vMin + vWorldPos, vMax + vWorldPos );
+		constexpr glm::vec3 vColliderColor(0.1f, 0.8f, 0.15f);
+		Plop::EditorGizmo::AABB(vMin + vWorldPos, vMax + vWorldPos, vColliderColor);
 	}
 
 	json Component_AABBCollider::ToJson() const

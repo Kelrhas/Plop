@@ -100,6 +100,7 @@ void TDLevel::Update( Plop::TimeStep& _ts )
 	}
 	*/
 
+	PlayerBaseSystem::OnUpdate(_ts, m_ENTTRegistry);
 	EnemySpawnerSystem::OnUpdate(_ts, m_ENTTRegistry);
 	EnemySystem::OnUpdate(_ts, m_ENTTRegistry);
 	TowerSystem::OnUpdate(_ts, m_ENTTRegistry);

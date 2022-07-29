@@ -4,7 +4,7 @@
 #include <ECS/ECSHelper.h>
 #include <ECS/Components/Component_Transform.h>
 
-#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122 ?
+#pragma warning(disable:4267) // https://github.com/skypjack/entt/issues/122
 
 void Component_Enemy::Hit( float _fDamage )
 {

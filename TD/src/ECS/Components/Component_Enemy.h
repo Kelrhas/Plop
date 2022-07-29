@@ -9,6 +9,7 @@ struct Component_Enemy
 {
 	float fLife = 1.f;
 	float fMoveSpeed = 2.2f;
+	float fDamageToBase = 1.f;
 
 	void Hit( float _fDamage );
 	bool IsDead() const;

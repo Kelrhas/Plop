@@ -10,11 +10,13 @@ namespace Plop
 	public:
 		enum class Layer : uint8_t
 		{
-			NONE 	= 0x00,
-			CORE 	= 0x01,
-			INPUT 	= 0x02,
-			GUI 	= 0xF0,
-			ALL		= 0xFF
+			NONE 	= (1 << 0),
+			CORE 	= (1 << 1),
+			INPUT 	= (1 << 2),
+			GAME	= (1 << 3),
+
+			GUI 	= (1 << 7),
+			ALL		= (uint8_t)-1
 		};
 	
 		static void RegisterListener(IEventListener* _pListener, uint8_t _uLayer = (uint8_t)Layer::ALL);

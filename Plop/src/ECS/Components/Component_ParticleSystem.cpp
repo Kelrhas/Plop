@@ -261,7 +261,7 @@ namespace Plop
 		ImGui::Text( "%*llu/%llu alive particles", iNbChar, GetNbActiveParticles(), iMaxParticle );
 
 		static size_t iNewSize = iMaxParticle;
-		if (ImGui::DragBufferSize( "Max particles", &iNewSize, iMaxParticle, 1.f, 0xFFFFFFFF ))
+		if (ImGui::Custom::DragBufferSize( "Max particles", &iNewSize, iMaxParticle, 1.f, 0xFFFFFFFF ))
 		{
 			SetMaxNbParticles( iNewSize );
 		}

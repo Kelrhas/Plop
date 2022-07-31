@@ -1463,7 +1463,7 @@ namespace Plop
 		glm::vec2 vSSPoint3 = GetSSPosition( _v3 );
 		glm::vec2 vSSPoint4 = GetSSPosition( _v4 );
 
-		ImGui::PathCatmullCurve( drawList, vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4 );
+		ImGui::Custom::PathCatmullCurve(drawList, vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4);
 		
 		if (window)
 			drawList->PopClipRect();

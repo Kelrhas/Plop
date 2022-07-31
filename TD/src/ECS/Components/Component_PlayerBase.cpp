@@ -3,9 +3,12 @@
 #include "Component_PlayerBase.h"
 
 #include "ECS/Components/Component_Enemy.h"
+#include "TDEvents.h"
 
 #include <ECS/Components/Component_Physics.h>
 #include <ECS/Components/Component_Transform.h>
+#include <Events/EventDispatcher.h>
+#include <Events/GameEvent.h>
 
 #pragma warning(disable : 4267) // https://github.com/skypjack/entt/issues/122
 
@@ -14,8 +17,8 @@ void Component_PlayerBase::OnHit(float _fDamage)
 	fLife -= _fDamage;
 	if (fLife <= 0.f)
 	{
-		// GAME OVER
-		Plop::Debug::TODO();
+		Plop::GameEvent ev((S32)GameEventType::GameOver);
+		Plop::EventDispatcher::SendEvent(ev);
 	}
 }
 
@@ -50,7 +53,11 @@ namespace PlayerBaseSystem
 				  if (_baseCollider.IsColliding(_enemyCollider, _enemyTransform.GetWorldPosition()))
 				  {
 					  _baseComp.OnHit(_enemyComp.fDamageToBase);
-					  _enemyComp.fLife = 0.f;
+					  _enemyComp.fLife = 0.f; // kill the enemy
+
+					  Plop::GameEvent gameEvent((S32)GameEventType::LifeLost);
+					  gameEvent.SetData(_enemyComp.fDamageToBase);
+					  Plop::EventDispatcher::SendEvent(gameEvent);
 				  }
 			  });
 		  });

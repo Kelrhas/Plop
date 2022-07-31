@@ -7,7 +7,7 @@ namespace Plop
 		using base_t = uint64_t;
 
 		GUID();
-		GUID(base_t);
+		constexpr GUID(const base_t _uID) : m_uID(_uID) {}
 		explicit operator base_t() const { return m_uID; }
 		bool operator==(const GUID &_o) const { return m_uID == _o.m_uID; }
 		bool operator!=(const GUID& _o) const { return !(*this == _o); }

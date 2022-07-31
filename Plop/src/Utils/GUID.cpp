@@ -9,9 +9,4 @@ namespace Plop
 	{
 		m_uID = (uint64_t)RandomInt32() | (((uint64_t)RandomInt32()) << 32llu);
 	}
-
-	GUID::GUID(uint64_t _uID) : m_uID(_uID)
-	{
-
-	}
 }

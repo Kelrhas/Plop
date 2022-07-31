@@ -61,7 +61,7 @@ namespace Plop::AssetLoader
 	{
 		SpritesheetHandle hNewSpritesheet;
 
-		bool bOpened;
+		bool bOpened = true;
 		if (ImGui::BeginPopupModal( "Pick a loaded spritesheet###PickSpritesheetFromCache", &bOpened ))
 		{
 			static ImGuiTextFilter texFilter;

@@ -1,7 +1,7 @@
 {
 	"TexturePath": "../Editor/assets/icons/editor.png",
 	"Columns": 3,
-	"Rows": 2,
+	"Rows": 3,
 	"Aliases": {
 		"translate": {
 			"Column":0,
@@ -32,6 +32,11 @@
 			"Column":2,
 			"Row":0,
 			"Source":"../Editor/assets/icons/stop.png"
+		},
+		"prefab": {
+			"Column":0,
+			"Row":2,
+			"Source":"../Editor/assets/icons/prefab.png"
 		}
 	}
 }

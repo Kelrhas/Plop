@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ECS/Components/Component_ParticleSystem.h"
+#include "ECS/PrefabManager.h"
 #include "Utils/GUID.h"
 
 #include <glm/glm.hpp>
@@ -73,6 +74,13 @@ namespace nlohmann
 	{
 		static void to_json(json &j, const Plop::GUID &_guid);
 		static void from_json(const json &j, Plop::GUID &_guid);
+	};
+
+	template<>
+	struct adl_serializer<Plop::PrefabHandle>
+	{
+		static void to_json(json &j, const Plop::PrefabHandle &_hPrefab);
+		static void from_json(const json &j, Plop::PrefabHandle &_hPrefab);
 	};
 
 	template<>

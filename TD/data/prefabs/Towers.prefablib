@@ -3,7 +3,7 @@
     {
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,2],
+          "Coord": [19,10],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -37,7 +37,7 @@
       "Children": [6245648090127512782],
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,5],
+          "Coord": [19,7],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -54,7 +54,7 @@
       "Children": [2253303594192775278],
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,5],
+          "Coord": [19,7],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -82,7 +82,7 @@
     {
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,2],
+          "Coord": [19,10],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -115,7 +115,7 @@
       "Children": [8198742365755189042],
       "Components": {
         "SpriteRenderer": {
-          "Coord": [20,5],
+          "Coord": [20,7],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -143,7 +143,7 @@
     {
       "Components": {
         "SpriteRenderer": {
-          "Coord": [20,4],
+          "Coord": [20,8],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -165,7 +165,7 @@
       "Children": [1871685055047684375],
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,5],
+          "Coord": [19,7],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -193,7 +193,7 @@
     {
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,2],
+          "Coord": [19,10],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -215,7 +215,7 @@
       "Children": [10710752659820441],
       "Components": {
         "SpriteRenderer": {
-          "Coord": [18,7],
+          "Coord": [18,5],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -248,7 +248,7 @@
     {
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,2],
+          "Coord": [19,10],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },

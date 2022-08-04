@@ -5,63 +5,63 @@
 	"Aliases": {
 		"0": {
 			"Column":0,
-			"Row":0
+			"Row":12
 		},
 		"1": {
 			"Column":1,
-			"Row":0
+			"Row":12
 		},
 		"2": {
 			"Column":2,
-			"Row":0
+			"Row":12
 		},
 		"plane": {
 			"Column":18,
-			"Row":1
+			"Row":11
 		},
 		"plane_shadow": {
 			"Column":18,
-			"Row":0
+			"Row":12
 		},
 		"enemy": {
 			"Column":17,
-			"Row":2
+			"Row":10
 		},
 		"gravel": {
 			"Column":1,
-			"Row":8
+			"Row":4
 		},
 		"dirt": {
 			"Column":4,
-			"Row":10
+			"Row":2
 		},
 		"sand": {
 			"Column":11,
-			"Row":2
+			"Row":10
 		},
 		"grass": {
 			"Column":1,
-			"Row":11
+			"Row":1
 		},
 		"concrete": {
 			"Column":4,
-			"Row":1
+			"Row":11
 		},
 		"concrete-grass_interior_corner": {
 			"Column":3,
-			"Row":3
+			"Row":9
 		},
 		"concrete-grass_exterior_corner": {
 			"Column":2,
-			"Row":1
+			"Row":11
 		},
 		"concrete-grass_side": {
 			"Column":2,
-			"Row":2
+			"Row":10
 		},
 		"player_base": {
 			"Column":19,
-			"Row":5
+			"Row":7
 		}
 	}
 }

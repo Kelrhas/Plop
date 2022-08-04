@@ -5,32 +5,32 @@
 	"Aliases": {
 		"translate": {
 			"Column":0,
-			"Row":1,
+			"Row":0,
 			"Source":"../Editor/assets/icons/translate.png"
 		},
 		"rotate": {
 			"Column":1,
-			"Row":1,
+			"Row":0,
 			"Source":"../Editor/assets/icons/rotate.png"
 		},
 		"scale": {
 			"Column":2,
-			"Row":1,
+			"Row":0,
 			"Source":"../Editor/assets/icons/scale.png"
 		},
 		"play": {
 			"Column":0,
-			"Row":0,
+			"Row":1,
 			"Source":"../Editor/assets/icons/play.png"
 		},
 		"pause": {
 			"Column":1,
-			"Row":0,
+			"Row":1,
 			"Source":"../Editor/assets/icons/pause.png"
 		},
 		"stop": {
 			"Column":2,
-			"Row":0,
+			"Row":1,
 			"Source":"../Editor/assets/icons/stop.png"
 		},
 		"prefab": {

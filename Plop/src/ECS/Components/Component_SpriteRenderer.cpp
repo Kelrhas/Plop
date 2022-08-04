@@ -107,13 +107,11 @@ namespace Plop
 
 						if (ImGui::IsItemHovered())
 						{
-
 							glm::vec2 vMousePos = (glm::vec2)ImGui::GetIO().MousePos - vImageScreenPos;
 
 							vMousePos /= vImageDisplaySize; // gives UV
 
 							glm::ivec2 vIndex = vMousePos * glm::vec2( hSpritesheet->GetNbColumn(), hSpritesheet->GetNbRow() );
-							vIndex.y = hSpritesheet->GetNbRow() - vIndex.y - 1;
 
 							glm::vec2 vUVMin;
 							glm::vec2 vUVMax;

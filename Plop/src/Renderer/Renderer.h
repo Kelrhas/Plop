@@ -1,13 +1,13 @@
 #pragma once
 
-#include <stack>
+#include "Camera/Camera.h"
+#include "Renderer/FrameBuffer.h"
+#include "Renderer/Mesh.h"
+#include "Renderer/RendererConfig.h"
+#include "Renderer/Sprite.h"
 
 #include <entt/core/fwd.hpp>
-
-#include <Renderer/Mesh.h>
-#include <Renderer/Sprite.h>
-#include <Renderer/FrameBuffer.h>
-#include <Camera/Camera.h>
+#include <stack>
 
 namespace Plop
 {

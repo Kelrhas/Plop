@@ -335,7 +335,11 @@ namespace Plop
 				m_vViewportPosMinWindowSpace = vRegionMin + vImguiWindowPos - vWindowViewportPos; //m_vViewportPosMinScreenSpace - vMainViewportPos;
 				m_vViewportPosMaxWindowSpace = vRegionMax + vImguiWindowPos - vWindowViewportPos; //m_vViewportPosMaxScreenSpace - vMainViewportPos;
 
-				ImGui::Image( (ImTextureID)texId, vViewportSize, ImVec2(0, 1), ImVec2(1, 0) );
+				{
+					const ImVec2 vUvMin = Renderer::USE_INVERTED_Y_UV ? ImVec2(0, 1) : ImVec2(0, 0);
+					const ImVec2 vUvMax = Renderer::USE_INVERTED_Y_UV ? ImVec2(1, 0) : ImVec2(1, 1);
+					ImGui::Image((ImTextureID)texId, vViewportSize, vUvMin, vUvMax);
+				}
 
 				if (m_eLevelState == LevelState::EDITING ||
 					m_eLevelState == LevelState::PAUSED)
@@ -503,7 +507,7 @@ namespace Plop
 		bool bClicked = false;
 		if (Private::hIconSpriteSheet->GetSpriteUV( _pButton, vUVMin, vUVMax ))
 		{
-			bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, ImVec2( vUVMin.x, vUVMax.y ), ImVec2( vUVMax.x, vUVMin.y ), 0 );
+			bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, vUVMin, vUVMax, 0 );
 		}
 
 		ImGui::PopID();

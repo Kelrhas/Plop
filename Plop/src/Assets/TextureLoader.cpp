@@ -70,7 +70,9 @@ namespace Plop
 
 						// TODO: fix aspect ratio
 
-						if (ImGui::ImageButton( (ImTextureID)_hTexture->GetNativeHandle(), ImVec2( fWidth, fWidth ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ))
+						const ImVec2 vUvMin = Renderer::USE_INVERTED_Y_UV ? ImVec2(0, 1) : ImVec2(0, 0);
+						const ImVec2 vUvMax = Renderer::USE_INVERTED_Y_UV ? ImVec2(1, 0) : ImVec2(1, 1);
+						if (ImGui::ImageButton((ImTextureID)_hTexture->GetNativeHandle(), ImVec2(fWidth, fWidth), vUvMin, vUvMax))
 						{
 							hNewTexture = _hTexture;
 							return;

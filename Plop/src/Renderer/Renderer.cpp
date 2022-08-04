@@ -256,18 +256,22 @@ namespace Plop
 				v.fTexUnit = (float)s_sceneData.uNbTex++;
 			}
 
-			v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
-			v.vUV = glm::vec2( 0.f );
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
-			v.vUV.x = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.y = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.x = 0.f;
-			s_sceneData.vecVertices.push_back( v );
+			v.vPosition = _mTransform * glm::vec4(-0.5f, -0.5f, 0.f, 1.f);
+			v.vUV		= glm::vec2(0.f);
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, -0.5f, 0.f, 1.f);
+			v.vUV.x		= 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.y		= 1.f;
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 0.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(-0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.x		= 0.f;
+			s_sceneData.vecVertices.push_back(v);
 
 
 			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
@@ -327,18 +331,22 @@ namespace Plop
 				v.fTexUnit = (float)s_sceneData.uNbTex++;
 			}
 
-			v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
-			v.vUV = glm::vec2( 0.f );
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
-			v.vUV.x = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.y = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.x = 0.f;
-			s_sceneData.vecVertices.push_back( v );
+			v.vPosition = _mTransform * glm::vec4(-0.5f, -0.5f, 0.f, 1.f);
+			v.vUV		= glm::vec2(0.f);
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, -0.5f, 0.f, 1.f);
+			v.vUV.x		= 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.y		= 1.f;
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 0.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(-0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.x		= 0.f;
+			s_sceneData.vecVertices.push_back(v);
 
 
 			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
@@ -410,19 +418,22 @@ namespace Plop
 				}
 			}
 
-			v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
-			v.vUV = _sprite.GetUVMin();
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
-			v.vUV.x = _sprite.GetUVMax().x;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
-			v.vUV = _sprite.GetUVMax();
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.x = _sprite.GetUVMin().x;
-			s_sceneData.vecVertices.push_back( v );
-
+			v.vPosition = _mTransform * glm::vec4(-0.5f, -0.5f, 0.f, 1.f);
+			v.vUV		= _sprite.GetUVMin();
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = _sprite.GetUVMax().y;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, -0.5f, 0.f, 1.f);
+			v.vUV.x		= _sprite.GetUVMax().x;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, 0.5f, 0.f, 1.f);
+			v.vUV		= _sprite.GetUVMax();
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = _sprite.GetUVMin().y;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(-0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.x		= _sprite.GetUVMin().x;
+			s_sceneData.vecVertices.push_back(v);
 
 			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
 			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );

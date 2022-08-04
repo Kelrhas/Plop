@@ -2,6 +2,7 @@
 
 #include "Spritesheet.h"
 
+#include "Renderer.h"
 #include "Renderer/Sprite.h"
 
 namespace Plop
@@ -19,9 +20,17 @@ namespace Plop
 		const float fHeight = 1.f / m_uNbRow;
 
 		_vUVMin.x = _vIndices.x * fWidth;
-		_vUVMin.y = _vIndices.y * fHeight;
 		_vUVMax.x = _vUVMin.x + fWidth * _vSize.x;
-		_vUVMax.y = _vUVMin.y + fHeight * _vSize.y;
+		if constexpr (Renderer::USE_INVERTED_Y_UV)
+		{
+			_vUVMax.y = (m_uNbRow - _vIndices.y - 1) * fHeight;
+			_vUVMin.y = _vUVMax.y + fHeight * _vSize.y;
+		}
+		else
+		{
+			_vUVMin.y = (m_uNbRow - _vIndices.y - 1) * fHeight;
+			_vUVMax.y = _vUVMin.y + fHeight * _vSize.y;
+		}
 
 		return true;
 	}

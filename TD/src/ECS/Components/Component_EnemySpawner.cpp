@@ -13,6 +13,7 @@
 #include <ECS/PrefabManager.h>
 #include <Utils/JsonTypes.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <imgui_custom.h>
 
 #pragma warning(disable : 4267) // https://github.com/skypjack/entt/issues/122 ?
 
@@ -31,6 +32,7 @@ void Component_EnemySpawner::EditorUI()
 #endif
 	const auto &vSpawnerPosition = owner.GetComponent<Plop::Component_Transform>().GetWorldPosition();
 
+	ImGui::Custom::InputPrefab("Enemy", wave.hEnemy);
 
 	size_t iNbPoint = xPathCurve->vecControlPoints.size();
 	if (ImGui::TreeNode(this, "Number of points: %llu", iNbPoint))
@@ -100,6 +102,7 @@ json Component_EnemySpawner::ToJson() const
 	j["Points"]	   = xPathCurve->vecControlPoints;
 	j["NbEnemies"] = wave.nbEnemies;
 	j["Delay"]	   = wave.fSpawnDelay;
+	j["Prefab"]	   = wave.hEnemy;
 	return j;
 }
 
@@ -111,6 +114,8 @@ void Component_EnemySpawner::FromJson(const json &_j)
 		wave.nbEnemies = _j["NbEnemies"];
 	if (_j.contains("Delay"))
 		wave.fSpawnDelay = _j["Delay"];
+	if (_j.contains("Prefab"))
+		wave.hEnemy = _j["Prefab"];
 }
 
 void EnemySpawnerSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
@@ -135,8 +140,7 @@ void EnemySpawnerSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_re
 				Plop::Entity owner { entity, xLevel };
 #endif
 
-				constexpr Plop::GUID guidEnemy	 = 902262106918197408llu;
-				auto				 entityEnemy = Plop::PrefabManager::InstantiatePrefab(guidEnemy, _registry, owner);
+				auto				 entityEnemy = Plop::PrefabManager::InstantiatePrefab(spawner.wave.hEnemy, _registry, owner);
 
 				entityEnemy.SetParent(owner);
 

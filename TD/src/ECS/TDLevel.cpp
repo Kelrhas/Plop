@@ -70,6 +70,7 @@ void TDLevel::OnStart()
 	LevelBase::OnStart();
 
 	HexgridSystem::OnStart(m_ENTTRegistry);
+	PlayerBaseSystem::OnStart(m_ENTTRegistry);
 }
 
 void TDLevel::Update(Plop::TimeStep &_ts)
@@ -153,6 +154,7 @@ void TDLevel::OnStop()
 	LevelBase::OnStop();
 
 	HexgridSystem::OnStop(m_ENTTRegistry);
+	PlayerBaseSystem::OnStop(m_ENTTRegistry);
 }
 
 void TDLevel::UpdateInEditor(Plop::TimeStep _ts)

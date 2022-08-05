@@ -15,7 +15,9 @@ struct Component_PlayerBase
 
 namespace PlayerBaseSystem
 {
+	void OnStart(entt::registry &_registry);
 	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry);
+	void OnStop(entt::registry &_registry);
 }
 
 #ifndef USE_COMPONENT_MGR

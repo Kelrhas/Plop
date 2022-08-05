@@ -41,6 +41,19 @@ void Component_PlayerBase::FromJson(const json &_j)
 
 namespace PlayerBaseSystem
 {
+	Component_PlayerBase *pPlayerBaseComp = nullptr;
+		
+	void OnStart(entt::registry &_registry)
+	{
+		_registry.view<Component_PlayerBase>().each([&](entt::entity _enttID, Component_PlayerBase &_baseComp) {
+			ASSERTM(pPlayerBaseComp == nullptr, "PlayerBase already found, only one is needed");
+			pPlayerBaseComp = &_baseComp;
+			// TODO register some callback for when the entity/component is destroyed, so we dont keep an invalid pointer
+			// or use a shared_pointer...
+		});
+		ASSERTM(pPlayerBaseComp != nullptr, "PlayerBase not found");
+	}
+
 	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
 	{
 		auto &viewEnemy = _registry.view<Component_Enemy, Plop::Component_AABBCollider, Plop::Component_Transform>();
@@ -61,7 +74,15 @@ namespace PlayerBaseSystem
 				  }
 			  });
 		  });
+
+		if (ImGui::Begin("PlayerBase"))
+		{
+			ImGui::Text("Life: %f", pPlayerBaseComp->fLife);
+			ImGui::End();
+		}
 	}
+
+	void OnStop(entt::registry &_registry) { pPlayerBaseComp = nullptr; }
 } // namespace PlayerBaseSystem
 
 #ifndef USE_COMPONENT_MGR

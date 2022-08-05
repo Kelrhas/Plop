@@ -265,7 +265,8 @@ namespace Plop
 			if (xLevel)
 				xLevel->BeforeUpdate();
 
-
+			
+			m_ImGuiLayer.NewFrame();
 			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
 			{
 				pAppLayer->OnUpdate( m_timeStep );
@@ -275,7 +276,6 @@ namespace Plop
 				xLevel->AfterUpdate();
 
 			Renderer::Clear();
-			m_ImGuiLayer.NewFrame();
 			for (ApplicationLayer* pAppLayer : m_vecAppLayers)
 			{
 				if (pAppLayer == &m_EditorLayer && !m_bEditorMode)

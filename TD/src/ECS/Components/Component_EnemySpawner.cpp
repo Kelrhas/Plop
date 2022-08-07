@@ -148,8 +148,9 @@ void EnemySpawnerSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_re
 				enemyComp.xPathCurve = spawner.xPathCurve;
 
 				auto &transformComp = entityEnemy.GetComponent<Plop::Component_Transform>();
+				// stagger the depth to avoid overlapping between enemies
 				transformComp.SetWorldPosition(owner.GetComponent<Plop::Component_Transform>().GetWorldPosition() +
-											   VEC3_Z * (0.1f * (spawner.iNbEnemySpawned + 1)));
+											   VEC3_Z * glm::fract(0.1f * (spawner.iNbEnemySpawned + 1))); 
 			}
 		}
 	});

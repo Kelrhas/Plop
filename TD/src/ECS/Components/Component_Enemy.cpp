@@ -68,10 +68,12 @@ namespace EnemySystem
 					// fPathPosition += fMoveSpeed * _fDeltaTime;
 					enemy.fPathPosition += enemy.fMoveSpeed / glm::length(enemy.xPathCurve->GetTangent(enemy.fPathPosition)) * fDeltaTime;
 
+					float	  fDepth	  = transform.GetLocalPosition().z;
 					glm::vec3 vNewPos	  = enemy.xPathCurve->Interpolate(enemy.fPathPosition);
+					vNewPos.z			  = fDepth;
 					glm::vec3 vTangent	  = enemy.xPathCurve->GetTangent(enemy.fPathPosition);
 					glm::vec3 vTangentDir = glm::normalize(vTangent);
-					transform.SetWorldPosition(vNewPos);
+					transform.SetLocalPosition(vNewPos);
 					float fAngle = glm::acos(glm::dot(vTangentDir, VEC3_X));
 					if (vTangentDir.y < 0.f)
 						fAngle = -fAngle;

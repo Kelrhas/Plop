@@ -13,11 +13,11 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 17551503759130965159,
+      "GUID": 9329192081506709219,
       "Name": "Canon"
     },
     {
-      "Children": [17551503759130965159],
+      "Children": [9329192081506709219],
       "Components": {
         "Tower": {
           "Damage": 1.0,
@@ -26,32 +26,65 @@
         },
         "Transform": {
           "Position": [0.0,0.0,0.699999988079071],
-          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
-          "Scale": [1.0,1.0,1.0]
+          "Rotation": [0.0,0.0,0.33380693197250366,0.9426414966583252],
+          "Scale": [1.250000238418579,1.250000238418579,1.25]
         }
       },
-      "GUID": 6245648090127512782,
+      "GUID": 10710752659820441,
       "Name": "New Entity"
     },
     {
-      "Children": [6245648090127512782],
+      "Children": [10710752659820441],
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,7],
+          "Coord": [18,5],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
-          "Position": [2.6000192165374756,3.0167977809906006,1.0],
+          "Position": [1.30074942111969,3.7549312114715576,1.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [0.75,0.75,0.75]
+        }
+      },
+      "GUID": 12147251610335486759,
+      "Name": "Fire tower"
+    },
+    {
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [19,10],
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Tower": {
+          "Damage": 1.0,
+          "Firing rate": 1.0,
+          "Range": 5.0
+        },
+        "Transform": {
+          "Position": [0.0,0.15129661560058594,0.0],
           "Rotation": [0.0,0.0,0.0,1.0],
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 8112480734364184747,
-      "Name": "Fire tower"
+      "GUID": 536334591460126087,
+      "Name": "Canon"
     },
     {
-      "Children": [2253303594192775278],
+      "Children": [536334591460126087],
+      "Components": {
+        "Transform": {
+          "Position": [0.0,0.0,0.699999988079071],
+          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 1871685055047684375,
+      "Name": "New Entity"
+    },
+    {
+      "Children": [1871685055047684375],
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,7],
@@ -64,19 +97,68 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 12082912537500868387,
+      "GUID": 16570911987029872563,
       "Name": "Fire tower"
     },
     {
-      "Children": [9456491065477009195],
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [20,8],
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Tower": {
+          "Damage": 1.0,
+          "Firing rate": 1.0,
+          "Range": 5.0
+        },
+        "Transform": {
+          "Position": [0.0,0.05859637260437012,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [0.8500000238418579,0.8500000238418579,0.8500000238418579]
+        }
+      },
+      "GUID": 2730341676300787483,
+      "Name": "Canon"
+    },
+    {
+      "Children": [2730341676300787483],
       "Components": {
         "Transform": {
           "Position": [0.0,0.0,0.699999988079071],
-          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
+          "Rotation": [-0.0,0.0,-0.4848096966743469,-0.8746196627616882],
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 2253303594192775278,
+      "GUID": 8198742365755189042,
+      "Name": "New Entity"
+    },
+    {
+      "Children": [8198742365755189042],
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [20,7],
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [-3.472623109817505,2.161383628845215,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 1946226477596166958,
+      "Name": "Missile tower"
+    },
+    {
+      "Components": {
+        "Transform": {
+          "Position": [0.0,0.0,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 12543959675936992645,
       "Name": "New Entity"
     },
     {
@@ -101,68 +183,19 @@
       "Name": "Canon"
     },
     {
-      "Components": {
-        "Transform": {
-          "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 12543959675936992645,
-      "Name": "New Entity"
-    },
-    {
-      "Children": [8198742365755189042],
-      "Components": {
-        "SpriteRenderer": {
-          "Coord": [20,7],
-          "Spritesheet": "assets\\textures\\tiles.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Transform": {
-          "Position": [-3.472623109817505,2.161383628845215,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 1946226477596166958,
-      "Name": "Missile tower"
-    },
-    {
-      "Children": [2730341676300787483],
+      "Children": [9456491065477009195],
       "Components": {
         "Transform": {
           "Position": [0.0,0.0,0.699999988079071],
-          "Rotation": [-0.0,0.0,-0.4848096966743469,-0.8746196627616882],
+          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 8198742365755189042,
+      "GUID": 2253303594192775278,
       "Name": "New Entity"
     },
     {
-      "Components": {
-        "SpriteRenderer": {
-          "Coord": [20,8],
-          "Spritesheet": "assets\\textures\\tiles.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Tower": {
-          "Damage": 1.0,
-          "Firing rate": 1.0,
-          "Range": 5.0
-        },
-        "Transform": {
-          "Position": [0.0,0.05859637260437012,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [0.8500000238418579,0.8500000238418579,0.8500000238418579]
-        }
-      },
-      "GUID": 2730341676300787483,
-      "Name": "Canon"
-    },
-    {
-      "Children": [1871685055047684375],
+      "Children": [2253303594192775278],
       "Components": {
         "SpriteRenderer": {
           "Coord": [19,7],
@@ -175,61 +208,28 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 16570911987029872563,
+      "GUID": 12082912537500868387,
       "Name": "Fire tower"
     },
     {
-      "Children": [536334591460126087],
-      "Components": {
-        "Transform": {
-          "Position": [0.0,0.0,0.699999988079071],
-          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 1871685055047684375,
-      "Name": "New Entity"
-    },
-    {
+      "Children": [6245648090127512782],
       "Components": {
         "SpriteRenderer": {
-          "Coord": [19,10],
-          "Spritesheet": "assets\\textures\\tiles.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Tower": {
-          "Damage": 1.0,
-          "Firing rate": 1.0,
-          "Range": 5.0
-        },
-        "Transform": {
-          "Position": [0.0,0.15129661560058594,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 536334591460126087,
-      "Name": "Canon"
-    },
-    {
-      "Children": [10710752659820441],
-      "Components": {
-        "SpriteRenderer": {
-          "Coord": [18,5],
+          "Coord": [19,7],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
         "Transform": {
-          "Position": [1.30074942111969,3.7549312114715576,1.0],
+          "Position": [2.6000192165374756,3.0167977809906006,1.0],
           "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [0.75,0.75,0.75]
+          "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 12147251610335486759,
+      "GUID": 8112480734364184747,
       "Name": "Fire tower"
     },
     {
-      "Children": [9329192081506709219],
+      "Children": [17551503759130965159],
       "Components": {
         "Tower": {
           "Damage": 1.0,
@@ -238,11 +238,11 @@
         },
         "Transform": {
           "Position": [0.0,0.0,0.699999988079071],
-          "Rotation": [0.0,0.0,0.33380693197250366,0.9426414966583252],
-          "Scale": [1.250000238418579,1.250000238418579,1.25]
+          "Rotation": [0.0,0.0,0.3338068723678589,0.9426414966583252],
+          "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 10710752659820441,
+      "GUID": 6245648090127512782,
       "Name": "New Entity"
     },
     {
@@ -258,7 +258,7 @@
           "Scale": [1.0,1.0,1.0]
         }
       },
-      "GUID": 9329192081506709219,
+      "GUID": 17551503759130965159,
       "Name": "Canon"
     }
   ],

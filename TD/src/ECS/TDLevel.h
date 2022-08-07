@@ -32,5 +32,6 @@ public:
 
 private:
 	PlayerLevelStats m_playerStats;
+	bool			 m_bPlaying = false;
 };
 

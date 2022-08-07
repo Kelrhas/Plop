@@ -1,15 +1,23 @@
 #include "TD_pch.h"
 
 #include "Component_Enemy.h"
+#include "TDEvents.h"
 
 #include <ECS/Components/Component_Transform.h>
 #include <ECS/ECSHelper.h>
+#include <Events/EventDispatcher.h>
+#include <Events/GameEvent.h>
 
 #pragma warning(disable : 4267) // https://github.com/skypjack/entt/issues/122
 
 void Component_Enemy::Hit(float _fDamage)
 {
 	fLife -= _fDamage;
+	if (fLife <= 0.f)
+	{
+		Plop::GameEvent gameEvent((S32)GameEventType::EnemyKilled);
+		Plop::EventDispatcher::SendEvent(gameEvent);
+	}
 }
 
 bool Component_Enemy::IsDead() const

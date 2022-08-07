@@ -10,7 +10,7 @@
           "Life": 1.0
         },
         "SpriteRenderer": {
-          "Coord": [22,2],
+          "Coord": [16,10],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -20,8 +20,41 @@
           "Scale": [0.6000000238418579,0.6000000238418579,0.6000000238418579]
         }
       },
-      "GUID": 2527296605246402736,
-      "Name": "Test"
+      "GUID": 17881791735641927846,
+      "Name": "SimpleEnemy"
+    },
+    {
+      "Components": {
+        "Enemy": {
+          "Life": 1.0
+        },
+        "Transform": {
+          "Position": [0.0,0.0,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 13732418989922195428,
+      "Name": "SimpleEnemy"
+    },
+    {
+      "Components": {
+        "Enemy": {
+          "Life": 1.0
+        },
+        "SpriteRenderer": {
+          "Coord": [16,10],
+          "Spritesheet": "assets\\textures\\tiles.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [0.0,0.0,0.0],
+          "Rotation": [0.0,0.0,0.0,1.0],
+          "Scale": [0.6000000238418579,0.6000000238418579,0.6000000238418579]
+        }
+      },
+      "GUID": 9093168510796356226,
+      "Name": "SimpleEnemy"
     },
     {
       "Components": {
@@ -48,39 +81,6 @@
     },
     {
       "Components": {
-        "Enemy": {
-          "Life": 1.0
-        },
-        "SpriteRenderer": {
-          "Coord": [16,10],
-          "Spritesheet": "assets\\textures\\tiles.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Transform": {
-          "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [0.6000000238418579,0.6000000238418579,0.6000000238418579]
-        }
-      },
-      "GUID": 9093168510796356226,
-      "Name": "SimpleEnemy"
-    },
-    {
-      "Components": {
-        "Enemy": {
-          "Life": 1.0
-        },
-        "Transform": {
-          "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 13732418989922195428,
-      "Name": "SimpleEnemy"
-    },
-    {
-      "Components": {
         "AABBCollider": {
           "Max": [0.07900000363588333,0.12999999523162842,0.10000000149011612],
           "Min": [-0.0860000029206276,-0.12999999523162842,-0.10000000149011612]
@@ -89,7 +89,7 @@
           "Life": 1.0
         },
         "SpriteRenderer": {
-          "Coord": [16,10],
+          "Coord": [22,2],
           "Spritesheet": "assets\\textures\\tiles.ssdef",
           "Tint": [1.0,1.0,1.0,1.0]
         },
@@ -99,8 +99,8 @@
           "Scale": [0.6000000238418579,0.6000000238418579,0.6000000238418579]
         }
       },
-      "GUID": 17881791735641927846,
-      "Name": "SimpleEnemy"
+      "GUID": 2527296605246402736,
+      "Name": "Test"
     }
   ],
   "Name": "Enemies",

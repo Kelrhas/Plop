@@ -243,7 +243,7 @@ namespace Plop
 
 		mParentWorldMatrix = glm::inverse( mParentWorldMatrix );
 
-		glm::vec3 vLocalPos = mParentWorldMatrix * glm::vec4( _vPos, 0.f );
+		glm::vec3 vLocalPos = mParentWorldMatrix * glm::vec4( _vPos, 1.f );
 
 		SetLocalPosition( vLocalPos );
 	}

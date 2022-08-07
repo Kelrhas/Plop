@@ -31,6 +31,8 @@ namespace Plop
 
 	void LevelBase::Init()
 	{
+		EventDispatcher::RegisterListener(this);
+
 		// minimizes cache misses when iterating together
 		// CAREFUL sorting is incompatible with group and will assert
 		//m_ENTTRegistry.sort 

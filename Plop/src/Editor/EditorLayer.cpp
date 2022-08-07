@@ -244,26 +244,26 @@ namespace Plop
 
 			if (m_eLevelState == EditorLayer::LevelState::RUNNING)
 			{
-				xLevel->Update( _timeStep );
+				xLevel->Update(_timeStep);
 			}
-			else if (m_eLevelState == EditorLayer::LevelState::EDITING)
+			else if (m_eLevelState == EditorLayer::LevelState::EDITING || m_eLevelState == EditorLayer::LevelState::PAUSED)
 			{
-				xLevel->UpdateInEditor( _timeStep );
+				xLevel->UpdateInEditor(_timeStep);
 
 
 				if (IsSelectedEntityForLevel(Application::GetCurrentLevel()))
 				{
 					if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
 					{
-						m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update( _timeStep );
+						m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update(_timeStep);
 					}
 
 					// focus camera on entity
-					if (Input::IsKeyDown( KeyCode::KEY_F ))
+					if (Input::IsKeyDown(KeyCode::KEY_F))
 					{
-						const glm::vec3& vPos = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldPosition();
+						const glm::vec3 &vPos = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldPosition();
 						// TODO: get the object size
-						m_xEditorCamera->FocusCamera( vPos, VEC3_1 );
+						m_xEditorCamera->FocusCamera(vPos, VEC3_1);
 					}
 				}
 			}

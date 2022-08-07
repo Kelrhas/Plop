@@ -414,7 +414,7 @@ namespace Plop
 	bool Application::IsUsingEditorCamera() const
 	{
 		if(m_bEditorMode)
-			return m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING;
+			return m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING || m_EditorLayer.m_eLevelState == EditorLayer::LevelState::PAUSED;
 
 		return FALSE;
 	}

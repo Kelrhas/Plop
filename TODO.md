@@ -52,7 +52,8 @@
 	- component removed
 - make sure serialisation produces the same output everytime
 	- might mean loading the registry in a different manner, see snapshot & archive
-- fix render while playing is paused
+- ~~fix render while playing is paused~~
+	- fix picking while paused
 - fix EditorCamera rotation when a Camera entity is selected and possibly when level is playing
 - fix zoom
 

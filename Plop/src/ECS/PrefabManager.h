@@ -47,6 +47,7 @@ namespace Plop
 		static bool					DoesPrefabExist(GUID _guid);
 		static String				GetPrefabName(GUID _guid);
 		static void					DeletePrefab(const Prefab *_pPrefab);
+		static Entity				InstantiatePrefab(PrefabHandle _hPrefab, entt::registry &_reg, entt::entity _parent);
 		static Entity				InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent);
 		//static Entity				InstantiatePrefab(Prefab* _pPrefab, entt::registry &_reg, entt::entity _parent);
 

@@ -116,6 +116,11 @@ usage:
 		}
 	}
 
+	Entity PrefabManager::InstantiatePrefab(PrefabHandle _hPrefab, entt::registry &_reg, entt::entity _parent)
+	{
+		return InstantiatePrefab(_hPrefab.guid, _reg, _parent);
+	}
+
 	Entity PrefabManager::InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent)
 	{
 		for (auto &[sKey, lib] : s_mapPrefabLibs)
@@ -346,6 +351,7 @@ usage:
 									graphCompChild.prevSibling	   = enttIDLastChild;
 									graphCompLastChild.nextSibling = enttIDChild;
 								}
+								enttIDLastChild = enttIDChild;
 							}
 						}
 

@@ -145,7 +145,7 @@ namespace Plop
 		auto owner = GetComponentOwner(xLevel, *this);
 #endif
 		// we allow ParticleSystem to not 
-		glm::vec3 vBasePosition = owner ? owner.GetComponent<Component_Transform>().GetLocalPosition() : VEC3_0;
+		glm::vec3 vBasePosition = owner ? owner.GetComponent<Component_Transform>().GetWorldPosition() : VEC3_0;
 		while(m_iNbActiveParticles < m_iMaxNumberParticles && _iNbParticle > 0 )
 		{
 			ParticleData& p = m_pParticles[m_iNbActiveParticles];

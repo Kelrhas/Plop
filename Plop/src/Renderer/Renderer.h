@@ -106,15 +106,15 @@ namespace Plop
 		void			PopEntityId();
 		entt::id_type	GetEntityId(const glm::ivec2 &_vCoord);
 
-		void			DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize );
-		void			DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad );
+		void			DrawQuad( const glm::vec4& _vColor, const glm::vec3& _vPos, const glm::vec2& _vSize );
+		void			DrawQuad( const glm::vec4& _vColor, const glm::vec3& _vPos, const glm::vec2& _vSize, float _fAngleRad );
 		void			DrawQuad( const glm::vec4& _vColor, const glm::mat4& _mTransform );
 
-		void			DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint = glm::vec4( 1.f ) );
-		void			DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint = glm::vec4( 1.f ) );
+		void			DrawTexture( const Texture& _Texture, const glm::vec3& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint = glm::vec4( 1.f ) );
+		void			DrawTexture( const Texture& _Texture, const glm::vec3& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint = glm::vec4( 1.f ) );
 		void			DrawTexture( const Texture& _Texture, const glm::mat4& _mTransform, const glm::vec4& _vTint = glm::vec4( 1.f ) );
 
-		void			DrawSprite( const Sprite& _sprite, const glm::vec2& _vPos, const glm::vec2& _vSize = glm::vec2( 1.f ), float _fAngleRad = 0.f );
+		void			DrawSprite( const Sprite& _sprite, const glm::vec3& _vPos, const glm::vec2& _vSize = glm::vec2( 1.f ), float _fAngleRad = 0.f );
 		void			DrawSprite( const Sprite& _sprite, const glm::mat4& _mTransform );
 
 

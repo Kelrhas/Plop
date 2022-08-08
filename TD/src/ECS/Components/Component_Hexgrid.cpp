@@ -268,7 +268,7 @@ namespace HexgridSystem
 
 				if (!bOverlap)
 				{
-					const Plop::GUID guidTower = 14766198492715263247llu;
+					const Plop::GUID guidTower = 3682572320010354371llu;
 					Plop::Entity	 tower	   = Plop::PrefabManager::InstantiatePrefab(guidTower, xLevel->GetEntityRegistry(), Plop::Entity());
 					tower.GetComponent<Plop::Component_Transform>().SetWorldPosition(glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(coord), 1.f));
 				}

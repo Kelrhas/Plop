@@ -3,6 +3,7 @@
 - use an engine executable that calls the game dll (faster to compile ? easier to iterate on gameplay code by hot reloading the dll)
 - use C++20
 	- VS2022 ou autre éditeur + compilo + RemedyBG
+    - add concept for VisitorFlow
 - ~~use a code style file~~
 - passer sur CMake
 

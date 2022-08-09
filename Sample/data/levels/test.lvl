@@ -2,6 +2,23 @@
   "Entities": [
     {
       "Components": {
+        "SpriteRenderer": {
+          "Coord": [0,0],
+          "Spritesheet": "..\\Editor\\assets\\icons\\editor.ssdef",
+          "Tint": [1.0,1.0,1.0,1.0]
+        },
+        "Transform": {
+          "Position": [0.0,0.0,0.0],
+          "Rotation": [0.0,0.0,0.258819043636322,0.9659258127212524],
+          "Scale": [1.0,1.0,1.0]
+        }
+      },
+      "GUID": 15800501584170203848,
+      "HintID": 1,
+      "Name": "Test"
+    },
+    {
+      "Components": {
         "Camera": {
           "far": 100.0,
           "near": 0.10000000149011612,
@@ -16,25 +33,8 @@
         }
       },
       "GUID": 6046650454211506274,
-      "HintID": 1,
-      "Name": "Camera"
-    },
-    {
-      "Components": {
-        "SpriteRenderer": {
-          "Coord": [0,1],
-          "Spritesheet": "..\\Editor\\assets\\icons\\editor.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
-        },
-        "Transform": {
-          "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.258819043636322,0.9659258127212524],
-          "Scale": [1.0,1.0,1.0]
-        }
-      },
-      "GUID": 15800501584170203848,
       "HintID": 0,
-      "Name": "Test"
+      "Name": "Camera"
     }
   ]
 }

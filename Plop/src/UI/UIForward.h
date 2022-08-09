@@ -14,5 +14,5 @@ namespace Plop::UI
 	class Image;
 
 	// typedefs
-	using DialogUPtr = std::unique_ptr<Dialog>;
+	using DialogPtr = std::shared_ptr<Dialog>;
 }

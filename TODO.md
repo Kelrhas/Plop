@@ -33,6 +33,13 @@
 	- add PrefabInstance component (store GUID) to track from what prefab it comes
 	- only serialise difference between prefab and instance
 	- update prefab from instance
+	- prefab edition
+- VFX
+	- GPU side for long term
+	- add more shape like cone and mesh (maybe also hexagon to match TD grid)
+	- auto augment pool size up to a fixed point
+	- remove spawners/updaters from possible list if already created
+	- auto kill for burst effect
 - add a virtual file system to load from different mount points (to load from the Editor/Engine/Game folder)
 - fix picking (enttID that change version have a big int value, that may be rounded when converting to float)
 - fix closing app
@@ -73,7 +80,8 @@ Immediate mode like ImGUI ?
 	- component removed
 - make sure serialisation produces the same output everytime
 	- might mean loading the registry in a different manner, see snapshot & archive
-- fix render while playing is paused
+- ~~fix render while playing is paused~~
+	- fix picking while paused
 - fix EditorCamera rotation when a Camera entity is selected and possibly when level is playing
 - fix zoom
 
@@ -84,6 +92,7 @@ Immediate mode like ImGUI ?
 	- ~~pathfind~~
 	- ~~make a component to be serialised -> rebuild all the grid from data, and not entities~~
 	- make sure Private::bPickingCell is reset when cliking outside the viewport
+	- fix picking with all rotation
 - quadtree but for hex ?
 - clean LevelGrid
 

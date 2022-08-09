@@ -32,10 +32,6 @@ namespace Private
 	CellType ePaintType = CellType::INVALID;
 } // namespace Private
 
-namespace HexgridSystem
-{
-	Hexgrid *pHexgrid = nullptr;
-}
 
 void Component_Hexgrid::RegenerateGrid()
 {
@@ -218,158 +214,160 @@ void Component_Hexgrid::AfterLoad()
 	RegenerateGrid();
 }
 
-void HexgridSystem::OnStart(entt::registry &_registry)
+namespace HexgridSystem
 {
-	_registry.view<Component_Hexgrid>().each([&](entt::entity _enttID, Component_Hexgrid &_gridComp) {
-		ASSERTM(pHexgrid == nullptr, "Hexgrid already found, only one is needed");
-		pHexgrid = &_gridComp.m_grid;
-		// TODO register some callback for when the entity/component is destroyed, so we dont keep an invalid pointer
-		// or use a shared_pointer...
-	});
-}
+	Hexgrid *pHexgrid = nullptr;
 
-void HexgridSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
-{
-	if (pHexgrid == nullptr)
-		return;
-
-	if (Plop::Input::IsMouseLeftPressed())
+	void OnStart(entt::registry &_registry)
 	{
-		auto xLevel	 = Plop::Application::GetCurrentLevel().lock();
-		auto xCamera = xLevel->GetCamera().lock();
-
-		// TODO viewport panel
-		auto &			editor		 = Plop::Application::Get()->GetEditor();
-		const glm::vec2 vViewportPos = editor.GetViewportPosFromWindowPos(Plop::Input::GetCursorWindowPos());
-		glm::vec3		vMousePos	 = xCamera->GetWorldPosFromViewportPos(vViewportPos, 0.f);
-
-		Hexgrid::CellCoord coord = Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy);
-		Plop::Log::Info("Coords: {},{},{} -> {},{},{}", vMousePos.x, vMousePos.y, vMousePos.z, coord.x, coord.y, coord.z);
-		Plop::Log::Info("	Dist: {}", glm::manhattanDistance(coord, Hexgrid::CellCoord(0, 0, 0)) / 2.f);
-
-		Hexgrid::Cell cellClick;
-		if (pHexgrid->GetCell(coord, &cellClick) && cellClick.eType == CellType::TOWER_SUPPORT)
-		{
-			bool bOverlap = false;
-			auto view	  = xLevel->GetEntityRegistry().view<Plop::Component_Transform, Component_Tower>();
-			for (auto enttID : view)
-			{
-				auto &transform = view.get<Plop::Component_Transform>(enttID);
-
-				if (bOverlap)
-					return;
-
-				if (glm::length2(transform.GetWorldPosition() - vMousePos) < 1)
-				{
-					bOverlap = true;
-					break;
-				}
-			}
-
-			if (!bOverlap)
-			{
-				const Plop::GUID guidTower = 14766198492715263247llu;
-				Plop::Entity	 tower	   = Plop::PrefabManager::InstantiatePrefab(guidTower, xLevel->GetEntityRegistry(), Plop::Entity());
-				tower.GetComponent<Plop::Component_Transform>().SetWorldPosition(glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(coord), 1.f));
-			}
-		}
+		_registry.view<Component_Hexgrid>().each([&](entt::entity _enttID, Component_Hexgrid &_gridComp) {
+			ASSERTM(pHexgrid == nullptr, "Hexgrid already found, only one is needed");
+			pHexgrid = &_gridComp.m_grid;
+			// TODO register some callback for when the entity/component is destroyed, so we dont keep an invalid pointer
+			// or use a shared_pointer...
+		});
 	}
-}
 
-void HexgridSystem::OnStop(entt::registry &_registry)
-{
-	pHexgrid = nullptr;
-}
-
-void HexgridSystem::OnUpdateEditor(const Plop::TimeStep &_ts, entt::registry &_registry)
-{
-	if (Plop::Input::IsMouseLeftPressed())
+	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
 	{
-		if (Private::ePaintType != CellType::INVALID)
+		if (pHexgrid == nullptr)
+			return;
+
+		if (Plop::Input::IsMouseLeftPressed())
 		{
-			auto &editor  = Plop::Application::Get()->GetEditor();
-			auto &xCamera = editor.GetEditorCamera();
+			auto xLevel	 = Plop::Application::GetCurrentLevel().lock();
+			auto xCamera = xLevel->GetCamera().lock();
 
-			glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
-			vScreenPos			 = editor.GetViewportPosFromWindowPos(vScreenPos);
-			glm::vec3 vMousePos	 = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
+			// TODO viewport panel
+			auto &			editor		 = Plop::Application::Get()->GetEditor();
+			const glm::vec2 vViewportPos = editor.GetViewportPosFromWindowPos(Plop::Input::GetCursorWindowPos());
+			glm::vec3		vMousePos	 = xCamera->GetWorldPosFromViewportPos(vViewportPos, 0.f);
 
+			Hexgrid::CellCoord coord = Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy);
+			Plop::Log::Info("Coords: {},{},{} -> {},{},{}", vMousePos.x, vMousePos.y, vMousePos.z, coord.x, coord.y, coord.z);
+			Plop::Log::Info("	Dist: {}", glm::manhattanDistance(coord, Hexgrid::CellCoord(0, 0, 0)) / 2.f);
 
-			Hexgrid::Cell *pCellClick = nullptr;
-			if (Private::pEditingComp->m_grid.GetModifiableCell(Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy), &pCellClick))
+			Hexgrid::Cell cellClick;
+			if (pHexgrid->GetCell(coord, &cellClick) && cellClick.eType == CellType::TOWER_SUPPORT)
 			{
-				auto it = std::find(Private::pEditingComp->vecCells.begin(), Private::pEditingComp->vecCells.end(), *pCellClick);
-				if (it == Private::pEditingComp->vecCells.end())
+				bool bOverlap = false;
+				auto view	  = xLevel->GetEntityRegistry().view<Plop::Component_Transform, Component_Tower>();
+				for (auto enttID : view)
 				{
-					pCellClick->eType = Private::ePaintType;
-					pCellClick->ApplyCellType();
-					Private::pEditingComp->vecCells.push_back(*pCellClick);
-				}
-				else
-				{
-					Hexgrid::Cell *pCell = nullptr;
-					if (Private::pEditingComp->m_grid.GetModifiableCell(it->coord, &pCell))
+					auto &transform = view.get<Plop::Component_Transform>(enttID);
+
+					if (bOverlap)
+						return;
+
+					if (glm::length2(transform.GetWorldPosition() - vMousePos) < 1)
 					{
-						it->eType = Private::ePaintType;
-						pCell->eType = Private::ePaintType;
-						pCell->ApplyCellType();
+						bOverlap = true;
+						break;
 					}
 				}
 
-				if (!Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Shift))
+				if (!bOverlap)
 				{
-					Private::ePaintType	  = CellType::INVALID;
-					Private::pEditingComp = nullptr;
-					Plop::Application::Get()->GetEditor().RestorePicking();
+					const Plop::GUID guidTower = 3682572320010354371llu;
+					Plop::Entity	 tower	   = Plop::PrefabManager::InstantiatePrefab(guidTower, xLevel->GetEntityRegistry(), Plop::Entity());
+					tower.GetComponent<Plop::Component_Transform>().SetWorldPosition(glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(coord), 1.f));
 				}
 			}
 		}
-		else if (Private::ePickingMode != Private::PickingMode::NONE)
+	}
+
+	void OnStop(entt::registry &_registry) { pHexgrid = nullptr; }
+
+	void OnUpdateEditor(const Plop::TimeStep &_ts, entt::registry &_registry)
+	{
+		if (Plop::Input::IsMouseLeftPressed())
 		{
-			auto &editor  = Plop::Application::Get()->GetEditor();
-			auto &xCamera = editor.GetEditorCamera();
-
-			glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
-			vScreenPos			 = editor.GetViewportPosFromWindowPos(vScreenPos);
-			glm::vec3 vMousePos	 = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
-
-
-			Hexgrid::Cell	   cellClick;
-			Hexgrid::CellCoord hexCoord = Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy);
-			if (Private::pEditingComp->m_grid.GetCell(hexCoord, &cellClick))
+			if (Private::ePaintType != CellType::INVALID)
 			{
-				if (Private::ePickingMode == Private::PickingMode::CELL)
+				auto &editor  = Plop::Application::Get()->GetEditor();
+				auto &xCamera = editor.GetEditorCamera();
+
+				glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
+				vScreenPos			 = editor.GetViewportPosFromWindowPos(vScreenPos);
+				glm::vec3 vMousePos	 = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
+
+
+				Hexgrid::Cell *pCellClick = nullptr;
+				if (Private::pEditingComp->m_grid.GetModifiableCell(Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy), &pCellClick))
 				{
-					auto it = std::find(Private::pEditingComp->vecCells.begin(), Private::pEditingComp->vecCells.end(), cellClick);
+					auto it = std::find(Private::pEditingComp->vecCells.begin(), Private::pEditingComp->vecCells.end(), *pCellClick);
 					if (it == Private::pEditingComp->vecCells.end())
 					{
-						Private::pEditingComp->vecCells.push_back(cellClick);
-
-						if (!Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Shift))
+						pCellClick->eType = Private::ePaintType;
+						pCellClick->ApplyCellType();
+						Private::pEditingComp->vecCells.push_back(*pCellClick);
+					}
+					else
+					{
+						Hexgrid::Cell *pCell = nullptr;
+						if (Private::pEditingComp->m_grid.GetModifiableCell(it->coord, &pCell))
 						{
-							Private::ePickingMode = Private::PickingMode::NONE;
-							Private::pEditingComp = nullptr;
-							Plop::Application::Get()->GetEditor().RestorePicking();
+							it->eType	 = Private::ePaintType;
+							pCell->eType = Private::ePaintType;
+							pCell->ApplyCellType();
 						}
 					}
+
+					if (!Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Shift))
+					{
+						Private::ePaintType	  = CellType::INVALID;
+						Private::pEditingComp = nullptr;
+						Plop::Application::Get()->GetEditor().RestorePicking();
+					}
 				}
-				else if (Private::ePickingMode == Private::PickingMode::SPAWNER)
+			}
+			else if (Private::ePickingMode != Private::PickingMode::NONE)
+			{
+				auto &editor  = Plop::Application::Get()->GetEditor();
+				auto &xCamera = editor.GetEditorCamera();
+
+				glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
+				vScreenPos			 = editor.GetViewportPosFromWindowPos(vScreenPos);
+				glm::vec3 vMousePos	 = xCamera->GetWorldPosFromViewportPos(vScreenPos, 0.f);
+
+
+				Hexgrid::Cell	   cellClick;
+				Hexgrid::CellCoord hexCoord = Hexgrid::Cell::GetCellCoordFrom2D(vMousePos.xy);
+				if (Private::pEditingComp->m_grid.GetCell(hexCoord, &cellClick))
 				{
-					Private::pEditingComp->m_grid.SetSpawnerCoord(hexCoord);
-					Private::pEditingComp->spawnerCoord = hexCoord;
-					Private::ePickingMode				= Private::PickingMode::NONE;
-					Private::pEditingComp				= nullptr;
-					Plop::Application::Get()->GetEditor().RestorePicking();
-				}
-				else if (Private::ePickingMode == Private::PickingMode::BASE)
-				{
-					Private::pEditingComp->m_grid.SetBaseCoord(hexCoord);
-					Private::pEditingComp->baseCoord = hexCoord;
-					Private::ePickingMode			 = Private::PickingMode::NONE;
-					Private::pEditingComp			 = nullptr;
-					Plop::Application::Get()->GetEditor().RestorePicking();
+					if (Private::ePickingMode == Private::PickingMode::CELL)
+					{
+						auto it = std::find(Private::pEditingComp->vecCells.begin(), Private::pEditingComp->vecCells.end(), cellClick);
+						if (it == Private::pEditingComp->vecCells.end())
+						{
+							Private::pEditingComp->vecCells.push_back(cellClick);
+
+							if (!Plop::Input::IsKeyDown(Plop::KeyCode::KEY_Shift))
+							{
+								Private::ePickingMode = Private::PickingMode::NONE;
+								Private::pEditingComp = nullptr;
+								Plop::Application::Get()->GetEditor().RestorePicking();
+							}
+						}
+					}
+					else if (Private::ePickingMode == Private::PickingMode::SPAWNER)
+					{
+						Private::pEditingComp->m_grid.SetSpawnerCoord(hexCoord);
+						Private::pEditingComp->spawnerCoord = hexCoord;
+						Private::ePickingMode				= Private::PickingMode::NONE;
+						Private::pEditingComp				= nullptr;
+						Plop::Application::Get()->GetEditor().RestorePicking();
+					}
+					else if (Private::ePickingMode == Private::PickingMode::BASE)
+					{
+						Private::pEditingComp->m_grid.SetBaseCoord(hexCoord);
+						Private::pEditingComp->baseCoord = hexCoord;
+						Private::ePickingMode			 = Private::PickingMode::NONE;
+						Private::pEditingComp			 = nullptr;
+						Plop::Application::Get()->GetEditor().RestorePicking();
+					}
 				}
 			}
 		}
 	}
-}
+} // namespace HexgridSystem

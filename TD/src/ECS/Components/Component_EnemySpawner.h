@@ -3,6 +3,7 @@
 #include <imgui_entt_entity_editor.hpp>
 
 #include <Math/Curves.h>
+#include <ECS/PrefabManager.h>
 
 struct Component_EnemySpawner
 {
@@ -10,6 +11,7 @@ struct Component_EnemySpawner
 	{
 		int nbEnemies = 5;
 		float fSpawnDelay = 0.5f;
+		Plop::PrefabHandle hEnemy;
 	};
 
 	Component_EnemySpawner();

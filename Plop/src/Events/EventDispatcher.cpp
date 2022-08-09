@@ -39,7 +39,7 @@ namespace Plop
 			if((listener.uLayer & _uLayer) != 0)
 				listener.pListener->OnEvent(_event);
 		}
-	}	
+	}
 
 	void EventDispatcher::Destroy()
 	{

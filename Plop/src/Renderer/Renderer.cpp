@@ -209,28 +209,28 @@ namespace Plop
 			return {};
 		}
 
-		void DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize )
+		void DrawQuad(const glm::vec4 &_vColor, const glm::vec3 &_vPos, const glm::vec2 &_vSize)
 		{
-			glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
-			mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+			glm::mat4 mTransform = glm::translate(glm::identity<glm::mat4>(), _vPos);
+			mTransform			 = glm::scale(mTransform, glm::vec3(_vSize, 1.f));
 
-			DrawQuad( _vColor, mTransform );
+			DrawQuad(_vColor, mTransform);
 		}
 
-		void DrawQuad( const glm::vec4& _vColor, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad )
+		void DrawQuad(const glm::vec4 &_vColor, const glm::vec3 &_vPos, const glm::vec2 &_vSize, float _fAngleRad)
 		{
-			glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
-			mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
-			mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+			glm::mat4 mTransform = glm::translate(glm::identity<glm::mat4>(), _vPos);
+			mTransform			 = glm::rotate(mTransform, _fAngleRad, glm::vec3(0.f, 0.f, 1.f));
+			mTransform			 = glm::scale(mTransform, glm::vec3(_vSize, 1.f));
 
-			DrawQuad( _vColor, mTransform );
+			DrawQuad(_vColor, mTransform);
 		}
 
-		void DrawQuad( const glm::vec4& _vColor, const glm::mat4& _mTransform )
+		void DrawQuad(const glm::vec4 &_vColor, const glm::mat4 &_mTransform)
 		{
 			PROFILING_FUNCTION();
 
-			ASSERTM( s_sceneData.bRendering, "Renderer::PrepareScene has not been called" );
+			ASSERTM(s_sceneData.bRendering, "Renderer::PrepareScene has not been called");
 
 
 			if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
@@ -238,126 +238,136 @@ namespace Plop
 
 			Vertex v;
 			v.vColor = _vColor;
-			v.fEntityId = (float)s_sceneData.currentEntityId.top();
+			if (!s_sceneData.currentEntityId.empty())
+				v.fEntityId = (float)s_sceneData.currentEntityId.top();
 
 			bool bTexFound = false;
 			for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
 			{
-				if (s_sceneData.pTextureUnits[i]->Compare( *s_defaultTextures[(int)DefaultTexture::WHITE] ))
+				if (s_sceneData.pTextureUnits[i]->Compare(*s_defaultTextures[(int)DefaultTexture::WHITE]))
 				{
 					v.fTexUnit = (float)i;
-					bTexFound = true;
+					bTexFound  = true;
 					break;
 				}
 			}
 			if (!bTexFound)
 			{
 				s_sceneData.pTextureUnits[s_sceneData.uNbTex] = s_defaultTextures[(int)DefaultTexture::WHITE].get();
-				v.fTexUnit = (float)s_sceneData.uNbTex++;
+				v.fTexUnit									  = (float)s_sceneData.uNbTex++;
 			}
 
-			v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
-			v.vUV = glm::vec2( 0.f );
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
-			v.vUV.x = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.y = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.x = 0.f;
-			s_sceneData.vecVertices.push_back( v );
+			v.vPosition = _mTransform * glm::vec4(-0.5f, -0.5f, 0.f, 1.f);
+			v.vUV		= glm::vec2(0.f);
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, -0.5f, 0.f, 1.f);
+			v.vUV.x		= 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.y		= 1.f;
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 0.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(-0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.x		= 0.f;
+			s_sceneData.vecVertices.push_back(v);
 
 
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 0);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 1);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 2);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 2);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 3);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 0);
 
 			++s_sceneData.uNbQuad;
 		}
 
-		void DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+		void DrawTexture(const Texture &_Texture, const glm::vec3 &_vPos, const glm::vec2 &_vSize, const glm::vec4 &_vTint /*= glm::vec4( 1.f )*/)
 		{
-			glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
-			mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+			glm::mat4 mTransform = glm::translate(glm::identity<glm::mat4>(), _vPos);
+			mTransform			 = glm::scale(mTransform, glm::vec3(_vSize, 1.f));
 
-			DrawTexture( _Texture, mTransform, _vTint );
+			DrawTexture(_Texture, mTransform, _vTint);
 		}
 
-		void DrawTexture( const Texture& _Texture, const glm::vec2& _vPos, const glm::vec2& _vSize, float _fAngleRad, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+		void DrawTexture(const Texture &_Texture, const glm::vec3 &_vPos, const glm::vec2 &_vSize, float _fAngleRad,
+						 const glm::vec4 &_vTint /*= glm::vec4( 1.f )*/)
 		{
-			glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
-			mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
-			mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+			glm::mat4 mTransform = glm::translate(glm::identity<glm::mat4>(), _vPos);
+			mTransform			 = glm::rotate(mTransform, _fAngleRad, glm::vec3(0.f, 0.f, 1.f));
+			mTransform			 = glm::scale(mTransform, glm::vec3(_vSize, 1.f));
 
-			DrawTexture( _Texture, mTransform, _vTint );
+			DrawTexture(_Texture, mTransform, _vTint);
 		}
 
-		void DrawTexture( const Texture& _Texture, const glm::mat4& _mTransform, const glm::vec4& _vTint /*= glm::vec4( 1.f )*/ )
+		void DrawTexture(const Texture &_Texture, const glm::mat4 &_mTransform, const glm::vec4 &_vTint /*= glm::vec4( 1.f )*/)
 		{
 			PROFILING_FUNCTION();
 
-			ASSERTM( s_sceneData.bRendering, "Renderer::PrepareScene has not been called" );
+			ASSERTM(s_sceneData.bRendering, "Renderer::PrepareScene has not been called");
 
 
 			if (s_sceneData.uNbQuad == MAX_QUADS || s_sceneData.uNbTex == MAX_TEX_UNIT)
 				DrawBatch();
 
 			Vertex v;
-			v.vColor = _vTint;
+			v.vColor	= _vTint;
 			v.fEntityId = (float)s_sceneData.currentEntityId.top();
 
 			bool bTexFound = false;
 			for (uint32_t i = 0; i < s_sceneData.uNbTex; ++i)
 			{
-				if (s_sceneData.pTextureUnits[i]->Compare( _Texture ))
+				if (s_sceneData.pTextureUnits[i]->Compare(_Texture))
 				{
 					v.fTexUnit = (float)i;
-					bTexFound = true;
+					bTexFound  = true;
 					break;
 				}
 			}
 			if (!bTexFound)
 			{
 				s_sceneData.pTextureUnits[s_sceneData.uNbTex] = &_Texture;
-				v.fTexUnit = (float)s_sceneData.uNbTex++;
+				v.fTexUnit									  = (float)s_sceneData.uNbTex++;
 			}
 
-			v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
-			v.vUV = glm::vec2( 0.f );
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
-			v.vUV.x = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.y = 1.f;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.x = 0.f;
-			s_sceneData.vecVertices.push_back( v );
+			v.vPosition = _mTransform * glm::vec4(-0.5f, -0.5f, 0.f, 1.f);
+			v.vUV		= glm::vec2(0.f);
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, -0.5f, 0.f, 1.f);
+			v.vUV.x		= 1.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.y		= 1.f;
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = 0.f;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(-0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.x		= 0.f;
+			s_sceneData.vecVertices.push_back(v);
 
 
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 2 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 3 );
-			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 0);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 1);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 2);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 2);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 3);
+			s_sceneData.vecIndices.push_back(s_sceneData.uNbQuad * 4 + 0);
 
 			++s_sceneData.uNbQuad;
 		}
 
-		void DrawSprite( const Sprite& _sprite, const glm::vec2& _vPos, const glm::vec2& _vSize /*= glm::vec2( 1.f )*/, float _fAngleRad /*= 0.f*/ )
+		void DrawSprite(const Sprite &_sprite, const glm::vec3 &_vPos, const glm::vec2 &_vSize /*= glm::vec2( 1.f )*/, float _fAngleRad /*= 0.f*/)
 		{
-			glm::mat4 mTransform = glm::translate( glm::identity<glm::mat4>(), glm::vec3( _vPos, 0.f ) );
-			mTransform = glm::rotate( mTransform, _fAngleRad, glm::vec3( 0.f, 0.f, 1.f ) );
-			mTransform = glm::scale( mTransform, glm::vec3( _vSize, 1.f ) );
+			glm::mat4 mTransform = glm::translate(glm::identity<glm::mat4>(), _vPos);
+			mTransform			 = glm::rotate(mTransform, _fAngleRad, glm::vec3(0.f, 0.f, 1.f));
+			mTransform			 = glm::scale(mTransform, glm::vec3(_vSize, 1.f));
 
-			DrawSprite( _sprite, mTransform );
+			DrawSprite(_sprite, mTransform);
 		}
 
 		void DrawSprite( const Sprite& _sprite, const glm::mat4& _mTransform )
@@ -410,19 +420,22 @@ namespace Plop
 				}
 			}
 
-			v.vPosition = _mTransform * glm::vec4( -0.5f, -0.5f, 0.f, 1.f );
-			v.vUV = _sprite.GetUVMin();
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, -0.5f, 0.f, 1.f );
-			v.vUV.x = _sprite.GetUVMax().x;
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( 0.5f, 0.5f, 0.f, 1.f );
-			v.vUV = _sprite.GetUVMax();
-			s_sceneData.vecVertices.push_back( v );
-			v.vPosition = _mTransform * glm::vec4( -0.5f, 0.5f, 0.f, 1.f );
-			v.vUV.x = _sprite.GetUVMin().x;
-			s_sceneData.vecVertices.push_back( v );
-
+			v.vPosition = _mTransform * glm::vec4(-0.5f, -0.5f, 0.f, 1.f);
+			v.vUV		= _sprite.GetUVMin();
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = _sprite.GetUVMax().y;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, -0.5f, 0.f, 1.f);
+			v.vUV.x		= _sprite.GetUVMax().x;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(0.5f, 0.5f, 0.f, 1.f);
+			v.vUV		= _sprite.GetUVMax();
+			if constexpr (Renderer::USE_INVERTED_Y_UV)
+				v.vUV.y = _sprite.GetUVMin().y;
+			s_sceneData.vecVertices.push_back(v);
+			v.vPosition = _mTransform * glm::vec4(-0.5f, 0.5f, 0.f, 1.f);
+			v.vUV.x		= _sprite.GetUVMin().x;
+			s_sceneData.vecVertices.push_back(v);
 
 			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 0 );
 			s_sceneData.vecIndices.push_back( s_sceneData.uNbQuad * 4 + 1 );

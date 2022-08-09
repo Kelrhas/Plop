@@ -244,26 +244,26 @@ namespace Plop
 
 			if (m_eLevelState == EditorLayer::LevelState::RUNNING)
 			{
-				xLevel->Update( _timeStep );
+				xLevel->Update(_timeStep);
 			}
-			else if (m_eLevelState == EditorLayer::LevelState::EDITING)
+			else if (m_eLevelState == EditorLayer::LevelState::EDITING || m_eLevelState == EditorLayer::LevelState::PAUSED)
 			{
-				xLevel->UpdateInEditor( _timeStep );
+				xLevel->UpdateInEditor(_timeStep);
 
 
 				if (IsSelectedEntityForLevel(Application::GetCurrentLevel()))
 				{
 					if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
 					{
-						m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update( _timeStep );
+						m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update(_timeStep);
 					}
 
 					// focus camera on entity
-					if (Input::IsKeyDown( KeyCode::KEY_F ))
+					if (Input::IsKeyDown(KeyCode::KEY_F))
 					{
-						const glm::vec3& vPos = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldPosition();
+						const glm::vec3 &vPos = m_SelectedEntity.GetComponent<Component_Transform>().GetWorldPosition();
 						// TODO: get the object size
-						m_xEditorCamera->FocusCamera( vPos, VEC3_1 );
+						m_xEditorCamera->FocusCamera(vPos, VEC3_1);
 					}
 				}
 			}
@@ -335,7 +335,11 @@ namespace Plop
 				m_vViewportPosMinWindowSpace = vRegionMin + vImguiWindowPos - vWindowViewportPos; //m_vViewportPosMinScreenSpace - vMainViewportPos;
 				m_vViewportPosMaxWindowSpace = vRegionMax + vImguiWindowPos - vWindowViewportPos; //m_vViewportPosMaxScreenSpace - vMainViewportPos;
 
-				ImGui::Image( (ImTextureID)texId, vViewportSize, ImVec2(0, 1), ImVec2(1, 0) );
+				{
+					const ImVec2 vUvMin = Renderer::USE_INVERTED_Y_UV ? ImVec2(0, 1) : ImVec2(0, 0);
+					const ImVec2 vUvMax = Renderer::USE_INVERTED_Y_UV ? ImVec2(1, 0) : ImVec2(1, 1);
+					ImGui::Image((ImTextureID)texId, vViewportSize, vUvMin, vUvMax);
+				}
 
 				if (m_eLevelState == LevelState::EDITING ||
 					m_eLevelState == LevelState::PAUSED)
@@ -503,7 +507,7 @@ namespace Plop
 		bool bClicked = false;
 		if (Private::hIconSpriteSheet->GetSpriteUV( _pButton, vUVMin, vUVMax ))
 		{
-			bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, ImVec2( vUVMin.x, vUVMax.y ), ImVec2( vUVMax.x, vUVMin.y ), 0 );
+			bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, vUVMin, vUVMax, 0 );
 		}
 
 		ImGui::PopID();
@@ -1463,7 +1467,7 @@ namespace Plop
 		glm::vec2 vSSPoint3 = GetSSPosition( _v3 );
 		glm::vec2 vSSPoint4 = GetSSPosition( _v4 );
 
-		ImGui::PathCatmullCurve( drawList, vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4 );
+		ImGui::Custom::PathCatmullCurve(drawList, vSSPoint1, vSSPoint2, vSSPoint3, vSSPoint4);
 		
 		if (window)
 			drawList->PopClipRect();

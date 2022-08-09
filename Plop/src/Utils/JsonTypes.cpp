@@ -34,10 +34,19 @@ namespace nlohmann
 	void adl_serializer<Plop::GUID>::to_json(json &j, const Plop::GUID &_guid)
 	{
 		j = json();
-		j = (uint64_t)_guid;
+		j = (Plop::GUID::base_t)_guid;
 	}
 
-	void adl_serializer<Plop::GUID>::from_json(const json &j, Plop::GUID &_guid) { _guid = (uint64_t)j; }
+	void adl_serializer<Plop::GUID>::from_json(const json &j, Plop::GUID &_guid) { _guid = (Plop::GUID::base_t)j; }
+
+	/* PrefabHandle */
+	void adl_serializer<Plop::PrefabHandle>::to_json(json &j, const Plop::PrefabHandle &_hPrefab)
+	{
+		j = json();
+		j = (Plop::GUID)_hPrefab;
+	}
+
+	void adl_serializer<Plop::PrefabHandle>::from_json(const json &j, Plop::PrefabHandle &_hPrefab) { _hPrefab = Plop::PrefabHandle((Plop::GUID)j); }
 
 	/* Component_ParticleSystem::ParticleSpawnerPtr */
 	void adl_serializer<Plop::Component_ParticleSystem::ParticleSpawnerPtr>::to_json(json &													   j,

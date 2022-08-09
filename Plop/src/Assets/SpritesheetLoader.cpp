@@ -1,11 +1,13 @@
 #include "Plop_pch.h"
+
 #include "SpritesheetLoader.h"
 
-#include <entt/entt.hpp>
-
 #include "Application.h"
+#include "Renderer/RendererConfig.h"
 #include "TextureLoader.h"
 #include "Utils/OSDialogs.h"
+
+#include <entt/entt.hpp>
 
 namespace Plop::AssetLoader
 {
@@ -61,7 +63,7 @@ namespace Plop::AssetLoader
 	{
 		SpritesheetHandle hNewSpritesheet;
 
-		bool bOpened;
+		bool bOpened = true;
 		if (ImGui::BeginPopupModal( "Pick a loaded spritesheet###PickSpritesheetFromCache", &bOpened ))
 		{
 			static ImGuiTextFilter texFilter;
@@ -88,8 +90,12 @@ namespace Plop::AssetLoader
 
 						const float fImageRatio = (float)_hSpritesheet->GetTextureHandle()->GetWidth() / (float)_hSpritesheet->GetTextureHandle()->GetHeight();
 
-						//if (ImGui::ImageButton( (ImTextureID)_hSpritesheet->GetTextureHandle()->GetNativeHandle(), ImVec2( fWidth, fWidth ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ))
-						if (ImGui::ImageButton( (ImTextureID)_hSpritesheet->GetTextureHandle()->GetNativeHandle(), ImVec2( ImGui::GetContentRegionAvailWidth(), ImGui::GetContentRegionAvailWidth() / fImageRatio ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ))
+						const ImVec2 vUvMin = Renderer::USE_INVERTED_Y_UV ? ImVec2(0, 1) : ImVec2(0, 0);
+						const ImVec2 vUvMax = Renderer::USE_INVERTED_Y_UV ? ImVec2(1, 0) : ImVec2(1, 1);
+						if (ImGui::ImageButton((ImTextureID)_hSpritesheet->GetTextureHandle()->GetNativeHandle(),
+											   ImVec2(ImGui::GetContentRegionAvailWidth(), ImGui::GetContentRegionAvailWidth() / fImageRatio),
+											   vUvMin,
+											   vUvMax))
 						{
 							hNewSpritesheet = _hSpritesheet;
 							return;

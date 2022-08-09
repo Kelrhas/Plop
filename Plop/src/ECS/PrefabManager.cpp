@@ -1,9 +1,6 @@
 #include "Plop_pch.h"
-#include "PrefabManager.h"
 
-#include <queue>
-#include <entt/entt.hpp>
-#include <misc/cpp/imgui_stdlib.h>
+#include "PrefabManager.h"
 
 #include "Application.h"
 #include "ECS/ComponentManager.h"
@@ -13,8 +10,16 @@
 #include "ECS/Serialisation.h"
 #include "Events/EntityEvent.h"
 #include "Events/EventDispatcher.h"
-#include "Utils/OSDialogs.h"
 #include "Utils/JsonTypes.h"
+#include "Utils/OSDialogs.h"
+
+#include <entt/entt.hpp>
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+	#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+#include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
+#include <queue>
 
 namespace Plop
 {
@@ -40,7 +45,17 @@ usage:
 	-> pas grand chose en vrai pour ça
 	*/
 
-	std::unordered_map<String, PrefabLibrary>	PrefabManager::s_mapPrefabLibs;
+	PrefabHandle::operator bool() const
+	{
+		if (guid == GUID::INVALID)
+			return false;
+
+		return PrefabManager::DoesPrefabExist(guid);
+	}
+
+	PrefabHandle::operator GUID() const { return guid; }
+
+	std::unordered_map<String, PrefabLibrary> PrefabManager::s_mapPrefabLibs;
 
 
 	bool PrefabManager::CreatePrefab(Entity _entitySrc, const String &_sLibName)
@@ -50,11 +65,41 @@ usage:
 
 
 		PrefabLibrary &library = s_mapPrefabLibs.at(_sLibName);
-		auto rootId = CopyEntityHierarchyToRegistry(_entitySrc, library.registry);
+		auto		   rootId  = CopyEntityHierarchyToRegistry(_entitySrc, library.registry);
 
 		library.vecPrefabs.emplace_back(rootId);
 
 		return true;
+	}
+
+	bool PrefabManager::DoesPrefabExist(GUID _guid)
+	{
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_guid](const Prefab &_p) { return _p.guid == _guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	String PrefabManager::GetPrefabName(GUID _guid)
+	{
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_guid](const Prefab &_p) { return _p.guid == _guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				const auto &nameComp = lib.registry.get<Component_Name>(it->rootId);
+				return nameComp.sName;
+			}
+		}
+
+		ASSERTM(false, "There is no prefab with GUID {}", _guid);
+		return "";
 	}
 
 	void PrefabManager::DeletePrefab(const Prefab *_pPrefab)
@@ -69,6 +114,11 @@ usage:
 				break;
 			}
 		}
+	}
+
+	Entity PrefabManager::InstantiatePrefab(PrefabHandle _hPrefab, entt::registry &_reg, entt::entity _parent)
+	{
+		return InstantiatePrefab(_hPrefab.guid, _reg, _parent);
 	}
 
 	Entity PrefabManager::InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent)
@@ -111,10 +161,7 @@ usage:
 		return true;
 	}
 
-	bool PrefabManager::DoesPrefabLibExist(const String &_sName)
-	{
-		return s_mapPrefabLibs.find(_sName) != s_mapPrefabLibs.end();
-	}
+	bool PrefabManager::DoesPrefabLibExist(const String &_sName) { return s_mapPrefabLibs.find(_sName) != s_mapPrefabLibs.end(); }
 
 	void PrefabManager::ImGuiRenderLibraries()
 	{
@@ -195,7 +242,6 @@ usage:
 							else
 								ImGui::Text("no comp Name for %d", prefab.rootId);
 						}
-
 					}
 				}
 
@@ -226,7 +272,6 @@ usage:
 
 					ImGui::EndPopup();
 				}
-
 			}
 			ImGui::EndChild();
 		}
@@ -236,7 +281,7 @@ usage:
 	void PrefabManager::LoadPrefabLibrary(const StringPath &_sPath)
 	{
 		bool bAlreadyLoaded = false;
-		VisitAllLibraries([&](const String&, const PrefabLibrary &lib) {
+		VisitAllLibraries([&](const String &, const PrefabLibrary &lib) {
 			if (lib.sPath == _sPath)
 			{
 				bAlreadyLoaded = true;
@@ -250,7 +295,7 @@ usage:
 			return;
 
 
-		//std::filesystem::create_directories(_sPath.parent_path());
+		// std::filesystem::create_directories(_sPath.parent_path());
 		std::ifstream libraryFile(_sPath, std::ios::in);
 
 		if (libraryFile.is_open())
@@ -271,7 +316,7 @@ usage:
 					for (const auto &j : jLib[JSON_ENTITIES])
 					{
 						entt::entity enttID = lib.registry.create();
-						GUID guid = j[JSON_GUID];
+						GUID		 guid	= j[JSON_GUID];
 						lib.registry.emplace<Component_Name>(enttID, guid);
 						ASSERTM(mapping.find(guid) == mapping.end(), "There already is a mapping with this guid {}", guid);
 						mapping[guid] = enttID;
@@ -279,33 +324,34 @@ usage:
 						lib.registry.emplace<Component_Transform>(enttID);
 					}
 
-						// and apply components & hierarchy
+					// and apply components & hierarchy
 					for (const auto &j : jLib[JSON_ENTITIES])
 					{
-						GUID guid = j[JSON_GUID];
-						entt::entity enttID = mapping[guid];
+						GUID		 guid							   = j[JSON_GUID];
+						entt::entity enttID							   = mapping[guid];
 						lib.registry.get<Component_Name>(enttID).sName = j[JSON_NAME];
 
 						if (j.contains(JSON_CHILDREN))
 						{
-							auto &graphComp = lib.registry.get<Component_GraphNode>(enttID);
+							auto &		 graphComp		 = lib.registry.get<Component_GraphNode>(enttID);
 							entt::entity enttIDLastChild = entt::null;
 							for (const auto &jChild : j[JSON_CHILDREN])
 							{
-								GUID guidChild = jChild;
-								entt::entity enttIDChild = mapping[guidChild];
-								auto &graphCompChild = lib.registry.get<Component_GraphNode>(enttIDChild);
-								graphCompChild.parent = enttID;
+								GUID		 guidChild		= jChild;
+								entt::entity enttIDChild	= mapping[guidChild];
+								auto &		 graphCompChild = lib.registry.get<Component_GraphNode>(enttIDChild);
+								graphCompChild.parent		= enttID;
 								if (enttIDLastChild == entt::null)
 								{
 									graphComp.firstChild = enttIDChild;
 								}
 								else
 								{
-									auto &graphCompLastChild = lib.registry.get<Component_GraphNode>(enttIDLastChild);
-									graphCompChild.prevSibling = enttIDLastChild;
+									auto &graphCompLastChild	   = lib.registry.get<Component_GraphNode>(enttIDLastChild);
+									graphCompChild.prevSibling	   = enttIDLastChild;
 									graphCompLastChild.nextSibling = enttIDChild;
 								}
+								enttIDLastChild = enttIDChild;
 							}
 						}
 
@@ -318,12 +364,11 @@ usage:
 
 				if (jLib.contains(JSON_PREFABS))
 				{
-
 					for (auto &jPrefab : jLib[JSON_PREFABS])
 					{
 						ASSERT(jPrefab.contains(JSON_ROOT));
 						ASSERT(jPrefab.contains(JSON_GUID));
-						GUID guid = jPrefab[JSON_ROOT];
+						GUID   guid = jPrefab[JSON_ROOT];
 						Prefab prefab(mapping[guid]);
 						prefab.guid = jPrefab[JSON_GUID];
 						lib.vecPrefabs.emplace_back(prefab);
@@ -344,7 +389,7 @@ usage:
 		for (const auto &itPair : s_mapPrefabLibs)
 		{
 			auto &sKey = itPair.first;
-			auto &lib = itPair.second;
+			auto &lib  = itPair.second;
 
 			std::filesystem::create_directories(lib.sPath.parent_path());
 			std::ofstream libraryFile(lib.sPath, std::ios::out | std::ios::trunc);
@@ -357,11 +402,11 @@ usage:
 				lib.registry.each([&jLib, &lib](entt::entity enttID) {
 					// TODO maybe merge with Entity::ToJson ?
 					auto &nameComp = lib.registry.get<Component_Name>(enttID);
-					json j;
-					j[JSON_NAME] = nameComp.sName;
-					j[JSON_GUID] = nameComp.guid;
-					const auto &graphNode = lib.registry.get<Component_GraphNode>(enttID);
-					auto childEntity = graphNode.firstChild;
+					json  j;
+					j[JSON_NAME]			= nameComp.sName;
+					j[JSON_GUID]			= nameComp.guid;
+					const auto &graphNode	= lib.registry.get<Component_GraphNode>(enttID);
+					auto		childEntity = graphNode.firstChild;
 					while (childEntity != entt::null)
 					{
 						auto &nameCompChild = lib.registry.get<Component_Name>(childEntity);
@@ -376,8 +421,8 @@ usage:
 
 				for (const auto &prefab : lib.vecPrefabs)
 				{
-					auto &nameComp = lib.registry.get<Component_Name>(prefab.rootId);
-					json &jPrefab = jLib[JSON_PREFABS].emplace_back();
+					auto &nameComp	   = lib.registry.get<Component_Name>(prefab.rootId);
+					json &jPrefab	   = jLib[JSON_PREFABS].emplace_back();
 					jPrefab[JSON_ROOT] = nameComp.guid;
 					jPrefab[JSON_NAME] = nameComp.sName;
 					jPrefab[JSON_GUID] = prefab.guid;
@@ -408,4 +453,97 @@ usage:
 		return child;
 	}
 
-}
+} // namespace Plop
+
+#include "Assets/SpritesheetLoader.h"
+
+namespace ImGui::Custom
+{
+	bool InputPrefab(const char *label, Plop::PrefabHandle &_hPrefab, const ImVec2 &size_arg)
+	{
+		ImGuiWindow *window = GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		ImGuiContext &	  g			 = *GImGui;
+		const ImGuiStyle &style		 = g.Style;
+		const ImGuiID	  id		 = window->GetID(label);
+		const float		  w			 = CalcItemWidth();
+		const ImVec2	  label_size = CalcTextSize(label, NULL, true);
+		const ImVec2	  frame_size = CalcItemSize(size_arg, CalcItemWidth(), label_size.y + style.FramePadding.y * 2.0f);
+		const ImRect	  frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+		const ImRect	  total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
+
+		ItemSize(total_bb, style.FramePadding.y);
+		if (!ItemAdd(total_bb, id, &frame_bb))
+			return false;
+
+		// Draw frame
+		const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : g.HoveredId == id ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+		RenderNavHighlight(frame_bb, id);
+		RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
+
+		bool value_changed = false;
+
+		if (BeginDragDropTarget())
+		{
+			if (const ImGuiPayload *pPayload = ImGui::AcceptDragDropPayload("InstantiatePrefab"))
+			{
+				ASSERTM(pPayload->DataSize == sizeof(Plop::GUID), "Wrong Drag&Drop payload");
+				Plop::GUID guid = *(Plop::GUID *)pPayload->Data;
+				if (guid != _hPrefab)
+				{
+					_hPrefab	  = guid;
+					value_changed = true;
+				}
+			}
+			EndDragDropTarget();
+		}
+
+		// icon
+		auto	  hSpriteSheet = Plop::AssetLoader::GetSpritesheet(Plop::Application::Get()->GetEditorDirectory() / "assets/icons/editor.ssdef");
+		glm::vec2 vMin, vMax;
+		if (hSpriteSheet->GetSpriteUV("prefab", vMin, vMax))
+		{
+			// Image((ImTextureID)hSpriteSheet->GetNativeHandle(), ImVec2(0, 0), vMin, vMax);
+			const ImRect image_bb(frame_bb.Min.x, frame_bb.Min.y, frame_bb.Min.x + frame_bb.GetHeight(), frame_bb.Min.y + frame_bb.GetHeight());
+			window->DrawList->AddImage((ImTextureID)hSpriteSheet->GetNativeHandle(), image_bb.Min, image_bb.Max, vMin, vMax);
+		}
+
+
+		// reset button
+		ImVec2 button_size(frame_size.y, frame_size.y);
+		if (_hPrefab != Plop::GUID::INVALID)
+		{
+			ImRect		  button_bb(frame_bb.Max.x - button_size.x, frame_bb.Min.y, frame_bb.Max.x, frame_bb.Max.y);
+			const ImGuiID button_id = window->GetID("Reset");
+
+			if (CloseButton(button_id, ImVec2(button_bb.Min.x, button_bb.Min.y)))
+			// if (ButtonBehavior(button_bb, button_id, nullptr, nullptr, ImGuiButtonFlags_AlignTextBaseLine))
+			{
+				_hPrefab.Reset();
+			}
+		}
+
+		String sName = "None";
+		if (_hPrefab)
+			sName = Plop::PrefabManager::GetPrefabName(_hPrefab);
+		else if (_hPrefab != Plop::GUID::INVALID)
+			sName = "Invalid";
+		ImVec2		 draw_pos		 = frame_bb.Min + style.FramePadding + ImVec2(frame_bb.GetHeight(), 0.f);
+		const char * buf_display	 = sName.c_str();
+		const char * buf_display_end = buf_display + strlen(buf_display);
+		ImU32		 col			 = GetColorU32(ImGuiCol_Text);
+		const ImVec4 clip_rect(frame_bb.Min.x, frame_bb.Min.y, frame_bb.Min.x + frame_size.x - button_size.x, frame_bb.Min.y + frame_size.y);
+		window->DrawList->AddText(g.Font, g.FontSize, draw_pos, col, buf_display, buf_display_end, 0.0f, &clip_rect);
+
+		// label
+		if (label_size.x > 0.0f)
+			RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y), label);
+
+		if (value_changed)
+			MarkItemEdited(id);
+
+		return value_changed;
+	}
+} // namespace ImGui::Custom

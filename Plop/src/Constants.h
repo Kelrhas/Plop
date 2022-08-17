@@ -26,6 +26,9 @@ constexpr glm::vec3 VEC3_Z(0, 0, 1);
 #define VEC3_UP VEC3_Y
 #define VEC3_FORWARD -VEC3_Z
 
+constexpr glm::mat3 MAT3_1 = glm::identity<glm::mat3>();
+constexpr glm::mat4 MAT4_1 = glm::identity<glm::mat4>();
+
 
 constexpr glm::vec4 COLOR_BLACK		( 0, 0, 0, 1 );
 constexpr glm::vec4 COLOR_RED		( 1, 0, 0, 1 );

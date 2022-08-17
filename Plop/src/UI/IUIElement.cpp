@@ -2,6 +2,8 @@
 
 #include "IUIElement.h"
 
+#include "Assets/TextureLoader.h"
+#include "Input/Input.h"
 #include "Math/Math.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -120,13 +122,63 @@ namespace Plop::UI
 	{
 		ImGui::PushID(this);
 		ImGui::Text(m_sName.c_str());
-		ImGui::SliderFloat2("Pos", glm::value_ptr(m_vPosition), 0.f, 1.f);
-		ImGui::SliderFloat2("Size", glm::value_ptr(m_vSize), 0.f, 1.f);
-		ImGui::SliderFloat2("Pivot", glm::value_ptr(m_vPivot), 0.f, 1.f);
-		ImGui::SliderFloat("Angle(Rad)", &m_fRotation, 0.f, glm::two_pi<float>());
+		glm::vec2 vTemp;
+		float	  fTemp;
+
+		vTemp = m_vPosition;
+		if (ImGui::SliderFloat2("Pos", glm::value_ptr(vTemp), 0.f, 1.f))
+			SetPosition(vTemp);
+
+		vTemp = m_vSize;
+		if (ImGui::SliderFloat2("Size", glm::value_ptr(vTemp), 0.f, 1.f))
+			SetSize(vTemp);
+
+		vTemp = m_vPivot;
+		if (ImGui::SliderFloat2("Pivot", glm::value_ptr(vTemp), 0.f, 1.f))
+			SetPivot(vTemp);
+
+		fTemp = m_fRotation;
+		if (ImGui::SliderFloat("Angle(Rad)", &fTemp, 0.f, glm::two_pi<float>()))
+			SetRotation(fTemp);
+
 		ImGui::Text("Final pos: %.3f %.3f", GetGlobalScreenPos().x, GetGlobalScreenPos().y);
 		ImGui::Text("Final size: %.3f %.3f", GetGlobalScreenSize().x, GetGlobalScreenSize().y);
 		ImGui::Checkbox("Clip children", &m_bClipChildrenToRect);
+
+		if (auto pImage = dynamic_cast<Image *>(this))
+		{
+			fTemp = pImage->m_fFixedRatio;
+			if (ImGui::SliderFloat("Fixed ratio", &fTemp, 0.01f, 10.f))
+			{
+				pImage->SetRatio(fTemp);
+			}
+
+			auto NameFromMethod = [](Image::RatioMethod _eMethod) {
+				switch (_eMethod)
+				{
+					case Plop::UI::Image::RatioMethod::FREE: return "Free";
+					case Plop::UI::Image::RatioMethod::KEEP_WIDTH: return "Width";
+					case Plop::UI::Image::RatioMethod::KEEP_HEIGHT: return "Height";
+					default: break;
+				}
+				return "ERROR";
+			};
+
+			if (ImGui::BeginCombo("Ratio method", NameFromMethod(pImage->m_eRatioMethod)))
+			{
+				auto ComboMethod = [&](Image::RatioMethod _eMethod) {
+					if (ImGui::Selectable(NameFromMethod(_eMethod), _eMethod == pImage->m_eRatioMethod))
+					{
+						pImage->SetRatioMethod(_eMethod);
+					}
+				};
+				ComboMethod(Image::RatioMethod::FREE);
+				ComboMethod(Image::RatioMethod::KEEP_WIDTH);
+				ComboMethod(Image::RatioMethod::KEEP_HEIGHT);
+				ImGui::EndCombo();
+			}
+		}
+
 		const glm::vec3 vCol = GetDebugColor();
 		ImGui::ColorButton("", glm::vec4(vCol, 1.f));
 		ImGui::Separator();
@@ -140,6 +192,14 @@ namespace Plop::UI
 		}
 	}
 
+	glm::vec3 IUIElement::GetDebugColor() const
+	{
+		const float fRed   = ((size_t)this % 0xff) / 255.f;
+		const float fGreen = (((size_t)this ^ 0xf5) % 0xff) / 255.f;
+		const float fBlue  = 0.f;
+		return glm::vec3(fRed, fGreen, fBlue);
+	}
+
 	void IUIElement::ComputeGlobalTransform()
 	{
 		const glm::vec2 vParentGlobalSize = m_xParent.expired() ? VEC2_1 : m_xParent.lock()->GetGlobalScreenSize();
@@ -151,12 +211,36 @@ namespace Plop::UI
 		const glm::mat3 mScale		 = glm::mat3(glm::vec3(m_vSize.x, 0.f, 0.f), glm::vec3(0.f, m_vSize.y, 0.f), VEC3_Z);
 		const glm::mat3 mPivot		 = glm::mat3(VEC3_X, VEC3_Y, glm::vec3(-m_vPivot, 1.f));
 
-		m_mGlobalTransform = (((mParentTransform * mTranslation) * mRotation) * mScale) * mPivot;
+		m_mGlobalTransform = (((mParentTransform * mTranslation) * mScale) * mRotation) * mPivot;
 
 		VisitChildren([](IUIElementWeakPtr _xChild) {
 			_xChild.lock()->ComputeGlobalTransform();
 			return VisitorFlow::CONTINUE;
 		});
+	}
+
+	glm::vec2 IUIElement::ComputeParentGlobalSize() const
+	{
+		IUIElementWeakPtr xWeakElmt = m_xParent;
+		glm::vec2		  vSize		= VEC2_1;
+		while (!xWeakElmt.expired())
+		{
+			auto xElmt = xWeakElmt.lock();
+
+			vSize *= xElmt->GetSize();
+
+			xWeakElmt = xElmt->m_xParent;
+		}
+
+		return vSize;
+	}
+
+	const glm::mat3 &IUIElement::GetParentGlobalTransform() const
+	{
+		if (m_xParent.expired())
+			return m_xParent.lock()->m_mGlobalTransform;
+
+		return MAT3_1;
 	}
 
 	glm::vec2 IUIElement::GetGlobalScreenPos() const { return m_mGlobalTransform * VEC3_Z; }
@@ -230,12 +314,7 @@ namespace Plop::UI
 		_vBottomRight = glm::max(glm::max(vTopLeft, vTopRight), glm::max(vBottomLeft, vBottomRight)) * vWindowSize + vWindowPos;
 	}
 
-	glm::vec3 IUIElement::GetDebugColor() const
 	{
-		const float fRed   = ((size_t)this % 0xff) / 255.f;
-		const float fGreen = (((size_t)this ^ 0xf5) % 0xff) / 255.f;
-		const float fBlue  = 0.f;
-		return glm::vec3(fRed, fGreen, fBlue);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -338,6 +417,24 @@ namespace Plop::UI
 		}
 	}
 
+	void Image::SetRatioMethod(RatioMethod _eMethod)
+	{
+		if (m_eRatioMethod != _eMethod)
+		{
+			m_eRatioMethod = _eMethod;
+			OnImageSizeChanged();
+		}
+	}
+
+	void Image::SetRatio(float _fRatio)
+	{
+		if (m_fFixedRatio != _fRatio)
+		{
+			m_fFixedRatio = _fRatio;
+			OnImageSizeChanged();
+		}
+	}
+
 	void Image::Render() const
 	{
 		ImDrawList *	pDrawList = ImGui::GetForegroundDrawList();
@@ -349,10 +446,56 @@ namespace Plop::UI
 
 		glm::vec2 vTopLeft, vTopRight, vBottomLeft, vBottomRight;
 		GetImGuiScreenCorners(vTopLeft, vTopRight, vBottomLeft, vBottomRight);
-		pDrawList->AddQuadFilled(vTopLeft, vTopRight, vBottomRight, vBottomLeft, imCol);
+		if (m_hTexture)
+			pDrawList->AddImageQuad((ImTextureID)m_hTexture->GetNativeHandle(), vTopLeft, vTopRight, vBottomRight, vBottomLeft);
+		else
+			pDrawList->AddQuadFilled(vTopLeft, vTopRight, vBottomRight, vBottomLeft, imCol);
 
 		pDrawList->AddCircleFilled(GetImGuiScreenPivotPos(), 6, 0xFFFFFFFF);
 		pDrawList->AddCircleFilled(GetImGuiScreenPivotPos(), 3, imCol);
+	}
+
+	void Image::OnSizeChanged()
+	{
+		SUPER::OnSizeChanged();
+		OnImageSizeChanged();
+	}
+
+	void Image::OnParentSizeChanged()
+	{
+		SUPER::OnParentSizeChanged();
+		OnImageSizeChanged();
+	}
+
+	void Image::OnImageSizeChanged()
+	{
+		if (m_eRatioMethod != RatioMethod::FREE)
+		{
+			if (m_fFixedRatio > 0.f)
+			{
+				const glm::vec2	 vGlobalSize  = GetGlobalScreenSize();
+				const glm::vec2 &vCurrentSize = GetSize();
+				if (vGlobalSize.x / vGlobalSize.y != m_fFixedRatio)
+				{
+					if (m_eRatioMethod == RatioMethod::KEEP_WIDTH)
+					{
+						glm::vec2 vParentSize = ComputeParentGlobalSize();
+						glm::vec2 vNewSize(vCurrentSize.x, (vGlobalSize.x / vParentSize.y) / m_fFixedRatio);
+						SetSize(vNewSize);
+					}
+					else if (m_eRatioMethod == RatioMethod::KEEP_HEIGHT)
+					{
+						glm::vec2 vParentSize = ComputeParentGlobalSize();
+						glm::vec2 vNewSize((vGlobalSize.y / vParentSize.x) / m_fFixedRatio, vCurrentSize.y);
+						SetSize(vNewSize);
+					}
+				}
+			}
+			else
+			{
+				// TODO: reset size ?
+			}
+		}
 	}
 
 	void Image::OnImageChanged()
@@ -362,5 +505,18 @@ namespace Plop::UI
 		 * - if needed, upload to GPU
 		 * - store the GPU handle to draw later
 		 */
+
+		float fOldRatio = m_hTexture ? m_hTexture->GetWidth() / (float)m_hTexture->GetHeight() : -1.f;
+		if (m_imgFilePath.empty())
+		{
+			m_hTexture = TextureHandle();
+		}
+		else
+		{
+			m_hTexture		= AssetLoader::GetTexture(m_imgFilePath.string());
+			float fNewRatio = m_hTexture ? m_hTexture->GetWidth() / (float)m_hTexture->GetHeight() : -1.f;
+			if (fNewRatio > glm::epsilon<float>() && fNewRatio != fOldRatio)
+				OnImageSizeChanged();
+		}
 	}
 } // namespace Plop::UI

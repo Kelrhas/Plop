@@ -1,6 +1,7 @@
 #pragma once
 
-#include <TimeStep.h>
+#include "Renderer/Texture.h"
+#include "TimeStep.h"
 
 namespace Plop::UI
 {
@@ -22,10 +23,14 @@ namespace Plop::UI
 		IUIElement(IUIElementWeakPtr _xParent);
 		virtual ~IUIElement() = default;
 
-		void SetPosition(const glm::vec2 _vPos);
-		void SetSize(const glm::vec2 _vSize);
-		void SetPivot(const glm::vec2 _vPivot);
-		void SetRotation(float _fAngle);
+		void			 SetPosition(const glm::vec2 _vPos);
+		const glm::vec2 &GetPosition() const { return m_vPosition; }
+		void			 SetSize(const glm::vec2 _vSize);
+		const glm::vec2 &GetSize() const { return m_vSize; }
+		void			 SetPivot(const glm::vec2 _vPivot);
+		const glm::vec2 &GetPivot() const { return m_vPivot; }
+		void			 SetRotation(float _fAngle);
+		const float &	 GetRotation() const { return m_fRotation; }
 
 		static bool AddElementTo(IUIElementWeakPtr _xElement, IUIElementWeakPtr _xParent);
 		static bool RemoveElementFrom(IUIElementWeakPtr _xElement, IUIElementWeakPtr _xParent);
@@ -51,12 +56,13 @@ namespace Plop::UI
 		glm::vec3 GetDebugColor() const;
 
 		void			 ComputeGlobalTransform();
+		glm::vec2		 ComputeParentGlobalSize() const;
+		const glm::mat3 &GetParentGlobalTransform() const;
 		glm::vec2		 GetGlobalScreenPos() const;
 		glm::vec2		 GetGlobalScreenPivotPos() const;
 		glm::vec2		 GetGlobalScreenSize() const;
 		void			 GetGlobalScreenCorners(glm::vec2 &_vTopLeft, glm::vec2 &_vTopRight, glm::vec2 &_vBottomLeft, glm::vec2 &_vBottomRight) const;
 		void			 GetGlobalScreenBoundingBox(glm::vec2 &_vTopLeft, glm::vec2 &_vBottomRight) const;
-		const glm::vec2 &GetPivot() const { return m_vPivot; }
 
 		glm::vec2 GetImGuiScreenPos() const;
 		glm::vec2 GetImGuiScreenPivotPos() const;
@@ -153,17 +159,34 @@ namespace Plop::UI
 	/// </summary>
 	class Image : public IVisibleElement
 	{
+		friend class IUIElement;
+
 		using SUPER = IVisibleElement;
 
 	public:
+		enum class RatioMethod : U8
+		{
+			FREE,
+			KEEP_WIDTH,
+			KEEP_HEIGHT
+		};
+
 		void SetImage(const StringPath &_filePath);
+		void SetRatioMethod(RatioMethod _eMethod);
+		void SetRatio(float _fRatio);
 
 	protected:
 		virtual void Render() const override;
+		virtual void OnSizeChanged() override;
+		virtual void OnParentSizeChanged() override;
+		void		 OnImageSizeChanged();
 		void		 OnImageChanged();
 
 	private:
-		StringPath m_imgFilePath;
+		StringPath	  m_imgFilePath;
+		TextureHandle m_hTexture;
+		float		  m_fFixedRatio	 = -1.f;
+		RatioMethod	  m_eRatioMethod = RatioMethod::FREE;
 	};
 
 } // namespace Plop::UI

@@ -14,7 +14,7 @@ namespace Plop
 
 	Component_SpriteRenderer &Component_SpriteRenderer::operator=(const Component_SpriteRenderer &_other)
 	{
-		xSprite = _other.xSprite;
+		*xSprite = *_other.xSprite;
 		return *this;
 	}
 

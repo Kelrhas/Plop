@@ -19,16 +19,18 @@ namespace Plop
 
 		static_assert(std::is_trivially_copyable_v<EntityType>);
 
+	public:
 		struct ComponentInfo
 		{
 			using Callback = std::function<void( Registry&, EntityType )>;
-			using CallbackDuplicate = std::function<void( Registry&, EntityType, EntityType )>;
+			using CallbackDuplicate = std::function<void( const Registry&, EntityType, Registry&, EntityType )>;
 			using CallbackFromJson = std::function<void( Registry&, EntityType, const Json& )>;
 			using CallbackToJson = std::function<Json( const Registry&, EntityType )>;
 
 
 			const char* pName = nullptr;
 			Callback funcEditorUI;
+			std::function<bool(void)> funcCanAdd;
 			std::function<bool(void)> funcCanRemove;
 			std::function<bool(void)> funcCanEdit;
 			Callback funcAdd;
@@ -40,8 +42,6 @@ namespace Plop
 			Callback funcAfterLoad;
 
 		};
-
-	public:
 
 		template<class Comp>
 		static void RegisterComponent( const char* _pName );
@@ -58,12 +58,15 @@ namespace Plop
 		static void ToJson( const Registry& _reg, EntityType _e, Json& _j);
 		static void AfterLoad(Registry &_reg, EntityType _e);
 		static void DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest );
-		
+
+		template<typename Visitor>
+		static void VisitAllComponents(Visitor &&_v);
 		template<typename Visitor>
 		static void ComponentsVisitor( Registry& _reg, EntityType _e, Visitor _v );
 
-	private:
 		static bool HasComponent( const Registry& _reg, EntityType _e, ComponentTypeId _id );
+
+	private:
 
 
 		template<class Comp>
@@ -98,11 +101,12 @@ namespace Plop
 		info.pName = _pName;
 		info.funcCanEdit = CanEditComponent<Comp>;
 		info.funcEditorUI = CallComponentEditorUI<Comp, Registry&, EntityType>;
+		info.funcCanAdd = CanAddComponent<Comp>;
 		info.funcCanRemove = CanRemoveComponent<Comp>;
 		//info.funcClone = CloneRegistryComponents<Comp, Registry&>;
 		info.funcAdd = AddComponent<Comp, Registry&, EntityType>;
 		info.funcRemove = RemoveComponent<Comp, Registry&, EntityType>;
-		info.funcDuplicate = CallDuplicateComponent<Comp, Registry&, EntityType>;
+		info.funcDuplicate = CallDuplicateComponent<Comp, Registry, EntityType>;
 		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType, const Json&>;
 		info.funcToJson = CallComponentToJson<Comp, Json, const Registry&, EntityType>;
 		info.funcAfterLoad = CallComponentAfterLoad<Comp, Registry &, EntityType>;
@@ -125,6 +129,15 @@ namespace Plop
 		{
 			factory.func<&Comp::SetupReflection>("setup"_hs);
 		}*/
+	}
+
+	template<typename Visitor> // [](const entt::id_type, const ComponentManager::ComponentInfo&){}
+	void ComponentManager::VisitAllComponents(Visitor &&_v)
+	{
+		for (auto &[id, info] : s_mapComponents)
+		{
+			_v(id, info);
+		}
 	}
 
 	template<typename Visitor>

@@ -4,6 +4,7 @@
 #include <filesystem>
 
 using String		= std::string;
+using StringView	= std::string_view;
 using StringVec		= std::vector<String>;
 using StringPath	= std::filesystem::path;
 using U8			= uint8_t;

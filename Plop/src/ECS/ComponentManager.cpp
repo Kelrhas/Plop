@@ -44,12 +44,15 @@ namespace Plop
 
 			for (const auto& [key, value] : s_mapComponents)
 			{
-				if (!HasComponent(_reg, _e, key))
+				if (value.funcCanAdd())
 				{
-					ImGui::PushID(key);
-					if (ImGui::Selectable(value.pName))
-						value.funcAdd(_reg, _e);
-					ImGui::PopID();
+					if (!HasComponent(_reg, _e, key))
+					{
+						ImGui::PushID(key);
+						if (ImGui::Selectable(value.pName))
+							value.funcAdd(_reg, _e);
+						ImGui::PopID();
+					}
 				}
 			}
 
@@ -95,7 +98,7 @@ namespace Plop
 		// @check
 		for (auto& [id, info] : s_mapComponents)
 		{
-			info.funcDuplicate( _reg, _entitySrc, _entityDest );
+			info.funcDuplicate(_reg, _entitySrc, _reg, _entityDest);
 		}
 	}
 

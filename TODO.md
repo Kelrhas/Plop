@@ -2,6 +2,7 @@
 **[General]**
 - use an engine executable that calls the game dll (faster to compile ? easier to iterate on gameplay code by hot reloading the dll)
 - use C++20
+- update imgui (tables)
 - ~~use a code style file~~
 - passer sur CMake
 
@@ -40,6 +41,8 @@
 - add a virtual file system to load from different mount points (to load from the Editor/Engine/Game folder)
 - fix picking (enttID that change version have a big int value, that may be rounded when converting to float)
 - fix closing app
+- change CanAddComponent/CanRemoveComponent from template function to type value inside component struct
+- clean up RegisterComponents (calling sometimes Application::, sometimes ComponentManager -the right one-)
 
 
 **[Editor]**

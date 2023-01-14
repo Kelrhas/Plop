@@ -5,6 +5,7 @@
 #include "Application.h"
 #include "ECS/ComponentManager.h"
 #include "ECS/Components/BaseComponents.h"
+#include "ECS/Components/Component_PrefabInstance.h"
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/ECSHelper.h"
 #include "ECS/Serialisation.h"
@@ -13,6 +14,7 @@
 #include "Utils/JsonTypes.h"
 #include "Utils/OSDialogs.h"
 
+#pragma warning(disable : 4267) // https://github.com/skypjack/entt/issues/122
 #include <entt/entt.hpp>
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 	#define IMGUI_DEFINE_MATH_OPERATORS
@@ -65,11 +67,124 @@ usage:
 
 
 		PrefabLibrary &library = s_mapPrefabLibs.at(_sLibName);
-		auto		   rootId  = CopyEntityHierarchyToRegistry(_entitySrc, library.registry);
+		EntityMapping  mapping;
+		auto		   rootId = CopyEntityHierarchyToRegistry(_entitySrc, library.registry, mapping);
 
 		library.vecPrefabs.emplace_back(rootId);
 
 		return true;
+	}
+
+	void PrefabManager::UpdatePrefabFromInstance(PrefabHandle _hPrefab, Entity _entity)
+	{
+		ASSERT(_hPrefab);
+		ASSERT(_entity);
+
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_hPrefab](const Prefab &_p) { return _p.guid == _hPrefab.guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				Debug::TODO("Update prefab");
+#if 0
+				auto &		compInstance = _entity.GetComponent<Component_PrefabInstance>();
+				auto &		regPrefab	 = lib.registry;
+				const auto &regLevel	 = entt::handle(_entity).registry();
+
+				for (auto &[prefabEntity, levelEntity] : compInstance.mapping)
+				{
+					// first remove component in prefab that are not in level entity
+					ComponentManager::VisitAllComponents([&](const entt::id_type _compId, const ComponentManager::ComponentInfo &_compInfo) {
+
+						const bool prefabHas = ComponentManager::HasComponent(regPrefab, prefabEntity, _compId);
+						const bool levelHas	 = ComponentManager::HasComponent(regLevel, levelEntity, _compId);
+
+						if(prefabHas)
+						{
+							if(levelHas)
+							{
+								_compInfo.funcDuplicate(regLevel, levelEntity, regPrefab, prefabEntity);
+							}
+							else
+							{
+								_compInfo.funcRemove(regPrefab, prefabEntity);
+							}
+						}
+					});
+
+
+				}
+
+				UpdateInstancesFromPrefab(lib, *it);
+#endif
+				return;
+			}
+		}
+
+		ASSERTM(false, "Prefab not found for entity {}", _entity.GetComponent<Component_Name>().sName);
+	}
+
+	void PrefabManager::DeletePrefab(const Prefab *_pPrefab)
+	{
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_pPrefab](const Prefab &_p) { return _p.guid == _pPrefab->guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				auto &regLevel = Application::GetCurrentLevel().lock()->GetEntityRegistry();
+				regLevel.view<Component_PrefabInstance>().each([_pPrefab, &regLevel](entt::entity _enttID, const Component_PrefabInstance &_instanceComp) {
+					if (_instanceComp.hSrcPrefab.guid == _pPrefab->guid)
+					{
+						RemovePrefabReferenceFromInstance(Entity(_enttID, regLevel));
+					}
+				});
+
+				lib.vecPrefabs.erase(it);
+				break;
+			}
+		}
+	}
+
+	void PrefabManager::LoadPrefabInstance(PrefabHandle _hPrefab, Entity _entityDst)
+	{
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_hPrefab](const Prefab &_p) { return _p.guid == _hPrefab.guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				EntityMapping mapping;
+				CopyEntityHierarchyToRegistry( entt::handle(lib.registry, it->rootId), entt::handle(_entityDst).registry(), mapping, _entityDst);
+
+				auto &prefabInstanceComp		   = _entityDst.AddComponent<Component_PrefabInstance>();
+				prefabInstanceComp.hSrcPrefab.guid = _hPrefab.guid;
+				prefabInstanceComp.mapping		   = std::move(mapping);
+
+				EventDispatcher::SendEvent(PrefabInstantiatedEvent(_entityDst));
+
+				return;
+			}
+		}
+		Plop::Log::Error("Prefab not found with the GUID {}", _hPrefab.guid);
+	}
+
+	Entity PrefabManager::InstantiatePrefab(PrefabHandle _hPrefab, entt::registry &_reg, entt::entity _parent)
+	{
+		return InstantiatePrefab(_hPrefab.guid, _reg, _parent);
+	}
+
+	Entity PrefabManager::InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent)
+	{
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_guid](const Prefab &_p) { return _p.guid == _guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				return InstantiatePrefab(lib, *it, _reg, _parent);
+			}
+		}
+
+		Plop::Log::Error("Prefab not found with the GUID {}", _guid);
+		return Entity();
 	}
 
 	bool PrefabManager::DoesPrefabExist(GUID _guid)
@@ -102,54 +217,35 @@ usage:
 		return "";
 	}
 
-	void PrefabManager::DeletePrefab(const Prefab *_pPrefab)
+	bool PrefabManager::IsPartOfPrefab(Entity _entity)
 	{
-		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		while (_entity)
 		{
-			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_pPrefab](const Prefab &_p) { return _p.guid == _pPrefab->guid; });
-			if (it != lib.vecPrefabs.end())
-			{
-				// TODO something with existing instances ?
-				lib.vecPrefabs.erase(it);
-				break;
-			}
-		}
-	}
+			if (_entity.HasComponent<Component_PrefabInstance>())
+				return true;
 
-	Entity PrefabManager::InstantiatePrefab(PrefabHandle _hPrefab, entt::registry &_reg, entt::entity _parent)
-	{
-		return InstantiatePrefab(_hPrefab.guid, _reg, _parent);
-	}
-
-	Entity PrefabManager::InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent)
-	{
-		for (auto &[sKey, lib] : s_mapPrefabLibs)
-		{
-			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_guid](const Prefab &_p) { return _p.guid == _guid; });
-			if (it != lib.vecPrefabs.end())
-			{
-				return InstantiatePrefab(lib, *it, _reg, _parent);
-			}
+			_entity = _entity.GetParent();
 		}
 
-		Plop::Log::Error("Prefab not found with the GUID {}", _guid);
-		return Entity();
+		return false;
 	}
 
-	/*Entity PrefabManager::InstantiatePrefab(Prefab *_pPrefab, entt::registry &_reg, entt::entity _parent)
+	PrefabHandle PrefabManager::GetParentPrefab(Entity _entity)
 	{
-		ASSERT(_pPrefab);
-		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		while (_entity)
 		{
-			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_pPrefab](const Prefab &_p) { return _p.guid == _pPrefab->guid; });
-			if (it != lib.vecPrefabs.end())
+			if (_entity.HasComponent<Component_PrefabInstance>())
 			{
-				return InstantiatePrefab(lib, *it, _reg, _parent);
+				const auto &prefabComp = _entity.GetComponent<Component_PrefabInstance>();
+				return prefabComp.hSrcPrefab;
 			}
+
+			const auto graphComp = _entity.GetComponent<Component_GraphNode>();
+			_entity				 = _entity.GetParent();
 		}
 
-		return Entity();
-	}*/
+		return PrefabHandle();
+	}
 
 	bool PrefabManager::CreatePrefabLibrary(const String &_sName, const StringPath &_sPath)
 	{
@@ -161,7 +257,22 @@ usage:
 		return true;
 	}
 
+	void PrefabManager::DeletePrefabLib(const PrefabLibrary *_pPrefabLib)
+	{
+		ASSERT(_pPrefabLib != nullptr);
+		for (auto it = s_mapPrefabLibs.begin(); it != s_mapPrefabLibs.end(); ++it)
+		{
+			if (&it->second == _pPrefabLib)
+			{
+				s_mapPrefabLibs.erase(it);
+				break;
+			}
+		}
+	}
+
 	bool PrefabManager::DoesPrefabLibExist(const String &_sName) { return s_mapPrefabLibs.find(_sName) != s_mapPrefabLibs.end(); }
+
+	bool PrefabManager::HasAnyPrefabLib() { return !s_mapPrefabLibs.empty(); }
 
 	void PrefabManager::ImGuiRenderLibraries()
 	{
@@ -176,15 +287,21 @@ usage:
 
 			if (ImGui::BeginPopup("NewPrefabLib"))
 			{
-				ImGui::InputText("###path", sNewLibPath);
+				ImGui::InputText("###path", sNewLibPath, ImGuiInputTextFlags_ReadOnly);
 				ImGui::SameLine();
 				if (ImGui::Button("Browse"))
 				{
-					Dialog::SaveFile(sNewLibPath, Dialog::PREFABLIB_FILTER);
-					sNewLibPath += ".prefablib";
+					if (Dialog::SaveFile(sNewLibPath, Dialog::PREFABLIB_FILTER))
+					{
+						if (!sNewLibPath.has_extension() || sNewLibPath.extension() != ".prefablib")
+							sNewLibPath += ".prefablib";
+					}
 				}
 
-				if (ImGui::Button("OK"))
+				ImGuiButtonFlags buttonFlags = ImGuiButtonFlags_None;
+				if (sNewLibPath.empty())
+					buttonFlags |= ImGuiButtonFlags_Disabled;
+				if (ImGui::ButtonEx("OK", ImVec2(0, 0), buttonFlags))
 				{
 					const String sName = sNewLibPath.stem().string();
 					CreatePrefabLibrary(sName, sNewLibPath);
@@ -193,13 +310,25 @@ usage:
 				ImGui::EndPopup();
 			}
 
+			ImGui::SameLine();
+			if (ImGui::Button("Open library"))
+			{
+				if (Dialog::OpenFile(sNewLibPath, Dialog::PREFABLIB_FILTER))
+				{
+					LoadPrefabLibrary(sNewLibPath);
+				}
+			}
+
 			if (ImGui::BeginChild("PrefabLibs"))
 			{
+				static const PrefabLibrary *pPrefabLibToDelete = nullptr;
 				static const Prefab *pPrefabToDelete = nullptr;
 
 				for (const auto &[sKey, lib] : s_mapPrefabLibs)
 				{
-					if (ImGui::CollapsingHeader(sKey.c_str()))
+					bool bOpen = true;
+					bool *pOpenBool = (lib.vecPrefabs.empty() ? &bOpen : nullptr);
+					if (ImGui::CollapsingHeader(sKey.c_str(), pOpenBool))
 					{
 						for (const auto &prefab : lib.vecPrefabs)
 						{
@@ -243,8 +372,18 @@ usage:
 								ImGui::Text("no comp Name for %d", prefab.rootId);
 						}
 					}
+
+					if (pOpenBool && *pOpenBool == false)
+					{
+						ASSERT(lib.vecPrefabs.empty());
+						pPrefabLibToDelete = &lib;
+					}
 				}
 
+				if (pPrefabLibToDelete)
+				{
+					DeletePrefabLib(pPrefabLibToDelete);
+				}
 
 				if (pPrefabToDelete && !ImGui::IsPopupOpen("DeletePrefab"))
 				{
@@ -257,6 +396,17 @@ usage:
 				{
 					ASSERT(pPrefabToDelete);
 					ImGui::Text("Are you sure you want to delete this prefab ?");
+
+					auto & regLevel	  = Application::GetCurrentLevel().lock()->GetEntityRegistry();
+					size_t nbInstance = 0;
+					regLevel.view<Component_PrefabInstance>().each([&nbInstance](const Component_PrefabInstance &_instanceComp) {
+						if (_instanceComp.hSrcPrefab.guid == pPrefabToDelete->guid)
+							++nbInstance;
+					});
+
+					if (nbInstance > 0)
+						ImGui::Text("Currently used by %d instances", nbInstance);
+
 					if (ImGui::Button("Yes"))
 					{
 						DeletePrefab(pPrefabToDelete);
@@ -438,7 +588,8 @@ usage:
 		auto &nameComp = _lib.registry.get<Component_Name>(_prefab.rootId);
 		Log::Info("Instantiating prefab {}", nameComp.sName);
 
-		auto newId = CopyEntityHierarchyToRegistry(entt::handle(_lib.registry, _prefab.rootId), _reg);
+		EntityMapping mapping;
+		auto		  newId = CopyEntityHierarchyToRegistry(entt::handle(_lib.registry, _prefab.rootId), _reg, mapping);
 
 		Entity child(newId, _reg);
 
@@ -448,9 +599,32 @@ usage:
 			child.SetParent(parent);
 		}
 
+		auto &prefabInstanceComp		   = child.AddComponent<Component_PrefabInstance>();
+		prefabInstanceComp.hSrcPrefab.guid = _prefab.guid;
+		prefabInstanceComp.mapping		   = std::move(mapping);
+
 		EventDispatcher::SendEvent(PrefabInstantiatedEvent(child));
 
 		return child;
+	}
+
+	void PrefabManager::UpdateInstancesFromPrefab(PrefabLibrary &_lib, Prefab &_prefab)
+	{
+		Debug::TODO("UpdateInstancesFromPrefab");
+
+		auto &regLevel = Application::GetCurrentLevel().lock()->GetEntityRegistry();
+		auto  view	   = regLevel.view<Component_PrefabInstance>();
+		view.each([&](const Component_PrefabInstance& _prefabComp) {
+			if (_prefabComp.hSrcPrefab.guid == _prefab.guid)
+			{
+				// loop through all mapping inside _prefabComp.mapping
+			}
+		});
+	}
+
+	void PrefabManager::RemovePrefabReferenceFromInstance(Entity _entity)
+	{
+		_entity.RemoveComponent<Component_PrefabInstance>();
 	}
 
 } // namespace Plop

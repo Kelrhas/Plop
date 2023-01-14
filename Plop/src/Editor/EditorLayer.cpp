@@ -18,6 +18,7 @@
 #include "ECS/Components/BaseComponents.h"
 #include "ECS/Components/Component_Camera.h"
 #include "ECS/Components/Component_ParticleSystem.h"
+#include "ECS/Components/Component_PrefabInstance.h"
 #include "ECS/Components/Component_Transform.h"
 #include "ECS/Components/Component_SpriteRenderer.h"
 #include "ECS/LevelBase.h"
@@ -41,7 +42,8 @@ namespace Plop
 	{
 		static String sNewName; // For renaming
 		static SpritesheetHandle hIconSpriteSheet;
-		static const ImVec2 vEditorIconSize( 48, 48 );
+		static const ImVec2 vToolbarIconSize( 48, 48 );
+		static const ImVec2 vEntityIconSize( 20, 20 );
 		static ImGuizmo::OPERATION eGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		static ImGuizmo::MODE eGuizmoSpace = ImGuizmo::MODE::LOCAL;
 
@@ -394,7 +396,7 @@ namespace Plop
 							if (ImGui::IsItemHovered())
 							{
 #ifdef USE_ENTITY_HANDLE
-								ImGui::SetTooltip("GUID: %llX\nEnTT id:%llu", m_SelectedEntity.GetComponent<Component_Name>().guid, entt::to_integral(m_SelectedEntity.m_hEntity.entity()));
+								ImGui::SetTooltip("GUID: %llu\nEnTT id:%llu", m_SelectedEntity.GetComponent<Component_Name>().guid, entt::to_integral(m_SelectedEntity.m_hEntity.entity()));
 #else
 								ImGui::SetTooltip("EnTT id:%llu", entt::to_integral(m_SelectedEntity.m_EntityId));
 #endif
@@ -499,9 +501,9 @@ namespace Plop
 		return j;
 	}
 
-	bool IconButton(const char* _pButton, bool bActive = false)
+	bool IconButton(const char* _pButton, ImVec2 _vSize, bool _bActive = false)
 	{
-		if(!bActive)
+		if(!_bActive)
 			ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
 		ImGui::PushID( _pButton );
 
@@ -510,21 +512,32 @@ namespace Plop
 		bool bClicked = false;
 		if (Private::hIconSpriteSheet->GetSpriteUV( _pButton, vUVMin, vUVMax ))
 		{
-			bClicked = ImGui::ImageButton( (ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), Private::vEditorIconSize, vUVMin, vUVMax, 0 );
+			bClicked = ImGui::ImageButton((ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), _vSize, vUVMin, vUVMax, 0);
 		}
 
 		ImGui::PopID();
-		if (!bActive)
+		if (!_bActive)
 			ImGui::PopStyleColor();
 
 		return bClicked;
+	}
+
+	void Icon(const char *_pButton, ImVec2 _vSize)
+	{
+		glm::vec2 vUVMin;
+		glm::vec2 vUVMax;
+		bool	  bClicked = false;
+		if (Private::hIconSpriteSheet->GetSpriteUV(_pButton, vUVMin, vUVMax))
+		{
+			ImGui::Image((ImTextureID)Private::hIconSpriteSheet->GetNativeHandle(), _vSize, vUVMin, vUVMax);
+		}
 	}
 
 
 	void EditorLayer::ShowToolBar()
 	{
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		float fBarHeight = Private::vEditorIconSize.y + 2 * ImGui::GetStyle().WindowPadding.y;
+		float fBarHeight = Private::vToolbarIconSize.y + 2 * ImGui::GetStyle().WindowPadding.y;
 		ImGui::SetNextWindowPos( viewport->GetWorkPos() );
 		ImGui::SetNextWindowSize( ImVec2( viewport->GetWorkSize().x, fBarHeight ) );
 		ImGui::SetNextWindowViewport( viewport->ID );
@@ -533,15 +546,15 @@ namespace Plop
 		{
 			ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 0 ) );
 
-			if (IconButton( "Translate", Private::eGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE ))
+			if (IconButton("Translate", Private::vToolbarIconSize, Private::eGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE))
 				Private::eGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 
 			ImGui::SameLine();
-			if (IconButton( "Rotate", Private::eGuizmoOperation == ImGuizmo::OPERATION::ROTATE ))
+			if (IconButton("Rotate", Private::vToolbarIconSize, Private::eGuizmoOperation == ImGuizmo::OPERATION::ROTATE))
 				Private::eGuizmoOperation = ImGuizmo::OPERATION::ROTATE;
 
 			ImGui::SameLine();
-			if (IconButton( "Scale", Private::eGuizmoOperation == ImGuizmo::OPERATION::SCALE ))
+			if (IconButton("Scale", Private::vToolbarIconSize, Private::eGuizmoOperation == ImGuizmo::OPERATION::SCALE))
 				Private::eGuizmoOperation = ImGuizmo::OPERATION::SCALE;
 
 
@@ -549,13 +562,13 @@ namespace Plop
 
 
 			ImGui::SameLine(0, 60);
-			ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, Private::vEditorIconSize.y / 4.f );
+			ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, Private::vToolbarIconSize.y / 4.f );
 			{
 				bool bWasLocal = Private::eGuizmoSpace == ImGuizmo::MODE::LOCAL;
 				if (!bWasLocal)
 					ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
 
-				if (ImGui::ButtonRounded( "Local", ImVec2( 0, Private::vEditorIconSize.y ), ImDrawCornerFlags_Left ))
+				if (ImGui::ButtonRounded( "Local", ImVec2( 0, Private::vToolbarIconSize.y ), ImDrawCornerFlags_Left ))
 					Private::eGuizmoSpace = ImGuizmo::MODE::LOCAL;
 
 				if (!bWasLocal)
@@ -564,7 +577,7 @@ namespace Plop
 					ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
 
 				ImGui::SameLine();
-				if (ImGui::ButtonRounded( "World", ImVec2( 0, Private::vEditorIconSize.y ), ImDrawCornerFlags_Right ))
+				if (ImGui::ButtonRounded( "World", ImVec2( 0, Private::vToolbarIconSize.y ), ImDrawCornerFlags_Right ))
 					Private::eGuizmoSpace = ImGuizmo::MODE::WORLD;
 
 				if(bWasLocal)
@@ -580,25 +593,25 @@ namespace Plop
 			ImGui::SameLine( 0, 60 );
 			if (m_eLevelState == LevelState::RUNNING)
 			{
-				if (IconButton( "Pause" ))
+				if (IconButton("Pause", Private::vToolbarIconSize))
 					PauseLevel();
 
 				ImGui::SameLine();
-				if (IconButton( "Stop" ))
+				if (IconButton("Stop", Private::vToolbarIconSize))
 					StopLevel();
 			}
 			else if (m_eLevelState == LevelState::PAUSED)
 			{
-				if (IconButton( "Play" ))
+				if (IconButton("Play", Private::vToolbarIconSize))
 					ResumeLevel();
 
 				ImGui::SameLine();
-				if (IconButton( "Stop" ))
+				if (IconButton("Stop", Private::vToolbarIconSize))
 					StopLevel();
 			}
 			else if (m_eLevelState == LevelState::EDITING)
 			{
-				if (IconButton( "Play" ))
+				if (IconButton("Play", Private::vToolbarIconSize))
 					PlayLevel();
 			}
 		}
@@ -751,14 +764,21 @@ namespace Plop
 				static std::function<void( Entity& )> DrawEntity;
 				DrawEntity = [this, &registry]( Entity& _Entity ) {
 
+					auto& itEntityInfo = m_mapEntityEditorInfo.find( _Entity );
+					ASSERT( itEntityInfo != m_mapEntityEditorInfo.end() );
+					if (itEntityInfo == m_mapEntityEditorInfo.end())
+					{
+						ImGui::TextColored(ImColor(255, 0, 0), _Entity.GetComponent<Component_Name>().sName.c_str());
+						if (ImGui::IsItemHovered())
+							ImGui::SetTooltip("error on m_mapEntityEditorInfo");
+						return;
+					}
+
 #ifdef USE_ENTITY_HANDLE
 					ImGui::PushID( entt::to_integral( _Entity.m_hEntity.entity() ) );
 #else
 					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
 #endif
-
-					auto& itEntityInfo = m_mapEntityEditorInfo.find( _Entity );
-					ASSERT( itEntityInfo != m_mapEntityEditorInfo.end() );
 
 					bool bSelected = _Entity == m_SelectedEntity;
 					bool bOpen = itEntityInfo->second.bHierarchyOpen;
@@ -784,6 +804,20 @@ namespace Plop
 
 					ImGui::SameLine();
 
+					EditorStyle eStyle = graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID;
+					if (_Entity.HasComponent<Component_PrefabInstance>())
+					{
+						auto &prefabComp = _Entity.GetComponent<Component_PrefabInstance>();
+						if (prefabComp.hSrcPrefab)
+							eStyle = EditorStyle::PREFAB;
+						else
+							eStyle = EditorStyle::PREFAB_INVALID;
+
+						Icon("prefab", Private::vEntityIconSize);
+						ImGui::SameLine();
+					}
+
+					ImGui::PushStyleColor(eStyle);
 
 					String& sName = _Entity.GetComponent<Component_Name>().sName;
 					if (m_eEditMode == EditMode::RENAMING_ENTITY && bSelected)
@@ -807,7 +841,6 @@ namespace Plop
 					}
 					else
 					{
-						ImGui::PushStyleColor(graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID);
 						ImGuiSelectableFlags flags = ImGuiSelectableFlags_None;
 						if (!m_bAllowPicking)
 							flags |= ImGuiSelectableFlags_Disabled;
@@ -816,8 +849,8 @@ namespace Plop
 							m_SelectedEntity = _Entity;
 							m_eEditMode = EditMode::NONE;
 						}
-						ImGui::PopStyleColor(graphComp.uFlags.Has(EntityFlag::HIDE) ? EditorStyle::ENTITY_HIDDEN : EditorStyle::ENTITY_VALID);
 					}
+					ImGui::PopStyleColor(eStyle);
 
 					if (ImGui::BeginPopupContextItem( "EntityContextMenu" ))
 					{
@@ -847,18 +880,42 @@ namespace Plop
 							entityToDestroy = _Entity;
 						ImGui::Separator();
 
-						if (ImGui::BeginMenu("Create prefab"))
+						if (_Entity.HasComponent<Component_PrefabInstance>())
 						{
-							PrefabManager::VisitAllLibraries([_Entity](const String &_sName, const PrefabLibrary &_lib) {
-								if (ImGui::MenuItem(_sName.c_str()))
+							if (ImGui::MenuItem("Update prefab from this"))
+							{
+								auto &comp = _Entity.GetComponent<Component_PrefabInstance>();
+								PrefabManager::UpdatePrefabFromInstance(comp.hSrcPrefab, _Entity);
+							}
+							if (ImGui::MenuItem("Break prefab link"))
+							{
+								PrefabManager::RemovePrefabReferenceFromInstance(_Entity);
+							}
+						}
+						else if (!PrefabManager::IsPartOfPrefab(_Entity))
+						{
+							if (ImGui::BeginMenu("Create prefab"))
+							{
+								if (PrefabManager::HasAnyPrefabLib())
 								{
-									PrefabManager::CreatePrefab(_Entity, _sName);
-									return VisitorFlow::BREAK;
+									PrefabManager::VisitAllLibraries([_Entity](const String &_sName, const PrefabLibrary &_lib) {
+										if (ImGui::MenuItem(_sName.c_str()))
+										{
+											PrefabManager::CreatePrefab(_Entity, _sName);
+											return VisitorFlow::BREAK;
+										}
+										return VisitorFlow::CONTINUE;
+									});
 								}
-								return VisitorFlow::CONTINUE;
-							});
+								else
+								{
+									ImGui::PushStyleColor(EditorStyle::DISABLED);
+									ImGui::Text("no lib available, create one before");
+									ImGui::PopStyleColor(EditorStyle::DISABLED);
+								}
 
-							ImGui::EndMenu();
+								ImGui::EndMenu();
+							}
 						}
 
 						ImGui::EndPopup();
@@ -1247,8 +1304,12 @@ namespace Plop
 		json j;
 		try
 		{
-			j = json::parse(ImGui::GetClipboardText());
-			return j.contains(JSON_COPY_TYPE) && j[JSON_COPY_TYPE] == Private::CopyType::ENTITY;
+			const char *pClipboard = ImGui::GetClipboardText();
+			if (pClipboard && *pClipboard)
+			{
+				j = json::parse(pClipboard);
+				return j.contains(JSON_COPY_TYPE) && j[JSON_COPY_TYPE] == Private::CopyType::ENTITY;
+			}
 		}
 		catch (json::parse_error&)
 		{

@@ -181,16 +181,15 @@ namespace Plop
 	// DuplicateComponent
 	//////////////////////////////////////////////////////////////////////////
 
-	template <class Component, class RegistryType, class EntityType>
-	void CallDuplicateComponent( RegistryType& _reg, EntityType _entitySrc, EntityType _entityDest )
+	template<class Comp, class RegistryType, class EntityType>
+	void CallDuplicateComponent(const RegistryType &_regSrc, EntityType _entitySrc, RegistryType &_regDst, EntityType _entityDst)
 	{
 		// @check
-		Debug::TODO();
-		if (_reg.has<Component>( _entitySrc ))
+		if (_regSrc.has<Comp>(_entitySrc))
 		{
-			auto& compDest = _reg.template get_or_emplace<Component>( _entityDest );
-			auto& compSrc = _reg.template get<Component>( _entitySrc );
-			compDest = compSrc;
+			Comp &compDst = _regDst.template get_or_emplace<Comp>(_entityDst);
+			const Comp &compSrc = _regSrc.template get<Comp>(_entitySrc);
+			compDst = compSrc;
 		}
 	}
 
@@ -236,6 +235,13 @@ namespace Plop
 	}
 
 
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// CanAddComponent
+	//////////////////////////////////////////////////////////////////////////
+	template <class Comp>
+	constexpr bool CanAddComponent() { return true; }
 
 
 	//////////////////////////////////////////////////////////////////////////

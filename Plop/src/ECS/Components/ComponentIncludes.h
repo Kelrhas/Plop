@@ -3,5 +3,6 @@
 #include "ECS/Components/Component_Camera.h"
 #include "ECS/Components/Component_ParticleSystem.h"
 #include "ECS/Components/Component_Physics.h"
+#include "ECS/Components/Component_PrefabInstance.h"
 #include "ECS/Components/Component_SpriteRenderer.h"
 #include "ECS/Components/Component_Transform.h"

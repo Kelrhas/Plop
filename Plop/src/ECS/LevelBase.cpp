@@ -301,8 +301,11 @@ namespace Plop
 #endif
 			if (!entity.HasFlag( EntityFlag::NO_SERIALISATION))
 			{
-				String& sName = entity.GetComponent<Component_Name>().sName;
-				j[JSON_ENTITIES].push_back( entity.ToJson() );
+				String &sName = entity.GetComponent<Component_Name>().sName;
+				if (entity.HasComponent<Component_PrefabInstance>() || !PrefabManager::IsPartOfPrefab(entity))
+				{
+					j[JSON_ENTITIES].push_back( entity.ToJson() );
+				}
 			}
 		});
 

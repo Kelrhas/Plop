@@ -7,6 +7,8 @@
 
 namespace Plop
 {
+	using EntityMapping = std::unordered_map<entt::entity, entt::entity>;
+
 #ifdef USE_ENTITY_HANDLE
 	template<typename Component>
 	Entity GetComponentOwner(entt::registry& _reg, const Component& _comp)
@@ -23,6 +25,6 @@ namespace Plop
 #endif
 
 
-	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &_dst);
+	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &regDst, EntityMapping &_mapping, entt::entity _rootDst = entt::null);
 
 }

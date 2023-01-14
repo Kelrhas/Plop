@@ -296,7 +296,13 @@ namespace Plop
 
 		ComponentManager::EditorUI(m_hEntity.registry(), m_hEntity.entity());
 	}
-#pragma endregion
+
+	bool Entity::HasComponent(const entt::id_type _compID) const
+	{
+		const entt::meta_type type = entt::resolve_type(_compID);
+		return (bool)type.func("has"_hs).invoke({}, std::ref(m_hEntity.registry()), m_hEntity.entity());
+	}
+	#pragma endregion
 
 #pragma region FLAGS
 	void Entity::AddFlag(EntityFlag _flag)
@@ -350,15 +356,23 @@ namespace Plop
 		j["HintID"] = m_hEntity.entity();
 		j[JSON_NAME] = GetComponent<Component_Name>().sName;
 		j[JSON_GUID] = GetComponent<Component_Name>().guid;
-		ChildVisitor([&j](Entity &_child) {
-			if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
-			{
-				GUID guid = _child.GetComponent<Component_Name>().guid;
-				j[JSON_CHILDREN].push_back(guid);
-			}
-		});
-
-		ComponentManager::ToJson(registry, m_hEntity.entity(), j);
+		if (HasComponent<Component_PrefabInstance>())
+		{
+			const auto &compPrefab = GetComponent<Component_PrefabInstance>();
+			j[JSON_COMPONENTS][Component_PrefabInstance::NAME] = compPrefab.ToJson();
+			// TODO: list changes between prefab and instance
+		}
+		else
+		{
+			ChildVisitor([&j](Entity &_child) {
+				if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
+				{
+					GUID guid = _child.GetComponent<Component_Name>().guid;
+					j[JSON_CHILDREN].push_back(guid);
+				}
+			});
+			ComponentManager::ToJson(registry, m_hEntity.entity(), j);
+		}
 
 		return j;
 	}
@@ -371,9 +385,9 @@ namespace Plop
 
 		if (_jEntity.contains(JSON_CHILDREN))
 		{
+			LevelBase **ppLevel = m_hEntity.registry().try_ctx<LevelBase *>();
+			if (ppLevel && *ppLevel)
 			{
-				LevelBase** ppLevel = m_hEntity.registry().try_ctx<LevelBase*>();
-				if (ppLevel && *ppLevel)
 				for (auto &id : _jEntity[JSON_CHILDREN])
 				{
 					Entity e = (*ppLevel)->GetEntityFromGUID(id);
@@ -384,8 +398,16 @@ namespace Plop
 
 		if (_jEntity.contains(JSON_COMPONENTS))
 		{
-			//Debug::TODO();
+			if (_jEntity[JSON_COMPONENTS].contains(Component_PrefabInstance::NAME))
+			{
+				const json &jPrefab = _jEntity[JSON_COMPONENTS][Component_PrefabInstance::NAME];
+				GUID		guid	= jPrefab["Source"];
+				PrefabManager::LoadPrefabInstance(PrefabHandle(guid), *this);
+			}
+			else
+			{
 				ComponentManager::FromJson(m_hEntity.registry(), m_hEntity.entity(), _jEntity[JSON_COMPONENTS]);
+			}
 		}
 	}
 

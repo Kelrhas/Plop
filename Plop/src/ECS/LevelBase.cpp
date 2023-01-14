@@ -50,6 +50,8 @@ namespace Plop
 	{
 		// @check
 		m_ENTTRegistry.clear();
+
+		EventDispatcher::UnregisterListener(this);
 	}
 
 	bool LevelBase::OnEvent(Event &_event)

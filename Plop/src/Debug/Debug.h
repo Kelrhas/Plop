@@ -48,12 +48,12 @@ namespace Plop
 
 #ifndef _MASTER
 	#define BREAK()						__debugbreak()
-	#define ASSERT(action)				{bool b = (bool)(action); if(!b){ if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define ASSERTM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define VERIFY(action)				{bool b = (bool)(action); if(!b){ if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define VERIFYM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert) BREAK(); }}
-	#define EXCEPTION(action)			{bool b = (bool)(action); if(!b){ BREAK(); }}
-	#define EXCEPTIONM(action, ...)		{bool b = (bool)(action); if(!b){ ::Plop::Log::Error(__VA_ARGS__); BREAK(); }}
+	#define ASSERT(action)				{bool __b = (bool)(action); if(!__b){ static bool __bIgnore = false; if(::Plop::Debug::bBreakOnAssert &&!__bIgnore) BREAK(); }}
+	#define ASSERTM(action, ...)		{bool __b = (bool)(action); if(!__b){ static bool __bIgnore = false; ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert &&!__bIgnore) BREAK(); }}
+	#define VERIFY(action)				{bool __b = (bool)(action); if(!__b){ static bool __bIgnore = false; if(::Plop::Debug::bBreakOnAssert &&!__bIgnore) BREAK(); }}
+	#define VERIFYM(action, ...)		{bool __b = (bool)(action); if(!__b){ static bool __bIgnore = false; ::Plop::Log::Assert(__VA_ARGS__); if(::Plop::Debug::bBreakOnAssert &&!__bIgnore) BREAK(); }}
+	#define EXCEPTION(action)			{bool __b = (bool)(action); if(!__b){ BREAK(); }}
+	#define EXCEPTIONM(action, ...)		{bool __b = (bool)(action); if(!__b){ ::Plop::Log::Error(__VA_ARGS__); BREAK(); }}
 
 	#define PROFILING_INIT()			{}
 	#define PROFILING_SHUTDOWN()		OPTICK_SHUTDOWN()

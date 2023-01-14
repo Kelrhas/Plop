@@ -199,6 +199,9 @@ namespace Plop
 
 	void EditorLayer::OnUnregistered()
 	{
+		m_xEditingLevel->Shutdown();
+		m_xEditingLevel.reset();
+
 		EventDispatcher::UnregisterListener( this );
 	}
 

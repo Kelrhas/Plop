@@ -1,5 +1,6 @@
 #include "Plop_pch.h"
 #include "ComponentManager.h"
+#include "Serialisation.h"
 
 #include <set>
 
@@ -73,7 +74,7 @@ namespace Plop
 			{
 				auto j = info.funcToJson(_reg, _e);
 				if (!j.empty())
-					_j["Components"][info.pName] = j;
+					_j[JSON_COMPONENTS][info.pName] = j;
 			}
 		}
 	}

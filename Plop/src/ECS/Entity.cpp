@@ -348,7 +348,7 @@ namespace Plop
 		auto &registry = m_hEntity.registry();
 
 		j["HintID"] = m_hEntity.entity();
-		j["Name"] = GetComponent<Component_Name>().sName;
+		j[JSON_NAME] = GetComponent<Component_Name>().sName;
 		j[JSON_GUID] = GetComponent<Component_Name>().guid;
 		ChildVisitor([&j](Entity &_child) {
 			if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
@@ -367,14 +367,14 @@ namespace Plop
 	{
 		ASSERTM(m_hEntity.registry().empty() || !m_hEntity.registry().empty(), "Invalid registry ?");
 
-		GetComponent<Component_Name>().sName = _jEntity["Name"];
+		GetComponent<Component_Name>().sName = _jEntity[JSON_NAME];
 
-		if (_jEntity.contains("Children"))
+		if (_jEntity.contains(JSON_CHILDREN))
 		{
-			for (auto &id : _jEntity["Children"])
 			{
 				LevelBase** ppLevel = m_hEntity.registry().try_ctx<LevelBase*>();
 				if (ppLevel && *ppLevel)
+				for (auto &id : _jEntity[JSON_CHILDREN])
 				{
 					Entity e = (*ppLevel)->GetEntityFromGUID(id);
 					e.SetParent(*this);
@@ -382,10 +382,10 @@ namespace Plop
 			}
 		}
 
-		if (_jEntity.contains("Components"))
+		if (_jEntity.contains(JSON_COMPONENTS))
 		{
 			//Debug::TODO();
-			ComponentManager::FromJson(m_hEntity.registry(), m_hEntity.entity(), _jEntity["Components"]);
+				ComponentManager::FromJson(m_hEntity.registry(), m_hEntity.entity(), _jEntity[JSON_COMPONENTS]);
 		}
 	}
 

@@ -77,7 +77,11 @@ namespace Plop
 					todo.pop();
 
 					auto &nameComp = m_ENTTRegistry.get<Component_Name>(enttID);
-					ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
+					ASSERTM([&]() {
+						  auto it = m_mapGUIDToEntt.find(nameComp.guid);
+						  return it == m_mapGUIDToEntt.end() || it->second == enttID;
+					  }(), "There already is a mapping with this guid {}", nameComp.guid);
+
 					m_mapGUIDToEntt[nameComp.guid] = enttID;
 
 					auto &graphComp = m_ENTTRegistry.get<Component_GraphNode>(enttID);

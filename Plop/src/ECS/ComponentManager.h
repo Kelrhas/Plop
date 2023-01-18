@@ -35,7 +35,6 @@ namespace Plop
 			std::function<bool(void)> funcCanEdit;
 			Callback funcAdd;
 			Callback funcRemove;
-			//std::function<void( Registry& , Registry& )> funcClone;
 			CallbackDuplicate funcDuplicate;
 			CallbackFromJson funcFromJson;
 			CallbackToJson funcToJson;
@@ -103,7 +102,6 @@ namespace Plop
 		info.funcEditorUI = CallComponentEditorUI<Comp, Registry&, EntityType>;
 		info.funcCanAdd = CanAddComponent<Comp>;
 		info.funcCanRemove = CanRemoveComponent<Comp>;
-		//info.funcClone = CloneRegistryComponents<Comp, Registry&>;
 		info.funcAdd = AddComponent<Comp, Registry&, EntityType>;
 		info.funcRemove = RemoveComponent<Comp, Registry&, EntityType>;
 		info.funcDuplicate = CallDuplicateComponent<Comp, Registry, EntityType>;
@@ -120,7 +118,7 @@ namespace Plop
 
 		auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) ).prop("name"_hs, String(_pName));
 		factory.func<&CloneAllRegistryComponents<Comp, Registry &>>("cloneAllComponents"_hs);
-		factory.func<&CloneRegistryComponent<Comp, Registry &, EntityType>>("clone"_hs);
+		factory.func<&CallDuplicateComponent<Comp, Registry, EntityType>>("clone"_hs);
 		factory.func<&MetaGetComponent<Comp>, entt::as_ref_t>("get"_hs);
 		factory.func<&MetaHasComponent<Comp>>("has"_hs);
 		factory.func<&MetaAddComponent<Comp>, entt::as_ref_t>("add"_hs);

@@ -163,20 +163,6 @@ namespace Plop
 		}
 	}
 
-
-	template<class Comp, class RegistryType, class EntityType>
-	constexpr static void CloneRegistryComponent(const RegistryType &_regSrc, const EntityType &_entitySrc, RegistryType &_regDst, EntityType &_entityDst)
-	{
-		if (_regSrc.has<Comp>(_entitySrc))
-		{
-			const Comp &compSrc = _regSrc.template get<Comp>(_entitySrc);
-			Comp &compDst = _regDst.template get_or_emplace<Comp>(_entityDst);
-			compDst = compSrc;
-		}
-	}
-
-
-
 	//////////////////////////////////////////////////////////////////////////
 	// DuplicateComponent
 	//////////////////////////////////////////////////////////////////////////

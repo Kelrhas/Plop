@@ -370,6 +370,7 @@ namespace Plop
 					GUID guid = _child.GetComponent<Component_Name>().guid;
 					j[JSON_CHILDREN].push_back(guid);
 				}
+				return VisitorFlow::CONTINUE;
 			});
 			ComponentManager::ToJson(registry, m_hEntity.entity(), j);
 		}

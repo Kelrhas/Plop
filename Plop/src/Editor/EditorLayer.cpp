@@ -964,7 +964,10 @@ namespace Plop
 					if (bHasChildren && bOpen)
 					{
 						ImGui::Indent();
-						_Entity.ChildVisitor( DrawEntity );
+						_Entity.ChildVisitor([](Entity child) {
+							DrawEntity(child);
+							return VisitorFlow::CONTINUE;
+						});
 						ImGui::Unindent();
 					}
 				};
@@ -1285,7 +1288,8 @@ namespace Plop
 		_entity.ChildVisitor( [&dupEntity](Entity _child ) {
 
 			Entity dupChild = DuplicateEntity( _child );
-			dupChild.SetParent( dupEntity );
+			dupChild.SetParent(dupEntity);
+			return VisitorFlow::CONTINUE;
 		} );
 
 		return dupEntity;

@@ -15,7 +15,8 @@ namespace Plop
 		{
 			const auto& graphNodeChild = reg.get<Component_GraphNode>(childEntity);
 			const auto next = graphNodeChild.nextSibling;
-			visitor(Entity(childEntity, reg));
+			if (visitor(Entity(childEntity, reg)) == VisitorFlow::BREAK)
+				break;
 
 			childEntity = next;
 		}

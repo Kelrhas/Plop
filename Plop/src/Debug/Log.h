@@ -32,6 +32,12 @@ namespace Plop
 			LogToFile( s );
 		}
 		template<typename ... Args>
+		static void Info	(const String& _str, Args&&..._args)
+		{
+			Info(_str.c_str(), _args...);
+		}
+
+		template<typename ... Args>
 		static void Assert	(const char* _pStr, Args&&..._args)
 		{
 			String str = "Assert:\t";
@@ -45,6 +51,12 @@ namespace Plop
 			LogToFile( s );
 			FlushFile(); // we flush to be sure that we have the log in the file before a possible crash
 		}
+		template<typename... Args>
+		static void Assert(const String &_str, Args &&..._args)
+		{
+			Assert(_str.c_str(), _args...);
+		}
+
 		template<typename ... Args>
 		static void Warn	(const char* _pStr, Args&&..._args)
 		{
@@ -58,6 +70,12 @@ namespace Plop
 			Console::AddOutput( s, LogEntry::Type::Warning );
 			LogToFile( s );
 		}
+		template<typename... Args>
+		static void Warn(const String &_str, Args &&..._args)
+		{
+			Warn(_str.c_str(), _args...);
+		}
+
 		template<typename ... Args>
 		static void Error	(const char* _pStr, Args&&..._args)
 		{
@@ -71,6 +89,11 @@ namespace Plop
 			Console::AddOutput( s, LogEntry::Type::Error );
 			LogToFile( s );
 			FlushFile(); // we flush to be sure that we have the log in the file before a possible crash
+		}
+		template<typename... Args>
+		static void Error(const String &_str, Args &&..._args)
+		{
+			Error(_str.c_str(), _args...);
 		}
 
 

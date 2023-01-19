@@ -2,6 +2,7 @@
 
 #include "Component_SpriteRenderer.h"
 
+#include "Application.h"
 #include "Assets/SpritesheetLoader.h"
 #include "Renderer/RendererConfig.h"
 #include "Utils/JsonTypes.h"
@@ -12,9 +13,25 @@ namespace Plop
 {
 	Component_SpriteRenderer::Component_SpriteRenderer() { xSprite = std::make_shared<Plop::Sprite>(); }
 
+	Component_SpriteRenderer::Component_SpriteRenderer(const Component_SpriteRenderer &_other)
+	{
+		xSprite = std::move(_other.xSprite);
+	}
+
+	Component_SpriteRenderer::Component_SpriteRenderer(Component_SpriteRenderer &&_other)
+	{
+		xSprite.reset(new Sprite(*_other.xSprite));
+	}
+
 	Component_SpriteRenderer &Component_SpriteRenderer::operator=(const Component_SpriteRenderer &_other)
 	{
-		*xSprite = *_other.xSprite;
+		xSprite.reset(new Sprite(*_other.xSprite));
+		return *this;
+	}
+
+	Component_SpriteRenderer &Component_SpriteRenderer::operator=(Component_SpriteRenderer &&_other)
+	{
+		xSprite = std::move(_other.xSprite);
 		return *this;
 	}
 

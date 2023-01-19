@@ -9,8 +9,6 @@ namespace Plop
 	class Sprite
 	{
 	public:
-		Sprite() = default;
-		~Sprite() = default;
 
 		operator bool() const;
 

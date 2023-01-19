@@ -7,7 +7,6 @@
 #include "ECS/Components/BaseComponents.h"
 #include "ECS/Components/Component_PrefabInstance.h"
 #include "ECS/Components/Component_Transform.h"
-#include "ECS/ECSHelper.h"
 #include "ECS/Serialisation.h"
 #include "Events/EntityEvent.h"
 #include "Events/EventDispatcher.h"
@@ -67,7 +66,7 @@ usage:
 
 
 		PrefabLibrary &library = s_mapPrefabLibs.at(_sLibName);
-		EntityMapping  mapping;
+		GUIDMapping	   mapping;
 		auto		   rootId = CopyEntityHierarchyToRegistry(_entitySrc, library.registry, mapping);
 
 		library.vecPrefabs.emplace_back(rootId);
@@ -145,19 +144,60 @@ usage:
 		}
 	}
 
-	void PrefabManager::LoadPrefabInstance(PrefabHandle _hPrefab, Entity _entityDst)
+	void PrefabManager::LoadPrefabInstance(PrefabHandle _hPrefab, Entity _entityDst, const json &_jPatch)
 	{
+		ASSERTM(_entityDst.HasComponent<Component_PrefabInstance>(), "Add Component_PrefabInstance to the entity first");
+		if (!_entityDst.HasComponent<Component_PrefabInstance>())
+			return;
+
 		for (auto &[sKey, lib] : s_mapPrefabLibs)
 		{
 			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_hPrefab](const Prefab &_p) { return _p.guid == _hPrefab.guid; });
 			if (it != lib.vecPrefabs.end())
 			{
-				EntityMapping mapping;
-				CopyEntityHierarchyToRegistry( entt::handle(lib.registry, it->rootId), entt::handle(_entityDst).registry(), mapping, _entityDst);
-
-				auto &prefabInstanceComp		   = _entityDst.AddComponent<Component_PrefabInstance>();
+				GUIDMapping mapping;
+				CopyEntityHierarchyToRegistry(entt::handle(lib.registry, it->rootId), entt::handle(_entityDst).registry(), mapping, _entityDst);
+				
+				auto &prefabInstanceComp		   = _entityDst.GetComponent<Component_PrefabInstance>();
 				prefabInstanceComp.hSrcPrefab.guid = _hPrefab.guid;
 				prefabInstanceComp.mapping		   = std::move(mapping);
+
+				std::function<void(Entity, Entity)> func;
+
+				func = [&_jPatch, &prefabInstanceComp, &func](Entity _prefabEntity, Entity _instanceEntity) {
+					{ // RAII
+						json jPrefab;
+						ComponentManager::ToJson(entt::handle(_prefabEntity).registry(), _prefabEntity, jPrefab);
+						json jInstance;
+						ComponentManager::ToJson(entt::handle(_instanceEntity).registry(), _instanceEntity, jInstance);
+
+						String sKey = fmt::format("{}", _prefabEntity.GetComponent<Component_Name>().guid);
+						if (_jPatch.contains(sKey))
+							jPrefab = jPrefab.patch(_jPatch[sKey]);
+
+						_instanceEntity.FromJson(jPrefab);
+					}
+
+					
+					// children, iterate over prefab, and match the instance from the mapping
+					_prefabEntity.ChildVisitor([&prefabInstanceComp, _instanceEntity, &func](Entity childPrefab) {
+						const GUID guidPrefab	= childPrefab.GetComponent<Component_Name>().guid;
+						const GUID guidInstance = prefabInstanceComp.mapping.at(guidPrefab);
+						_instanceEntity.ChildVisitor([&](Entity _childInstance) {
+							if (_childInstance.GetComponent<Component_Name>().guid == guidInstance)
+							{
+								func(childPrefab, _childInstance);
+								return VisitorFlow::BREAK;
+							}
+							return VisitorFlow::CONTINUE;
+						});
+
+						return VisitorFlow::CONTINUE;
+					});
+				};
+
+				Entity prefabEntity(it->rootId, lib.registry);
+				func(prefabEntity, _entityDst);
 
 				EventDispatcher::SendEvent(PrefabInstantiatedEvent(_entityDst));
 
@@ -245,6 +285,59 @@ usage:
 		}
 
 		return PrefabHandle();
+	}
+
+	json PrefabManager::GetChangesFromPrefab(PrefabHandle _hPrefab, const GUIDMapping &_mapping, Entity _instance)
+	{
+		json j;
+
+		for (auto &[sKey, lib] : s_mapPrefabLibs)
+		{
+			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_hPrefab](const Prefab &_p) { return _p.guid == _hPrefab.guid; });
+			if (it != lib.vecPrefabs.end())
+			{
+				Entity		prefabEntity(it->rootId, lib.registry);
+				Entity		instanceEntity = _instance;
+				const auto &prefabInstanceComp = _instance.GetComponent<Component_PrefabInstance>();
+
+				std::function<void(Entity, Entity)> func;
+				func = [&j, &prefabInstanceComp, &func](Entity _prefabEntity, Entity _instanceEntity) {
+					{ // RAII
+						json jPrefab;
+						ComponentManager::ToJson(entt::handle(_prefabEntity).registry(), _prefabEntity, jPrefab);
+						json jInstance;
+						ComponentManager::ToJson(entt::handle(_instanceEntity).registry(), _instanceEntity, jInstance);
+
+						json patch														= json::diff(jPrefab, jInstance);
+						j[fmt::format("{}", _prefabEntity.GetComponent<Component_Name>().guid)] = patch;
+					}
+
+					// children, iterate over prefab, and match the instance from the mapping
+					_prefabEntity.ChildVisitor([&prefabInstanceComp, _instanceEntity, &func](Entity childPrefab) {
+						const GUID guidPrefab	= childPrefab.GetComponent<Component_Name>().guid;
+						const GUID guidInstance = prefabInstanceComp.mapping.at(guidPrefab);
+
+						_instanceEntity.ChildVisitor([&](Entity _childInstance) {
+							if (_childInstance.GetComponent<Component_Name>().guid == guidInstance)
+							{
+								func(childPrefab, _childInstance);
+								return VisitorFlow::BREAK;
+							}
+							return VisitorFlow::CONTINUE;
+						});
+
+						return VisitorFlow::CONTINUE;
+					});
+				};
+
+				func(prefabEntity, instanceEntity);
+
+				break;
+			}
+		}
+
+		return j;
+
 	}
 
 	bool PrefabManager::CreatePrefabLibrary(const String &_sName, const StringPath &_sPath)
@@ -468,7 +561,7 @@ usage:
 						entt::entity enttID = lib.registry.create();
 						GUID		 guid	= j[JSON_GUID];
 						lib.registry.emplace<Component_Name>(enttID, guid);
-						ASSERTM(mapping.find(guid) == mapping.end(), "There already is a mapping with this guid {}", guid);
+						ASSERTM(mapping.find(guid) == mapping.end(), "There already is a mapping with the guid {}", guid);
 						mapping[guid] = enttID;
 						lib.registry.emplace<Component_GraphNode>(enttID);
 						lib.registry.emplace<Component_Transform>(enttID);
@@ -525,13 +618,13 @@ usage:
 					}
 				}
 
-				Plop::Log::Info("Prefab library loaded: {} : {}", sName, _sPath.string());
+				Plop::Log::Info("Prefab library '{}' loaded from file {}", sName, _sPath.string());
 			}
 			else
-				Plop::Log::Error("Prefab library empty: {}", _sPath.string());
+				Plop::Log::Error("Prefab library '{}' empty", _sPath.string());
 		}
 		else
-			Plop::Log::Error("Prefab library not found: {}", _sPath.string());
+			Plop::Log::Error("Prefab library '{}' not found", _sPath.string());
 	}
 
 	void PrefabManager::SaveLibraries()
@@ -586,9 +679,9 @@ usage:
 	Entity PrefabManager::InstantiatePrefab(PrefabLibrary &_lib, Prefab &_prefab, entt::registry &_reg, entt::entity _parent)
 	{
 		auto &nameComp = _lib.registry.get<Component_Name>(_prefab.rootId);
-		Log::Info("Instantiating prefab {}", nameComp.sName);
+		Log::Info("Instantiating prefab '{}'", nameComp.sName);
 
-		EntityMapping mapping;
+		GUIDMapping mapping;
 		auto		  newId = CopyEntityHierarchyToRegistry(entt::handle(_lib.registry, _prefab.rootId), _reg, mapping);
 
 		Entity child(newId, _reg);

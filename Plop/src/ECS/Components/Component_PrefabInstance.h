@@ -12,13 +12,10 @@ namespace Plop
 
 		PrefabHandle hSrcPrefab;
 		// entity mapping, from prefab registry to level registry
-		std::unordered_map<entt::entity, entt::entity> mapping;
+		GUIDMapping mapping;
 
 
 		void EditorUI();
-		void OnCreate();
-		json ToJson() const;
-		void FromJson(const json &_j);
 
 	};
 

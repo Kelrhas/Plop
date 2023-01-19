@@ -8,25 +8,26 @@
 
 namespace Plop
 {
-	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &regDst, EntityMapping &_mapping, entt::entity _rootDst /*= entt::null*/)
+	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &_regDst, GUIDMapping &_guidMapping, entt::entity _rootDst /*= entt::null*/)
 	{
 		if (!_hSrc)
 			return entt::null;
 
-		_mapping.clear();
+		_guidMapping.clear();
+		EntityMapping entityMapping;
 
 		auto &regSrc = _hSrc.registry();
 
 		std::queue<entt::entity> todo;
 
-		auto CopyEntity = [&todo, &regSrc, &regDst](entt::entity enttIDSrc) -> entt::entity {
+		auto CopyEntity = [&todo, &regSrc, &_regDst](entt::entity enttIDSrc) -> entt::entity {
 
-			entt::entity enttIDDst = regDst.create();
+			entt::entity enttIDDst = _regDst.create();
 
 			// Copy components
-			regSrc.visit([&regSrc, &regDst, enttIDSrc, enttIDDst](const auto compId) {
+			regSrc.visit([&regSrc, &_regDst, enttIDSrc, enttIDDst](const auto compId) {
 				const entt::meta_type type = entt::resolve_type(compId);
-				type.func("clone"_hs).invoke({}, std::ref(regSrc), enttIDSrc, std::ref(regDst), enttIDDst);
+				type.func("clone"_hs).invoke({}, std::ref(regSrc), enttIDSrc, std::ref(_regDst), enttIDDst);
 			});
 
 			// Add the children to the queue
@@ -43,14 +44,14 @@ namespace Plop
 		};
 
 		// do the first one to retrieve the root id
-		entt::entity parentDst = _rootDst;
-		if (parentDst == entt::null)
+		entt::handle parentDst(_regDst, _rootDst);
+		if (!parentDst)
 			parentDst = CopyEntity(_hSrc.entity());
 		else
 		{
-			regSrc.visit([&regSrc, &regDst, enttIDSrc = _hSrc.entity(), enttIDDst=parentDst](const auto compId) {
+			regSrc.visit([&regSrc, &_regDst, enttIDSrc = _hSrc.entity(), enttIDDst=parentDst](const auto compId) {
 				const entt::meta_type type = entt::resolve_type(compId);
-				type.func("clone"_hs).invoke({}, std::ref(regSrc), enttIDSrc, std::ref(regDst), enttIDDst);
+				type.func("clone"_hs).invoke({}, std::ref(regSrc), enttIDSrc, std::ref(_regDst), enttIDDst);
 			});
 
 			const auto & graphNodeSrc = _hSrc.get<Component_GraphNode>();
@@ -62,33 +63,37 @@ namespace Plop
 				childEntity = regSrc.get<Component_GraphNode>(childEntity).nextSibling;
 			}
 		}
-		_mapping[_hSrc.entity()] = parentDst;
+		entityMapping[_hSrc.entity()] = parentDst;
+		_guidMapping[_hSrc.get<Component_Name>().guid] = parentDst.get<Component_Name>().guid;
 
 		// then all the rest
 		while (!todo.empty())
 		{
 			entt::entity enttIDSrc = todo.front();
-			todo.pop();
+			entt::entity enttIDDst = CopyEntity(enttIDSrc);
 
-			_mapping[enttIDSrc] = CopyEntity(enttIDSrc);
+			entityMapping[enttIDSrc]								 = enttIDDst; 
+			_guidMapping[regSrc.get<Component_Name>(enttIDSrc).guid] = _regDst.get<Component_Name>(enttIDDst).guid;
+
+			todo.pop();
 		}
 
 		// apply hierarchy from mapping
-		for (const auto [src, dst] : _mapping)
+		for (const auto [src, dst] : entityMapping)
 		{
 			const auto &graphNodeSrc = regSrc.get<Component_GraphNode>(src);
-			auto &graphNodeDst = regDst.get<Component_GraphNode>(dst);
+			auto &graphNodeDst = _regDst.get<Component_GraphNode>(dst);
 			if (dst != parentDst)
 			{
 				if (graphNodeSrc.parent != entt::null)
-					graphNodeDst.parent = _mapping[graphNodeSrc.parent];
+					graphNodeDst.parent = entityMapping[graphNodeSrc.parent];
 			}
 			if (graphNodeSrc.firstChild != entt::null)
-				graphNodeDst.firstChild = _mapping[graphNodeSrc.firstChild];
+				graphNodeDst.firstChild = entityMapping[graphNodeSrc.firstChild];
 			if (graphNodeSrc.prevSibling != entt::null)
-				graphNodeDst.prevSibling = _mapping[graphNodeSrc.prevSibling];
+				graphNodeDst.prevSibling = entityMapping[graphNodeSrc.prevSibling];
 			if (graphNodeSrc.nextSibling != entt::null)
-				graphNodeDst.nextSibling = _mapping[graphNodeSrc.nextSibling];
+				graphNodeDst.nextSibling = entityMapping[graphNodeSrc.nextSibling];
 		}
 
 		return parentDst;

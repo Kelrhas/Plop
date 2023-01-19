@@ -8,6 +8,7 @@
 namespace Plop
 {
 	using EntityMapping = std::unordered_map<entt::entity, entt::entity>;
+	using GUIDMapping = std::unordered_map<GUID, GUID>;
 
 #ifdef USE_ENTITY_HANDLE
 	template<typename Component>
@@ -25,6 +26,6 @@ namespace Plop
 #endif
 
 
-	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &regDst, EntityMapping &_mapping, entt::entity _rootDst = entt::null);
+	entt::entity CopyEntityHierarchyToRegistry(entt::handle _hSrc, entt::registry &regDst, GUIDMapping &_mapping, entt::entity _rootDst = entt::null);
 
 }

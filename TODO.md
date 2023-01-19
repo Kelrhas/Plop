@@ -28,10 +28,13 @@
 - spritesheet creator/modification
 - prefab system
 	- ~~simple instanciation~~
-	- add PrefabInstance (store GUID) component to track from what prefab it comes from
-	- only serialise difference between prefab and instance
+	- ~~add PrefabInstance (store GUID) component to track from what prefab it comes from~~
+	- ~~only serialise difference between prefab and instance~~
 	- update prefab from instance
 	- prefab edition
+	- prevent adding children to a prefab instance
+	- prevent referencing prefab children in any component
+	- focus the entity that we just instantiated
 - VFX
 	- GPU side for long term
 	- add more shape like cone and mesh (maybe also hexagon to match TD grid)
@@ -43,6 +46,9 @@
 - fix closing app
 - change CanAddComponent/CanRemoveComponent from template function to type value inside component struct
 - clean up RegisterComponents (calling sometimes Application::, sometimes ComponentManager -the right one-)
+- use more of static constexpr and using, especially inside Components
+- clean usage of entt::handle, Entity and entt::entity
+- use more StringView instead of String when we just want to output/see the content
 
 
 **[Editor]**

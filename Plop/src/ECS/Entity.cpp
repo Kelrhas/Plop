@@ -356,13 +356,18 @@ namespace Plop
 		j["HintID"] = m_hEntity.entity();
 		j[JSON_NAME] = GetComponent<Component_Name>().sName;
 		j[JSON_GUID] = GetComponent<Component_Name>().guid;
+
+		// we must not serialise the prefab children because the prefab might have changed its hierarchy between saving and loading
+		// we only save the root entity and the changes at the time of saving
+		// it's up to the loading code to check if the changes are relevant to apply at that time
+
 		if (HasComponent<Component_PrefabInstance>())
 		{
-			const auto &compPrefab = GetComponent<Component_PrefabInstance>();
-			j[JSON_COMPONENTS][Component_PrefabInstance::NAME] = compPrefab.ToJson();
-			// TODO: list changes between prefab and instance
+			const auto &compPrefab							   = GetComponent<Component_PrefabInstance>();
+			j[JSON_COMPONENTS][Component_PrefabInstance::NAME]["Source"] = compPrefab.hSrcPrefab;
+			j[JSON_COMPONENTS][Component_PrefabInstance::NAME]["Changes"] = PrefabManager::GetChangesFromPrefab(compPrefab.hSrcPrefab, compPrefab.mapping, m_hEntity);
 		}
-		else
+		else if (!PrefabManager::IsPartOfPrefab(*this))
 		{
 			ChildVisitor([&j](Entity &_child) {
 				if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
@@ -372,6 +377,7 @@ namespace Plop
 				}
 				return VisitorFlow::CONTINUE;
 			});
+
 			ComponentManager::ToJson(registry, m_hEntity.entity(), j);
 		}
 
@@ -382,8 +388,11 @@ namespace Plop
 	{
 		ASSERTM(m_hEntity.registry().empty() || !m_hEntity.registry().empty(), "Invalid registry ?");
 
-		GetComponent<Component_Name>().sName = _jEntity[JSON_NAME];
-
+		if (_jEntity.contains(JSON_NAME))
+			GetComponent<Component_Name>().sName = _jEntity[JSON_NAME];
+		else
+			ASSERT(!GetComponent<Component_Name>().sName.empty());
+		
 		if (_jEntity.contains(JSON_CHILDREN))
 		{
 			LevelBase **ppLevel = m_hEntity.registry().try_ctx<LevelBase *>();
@@ -403,7 +412,13 @@ namespace Plop
 			{
 				const json &jPrefab = _jEntity[JSON_COMPONENTS][Component_PrefabInstance::NAME];
 				GUID		guid	= jPrefab["Source"];
-				PrefabManager::LoadPrefabInstance(PrefabHandle(guid), *this);
+
+				json jPatch;
+				if (jPrefab.contains("Changes"))
+					jPatch = jPrefab["Changes"];
+
+				AddComponent<Component_PrefabInstance>();
+				PrefabManager::LoadPrefabInstance(PrefabHandle(guid), *this, jPatch);
 			}
 			else
 			{

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <ECS/Entity.h>
+#include "ECS/ECSHelper.h"
+#include "ECS/Entity.h"
 
 namespace Plop
 {
@@ -44,13 +45,14 @@ namespace Plop
 		static bool			CreatePrefab(Entity _entity, const String &_sLibName);
 		static void			UpdatePrefabFromInstance(PrefabHandle _hPrefab, Entity _entity);
 		static void			DeletePrefab(const Prefab *_pPrefab);
-		static void			LoadPrefabInstance(PrefabHandle _hPrefab, Entity _entityDst);
+		static void			LoadPrefabInstance(PrefabHandle _hPrefab, Entity _entityDst, const json &_jPatch);
 		static Entity		InstantiatePrefab(PrefabHandle _hPrefab, entt::registry &_reg, entt::entity _parent);
 		static Entity		InstantiatePrefab(GUID _guid, entt::registry &_reg, entt::entity _parent);
 		static bool			DoesPrefabExist(GUID _guid);
 		static String		GetPrefabName(GUID _guid);
 		static bool			IsPartOfPrefab(Entity _entity);
 		static PrefabHandle GetParentPrefab(Entity _entity);
+		static json			GetChangesFromPrefab(PrefabHandle _hPrefab, const GUIDMapping &_mapping, Entity _instance);
 
 		static bool CreatePrefabLibrary(const String &_sName, const StringPath &_sPath);
 		static void	DeletePrefabLib(const PrefabLibrary *_pPrefabLib);

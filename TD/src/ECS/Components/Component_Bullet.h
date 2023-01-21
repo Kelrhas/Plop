@@ -8,7 +8,11 @@ struct Component_Bullet
 
 
 	Component_Bullet() = default;
-	Component_Bullet( const Component_Bullet& _other );
+	Component_Bullet(const Component_Bullet &_other);
+
+	void EditorUI();
+	json ToJson() const;
+	void FromJson(const json &_j);
 
 	// runtime
 	glm::vec3 vVelocity = VEC3_0;

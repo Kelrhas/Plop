@@ -20,6 +20,7 @@ static constexpr const char *JSON_DAMAGE		  = "Damage";
 static constexpr const char *JSON_FIRING_RATE	  = "Firing rate";
 static constexpr const char *JSON_RANGE			  = "Range";
 static constexpr const char *JSON_FIRING_PARTICLE = "FiringParticlePrefab";
+static constexpr const char *JSON_PROJECTILE	  = "ProjectilePrefab";
 
 
 void Component_Tower::EditorUI()
@@ -40,6 +41,7 @@ void Component_Tower::EditorUI()
 		Plop::EditorGizmo::Circle(owner.GetComponent<Plop::Component_Transform>().GetWorldPosition(), fRange);
 	}
 	ImGui::Custom::InputPrefab("Firing particles", hFiringParticle);
+	ImGui::Custom::InputPrefab("Projectile", hProjectile);
 }
 
 json Component_Tower::ToJson() const
@@ -49,6 +51,7 @@ json Component_Tower::ToJson() const
 	j[JSON_FIRING_RATE]		= fFiringRate;
 	j[JSON_RANGE]			= fRange;
 	j[JSON_FIRING_PARTICLE] = hFiringParticle;
+	j[JSON_PROJECTILE]		= hProjectile;
 	return j;
 }
 
@@ -62,6 +65,8 @@ void Component_Tower::FromJson(const json &_j)
 		fRange = _j[JSON_RANGE];
 	if (_j.contains(JSON_FIRING_PARTICLE))
 		hFiringParticle = _j[JSON_FIRING_PARTICLE];
+	if (_j.contains(JSON_PROJECTILE))
+		hProjectile = _j[JSON_PROJECTILE];
 }
 
 bool Component_Tower::CanFire() const
@@ -99,26 +104,39 @@ namespace TowerSystem
 			{
 				vSpawnPos = child.GetComponent<Plop::Component_Transform>().GetWorldPosition();
 			}
+			return VisitorFlow::CONTINUE;
 		});
+
 		{
-			Plop::Entity bullet = xLevel->CreateEntity("Bullet");
+			Plop::Entity bullet;
+			if (towerComp.hProjectile)
+			{
+				bullet = Plop::PrefabManager::InstantiatePrefab(towerComp.hProjectile, hEntityTower.registry(), entt::null);
+			}
+			else
+			{
+				bullet = xLevel->CreateEntity("Bullet");
 
-			Plop::Component_SpriteRenderer &spriteComp = bullet.AddComponent<Plop::Component_SpriteRenderer>();
-			spriteComp.xSprite->SetTint(COLOR_RED);
+				Plop::Component_SpriteRenderer &spriteComp = bullet.AddComponent<Plop::Component_SpriteRenderer>();
+				spriteComp.xSprite->SetTint(COLOR_RED);
 
-			Component_Bullet &bulletComp = bullet.AddComponent<Component_Bullet>();
+				bullet.AddComponent<Component_Bullet>();
+
+				Plop::Component_AABBCollider &colliderComp = bullet.AddComponent<Plop::Component_AABBCollider>();
+				colliderComp.vMin						   = glm::vec3(-0.1f, -0.1f, -10.f);
+				colliderComp.vMax						   = glm::vec3(0.1f, 0.1f, 10.f);
+
+				Plop::Component_Transform &transform = bullet.GetComponent<Plop::Component_Transform>();
+				transform.SetLocalScale(glm::vec3(0.2f, 0.2f, 1.f));
+			}
+
+			Component_Bullet &bulletComp = bullet.GetComponent<Component_Bullet>();
 			bulletComp.emitting			 = towerEntity;
 			bulletComp.vVelocity		 = glm::vec3(bulletComp.fSpeed * vEnemyDir2D, 0.f);
-
-			Plop::Component_AABBCollider &colliderComp = bullet.AddComponent<Plop::Component_AABBCollider>();
-			colliderComp.vMin						   = glm::vec3(-0.1f, -0.1f, -10.f);
-			colliderComp.vMax						   = glm::vec3(0.1f, 0.1f, 10.f);
-
 
 			Plop::Component_Transform &transform = bullet.GetComponent<Plop::Component_Transform>();
 			transform.SetLocalPosition(vSpawnPos);
 			transform.SetLocalRotation(glm::quat(glm::vec3(0.f, 0.f, fAngle)));
-			transform.SetLocalScale(glm::vec3(0.2f, 0.2f, 1.f));
 		}
 
 		// play sound
@@ -133,6 +151,7 @@ namespace TowerSystem
 		{
 			Plop::Entity fx = Plop::PrefabManager::InstantiatePrefab(towerComp.hFiringParticle, hEntityTower.registry(), entt::null);
 			fx.GetComponent<Plop::Component_Transform>().SetLocalPosition(vSpawnPos);
+			fx.GetComponent<Plop::Component_Transform>().SetWorldRotation(glm::rotate(transformTower.GetWorldRotation(), glm::half_pi<float>(), VEC3_Z));
 		}
 	};
 

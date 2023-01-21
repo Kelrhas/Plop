@@ -39,7 +39,10 @@ void Component_Hexgrid::RegenerateGrid()
 	Plop::Entity	   owner  = Plop::GetComponentOwner(xLevel->GetEntityRegistry(), *this);
 
 	// @check destroying inside visitor ...
-	owner.ChildVisitor([&](Plop::Entity _child) { xLevel->DestroyEntity(_child); });
+	owner.ChildVisitor([&](Plop::Entity _child) {
+		xLevel->DestroyEntity(_child);
+		return VisitorFlow::CONTINUE;
+	});
 
 	size_t nb = owner.GetChildrenCount();
 	ASSERT(!owner.HasChildren());
@@ -270,7 +273,7 @@ namespace HexgridSystem
 
 				if (!bOverlap)
 				{
-					const Plop::GUID guidTower = 3682572320010354371llu;
+					const Plop::GUID guidTower = 8392535099134412618llu;
 					Plop::Entity	 tower	   = Plop::PrefabManager::InstantiatePrefab(guidTower, xLevel->GetEntityRegistry(), Plop::Entity());
 					tower.GetComponent<Plop::Component_Transform>().SetWorldPosition(glm::vec3(Hexgrid::Cell::Get2DCoordFromCell(coord), 1.f));
 				}

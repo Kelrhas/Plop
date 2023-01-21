@@ -13,6 +13,7 @@ struct Component_Tower
 	float			   fFiringRate = 1.f; // fire per second
 	float			   fRange	   = 5.f;
 	Plop::PrefabHandle hFiringParticle = Plop::GUID::INVALID;
+	Plop::PrefabHandle hProjectile = Plop::GUID::INVALID;
 
 	void EditorUI();
 	json ToJson() const;

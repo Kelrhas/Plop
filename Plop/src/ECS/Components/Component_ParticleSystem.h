@@ -10,6 +10,7 @@
 
 #include "Constants.h"
 #include "TimeStep.h"
+#include "ECS/Entity.h"
 #include "Utils/Random.h"
 
 namespace Plop
@@ -38,7 +39,7 @@ namespace Plop
 			virtual void Spawn( ParticleData*, Component_ParticleSystem& ) = 0;
 			virtual ParticleSpawnerPtr Clone() const = 0;
 			virtual const char* const Name() = 0;
-			virtual void Editor() = 0;
+			virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) = 0;
 			virtual json to_json() = 0;
 			virtual void from_json( const json& ) = 0;
 		};
@@ -49,7 +50,7 @@ namespace Plop
 			virtual void Update( ParticleData*, const TimeStep& ) = 0;
 			virtual ParticleUpdaterPtr Clone() const = 0;
 			virtual const char* const Name() = 0;
-			virtual void Editor() = 0;
+			virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) = 0;
 			virtual json to_json() = 0;
 			virtual void from_json( const json& ) = 0;
 		};
@@ -95,9 +96,11 @@ namespace Plop
 		// TODO: write a proper Pool class
 		// TODO: convert to SoA instead of AoS
 		// TODO: go full GPU side
-		ParticleData*					m_pParticles = nullptr;
+		ParticleData *					m_pParticles		  = nullptr;
 		size_t							m_iMaxNumberParticles = 0;
-		size_t							m_iNbActiveParticles = 0;
+		size_t							m_iNbActiveParticles  = 0;
+		bool							m_bBurst			  = FALSE;
+		bool							m_bDestroyAfterBurst  = TRUE;
 		float							m_fAutoSpawnRate = 0.f, m_fAutoSpawnRemainder = 0.f;
 		Random							m_rand;
 		std::vector<ParticleSpawnerPtr> m_vecSpawners;

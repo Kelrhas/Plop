@@ -258,7 +258,7 @@ namespace Plop
 
 				if (IsSelectedEntityForLevel(Application::GetCurrentLevel()))
 				{
-					if (m_SelectedEntity.HasComponent<Component_ParticleSystem>())
+					if (IsEditing() && m_SelectedEntity.HasComponent<Component_ParticleSystem>())
 					{
 						m_SelectedEntity.GetComponent<Component_ParticleSystem>().Update(_timeStep);
 					}
@@ -421,7 +421,10 @@ namespace Plop
 		{
 			EntityCreatedEvent& entityEvent = (EntityCreatedEvent &)_event;
 			entt::entity enttId = entityEvent.entity;
-			m_mapEntityEditorInfo.insert( { enttId, {} } );
+			if (IsUsingEditorLevel())
+				m_mapEntityEditorInfoEditing.insert({ enttId, {} });
+			else
+				m_mapEntityEditorInfoPlaying.insert({ enttId, {} });
 		}
 		else if (_event.GetEventType() == EventType::EntityDestroyedEvent)
 		{
@@ -431,7 +434,10 @@ namespace Plop
 				m_SelectedEntity.Reset();
 			}
 
-			m_mapEntityEditorInfo.erase( (entt::entity)entityEvent.entity );
+			if (IsUsingEditorLevel())
+				m_mapEntityEditorInfoEditing.erase((entt::entity)entityEvent.entity);
+			else
+				m_mapEntityEditorInfoPlaying.erase((entt::entity)entityEvent.entity);
 		}
 		else if (_event.GetEventType() == EventType::PrefabInstantiatedEvent)
 		{
@@ -446,7 +452,10 @@ namespace Plop
 				entt::entity enttID = todo.top();
 				todo.pop();
 
-				m_mapEntityEditorInfo.insert({enttID, {}});
+				if (IsUsingEditorLevel())
+					m_mapEntityEditorInfoEditing.insert({ enttID, {} });
+				else
+					m_mapEntityEditorInfoPlaying.insert({ enttID, {} });
 
 				auto &graphComp = reg.get<Component_GraphNode>(enttID);
 				if (graphComp.firstChild != entt::null)
@@ -764,13 +773,14 @@ namespace Plop
 				static std::function<void( Entity& )> DrawEntity;
 				DrawEntity = [this, &registry]( Entity& _Entity ) {
 
-					auto& itEntityInfo = m_mapEntityEditorInfo.find( _Entity );
-					ASSERT( itEntityInfo != m_mapEntityEditorInfo.end() );
-					if (itEntityInfo == m_mapEntityEditorInfo.end())
+					EntityEditorInfoMap &entityInfoMap = (IsUsingEditorLevel() ? m_mapEntityEditorInfoEditing : m_mapEntityEditorInfoPlaying);
+					auto &				 itEntityInfo  = entityInfoMap.find(_Entity);
+					ASSERT(itEntityInfo != entityInfoMap.end());
+					if (itEntityInfo == entityInfoMap.end())
 					{
 						ImGui::TextColored(ImColor(255, 0, 0), _Entity.GetComponent<Component_Name>().sName.c_str());
 						if (ImGui::IsItemHovered())
-							ImGui::SetTooltip("error on m_mapEntityEditorInfo");
+							ImGui::SetTooltip("error on entityInfoMap");
 						return;
 					}
 
@@ -1218,6 +1228,7 @@ namespace Plop
 	void EditorLayer::PlayLevel()
 	{
 		m_eLevelState = LevelState::STARTING;
+		ASSERT(m_mapEntityEditorInfoPlaying.empty());
 	}
 
 	void EditorLayer::PauseLevel()
@@ -1238,6 +1249,15 @@ namespace Plop
 		{
 			m_SelectedEntity = {};
 		}
+		m_mapEntityEditorInfoPlaying.clear();
+	}
+
+	void EditorLayer::UpdateEntityInfo()
+	{
+		EntityEditorInfoMap &entityInfoMap = (IsUsingEditorLevel() ? m_mapEntityEditorInfoEditing : m_mapEntityEditorInfoPlaying);
+
+		LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
+		xLevel->GetEntityRegistry().each([&entityInfoMap](entt::entity _e) { entityInfoMap[_e] = {}; });
 	}
 
 	bool EditorLayer::IsSelectedEntityForLevel(LevelBaseWeakPtr _xLevel) const
@@ -1374,6 +1394,23 @@ namespace Plop
 		float fRadiusPixel = GetSSDistance(_vPos, _fRadius);
 
 		drawList->AddCircle( vSSPoint, fRadiusPixel, ImColor( _vColor.x, _vColor.y, _vColor.z ) );
+
+		if (window)
+			drawList->PopClipRect();
+	}
+
+	void EditorGizmo::Arc(const glm::vec3 &_vPos, float _fRadius, float _fStartAngle, float _fEndAngle, glm::vec3 _vColor /*= COLOR_WHITE*/)
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName( "Scene" ); // TODO: handle multiple scene viewport
+		ImDrawList* drawList = window ? window->DrawList : ImGui::GetBackgroundDrawList();
+		if (window)
+			drawList->PushClipRect( window->Rect().Min, window->Rect().Max );
+
+		glm::vec2 vSSPoint = GetSSPosition(_vPos);
+		float fRadiusPixel = GetSSDistance(_vPos, _fRadius);
+
+		drawList->PathArcTo(vSSPoint, fRadiusPixel, _fStartAngle, _fEndAngle);
+		drawList->PathStroke(ImColor(_vColor.x, _vColor.y, _vColor.z), false);
 
 		if (window)
 			drawList->PopClipRect();

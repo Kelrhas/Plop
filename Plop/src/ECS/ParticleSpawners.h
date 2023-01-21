@@ -5,6 +5,7 @@
 
 namespace Plop::Particle
 {
+#pragma region Spawners
 	struct SpawnLife final : public Component_ParticleSystem::ParticleSpawner
 	{
 		SpawnLife( float _fLifetime = 2.f ) : fLifetime( _fLifetime ) {}
@@ -12,7 +13,7 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Lifetime"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
@@ -29,7 +30,7 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Shape:Circle"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
@@ -45,13 +46,31 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Shape:Disk"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
 		float fRadius;
 	};
 	using SpawnShapeDiskPtr = std::shared_ptr<SpawnShapeDisk>;
+
+	struct SpawnShapeArc final : public Component_ParticleSystem::ParticleSpawner
+	{
+		SpawnShapeArc() = default;
+		SpawnShapeArc(float _fRadius, float _fAngle, const glm::vec2 &_vDir) : fRadius(_fRadius), fAngle(_fAngle), vDir(_vDir) {}
+		virtual void Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system ) override;
+		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
+		static const char* const StaticName() { return "Shape:Arc"; }
+		virtual const char* const Name() override { return StaticName(); }
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
+		virtual json to_json() override;
+		virtual void from_json( const json& )override;
+
+		float fRadius = 0.5f;
+		float fAngle = 45.f;
+		glm::vec2 vDir;
+	};
+	using SpawnShapeArcPtr = std::shared_ptr<SpawnShapeArc>;
 
 	struct SpawnShapeRect final : public Component_ParticleSystem::ParticleSpawner
 	{
@@ -60,7 +79,7 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Shape:Rect"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
@@ -75,7 +94,7 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Color"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
@@ -90,7 +109,7 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Size"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
@@ -105,14 +124,16 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleSpawnerPtr Clone() const override;
 		static const char* const StaticName() { return "Speed:Radial"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
 		float fSpeed;
 	};
 	using SpawnRadialSpeedPtr = std::shared_ptr<SpawnRadialSpeed>;
+#pragma endregion
 
+#pragma region Updaters
 	struct UpdatePositionFromSpeed final : public Component_ParticleSystem::ParticleUpdater
 	{
 		UpdatePositionFromSpeed( float _fAttenuation = 0.1f ) : fAttenuation( std::clamp( _fAttenuation, 0.f, 1.f ) ) {}
@@ -120,7 +141,7 @@ namespace Plop::Particle
 		virtual Component_ParticleSystem::ParticleUpdaterPtr Clone() const override;
 		static const char* const StaticName() { return "Position from speed"; }
 		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor() override;
+		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
 		virtual json to_json() override;
 		virtual void from_json( const json& )override;
 
@@ -128,4 +149,20 @@ namespace Plop::Particle
 	};
 	using UpdatePositionFromSpeedPtr = std::shared_ptr<UpdatePositionFromSpeed>;
 
+	struct UpdateColorFromLifetime final : public Component_ParticleSystem::ParticleUpdater
+	{
+		UpdateColorFromLifetime() {}
+		virtual void										 Update(ParticleData *_pParticle, const TimeStep &_ts) override;
+		virtual Component_ParticleSystem::ParticleUpdaterPtr Clone() const override;
+		static const char *const							 StaticName() { return "Color from lifetime"; }
+		virtual const char *const							 Name() override { return StaticName(); }
+		virtual void										 Editor(Entity _owner, const Component_ParticleSystem &_system) override;
+		virtual json										 to_json() override;
+		virtual void										 from_json(const json &) override;
+
+		glm::vec4 vColorStart = COLOR_WHITE;
+		glm::vec4 vColorEnd	  = COLOR_BLACK;
+	};
+	using UpdateColorFromLifetimePtr = std::shared_ptr<UpdateColorFromLifetime>;
+#pragma endregion
 }

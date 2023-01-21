@@ -318,6 +318,7 @@ namespace Plop
 				m_xLoadedLevel->StartFromEditor();
 
 				m_EditorLayer.m_eLevelState = EditorLayer::LevelState::RUNNING;
+				m_EditorLayer.UpdateEntityInfo();
 			}
 			else if (m_EditorLayer.m_eLevelState == EditorLayer::LevelState::STOPPING)
 			{

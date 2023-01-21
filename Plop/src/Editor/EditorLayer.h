@@ -39,6 +39,7 @@ namespace Plop
 				glm::vec2		GetViewportPosFromWindowPos( const glm::vec2& _vScreenPos, bool _bClamp = false ) const;
 
 				bool			IsEditing() const { return m_eLevelState == LevelState::EDITING; }
+				bool			IsUsingEditorLevel() const { return m_eLevelState == LevelState::EDITING; }
 
 		static	json			GetJsonEntity( const Entity& _entity );
 		static	void			SetJsonEntity( const Entity& _entity, const json& _j );
@@ -80,6 +81,8 @@ namespace Plop
 				void		PauseLevel();
 				void		ResumeLevel();
 				void		StopLevel();
+
+				void		UpdateEntityInfo();
 
 
 				bool		IsSelectedEntityForLevel(LevelBaseWeakPtr _xLevel) const;
@@ -143,8 +146,9 @@ namespace Plop
 		
 		static ::MM::EntityEditor<entt::entity>* s_pENTTEditor;
 
-		std::unordered_map<entt::entity, EntityEditorInfo> m_mapEntityEditorInfo;
-
+		using EntityEditorInfoMap = std::unordered_map<entt::entity, EntityEditorInfo>;
+		EntityEditorInfoMap m_mapEntityEditorInfoEditing;
+		EntityEditorInfoMap m_mapEntityEditorInfoPlaying;
 	};
 
 
@@ -153,6 +157,7 @@ namespace Plop
 	public:
 		static void Point( const glm::vec2& _vPoint, glm::vec3 _vColor = COLOR_WHITE );
 		static void Circle( const glm::vec3& _vPos, float _fRadius, glm::vec3 _vColor = COLOR_WHITE);
+		static void Arc( const glm::vec3& _vPos, float _fRadius, float _fStartAngle, float _fEndAngle, glm::vec3 _vColor = COLOR_WHITE); // angle 0 = right, clockwise positive
 		static void FilledCircle( const glm::vec3& _vPos, float _fRadius, glm::vec3 _vColor = COLOR_WHITE);
 
 		// Lines & Curves

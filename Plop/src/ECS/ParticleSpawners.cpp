@@ -2,6 +2,7 @@
 #include "ParticleSpawners.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/compatibility.hpp>
 
 #include "Application.h"
 #include "ECS/Components/Component_Transform.h"
@@ -26,7 +27,7 @@ namespace Plop::Particle
 		return xSpawner;
 	}
 
-	void SpawnLife::Editor()
+	void SpawnLife::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
 		ImGui::DragFloat( "Lifetime", &fLifetime, 0.1f, 0.f, std::numeric_limits<float>::infinity() );
 		ImGui::DragFloat( "Variation", &fVariation, 0.1f, 0.f, fLifetime );
@@ -67,9 +68,12 @@ namespace Plop::Particle
 		return xSpawner;
 	}
 
-	void SpawnShapeCircle::Editor()
+	void SpawnShapeCircle::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
-		ImGui::DragFloat( "Radius", &fRadius, 0.1f, 0.f, std::numeric_limits<float>::infinity() );
+		ImGui::DragFloat("Radius", &fRadius, 0.1f, 0.f, std::numeric_limits<float>::infinity());
+
+		glm::vec3 vPos = _owner.GetComponent<Component_Transform>().GetWorldPosition();
+		EditorGizmo::Circle(vPos, fRadius);
 	}
 
 	json SpawnShapeCircle::to_json()
@@ -104,9 +108,12 @@ namespace Plop::Particle
 		return xSpawner;
 	}
 
-	void SpawnShapeDisk::Editor()
+	void SpawnShapeDisk::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
-		ImGui::DragFloat( "Radius", &fRadius, 0.1f, 0.f, std::numeric_limits<float>::infinity() );
+		ImGui::DragFloat("Radius", &fRadius, 0.1f, 0.f, std::numeric_limits<float>::infinity());
+
+		glm::vec3 vPos = _owner.GetComponent<Component_Transform>().GetWorldPosition();
+		EditorGizmo::Circle(vPos, fRadius);
 	}
 
 	json SpawnShapeDisk::to_json()
@@ -120,6 +127,61 @@ namespace Plop::Particle
 	{
 		if (_j.contains( "Radius" ))
 			fRadius = _j.at( "Radius" );
+	}
+
+
+	/* SpawnShapeArc */
+	void SpawnShapeArc::Spawn(ParticleData *_pParticle, Component_ParticleSystem &_system)
+	{
+		float fAngleSpawn = _system.GetRandom().NextFloatNeg11() * glm::radians(fAngle);
+
+		glm::vec2 vUnitPos(glm::cos(fAngleSpawn), glm::sin(fAngleSpawn));
+		glm::vec3 res = glm::vec3(vUnitPos * fRadius * _system.GetRandom().NextFloat01(), 0.f);
+
+		Entity owner = GetComponentOwner(Application::GetCurrentLevel().lock()->GetEntityRegistry(), _system);
+		const glm::quat qRot = owner.GetComponent<Component_Transform>().GetWorldRotation();
+
+		res = glm::rotate(qRot, res);
+		_pParticle->vPosition += res;
+	}
+
+	Component_ParticleSystem::ParticleSpawnerPtr SpawnShapeArc::Clone() const
+	{
+		SpawnShapeArcPtr xSpawner = std::make_shared<SpawnShapeArc>();
+		*xSpawner				   = *this;
+		return xSpawner;
+	}
+
+	void SpawnShapeArc::Editor(Entity _owner, const Component_ParticleSystem &_system)
+	{
+		ImGui::DragFloat("Radius", &fRadius, 0.1f, 0.f, std::numeric_limits<float>::infinity());
+		ImGui::SliderFloat("Angle (half arc)", &fAngle, 0.f, 180.f);
+		ImGui::DragFloat2("Direction", &vDir.x, 0.1f, -1.f, 1.f);
+
+		const float fAngleRad = glm::radians(fAngle);
+		glm::vec3 vPos = _owner.GetComponent<Component_Transform>().GetWorldPosition();
+		EditorGizmo::Arc(vPos, fRadius, fAngleRad, -fAngleRad);
+		EditorGizmo::Line(vPos, vPos + fRadius * glm::rotate(glm::quat(glm::vec3(0, 0, -fAngleRad)), VEC3_RIGHT));
+		EditorGizmo::Line(vPos, vPos + fRadius * glm::rotate(glm::quat(glm::vec3(0, 0, fAngleRad)), VEC3_RIGHT));
+	}
+
+	json SpawnShapeArc::to_json()
+	{
+		json j;
+		j["Radius"] = fRadius;
+		j["Angle"] = fAngle;
+		j["Direction"] = vDir;
+		return j;
+	}
+
+	void SpawnShapeArc::from_json(const json &_j)
+	{
+		if (_j.contains("Radius"))
+			fRadius = _j.at("Radius");
+		if (_j.contains("Angle"))
+			fAngle = _j.at("Angle");
+		if (_j.contains("Direction"))
+			vDir = _j.at("Direction");
 	}
 
 
@@ -141,7 +203,7 @@ namespace Plop::Particle
 		return xSpawner;
 	}
 
-	void SpawnShapeRect::Editor()
+	void SpawnShapeRect::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
 		ImGui::DragFloat2( "Size", glm::value_ptr( vSize ), 0.1f, 0.f, std::numeric_limits<float>::infinity() );
 	}
@@ -174,7 +236,7 @@ namespace Plop::Particle
 		return xSpawner;
 	}
 
-	void SpawnColor::Editor()
+	void SpawnColor::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
 		ImGui::ColorEdit4( "Color", glm::value_ptr( vColor ), ImGuiColorEditFlags_NoInputs );
 	}
@@ -207,7 +269,7 @@ namespace Plop::Particle
 		return xSpawner;
 	}
 
-	void SpawnSize::Editor()
+	void SpawnSize::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
 		ImGui::DragFloat2( "Size", glm::value_ptr( vSize ), 0.1f, 0.f, std::numeric_limits<float>().infinity() );
 	}
@@ -247,7 +309,7 @@ namespace Plop::Particle
 		return xSpawner;
 	}
 
-	void SpawnRadialSpeed::Editor()
+	void SpawnRadialSpeed::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
 		ImGui::DragFloat( "Speed", &fSpeed, 0.1f );
 	}
@@ -284,7 +346,7 @@ namespace Plop::Particle
 		return xUpdater;
 	}
 
-	void UpdatePositionFromSpeed::Editor()
+	void UpdatePositionFromSpeed::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
 		ImGui::DragFloat( "Attenuation", &fAttenuation, 0.01f, 0.f, 1.f, "%.4f", ImGuiSliderFlags_None );
 	}
@@ -300,6 +362,43 @@ namespace Plop::Particle
 	{
 		if (_j.contains( "Attenuation" ))
 			fAttenuation = _j.at( "Attenuation" );
+	}
+	
+
+	/* UpdateColorFromLifetime */
+	void UpdateColorFromLifetime::Update(ParticleData *_pParticle, const TimeStep &_ts)
+	{
+		float dt = _ts.GetGameDeltaTime();
+		_pParticle->vColor = glm::lerp(vColorStart, vColorEnd, _pParticle->fLifeRatio);
+	}
+
+	Component_ParticleSystem::ParticleUpdaterPtr UpdateColorFromLifetime::Clone() const
+	{
+		UpdateColorFromLifetimePtr xUpdater = std::make_shared<UpdateColorFromLifetime>();
+		*xUpdater = *this;
+		return xUpdater;
+	}
+
+	void UpdateColorFromLifetime::Editor(Entity _owner, const Component_ParticleSystem &_system)
+	{
+		ImGui::ColorEdit4( "Color start", &vColorStart.r, ImGuiColorEditFlags_None);
+		ImGui::ColorEdit4( "Color end", &vColorEnd.r, ImGuiColorEditFlags_None);
+	}
+
+	json UpdateColorFromLifetime::to_json()
+	{
+		json j;
+		j["ColorStart"] = vColorStart;
+		j["ColorEnd"] = vColorEnd;
+		return j;
+	}
+
+	void UpdateColorFromLifetime::from_json(const json &_j)
+	{
+		if (_j.contains( "ColorStart" ))
+			vColorStart = _j.at( "ColorStart" );
+		if (_j.contains( "ColorEnd" ))
+			vColorEnd = _j.at( "ColorEnd" );
 	}
 
 #pragma endregion

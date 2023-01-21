@@ -33,6 +33,7 @@ namespace
 		new SpawnerHandler<Plop::Particle::SpawnLife>(),
 		new SpawnerHandler<Plop::Particle::SpawnShapeCircle>(),
 		new SpawnerHandler<Plop::Particle::SpawnShapeDisk>(),
+		new SpawnerHandler<Plop::Particle::SpawnShapeArc>(),
 		new SpawnerHandler<Plop::Particle::SpawnShapeRect>(),
 		new SpawnerHandler<Plop::Particle::SpawnColor>(),
 		new SpawnerHandler<Plop::Particle::SpawnSize>(),
@@ -54,6 +55,7 @@ namespace
 	// TODO: convert to constexpr std::array once using c++20
 	static UpdaterHandlerAbstract* updaterHandlerList[] = {
 		new UpdaterHandler<Plop::Particle::UpdatePositionFromSpeed>(),
+		new UpdaterHandler<Plop::Particle::UpdateColorFromLifetime>(),
 	};
 }
 
@@ -103,6 +105,7 @@ namespace Plop
 			m_vecUpdaters.push_back( updater->Clone() );
 		}
 		m_vBasePosition = _other.m_vBasePosition;
+		m_bBurst		= _other.m_bBurst;
 
 		return *this;
 	}
@@ -120,6 +123,7 @@ namespace Plop
 		m_vecSpawners			= std::move( _other.m_vecSpawners );
 		m_vecUpdaters			= std::move( _other.m_vecUpdaters );
 		m_vBasePosition			= _other.m_vBasePosition;
+		m_bBurst				= _other.m_bBurst;
 
 		_other.m_pParticles = nullptr;
 		_other.m_iMaxNumberParticles = 0;
@@ -167,7 +171,12 @@ namespace Plop
 
 		float fDT = _ts.GetGameDeltaTime();
 
-		if (m_fAutoSpawnRate > 0.f)
+		if (m_bBurst)
+		{
+			if (m_iNbActiveParticles == 0)
+				Spawn(m_iMaxNumberParticles);
+		}
+		else if (m_fAutoSpawnRate > 0.f)
 		{
 			float fNbParticles = (m_fAutoSpawnRate)*_ts.GetGameDeltaTime() + m_fAutoSpawnRemainder;
 			size_t iNbParticles = (size_t)fNbParticles;
@@ -204,6 +213,16 @@ namespace Plop
 			}
 
 			++i; // we can now go to the next particle
+		}
+
+		if (m_bBurst && m_bDestroyAfterBurst && m_iNbActiveParticles == 0)
+		{
+			if (!Application::Get()->GetEditor().IsEditing())
+			{
+				LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
+				auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+				xLevel->DestroyEntity(owner);
+			}
 		}
 	}
 
@@ -251,6 +270,7 @@ namespace Plop
 
 	void Component_ParticleSystem::EditorUI()
 	{
+		Entity owner = GetComponentOwner(Application::GetCurrentLevel().lock()->GetEntityRegistry(), *this);
 
 		float fSpawnRate = GetAutoSpawnRate();
 		if (ImGui::DragFloat( "Auto spawn rate", &fSpawnRate, 0.1f, 0.f, 100000.f ))
@@ -268,6 +288,10 @@ namespace Plop
 
 		ImGui::Spacing();
 		ImGui::Separator();
+		ImGui::Checkbox("Burst", &m_bBurst);
+		if( !m_bBurst)
+			ImGui::DragFloat("Spawn rate", &m_fAutoSpawnRate);
+
 		ImGui::Text( "Spawners" );
 		{
 			ImGui::PushID( "Spawners" );
@@ -295,7 +319,8 @@ namespace Plop
 			}
 
 
-			auto& spawners = GetSpawners();
+			auto &spawners = GetSpawners();
+			ImGui::Indent();
 			for (auto it = spawners.begin(); it != spawners.end();)
 			{
 				auto& spawner = *it;
@@ -305,7 +330,7 @@ namespace Plop
 				if (ImGui::CollapsingHeader( spawner->Name(), &bKeep ))
 				{
 					ImGui::Indent( 20.f );
-					spawner->Editor();
+					spawner->Editor(owner, *this);
 					ImGui::Unindent( 20.f );
 				}
 
@@ -318,6 +343,7 @@ namespace Plop
 
 				ImGui::PopID();
 			}
+			ImGui::Unindent();
 			ImGui::PopID();
 		}
 
@@ -349,7 +375,8 @@ namespace Plop
 				ImGui::EndPopup();
 			}
 
-			auto& updaters = GetUpdaters();
+			auto &updaters = GetUpdaters();
+			ImGui::Indent();
 			for (auto it = updaters.begin(); it != updaters.end();)
 			{
 				auto& updater = *it;
@@ -359,7 +386,7 @@ namespace Plop
 				if (ImGui::CollapsingHeader( updater->Name(), &bKeep ))
 				{
 					ImGui::Indent( 20.f );
-					updater->Editor();
+					updater->Editor(owner, *this);
 					ImGui::Unindent( 20.f );
 				}
 
@@ -372,6 +399,7 @@ namespace Plop
 
 				ImGui::PopID();
 			}
+			ImGui::Unindent();
 			ImGui::PopID();
 		}
 	}
@@ -380,9 +408,10 @@ namespace Plop
 	{
 		json j;
 
-		j["AutoSpawnRate"] =	GetAutoSpawnRate();
-		j["Spawners"] =			GetSpawners();
-		j["Updaters"] =			GetUpdaters();
+		j["AutoSpawnRate"] = GetAutoSpawnRate();
+		j["BurstMode"]	   = m_bBurst;
+		j["Spawners"]	   = GetSpawners();
+		j["Updaters"]	   = GetUpdaters();
 		
 		return j;
 	}
@@ -391,6 +420,10 @@ namespace Plop
 	{
 		if (_j.contains( "AutoSpawnRate" ))
 			SetAutoSpawnRate( _j["AutoSpawnRate"] );
+
+		if (_j.contains("BurstMode"))
+			m_bBurst = _j["BurstMode"];
+
 		if (_j.contains( "Spawners" ))
 		{
 			for (auto& j : _j["Spawners"])

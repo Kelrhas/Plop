@@ -203,6 +203,8 @@ namespace Plop
 
 	glm::mat4 Component_Transform::GetWorldMatrix() const
 	{
+		PROFILING_FUNCTION();
+
 		glm::mat4 mLocalMatrix = GetLocalMatrix();
 
 		auto xLevel = Application::GetCurrentLevel().lock();

@@ -136,6 +136,8 @@ namespace Plop
 
 	void LevelBase::Update( TimeStep& _ts )
 	{
+		PROFILING_FUNCTION();
+
 		DrawSprites();
 		DrawParticles( _ts );
 	}
@@ -205,6 +207,7 @@ namespace Plop
 
 	void LevelBase::DestroyEntity( Entity _entity )
 	{
+		PROFILING_FUNCTION();
 		_entity.SetParent( Entity() );
 
 		std::vector<Entity> vecChildren;
@@ -348,6 +351,8 @@ namespace Plop
 
 	void LevelBase::DrawSprites()
 	{
+		PROFILING_FUNCTION();
+
 		using tuple_t = std::tuple<SpritePtr, glm::mat4, entt::id_type>;
 		std::vector<tuple_t> vecSpriteMat;
 		auto& group = m_ENTTRegistry.group<Component_GraphNode, Component_Transform, Component_SpriteRenderer>();
@@ -369,10 +374,14 @@ namespace Plop
 			vecSpriteMat.push_back( std::make_tuple( renderer.xSprite, mTransform, entt::id_type(entityID)) );
 		}
 
-		// depth sorting
-		std::sort(vecSpriteMat.begin(), vecSpriteMat.end(), [](const tuple_t &_pair1, const tuple_t &_pair2){
-			return std::get<1>(_pair1)[3][2] < std::get<1>(_pair2)[3][2];
-		});
+		{
+			PROFILING_SCOPE("Depth sorting");
+
+			// depth sorting
+			std::sort(vecSpriteMat.begin(), vecSpriteMat.end(), [](const tuple_t &_pair1, const tuple_t &_pair2) {
+				return std::get<1>(_pair1)[3][2] < std::get<1>(_pair2)[3][2];
+			});
+		}
 
 		for (const tuple_t &_pair : vecSpriteMat)
 		{
@@ -384,6 +393,8 @@ namespace Plop
 
 	void LevelBase::DrawParticles( const TimeStep& _ts )
 	{
+		PROFILING_FUNCTION();
+
 		auto& view = m_ENTTRegistry.view<Component_ParticleSystem>();
 		for (auto [entityID, particleSystem] : view.proxy())
 		{

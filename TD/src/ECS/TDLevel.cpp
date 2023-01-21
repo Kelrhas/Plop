@@ -106,32 +106,35 @@ void TDLevel::Update(Plop::TimeStep &_ts)
 
 			  const glm::vec2 &thisPos2D = transform.GetWorldPosition();
 
-			  viewEnemy.each([&](entt::entity						 entityID,
-								 Component_Enemy &					 enemyComp,
-								 const Plop::Component_Transform &	 transformEnemy,
-								 const Plop::Component_AABBCollider &colliderEnemy) {
-				  if (!enemyComp.IsDead() && !bDestroyBullet)
-				  {
-					  if (collider.IsColliding(colliderEnemy, transformEnemy.GetWorldPosition()))
+			  {
+				  PROFILING_SCOPE("View Enemy");
+				  viewEnemy.each([&](entt::entity						 entityID,
+									 Component_Enemy &					 enemyComp,
+									 const Plop::Component_Transform &	 transformEnemy,
+									 const Plop::Component_AABBCollider &colliderEnemy) {
+					  if (!enemyComp.IsDead() && !bDestroyBullet)
 					  {
-						  bDestroyBullet = true;
-#ifdef USE_ENTITY_HANDLE
-						  Plop::Entity enemy(entityID, m_ENTTRegistry);
-#else
-						  Plop::Entity enemy(entityID, Plop::Application::GetCurrentLevel());
-#endif
-						  if (enemy.HasComponent<Plop::Component_ParticleSystem>())
+						  if (collider.IsColliding(colliderEnemy, transformEnemy.GetWorldPosition()))
 						  {
-							  auto &enemyParticles = enemy.GetComponent<Plop::Component_ParticleSystem>();
-							  enemyParticles.Spawn(20);
+							  bDestroyBullet = true;
+#ifdef USE_ENTITY_HANDLE
+							  Plop::Entity enemy(entityID, m_ENTTRegistry);
+#else
+							  Plop::Entity enemy(entityID, Plop::Application::GetCurrentLevel());
+#endif
+							  if (enemy.HasComponent<Plop::Component_ParticleSystem>())
+							  {
+								  auto &enemyParticles = enemy.GetComponent<Plop::Component_ParticleSystem>();
+								  enemyParticles.Spawn(20);
+							  }
+
+							  enemyComp.Hit(bulletComp.emitting.GetComponent<Component_Tower>().fDamage);
+
+							  return;
 						  }
-
-						  enemyComp.Hit(bulletComp.emitting.GetComponent<Component_Tower>().fDamage);
-
-						  return;
 					  }
-				  }
-			  });
+				  });
+			  }
 
 
 			  // test if too far

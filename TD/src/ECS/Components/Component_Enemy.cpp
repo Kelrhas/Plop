@@ -48,6 +48,8 @@ namespace EnemySystem
 {
 	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
 	{
+		PROFILING_FUNCTION();
+
 		const float fDeltaTime = _ts.GetGameDeltaTime();
 
 		auto &viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();

@@ -230,6 +230,8 @@ namespace HexgridSystem
 
 	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
 	{
+		PROFILING_FUNCTION();
+
 		if (pHexgrid == nullptr)
 			return;
 

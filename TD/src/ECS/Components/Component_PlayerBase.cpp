@@ -56,6 +56,8 @@ namespace PlayerBaseSystem
 
 	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
 	{
+		PROFILING_FUNCTION();
+
 		auto &viewEnemy = _registry.view<Component_Enemy, Plop::Component_AABBCollider, Plop::Component_Transform>();
 		_registry.view<Component_PlayerBase, Plop::Component_AABBCollider>().each(
 		  [&](entt::entity _baseEnttID, Component_PlayerBase &_baseComp, Plop::Component_AABBCollider &_baseCollider) {

@@ -2,6 +2,7 @@
 
 #include <entt/core/fwd.hpp>
 #include <entt/entity/registry.hpp>
+#include <entt/meta/factory.hpp>
 #include <json.hpp>
 
 using json = nlohmann::json;

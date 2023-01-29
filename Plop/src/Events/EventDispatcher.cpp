@@ -31,15 +31,6 @@ namespace Plop
 			}
 		}
 	}
-	
-	void EventDispatcher::SendEvent(Event& _event, uint8_t _uLayer /*= Layer::ALL*/)
-	{
-		for(ListenerLayer& listener : m_vecListeners)
-		{
-			if((listener.uLayer & _uLayer) != 0)
-				listener.pListener->OnEvent(_event);
-		}
-	}
 
 	void EventDispatcher::Destroy()
 	{

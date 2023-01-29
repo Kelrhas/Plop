@@ -21,8 +21,17 @@ namespace Plop
 	
 		static void RegisterListener(IEventListener* _pListener, uint8_t _uLayer = (uint8_t)Layer::ALL);
 		static void UnregisterListener(IEventListener* _pListener, uint8_t _uLayer = (uint8_t)Layer::ALL);
-		static void SendEvent(Event& _event, uint8_t _uLayer = (uint8_t)Layer::ALL);
 		static void Destroy();
+
+		template<typename Event_t>
+		static void SendEvent(Event_t _event, uint8_t _uLayer = (uint8_t)Layer::ALL)
+		{
+			for (ListenerLayer &listener : m_vecListeners)
+			{
+				if ((listener.uLayer & _uLayer) != 0)
+					listener.pListener->OnEvent(&_event);
+			}
+		}
 		
 	private:
 		struct ListenerLayer

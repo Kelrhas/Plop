@@ -43,11 +43,11 @@ void TDLevel::Shutdown()
 	Plop::LevelBase::Shutdown();
 }
 
-bool TDLevel::OnEvent(Plop::Event &_event)
+bool TDLevel::OnEvent(Plop::Event *_pEvent)
 {
-	if (_event.GetEventType() == Plop::EventType::GameEvent)
+	if (_pEvent->GetEventType() == Plop::EventType::GameEvent)
 	{
-		Plop::GameEvent &gameEvent = (Plop::GameEvent&)_event;
+		Plop::GameEvent &gameEvent = *(Plop::GameEvent *)_pEvent;
 		switch ((GameEventType)gameEvent.m_iGameEventType)
 		{
 			case GameEventType::EnemyKilled:
@@ -94,7 +94,7 @@ void TDLevel::Update(Plop::TimeStep &_ts)
 		TowerSystem::OnUpdate(_ts, m_ENTTRegistry);
 		HexgridSystem::OnUpdate(_ts, m_ENTTRegistry);
 
-		auto &viewEnemy = m_ENTTRegistry.view<Component_Enemy, Plop::Component_Transform, Plop::Component_AABBCollider>();
+		auto viewEnemy = m_ENTTRegistry.view<Component_Enemy, Plop::Component_Transform, Plop::Component_AABBCollider>();
 
 		float fMaxDistSq = glm::compMax(Plop::Application::Get()->GetWindow().GetViewportSize()) * 2.f;
 

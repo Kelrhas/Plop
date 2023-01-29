@@ -115,7 +115,7 @@ namespace Plop
 		return parent;
 	}
 
-	void Entity::SetParent(Entity &_Parent)
+	void Entity::SetParent(Entity _Parent)
 	{
 		ASSERTM(m_hEntity, "Invalid Entity");
 
@@ -203,7 +203,7 @@ namespace Plop
 		return 0;
 	}
 
-	void Entity::AddChild(Entity &_Child)
+	void Entity::AddChild(Entity _Child)
 	{
 		ASSERTM(m_hEntity, "Invalid Entity");
 		ASSERTM(_Child, "Invalid Entity for _Child");
@@ -234,7 +234,7 @@ namespace Plop
 		}
 	}
 
-	void Entity::RemoveChild(Entity &_Child)
+	void Entity::RemoveChild(Entity _Child)
 	{
 		ASSERTM(m_hEntity, "Invalid Entity");
 		ASSERTM(_Child, "Invalid Entity for _Child");
@@ -369,7 +369,7 @@ namespace Plop
 		}
 		else if (!PrefabManager::IsPartOfPrefab(*this))
 		{
-			ChildVisitor([&j](Entity &_child) {
+			ChildVisitor([&j](Entity _child) {
 				if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
 				{
 					GUID guid = _child.GetComponent<Component_Name>().guid;

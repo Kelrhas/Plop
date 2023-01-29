@@ -6,9 +6,9 @@
 
 namespace Plop
 {
-	bool Camera2DController::OnEvent(Event& _event)
+	bool Camera2DController::OnEvent(Event *_pEvent)
 	{
-		if (_event.GetEventType() == EventType::WindowSizeEvent)
+		if (_pEvent->GetEventType() == EventType::WindowSizeEvent)
 			SetSize();
 
 		return false;

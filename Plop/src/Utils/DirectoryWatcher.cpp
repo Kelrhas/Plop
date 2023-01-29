@@ -65,7 +65,7 @@ namespace Plop
 	{
 		while (m_bWatching)
 		{
-			auto& itSavedFile = m_mapFiles.begin();
+			auto itSavedFile = m_mapFiles.begin();
 			while (itSavedFile != m_mapFiles.end())
 			{
 				if (!std::filesystem::exists(itSavedFile->first))
@@ -79,7 +79,7 @@ namespace Plop
 
 			for (auto& file : std::filesystem::recursive_directory_iterator(m_sPath))
 			{
-				auto& it = m_mapFiles.find(file.path().string());
+				auto it = m_mapFiles.find(file.path().string());
 				if (it != m_mapFiles.end())
 				{
 					std::filesystem::file_time_type lastWrite = std::filesystem::last_write_time(it->first);

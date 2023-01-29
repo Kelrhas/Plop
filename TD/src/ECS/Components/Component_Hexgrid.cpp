@@ -290,7 +290,7 @@ namespace HexgridSystem
 			if (Private::ePaintType != CellType::INVALID)
 			{
 				auto &editor  = Plop::Application::Get()->GetEditor();
-				auto &xCamera = editor.GetEditorCamera();
+				auto xCamera = editor.GetEditorCamera();
 
 				glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
 				vScreenPos			 = editor.GetViewportPosFromWindowPos(vScreenPos);
@@ -329,7 +329,7 @@ namespace HexgridSystem
 			else if (Private::ePickingMode != Private::PickingMode::NONE)
 			{
 				auto &editor  = Plop::Application::Get()->GetEditor();
-				auto &xCamera = editor.GetEditorCamera();
+				auto xCamera = editor.GetEditorCamera();
 
 				glm::vec2 vScreenPos = Plop::Input::GetCursorWindowPos();
 				vScreenPos			 = editor.GetViewportPosFromWindowPos(vScreenPos);

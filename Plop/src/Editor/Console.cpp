@@ -103,7 +103,7 @@ namespace Plop
 
 		s_bNeedAutoScroll = true;
 
-		auto& it = s_mapCommands.find( sCommand );
+		auto it = s_mapCommands.find( sCommand );
 		if(it != s_mapCommands.end())
 		{
 			it->second( sArgs );

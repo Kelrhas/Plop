@@ -116,9 +116,9 @@ namespace Plop
 
 	}
 
-	bool Application::OnEvent( Event& _event )
+	bool Application::OnEvent(Event *_pEvent)
 	{
-		switch (_event.GetEventType())
+		switch (_pEvent->GetEventType())
 		{
 			case EventType::WindowCloseEvent:
 				m_bRunning = false;
@@ -126,20 +126,20 @@ namespace Plop
 
 			case EventType::WindowMoveEvent:
 			{
-				WindowMoveEvent& moveEvent = (WindowMoveEvent&)_event;
+				WindowMoveEvent &moveEvent = *(WindowMoveEvent *)_pEvent;
 				//Log::Info("Window moved to {0} {1}", moveEvent.iNewPosX, moveEvent.iNewPosY);
 			}
 			break;
 
 			case EventType::WindowSizeEvent:
 			{
-				WindowSizeEvent& sizeEvent = (WindowSizeEvent&)_event;
+				WindowSizeEvent &sizeEvent = *(WindowSizeEvent *)_pEvent;
 				Renderer::OnResize( sizeEvent.iNewWidth, sizeEvent.iNewHeight );
 			}
 			break;
 		}
 
-		return _event.IsHandled();
+		return _pEvent->IsHandled();
 	}
 
 	void Application::Init()

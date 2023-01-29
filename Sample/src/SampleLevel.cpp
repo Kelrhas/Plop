@@ -18,10 +18,10 @@ void SampleLevel::Update(Plop::TimeStep &_ts)
 	LevelBase::Update(_ts);
 
 
-	auto &view = m_ENTTRegistry.view<Plop::Component_Transform, Component_Rotating>();
+	auto view = m_ENTTRegistry.view<Plop::Component_Transform, Component_Rotating>();
 	for (auto entity : view)
 	{
-		auto &[transform, rotComp] = view.get<Plop::Component_Transform, Component_Rotating>(entity);
+		auto [transform, rotComp] = view.get<Plop::Component_Transform, Component_Rotating>(entity);
 
 		glm::quat qRot = transform.GetLocalRotation();
 		qRot		   = glm::rotate(qRot, rotComp.fSpeed * _ts.GetGameDeltaTime(), rotComp.vAxis);

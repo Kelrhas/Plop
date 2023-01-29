@@ -127,7 +127,7 @@ void Hexgrid::Reset()
 
 void Hexgrid::SetBaseCoord(const CellCoord &_coord)
 {
-	auto &xLevel = Plop::Application::Get()->GetCurrentLevel().lock();
+	auto xLevel = Plop::Application::Get()->GetCurrentLevel().lock();
 
 	if (!m_BaseEntity)
 	{
@@ -158,7 +158,7 @@ void Hexgrid::SetBaseCoord(const CellCoord &_coord)
 
 void Hexgrid::SetSpawnerCoord(const CellCoord &_coord)
 {
-	auto &xLevel = Plop::Application::Get()->GetCurrentLevel().lock();
+	auto xLevel = Plop::Application::Get()->GetCurrentLevel().lock();
 
 	if (!m_SpawnerEntity)
 	{
@@ -200,7 +200,7 @@ void Hexgrid::GeneratePath()
 		Hexgrid::Cell	   spawnerCell;
 		GetCell(hexCoordSpawner, &spawnerCell);
 
-		auto &pf = GetPathfind(spawnerCell, baseCell);
+		auto pf = GetPathfind(spawnerCell, baseCell);
 		if (pf.bValid)
 		{
 			const float fPathDepth	= 0.f;

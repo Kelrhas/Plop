@@ -52,7 +52,7 @@ namespace EnemySystem
 
 		const float fDeltaTime = _ts.GetGameDeltaTime();
 
-		auto &viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();
+		auto viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();
 		viewEnemy.each([fDeltaTime, &_registry](const entt::entity entity, Component_Enemy &enemy, Plop::Component_Transform &transform) {
 			if (enemy.IsDead())
 			{

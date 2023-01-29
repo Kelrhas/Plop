@@ -45,7 +45,7 @@ namespace Plop
 		virtual ~Application();
 
 		// IEventListener
-		virtual bool			OnEvent( Event& _event ) override;
+		virtual bool			OnEvent(Event *_pEvent) override;
 
 		virtual	void			Init();
 		virtual void			Destroy();

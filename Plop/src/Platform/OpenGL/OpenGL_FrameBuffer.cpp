@@ -140,7 +140,7 @@ namespace Plop
 	void OpenGL_FrameBuffer::ClearRT()
 	{
 		//glBindFramebuffer(GL_FRAMEBUFFER, m_uID);
-		entt::id_type id = entt::null;
+		const GLuint id = (GLuint)entt::null;
 		glClearBufferuiv(GL_COLOR, 1, &id);
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

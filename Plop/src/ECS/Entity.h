@@ -56,7 +56,7 @@ namespace Plop
 	public:
 		Entity												GetParent() const;
 		// TODO: make sure the parent is not one of the (recursive) child
-		void												SetParent( Entity& _Parent );
+		void												SetParent( Entity _Parent );
 
 		bool												HasChildren() const;
 		void												GetChildren(std::vector<Entity> &_outvecChildren) const;
@@ -66,8 +66,8 @@ namespace Plop
 		void												ChildVisitor(Visitor &&visitor) const;
 
 	private:
-		void												AddChild( Entity& _Child );
-		void												RemoveChild( Entity& _Child );
+		void												AddChild( Entity _Child );
+		void												RemoveChild( Entity _Child );
 
 
 
@@ -98,6 +98,8 @@ namespace Plop
 		virtual void										FromJson(const nlohmann::json& _jEntity );
 		virtual void										AfterLoad();
 	};
+
+	//static_assert(std::is_trivially_copyable_v<Entity>);
 }
 
 

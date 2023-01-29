@@ -11,7 +11,7 @@ namespace Plop
 	public:
 
 		// from IEventListener
-		virtual bool OnEvent(Event& _event) override;
+		virtual bool OnEvent(Event *_pEvent) override;
 
 				void Init();
 				void OnUpdate(TimeStep& _timeStep);

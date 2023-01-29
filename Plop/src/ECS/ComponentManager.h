@@ -42,11 +42,11 @@ namespace Plop
 
 		};
 
-		template<class Comp>
+		template<typename Comp>
 		static void RegisterComponent( const char* _pName );
 
 
-		template<class Comp>
+		template<typename Comp>
 		static void Test( Registry& _reg, EntityType& _e )
 		{
 			s_mapComponents.begin()->second.funcEditorUI( _reg, _e );
@@ -68,13 +68,13 @@ namespace Plop
 	private:
 
 
-		template<class Comp>
+		template<typename Comp>
 		static Comp& MetaGetComponent( Registry& _reg, EntityType _e );
-		template<class Comp>
+		template<typename Comp>
 		static bool MetaHasComponent( const Registry& _reg, EntityType _e );
-		template<class Comp>
+		template<typename Comp>
 		static Comp& MetaAddComponent( Registry& _reg, EntityType _e );
-		//template<class Comp>
+		//template<typename Comp>
 		//static void MetaCloneComponent( const Registry& _regSrc, EntityType _eSrc, Registry &_regDst, const EntityType &_eDst);
 
 
@@ -92,7 +92,7 @@ namespace Plop
 namespace Plop
 {
 
-	template<class Comp>
+	template<typename Comp>
 	void ComponentManager::RegisterComponent( const char* _pName )
 	{
 		constexpr auto id = entt::type_info<Comp>::id();
@@ -164,23 +164,23 @@ namespace Plop
 		} );
 	}
 
-	template<class Comp>
+	template<typename Comp>
 	Comp& ComponentManager::MetaGetComponent( ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.get_or_emplace<Comp>( _e );
 	}
 
-	template<class Comp>
+	template<typename Comp>
 	bool ComponentManager::MetaHasComponent( const ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.has<Comp>( _e );
 	}
 
-	template<class Comp>
+	template<typename Comp>
 	Comp& ComponentManager::MetaAddComponent( ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.emplace<Comp>( _e );
 	}
 
 
-	//template<class Comp>
+	//template<typename Comp>
 	//void ComponentManager::MetaCloneComponent(const ComponentManager::Registry &_regSrc, const EntityType &_eSrc,
 	//										  ComponentManager::Registry &_regDst, const EntityType &_eDst)
 	//{

@@ -34,7 +34,7 @@ namespace Plop
 
 	void OpenGL_VertexArray::AddVertexBuffer(const VertexBufferPtr& _xVertexBuffer)
 	{
-		auto& it = std::find(m_vecVertexBuffers.begin(), m_vecVertexBuffers.end(), _xVertexBuffer);
+		auto it = std::find(m_vecVertexBuffers.begin(), m_vecVertexBuffers.end(), _xVertexBuffer);
 		if (it == m_vecVertexBuffers.end())
 		{
 			m_vecVertexBuffers.push_back(_xVertexBuffer);

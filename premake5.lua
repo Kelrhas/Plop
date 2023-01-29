@@ -47,7 +47,7 @@ workspace "Plop"
 		targetsuffix "_r"
 
 	filter "configurations:Master"
-		defines { "_MASTER" }
+		defines { "NDEBUG", "_MASTER" }
 		runtime "Release"
 		optimize "Speed"
 		

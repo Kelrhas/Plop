@@ -160,7 +160,7 @@ namespace TowerSystem
 	{
 		PROFILING_FUNCTION();
 
-		auto &viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();
+		auto viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();
 
 		_registry.view<Component_Tower, Plop::Component_Transform>().each(
 		  [&](entt::entity entityTower, Component_Tower &tower, Plop::Component_Transform &transform) {

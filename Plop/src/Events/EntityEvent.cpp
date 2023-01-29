@@ -4,7 +4,7 @@
 
 namespace Plop
 {
-	EntityEvent::EntityEvent( const Entity& _entity ) : Event(), entity( _entity )
+	EntityEvent::EntityEvent( Entity _entity ) : Event(), entity( _entity )
 	{}
 
 

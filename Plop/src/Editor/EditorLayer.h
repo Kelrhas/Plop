@@ -31,7 +31,7 @@ namespace Plop
 		virtual void			OnUpdate( TimeStep& _timeStep ) override;
 		virtual void			OnImGuiRender( TimeStep& _timeStep ) override;
 
-		virtual bool			OnEvent( Event& _event ) override;
+		virtual bool			OnEvent(Event *_pEvent) override;
 
 		virtual uint8_t			GetPriority() const { return 190; }
 

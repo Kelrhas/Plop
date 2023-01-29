@@ -415,20 +415,20 @@ namespace Plop
 		ImGui::End(); // Begin("Editor")
 	}
 
-	bool EditorLayer::OnEvent( Event& _event )
+	bool EditorLayer::OnEvent(Event *_pEvent)
 	{
-		if (_event.GetEventType() == EventType::EntityCreatedEvent)
+		if (_pEvent->GetEventType() == EventType::EntityCreatedEvent)
 		{
-			EntityCreatedEvent& entityEvent = (EntityCreatedEvent &)_event;
+			EntityCreatedEvent &entityEvent = *(EntityCreatedEvent *)_pEvent;
 			entt::entity enttId = entityEvent.entity;
 			if (IsUsingEditorLevel())
 				m_mapEntityEditorInfoEditing.insert({ enttId, {} });
 			else
 				m_mapEntityEditorInfoPlaying.insert({ enttId, {} });
 		}
-		else if (_event.GetEventType() == EventType::EntityDestroyedEvent)
+		else if (_pEvent->GetEventType() == EventType::EntityDestroyedEvent)
 		{
-			EntityDestroyedEvent& entityEvent = (EntityDestroyedEvent&)_event;
+			EntityDestroyedEvent &entityEvent = *(EntityDestroyedEvent *)_pEvent;
 			if (m_SelectedEntity == entityEvent.entity)
 			{
 				m_SelectedEntity.Reset();
@@ -439,9 +439,9 @@ namespace Plop
 			else
 				m_mapEntityEditorInfoPlaying.erase((entt::entity)entityEvent.entity);
 		}
-		else if (_event.GetEventType() == EventType::PrefabInstantiatedEvent)
+		else if (_pEvent->GetEventType() == EventType::PrefabInstantiatedEvent)
 		{
-			PrefabInstantiatedEvent &entityEvent = (PrefabInstantiatedEvent &)_event;
+			PrefabInstantiatedEvent &entityEvent = *(PrefabInstantiatedEvent *)_pEvent;
 			std::stack<entt::entity> todo;
 			todo.push(entityEvent.entity);
 
@@ -774,7 +774,7 @@ namespace Plop
 				DrawEntity = [this, &registry]( Entity& _Entity ) {
 
 					EntityEditorInfoMap &entityInfoMap = (IsUsingEditorLevel() ? m_mapEntityEditorInfoEditing : m_mapEntityEditorInfoPlaying);
-					auto &				 itEntityInfo  = entityInfoMap.find(_Entity);
+					auto				 itEntityInfo  = entityInfoMap.find(_Entity);
 					ASSERT(itEntityInfo != entityInfoMap.end());
 					if (itEntityInfo == entityInfoMap.end())
 					{
@@ -785,7 +785,7 @@ namespace Plop
 					}
 
 #ifdef USE_ENTITY_HANDLE
-					ImGui::PushID( entt::to_integral( _Entity.m_hEntity.entity() ) );
+					ImGui::PushID((int)entt::to_integral(_Entity.m_hEntity.entity()));
 #else
 					ImGui::PushID( entt::to_integral( _Entity.m_EntityId ) );
 #endif
@@ -984,7 +984,7 @@ namespace Plop
 
 				ImGui::BeginChild( "GraphNodeList", ImVec2( 0, -ImGui::GetFrameHeightWithSpacing() ) );
 
-				auto& view = xLevel->m_ENTTRegistry.view<Component_Name>();
+				auto view = xLevel->m_ENTTRegistry.view<Component_Name>();
 				for (auto& e : view)
 				{
 #ifdef USE_ENTITY_HANDLE

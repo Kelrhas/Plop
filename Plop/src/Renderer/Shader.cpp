@@ -41,7 +41,7 @@ namespace Plop
 
 	ShaderPtr ShaderLibrary::Load( const StringPath& _sFile )
 	{
-		auto& it = m_mapShaders.find(Shader::GetNameFromFile(_sFile));
+		auto it = m_mapShaders.find(Shader::GetNameFromFile(_sFile));
 		if (it != m_mapShaders.end())
 			return it->second;
 
@@ -52,7 +52,7 @@ namespace Plop
 
 	void ShaderLibrary::Add( const ShaderPtr& _xShader )
 	{
-		auto& it = m_mapShaders.find( _xShader->GetName() );
+		auto it = m_mapShaders.find( _xShader->GetName() );
 		ASSERTM( it == m_mapShaders.end(), "Shader already exists" );
 		if (it == m_mapShaders.end())
 		{
@@ -62,7 +62,7 @@ namespace Plop
 
 	ShaderPtr ShaderLibrary::GetShader( const String& _sName )
 	{
-		auto& it = m_mapShaders.find( _sName );
+		auto it = m_mapShaders.find( _sName );
 		ASSERTM( it != m_mapShaders.end(), "Shader not found" );
 		if (it != m_mapShaders.end())
 			return it->second;

@@ -7,8 +7,8 @@ namespace Plop
 	class IEventListener
 	{
 	public:
-		virtual bool OnEvent(Event& _event) = 0;
-		
+		virtual bool OnEvent(Event *_pEvent) = 0;
+
 	private:
 	};
-}
+} // namespace Plop

@@ -54,11 +54,11 @@ namespace Plop
 		EventDispatcher::UnregisterListener(this);
 	}
 
-	bool LevelBase::OnEvent(Event &_event)
+	bool LevelBase::OnEvent(Event *_pEvent)
 	{
-		if (_event.GetEventType() == EventType::PrefabInstantiatedEvent)
+		if (_pEvent->GetEventType() == EventType::PrefabInstantiatedEvent)
 		{
-			PrefabInstantiatedEvent &entityEvent = (PrefabInstantiatedEvent &)_event;
+			PrefabInstantiatedEvent &entityEvent = *(PrefabInstantiatedEvent *)_pEvent;
 
 			GUID *pGUIDLevel = m_ENTTRegistry.try_ctx<GUID>();
 			ASSERTM(pGUIDLevel, "No GUID for this level");
@@ -118,10 +118,10 @@ namespace Plop
 		CameraPtr xCurrentCamera = nullptr;
 		glm::mat4 mViewMatrix = glm::identity<glm::mat4>();
 
-		auto& view = m_ENTTRegistry.view<Component_Camera, Component_Transform>();
+		auto view = m_ENTTRegistry.view<Component_Camera, Component_Transform>();
 		for (auto entity : view)
 		{
-			auto& [camera, transform] = view.get<Component_Camera, Component_Transform>( entity );
+			auto [camera, transform] = view.get<Component_Camera, Component_Transform>(entity);
 			xCurrentCamera = camera.xCamera;
 			mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 		}
@@ -164,7 +164,7 @@ namespace Plop
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
-		EventDispatcher::SendEvent( EntityCreatedEvent( e ) );
+		EventDispatcher::SendEvent(EntityCreatedEvent(e));
 
 		return e;
 	}
@@ -279,8 +279,8 @@ namespace Plop
 
 		srcReg.visit( [&srcReg, &destReg]( auto _comp )
 		{
-			auto& type = entt::resolve_type( _comp );
-			auto& f = type.func( "cloneAllComponents"_hs );
+			auto type = entt::resolve_type( _comp );
+			auto f = type.func( "cloneAllComponents"_hs );
 			f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
 		} );
 	}
@@ -355,7 +355,7 @@ namespace Plop
 
 		using tuple_t = std::tuple<SpritePtr, glm::mat4, entt::id_type>;
 		std::vector<tuple_t> vecSpriteMat;
-		auto& group = m_ENTTRegistry.group<Component_GraphNode, Component_Transform, Component_SpriteRenderer>();
+		auto group = m_ENTTRegistry.group<Component_GraphNode, Component_Transform, Component_SpriteRenderer>();
 		for (auto entityID : group)
 		{
 			Component_GraphNode& graphComp = group.get<Component_GraphNode>(entityID);
@@ -395,7 +395,7 @@ namespace Plop
 	{
 		PROFILING_FUNCTION();
 
-		auto& view = m_ENTTRegistry.view<Component_ParticleSystem>();
+		auto view = m_ENTTRegistry.view<Component_ParticleSystem>();
 		for (auto [entityID, particleSystem] : view.proxy())
 		{
 			particleSystem.Update( _ts );

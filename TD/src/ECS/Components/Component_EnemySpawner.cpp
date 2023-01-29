@@ -122,7 +122,7 @@ void EnemySpawnerSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_re
 {
 	PROFILING_FUNCTION();
 
-	auto &viewEnemySpawner = _registry.view<Component_EnemySpawner>();
+	auto viewEnemySpawner = _registry.view<Component_EnemySpawner>();
 	viewEnemySpawner.each([&_ts, &_registry](const entt::entity entity, Component_EnemySpawner &spawner) {
 		if (spawner.fTimer >= 0 && spawner.iNbEnemySpawned < spawner.wave.nbEnemies)
 		{

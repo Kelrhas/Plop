@@ -48,7 +48,7 @@ namespace Plop
 				{
 					if (!HasComponent(_reg, _e, key))
 					{
-						ImGui::PushID(key);
+						ImGui::PushID((int)key);
 						if (ImGui::Selectable(value.pName))
 							value.funcAdd(_reg, _e);
 						ImGui::PopID();

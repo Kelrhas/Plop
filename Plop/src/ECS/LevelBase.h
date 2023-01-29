@@ -33,7 +33,7 @@ namespace Plop
 
 		virtual void Init();
 		virtual void Shutdown();
-		virtual bool OnEvent(Event &_event) override;
+		virtual bool OnEvent(Event *_pEvent) override;
 
 		virtual void StartFromEditor();
 		virtual void StopToEditor();

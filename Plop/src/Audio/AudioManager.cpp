@@ -124,7 +124,7 @@ namespace Plop
 
 	void AudioManager::DrawEditorPanel( bool* _bOpen )
 	{
-		static constexpr char* TEST_SOUND_PATH = "../data/audio/test.wav";
+		static constexpr const char* TEST_SOUND_PATH = "../data/audio/test.wav";
 
 		if (ImGui::Begin( "Audio manager", _bOpen ))
 		{
@@ -149,7 +149,7 @@ namespace Plop
 			if (ImGui::Button( "Test sound on all emitters" ))
 			{
 				auto& reg = Application::GetCurrentLevel().lock()->GetEntityRegistry();
-				auto& view = reg.view<Component_AudioEmitter>();
+				auto view = reg.view<Component_AudioEmitter>();
 				view.each( [&]( Component_AudioEmitter& emitter) {
 
 					SoundHandle hSnd = AssetLoader::GetSound(TEST_SOUND_PATH);

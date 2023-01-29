@@ -31,16 +31,18 @@
 	- ~~add PrefabInstance (store GUID) component to track from what prefab it comes from~~
 	- ~~only serialise difference between prefab and instance~~
 	- update prefab from instance
-	- prefab edition
+	- prefab edition ?
 	- prevent adding children to a prefab instance
 	- prevent referencing prefab children in any component
 	- focus the entity that we just instantiated
+	- add PrefabInstance to the source entity when creating a prefab
 - VFX
 	- GPU side for long term
 	- add more shape like cone and mesh (maybe also hexagon to match TD grid)
 	- auto augment pool size up to a fixed point
 	- remove spawners/updaters from possible list if already created
 	- auto kill for burst effect
+	- take entity rotation into account for spawning particles
 - add a virtual file system to load from different mount points (to load from the Editor/Engine/Game folder)
 - fix picking (enttID that change version have a big int value, that may be rounded when converting to float)
 - fix closing app

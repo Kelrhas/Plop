@@ -7,142 +7,103 @@
 namespace Plop
 {
 
-#define MACRO_DETECTOR_DEFAULT(FuncName) \
-	template <class, class = void>\
-	struct Has##FuncName : std::false_type {};
-
-#define MACRO_DETECTOR_DEFAULT_ARG1(FuncName) \
-	template <class, class, class = void>\
-	struct Has##FuncName : std::false_type {};
-
-#define MACRO_DETECTOR_DEFAULT_RETURN MACRO_DETECTOR_DEFAULT_ARG1
-
-#define MACRO_DETECTOR_OVERRIDE(FuncName)\
-	template <class Comp>\
-	struct Has##FuncName<Comp, std::void_t<decltype(&Comp::FuncName)>> : std::is_same<void, decltype(std::declval<Comp>().FuncName())> {};
-
-#define MACRO_DETECTOR_OVERRIDE_ARG1(FuncName, ArgType1)\
-	template <class Comp, class ArgType1>\
-	struct Has##FuncName<Comp, ArgType1, std::void_t<decltype(&Comp::FuncName)>> : std::is_same<void, decltype(std::declval<Comp>().FuncName(std::declval<ArgType1>()))> {};
-
-
-#define MACRO_DETECTOR_OVERRIDE_RETURN(FuncName, ReturnType)\
-	template <class Comp, class ReturnType>\
-	struct Has##FuncName<Comp, ReturnType, std::void_t<decltype(&Comp::FuncName)>> : std::is_same<ReturnType, decltype(std::declval<Comp>().FuncName())> {};
-
-
-
-#define MACRO_AMBIGUOUS_DEFAULT(FuncName) \
-	template<class Comp, class ... Args>\
-	constexpr static void AmbiguousCallComponent##FuncName( Args&&... ) {}
-
-	// TODO add a check for is_trivially_constructible to provide a base case
-#define MACRO_AMBIGUOUS_DEFAULT_RETURN(FuncName, ReturnType) \
-	template<class Comp, class ReturnType, class ... Args>\
-	constexpr static ReturnType AmbiguousCallComponent##FuncName( Args&&... ) { static_assert(false, "Please provide your own fallback function"); }
-
-#define MACRO_CALL_AMBIGUOUS(FuncName) \
-	template<class Comp, class ... Args>\
-	constexpr static void CallComponent##FuncName( Args&&...args )\
-	{\
-		AmbiguousCallComponent##FuncName<Comp>( std::forward<Args>( args )... );\
-	}
-
-#define MACRO_CALL_AMBIGUOUS_RETURN(FuncName, ReturnType) \
-	template<class Comp, class ReturnType, class ... Args>\
-	constexpr static ReturnType CallComponent##FuncName( Args&&...args )\
-	{\
-		return AmbiguousCallComponent##FuncName<Comp, ReturnType>( std::forward<Args>( args )... );\
-	}
-
-
-#define MACRO_ALL_DEFAULT(FuncName) \
-	MACRO_DETECTOR_DEFAULT( FuncName ) \
-	MACRO_DETECTOR_OVERRIDE( FuncName ) \
-	MACRO_AMBIGUOUS_DEFAULT( FuncName )\
-	MACRO_CALL_AMBIGUOUS( FuncName )
-
-#define MACRO_ALL_DEFAULT_ARG1(FuncName, ArgType1) \
-	MACRO_DETECTOR_DEFAULT_ARG1( FuncName ) \
-	MACRO_DETECTOR_OVERRIDE_ARG1( FuncName, ArgType1 ) \
-	MACRO_AMBIGUOUS_DEFAULT( FuncName )\
-	MACRO_CALL_AMBIGUOUS( FuncName )
-
-
-#define MACRO_ALL_DEFAULT_RETURN(FuncName, ReturnType) \
-	MACRO_DETECTOR_DEFAULT_RETURN( FuncName ) \
-	MACRO_DETECTOR_OVERRIDE_RETURN( FuncName, ReturnType ) \
-	MACRO_AMBIGUOUS_DEFAULT_RETURN( FuncName, ReturnType )\
-	MACRO_CALL_AMBIGUOUS_RETURN( FuncName, ReturnType )
-
-
 	//////////////////////////////////////////////////////////////////////////
 	// EditorUI
 	//////////////////////////////////////////////////////////////////////////
 
-	MACRO_ALL_DEFAULT( EditorUI )
+	template<typename Comp>
+	concept EditorUICallable = requires (Comp c) { c.EditorUI(); };
 
-	template<class Comp, class RegistryType, class EntityType, std::enable_if_t<HasEditorUI<Comp>::value, bool> = true>
-	constexpr static void AmbiguousCallComponentEditorUI( RegistryType& registry, EntityType _entity )
+	template<class Comp>
+	constexpr static void AmbiguousCallComponentEditorUI( entt::registry& registry, entt::entity _entity ) {}
+
+	template<class Comp> requires EditorUICallable<Comp>
+	constexpr static void AmbiguousCallComponentEditorUI( entt::registry& registry, entt::entity _entity )
 	{
 		ASSERTM( registry.has<Comp>( _entity ), "The entity does not have this component" );
 		Comp& comp = registry.get<Comp>( _entity );
 		comp.EditorUI();
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// FromJson
-	//////////////////////////////////////////////////////////////////////////
 	
-	MACRO_ALL_DEFAULT_ARG1( FromJson, Json )
-
-	template<class Comp, class RegistryType, class EntityType, class JsonType, std::enable_if_t<HasFromJson<Comp, JsonType>::value, bool> = true>
-	constexpr static void AmbiguousCallComponentFromJson( RegistryType& registry, EntityType _entity, const JsonType& _json )
+	template<typename Comp>
+	constexpr static void CallComponentEditorUI(entt::registry& _registry, entt::entity _entity)
 	{
-		Comp& comp = registry.get_or_emplace<Comp>( _entity );
-		comp.FromJson(_json);
+		AmbiguousCallComponentEditorUI<Comp>(_registry, _entity);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FromJson
+	// AfterLoad
 	//////////////////////////////////////////////////////////////////////////
 	
-	MACRO_ALL_DEFAULT(AfterLoad)
+	template<typename Comp>
+	concept AfterLoadCallable = requires (Comp c) { c.AfterLoad(); };
+							
+	template<typename Comp>
+	constexpr static void AmbiguousCallComponentAfterLoad( entt::registry&, entt::entity) {}
 
-	template<class Comp, class RegistryType, class EntityType, std::enable_if_t<HasAfterLoad<Comp>::value, bool> = true>
-	constexpr static void AmbiguousCallComponentAfterLoad(RegistryType &registry, EntityType _entity)
+	template<typename Comp> requires AfterLoadCallable<Comp>
+	constexpr static void AmbiguousCallComponentAfterLoad( entt::registry& _registry, entt::entity _entity)
 	{
-		ASSERTM(registry.has<Comp>(_entity), "The entity does not have this component");
-		Comp &comp = registry.get<Comp>(_entity);
+		ASSERTM(_registry.has<Comp>(_entity), "The entity does not have this component");
+		Comp &comp = _registry.get<Comp>(_entity);
 		comp.AfterLoad();
 	}
+	
+	template<typename Comp>
+	constexpr static void CallComponentAfterLoad(entt::registry& _registry, entt::entity _entity)
+	{
+		AmbiguousCallComponentAfterLoad<Comp>(_registry, _entity);
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// FromJson
+	//////////////////////////////////////////////////////////////////////////
+	
+	template<typename Comp, typename JsonType>
+	concept FromJsonCallable = requires (Comp c, const JsonType &j) { c.FromJson(j); };
+							
+	template<typename Comp, typename JsonType>
+	constexpr static void AmbiguousCallComponentFromJson( entt::registry&, entt::entity, const JsonType&) {}
+
+	template<typename Comp, typename JsonType> requires FromJsonCallable<Comp, JsonType>
+	constexpr static void AmbiguousCallComponentFromJson( entt::registry& _registry, entt::entity _entity, const JsonType& _json )
+	{
+		Comp& comp = _registry.get_or_emplace<Comp>( _entity );
+		comp.FromJson(_json);
+	}
+	
+	template<typename Comp, typename JsonType>
+	constexpr static void CallComponentFromJson(entt::registry& _registry, entt::entity _entity, const JsonType& _json)
+	{
+		AmbiguousCallComponentFromJson<Comp>(_registry, _entity, _json);
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ToJson
 	//////////////////////////////////////////////////////////////////////////
+	
+	template<typename Comp, typename JsonType>
+	concept ToJsonCallable = requires (Comp c) { { c.ToJson() } -> std::same_as<JsonType>; };
 
-	MACRO_DETECTOR_DEFAULT_RETURN( ToJson ) 
-	MACRO_DETECTOR_OVERRIDE_RETURN( ToJson, Json )
-	MACRO_CALL_AMBIGUOUS_RETURN( ToJson, Json )
+	template<typename Comp, typename JsonType>
+	constexpr static JsonType AmbiguousCallComponentToJson(const entt::registry&, entt::entity) { return JsonType{}; }
 
-	template<class Comp, class JsonType, class ... Args>
-	constexpr static JsonType AmbiguousCallComponentToJson( Args&&... )
+	template<typename Comp, typename JsonType> requires ToJsonCallable<Comp, JsonType>
+	constexpr static JsonType AmbiguousCallComponentToJson(const entt::registry& _registry, entt::entity _entity)
 	{
-		return JsonType{};
-	}
-
-	template<class Comp, class JsonType, class RegistryType, class EntityType, std::enable_if_t<HasToJson<Comp, JsonType>::value, bool> = true>
-	constexpr static JsonType AmbiguousCallComponentToJson( RegistryType& registry, EntityType _entity)
-	{
-		ASSERTM( registry.has<Comp>( _entity ), "The entity does not have this component" );
-		const Comp& comp = registry.get<Comp>( _entity );
+		ASSERTM( _registry.has<Comp>( _entity ), "The entity does not have this component" );
+		const Comp& comp = _registry.get<Comp>( _entity );
 		return comp.ToJson();
 	}
-
+	
+	template<typename Comp, typename JsonType>
+	constexpr static JsonType CallComponentToJson(const entt::registry& _registry, entt::entity _entity)
+	{
+		return AmbiguousCallComponentToJson<Comp, JsonType>(_registry, _entity);
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -244,7 +205,7 @@ namespace Plop
 	template <class Comp>
 	constexpr bool CanEditComponent()
 	{
-		return HasEditorUI<Comp>();
+		return EditorUICallable<Comp>;
 	}
 
 	//////////////////////////////////////////////////////////////////////////

@@ -23,10 +23,10 @@ namespace Plop
 	public:
 		struct ComponentInfo
 		{
-			using Callback = std::function<void( Registry&, EntityType )>;
-			using CallbackDuplicate = std::function<void( const Registry&, EntityType, Registry&, EntityType )>;
-			using CallbackFromJson = std::function<void( Registry&, EntityType, const Json& )>;
-			using CallbackToJson = std::function<Json( const Registry&, EntityType )>;
+			using Callback = std::function<void(Registry&, EntityType)>;
+			using CallbackDuplicate = std::function<void(const Registry&, EntityType, Registry&, EntityType)>;
+			using CallbackFromJson = std::function<void(Registry&, EntityType, const Json&)>;
+			using CallbackToJson = std::function<Json(const Registry&, EntityType)>;
 
 
 			const char* pName = nullptr;
@@ -100,15 +100,15 @@ namespace Plop
 		ComponentInfo info;
 		info.pName = _pName;
 		info.funcCanEdit = CanEditComponent<Comp>;
-		info.funcEditorUI = CallComponentEditorUI<Comp, Registry&, EntityType>;
+		info.funcEditorUI = CallComponentEditorUI<Comp>;
 		info.funcCanAdd = CanAddComponent<Comp>;
 		info.funcCanRemove = CanRemoveComponent<Comp>;
 		info.funcAdd = AddComponent<Comp, Registry&, EntityType>;
 		info.funcRemove = RemoveComponent<Comp, Registry&, EntityType>;
 		info.funcDuplicate = CallDuplicateComponent<Comp, Registry, EntityType>;
-		info.funcFromJson = CallComponentFromJson<Comp, Registry&, EntityType, const Json&>;
-		info.funcToJson = CallComponentToJson<Comp, Json, const Registry&, EntityType>;
-		info.funcAfterLoad = CallComponentAfterLoad<Comp, Registry &, EntityType>;
+		info.funcFromJson = CallComponentFromJson<Comp, Json>;
+		info.funcToJson = CallComponentToJson<Comp, Json>;
+		info.funcAfterLoad = CallComponentAfterLoad<Comp>;
 
 
 		s_mapComponents.insert_or_assign( id, info );

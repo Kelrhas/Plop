@@ -8,7 +8,7 @@
 
 namespace Plop
 {
-	float TimeStep::s_fGameScale = 1.f;
+	std::stack<float> TimeStep::m_stackGameScales;
 
 	namespace Private
 	{
@@ -28,11 +28,16 @@ namespace Plop
 
 	TimeStep::TimeStep()
 	{
+		m_pPlatformData = new Private::Data;
 #ifdef PLATFORM_WINDOWS
-		m_pData = new Private::Data();
-		QueryPerformanceFrequency(&Private::GetData(m_pData)->m_clockFrequency);
-		QueryPerformanceCounter(&Private::GetData(m_pData)->m_lastCounter);
+		QueryPerformanceFrequency(&Private::GetData(m_pPlatformData)->m_clockFrequency);
+		QueryPerformanceCounter(&Private::GetData(m_pPlatformData)->m_lastCounter);
 #endif
+	}
+
+	TimeStep::~TimeStep()
+	{
+		delete m_pPlatformData;
 	}
 
 	void TimeStep::Advance()
@@ -40,13 +45,29 @@ namespace Plop
 #ifdef PLATFORM_WINDOWS
 		LARGE_INTEGER counter;
 		QueryPerformanceCounter(&counter);
-		int64_t counterElapsed = counter.QuadPart - Private::GetData(m_pData)->m_lastCounter.QuadPart;
-		double dClockFrequency = (double)Private::GetData(m_pData)->m_clockFrequency.QuadPart;
+		int64_t counterElapsed = counter.QuadPart - Private::GetData(m_pPlatformData)->m_lastCounter.QuadPart;
+		double dClockFrequency = (double)Private::GetData(m_pPlatformData)->m_clockFrequency.QuadPart;
 		double dTimeElapsed = (double)counterElapsed / dClockFrequency;
-		m_fTime = (float)dTimeElapsed;
-		Private::GetData(m_pData)->m_lastCounter = counter;
+		m_fDeltaTime = (float)dTimeElapsed;
+		Private::GetData(m_pPlatformData)->m_lastCounter = counter;
 #else
 #error Platform not supported
 #endif
+
+		s_uFrameCount++;
+		m_fTotalGameTime += m_fDeltaTime * GetGameScale();
+		m_fTotalTime += m_fDeltaTime;
+	}
+
+	
+	void TimeStep::PushGameScale(float _fScale)
+	{
+		m_stackGameScales.push(_fScale);
+	}
+
+	void TimeStep::PopGameScale()
+	{
+		if (m_stackGameScales.size() >= 2) // keep at least one value
+			m_stackGameScales.pop();
 	}
 }

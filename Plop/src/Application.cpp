@@ -186,7 +186,8 @@ namespace Plop
 
 		Renderer::Init();
 
-		m_timeStep.Advance();
+		TimeStep::PushGameScale(1.f);
+		//m_timeStep.Advance();
 		RegisterAppLayer( &m_ImGuiLayer );
 		if constexpr (USE_EDITOR)
 		{

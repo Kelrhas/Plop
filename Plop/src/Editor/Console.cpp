@@ -46,12 +46,15 @@ namespace Plop
 		} );
 		RegisterCommand( "Close", []( const String& _args ) { Application::Get()->Close(); } );
 		RegisterCommand( "Exit", []( const String& _args ) { Application::Get()->Close(); } );
-		RegisterCommand( "TimeScale", []( const String& _args ) {
+		RegisterCommand( "TimeScalePush", []( const String& _args ) {
 
 			float fScale = 1.f;
 			fScale = (float)atof( _args.c_str() );
 
-			Application::GetTimeStep().SetGameScale( fScale );
+			TimeStep::PushGameScale( fScale );
+		});
+		RegisterCommand( "TimeScalePop", []( const String& _args ) {
+			TimeStep::PopGameScale();
 		});
 		RegisterCommand("SceneGraph", [](const String &_args) { Application::Get()->ToggleSceneGraph(); });
 	}

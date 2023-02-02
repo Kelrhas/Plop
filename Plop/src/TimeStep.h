@@ -1,26 +1,33 @@
 #pragma once
 
+#include <stack>
+
 namespace Plop
 {
-	class TimeStep
+	class TimeStep final
 	{
 	public:
 		TimeStep();
+		~TimeStep();
 
-		void Advance(); // platform dependent
+		void Advance();
 
-		void SetGameScale( float _fScale = 1.f ) { s_fGameScale = _fScale; }
-		void ResetGameScale() { s_fGameScale = 1.f; }
+		inline float GetSystemDeltaTime() const { return m_fDeltaTime; }
+		inline float GetGameDeltaTime() const { return m_fDeltaTime * GetGameScale(); }
 
 
-		inline float GetSystemDeltaTime() const { return m_fTime; }
-		inline float GetGameDeltaTime() const { return m_fTime * s_fGameScale; }
+		static float GetGameScale() { return m_stackGameScales.top(); }
+		static void	 PushGameScale(float _fScale);
+		static void	 PopGameScale();
 
 	private:
-				float m_fTime = 0.f;
+		float m_fDeltaTime	= 0.f;
+		float m_fTotalGameTime	= 0.f;
+		float m_fTotalTime	= 0.f;
+		U32	  s_uFrameCount = 0;
 
-		static	float s_fGameScale;
+		void *m_pPlatformData = nullptr;
 
-		void* m_pData = nullptr;
+		static std::stack<float> m_stackGameScales;
 	};
-}
+} // namespace Plop

@@ -1234,15 +1234,20 @@ namespace Plop
 	void EditorLayer::PauseLevel()
 	{
 		m_eLevelState = LevelState::PAUSED;
+		TimeStep::PushGameScale(0.f);
 	}
 
 	void EditorLayer::ResumeLevel()
 	{
 		m_eLevelState = LevelState::RUNNING;
+		TimeStep::PopGameScale();
 	}
 
 	void EditorLayer::StopLevel()
 	{
+		if (m_eLevelState == LevelState::PAUSED)
+			TimeStep::PopGameScale();
+
 		m_eLevelState = LevelState::STOPPING;
 		// reset the selected entity if it was selected from the playing level
 		if (!IsSelectedEntityForLevel(m_xEditingLevel))

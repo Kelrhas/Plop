@@ -40,6 +40,8 @@ namespace Plop
 
 				bool			IsEditing() const { return m_eLevelState == LevelState::EDITING; }
 				bool			IsUsingEditorLevel() const { return m_eLevelState == LevelState::EDITING; }
+				bool			IsPlaying() const { return m_eLevelState == LevelState::RUNNING || m_eLevelState == LevelState::PAUSED; }
+				bool			IsPlayPaused() const { return m_eLevelState == LevelState::PAUSED; }
 
 		static	json			GetJsonEntity( const Entity& _entity );
 		static	void			SetJsonEntity( const Entity& _entity, const json& _j );

@@ -137,13 +137,13 @@ namespace Plop::Particle
 	struct UpdatePositionFromSpeed final : public Component_ParticleSystem::ParticleUpdater
 	{
 		UpdatePositionFromSpeed( float _fAttenuation = 0.1f ) : fAttenuation( std::clamp( _fAttenuation, 0.f, 1.f ) ) {}
-		virtual void Update( ParticleData* _pParticle, const TimeStep& _ts ) override;
+		virtual void 										 Update( ParticleData* _pParticle, float _fDeltaTime ) override;
 		virtual Component_ParticleSystem::ParticleUpdaterPtr Clone() const override;
-		static const char* const StaticName() { return "Position from speed"; }
-		virtual const char* const Name() override { return StaticName(); }
-		virtual void Editor(Entity _owner, const Component_ParticleSystem &_system) override;
-		virtual json to_json() override;
-		virtual void from_json( const json& )override;
+		static const char* const 							 StaticName() { return "Position from speed"; }
+		virtual const char* const 							 Name() override { return StaticName(); }
+		virtual void 										 Editor(Entity _owner, const Component_ParticleSystem &_system) override;
+		virtual json 										 to_json() override;
+		virtual void 										 from_json( const json& )override;
 
 		float fAttenuation;
 	};
@@ -152,7 +152,7 @@ namespace Plop::Particle
 	struct UpdateColorFromLifetime final : public Component_ParticleSystem::ParticleUpdater
 	{
 		UpdateColorFromLifetime() {}
-		virtual void										 Update(ParticleData *_pParticle, const TimeStep &_ts) override;
+		virtual void										 Update(ParticleData *_pParticle, float _fDeltaTime) override;
 		virtual Component_ParticleSystem::ParticleUpdaterPtr Clone() const override;
 		static const char *const							 StaticName() { return "Color from lifetime"; }
 		virtual const char *const							 Name() override { return StaticName(); }

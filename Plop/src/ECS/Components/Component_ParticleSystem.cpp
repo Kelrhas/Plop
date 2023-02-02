@@ -204,7 +204,7 @@ namespace Plop
 
 				for (auto& updater : m_vecUpdaters)
 				{
-					updater->Update( &p, _ts );
+					updater->Update( &p, fDT );
 				}
 
 				// TODO: use a proper shader with one draw call, possibly point primitives etc.

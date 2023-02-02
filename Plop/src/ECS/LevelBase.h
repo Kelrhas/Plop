@@ -37,7 +37,7 @@ namespace Plop
 
 		virtual void StartFromEditor();
 		virtual void StopToEditor();
-		virtual	void UpdateInEditor( TimeStep _ts );
+		virtual	void UpdateInEditor( const TimeStep &_ts );
 
 		virtual void OnStart();
 				bool BeforeUpdate();			// prepare the rendering, returns if rendering can proceed

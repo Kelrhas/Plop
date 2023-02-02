@@ -106,9 +106,11 @@ namespace Plop
 		OnStop();
 	}
 
-	void LevelBase::UpdateInEditor( TimeStep _ts )
+	void LevelBase::UpdateInEditor( const TimeStep &_ts )
 	{
 		DrawSprites();
+		if (!Application::Get()->GetEditor().IsEditing())
+			DrawParticles(_ts);
 	}
 
 	void LevelBase::OnStart() {}

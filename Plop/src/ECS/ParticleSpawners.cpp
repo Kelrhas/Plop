@@ -332,11 +332,10 @@ namespace Plop::Particle
 #pragma region Updaters
 
 	/* UpdatePositionFromSpeed */
-	void UpdatePositionFromSpeed::Update( ParticleData* _pParticle, const TimeStep& _ts )
+	void UpdatePositionFromSpeed::Update( ParticleData* _pParticle, float _fDeltaTime)
 	{
-		float dt = _ts.GetGameDeltaTime();
-		_pParticle->vPosition += _pParticle->vSpeed * dt;
-		_pParticle->vSpeed *= 1.f - (fAttenuation * dt);
+		_pParticle->vPosition += _pParticle->vSpeed * _fDeltaTime;
+		_pParticle->vSpeed *= 1.f - (fAttenuation * _fDeltaTime);
 	}
 
 	Component_ParticleSystem::ParticleUpdaterPtr UpdatePositionFromSpeed::Clone() const
@@ -366,9 +365,8 @@ namespace Plop::Particle
 	
 
 	/* UpdateColorFromLifetime */
-	void UpdateColorFromLifetime::Update(ParticleData *_pParticle, const TimeStep &_ts)
+	void UpdateColorFromLifetime::Update(ParticleData *_pParticle, float _fDeltaTime)
 	{
-		float dt = _ts.GetGameDeltaTime();
 		_pParticle->vColor = glm::lerp(vColorStart, vColorEnd, _pParticle->fLifeRatio);
 	}
 

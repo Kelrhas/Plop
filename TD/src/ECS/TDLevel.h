@@ -25,7 +25,7 @@ public:
 	virtual void				OnStart() override;
 	virtual void				Update(Plop::TimeStep& _ts) override;
 	virtual void				OnStop() override;
-	virtual void				UpdateInEditor(Plop::TimeStep _ts) override;
+	virtual void				UpdateInEditor(const Plop::TimeStep &_ts) override;
 
 	//		void				LoadFromString( const char* _pLevel, uint32_t _uWidth, uint32_t _uHeight );
 

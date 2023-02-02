@@ -178,7 +178,7 @@ void TDLevel::OnStop()
 	PlayerBaseSystem::OnStop(m_ENTTRegistry);
 }
 
-void TDLevel::UpdateInEditor(Plop::TimeStep _ts)
+void TDLevel::UpdateInEditor(const Plop::TimeStep &_ts)
 {
 	Plop::LevelBase::UpdateInEditor(_ts);
 

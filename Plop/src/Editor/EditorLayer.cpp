@@ -54,15 +54,9 @@ namespace Plop
 		};
 	}
 
-#ifndef USE_COMPONENT_MGR
-	::MM::EntityEditor<entt::entity>* EditorLayer::s_pENTTEditor = nullptr;
-#endif
 
 	EditorLayer::EditorLayer()
 	{
-#ifndef USE_COMPONENT_MGR
-		s_pENTTEditor = NEW ::MM::EntityEditor<entt::entity>;
-#endif
 		m_xEditorCamera = std::make_shared<EditorCamera>();
 
 
@@ -181,9 +175,6 @@ namespace Plop
 
 	EditorLayer::~EditorLayer()
 	{
-#ifndef USE_COMPONENT_MGR
-		delete s_pENTTEditor;
-#endif
 	}
 
 	void EditorLayer::OnRegistered()
@@ -380,10 +371,6 @@ namespace Plop
 				{
 					LevelBasePtr xLevel = xCurrentLevel.lock();
 					bool bValidEntity = IsSelectedEntityForLevel(xLevel);
-#ifndef USE_COMPONENT_MGR
-					if (bValidEntity && !s_pENTTEditor->render( xLevel->m_ENTTRegistry, m_SelectedEntity.m_EntityId ))
-						m_SelectedEntity = {};
-#endif
 
 					// TODO set docking to right
 					ImGui::SetNextWindowSizeConstraints( ImVec2( 450, 600 ), ImVec2( -1, -1 ) );
@@ -495,16 +482,6 @@ namespace Plop
 #else
 		entt::entity entityID = _entity.m_EntityId;
 		entt::registry& reg = _entity.m_xLevel.lock()->m_ENTTRegistry;
-#endif
-
-#ifndef USE_COMPONENT_MGR
-		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
-		{
-			if (s_pENTTEditor->entityHasComponent( reg, entityID, component_type_id ))
-			{
-				j[ci.name] = ci.tojson( reg, entityID );
-			}
-		}
 #endif
 
 		return j;
@@ -1297,17 +1274,10 @@ namespace Plop
 		entt::registry& reg = xLevel->m_ENTTRegistry;
 
 
-#ifdef USE_COMPONENT_MGR
 #ifdef USE_ENTITY_HANDLE
 		ComponentManager::DuplicateComponent( reg, _entity.m_hEntity.entity(), dupEntity.m_hEntity.entity() );
 #else
 		ComponentManager::DuplicateComponent( reg, _entity.m_EntityId, dupEntity.m_EntityId );
-#endif
-#else
-		for (auto& [component_type_id, ci] : s_pENTTEditor->component_infos)
-		{
-			ci.duplicate( reg, _entity, dupEntity );
-		}
 #endif
 
 		_entity.ChildVisitor( [&dupEntity](Entity _child ) {

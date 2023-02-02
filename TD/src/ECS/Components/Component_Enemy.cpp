@@ -85,32 +85,3 @@ namespace EnemySystem
 		});
 	}
 }; // namespace EnemySystem
-
-#ifndef USE_COMPONENT_MGR
-namespace MM
-{
-	template<>
-	void ComponentEditorWidget<Component_Enemy>(entt::registry &reg, entt::registry::entity_type e)
-	{
-		auto &comp = reg.get<Component_Enemy>(e);
-		ImGui::DragFloat("Life", &comp.fLife, 0.1f, 1.f);
-	}
-
-	template<>
-	json ComponentToJson<Component_Enemy>(entt::registry &reg, entt::registry::entity_type e)
-	{
-		auto &comp = reg.get<Component_Enemy>(e);
-		json  j;
-		j["Life"] = comp.fLife;
-		return j;
-	}
-
-	template<>
-	void ComponentFromJson<Component_Enemy>(entt::registry &reg, entt::registry::entity_type e, const json &_j)
-	{
-		auto &comp = reg.get_or_emplace<Component_Enemy>(e);
-		if (_j.contains("Life"))
-			comp.fLife = _j["Life"];
-	}
-} // namespace MM
-#endif

@@ -92,15 +92,6 @@ namespace Plop
 		template<typename Comp, bool RegisterEditor>
 				void		RegisterComponent( const char* _pName )
 		{
-
-#ifndef USE_COMPONENT_MGR
-			if constexpr (RegisterEditor == std::true_type::value)
-			{
-				if (s_pENTTEditor)
-					s_pENTTEditor->registerComponent<Comp>( _pName );
-			}
-#endif
-
 			auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
 			factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "cloneAllComponents"_hs );
 		}

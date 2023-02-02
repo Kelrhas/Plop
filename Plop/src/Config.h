@@ -10,7 +10,6 @@
 
 #define ENTT_ID_TYPE std::uint64_t
 
-#define USE_COMPONENT_MGR
 #define USE_ENTITY_HANDLE
 //#define USE_CONSTANT_RANDOM
 

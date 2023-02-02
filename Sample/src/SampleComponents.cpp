@@ -6,36 +6,24 @@
 
 #include "Utils/JsonTypes.h"
 
-#ifndef USE_COMPONENT_MGR
-namespace MM
+void Component_Rotating::EditorUI()
 {
-	template <>
-	void ComponentEditorWidget<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e )
-	{
-		auto& comp = reg.get<Component_Rotating>( e );
-		ImGui::DragFloat3( "Axis", glm::value_ptr( comp.vAxis ), 0.1f );
-		ImGui::DragFloat( "Speed", &comp.fSpeed, 0.1f, 0.01f );
-	}
-
-	template <>
-	json ComponentToJson<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e )
-	{
-		auto& comp = reg.get<Component_Rotating>( e );
-		json j;
-		j["Axis"] = comp.vAxis;
-		j["Speed"] = comp.fSpeed;
-		return j;
-	}
-
-	template<>
-	void ComponentFromJson<Component_Rotating>( entt::registry& reg, entt::registry::entity_type e, const json& _j )
-	{
-		auto& comp = reg.get_or_emplace<Component_Rotating>( e );
-		if (_j.contains( "Axis" ))
-			comp.vAxis = _j["Axis"];
-		if (_j.contains( "Speed" ))
-			comp.fSpeed = _j["Speed"];
-	}
-
+	ImGui::DragFloat3( "Axis", glm::value_ptr( vAxis ), 0.1f );
+	ImGui::DragFloat( "Speed", &fSpeed, 0.1f, 0.01f );
 }
-#endif
+
+void Component_Rotating::FromJson(const json& _j)
+{
+	if (_j.contains( "Axis" ))
+		vAxis = _j["Axis"];
+	if (_j.contains( "Speed" ))
+		fSpeed = _j["Speed"];
+}
+
+json Component_Rotating::ToJson()
+{
+	json j;
+	j["Axis"] = vAxis;
+	j["Speed"] = fSpeed;
+	return j;
+}

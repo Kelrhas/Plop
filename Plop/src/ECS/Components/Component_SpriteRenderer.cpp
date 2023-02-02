@@ -304,30 +304,3 @@ namespace Plop
 		}
 	}
 } // namespace Plop
-
-#ifndef USE_COMPONENT_MGR
-namespace MM
-{
-	template<>
-	void ComponentEditorWidget<Plop::Component_SpriteRenderer>(entt::registry &reg, entt::registry::entity_type e)
-	{
-		auto &comp = reg.get<Plop::Component_SpriteRenderer>(e);
-		comp.EditorUI();
-	}
-
-	template<>
-	json ComponentToJson<Plop::Component_SpriteRenderer>(entt::registry &reg, entt::registry::entity_type e)
-	{
-		auto &comp = reg.get<Plop::Component_SpriteRenderer>(e);
-		return comp.ToJson();
-	}
-
-	template<>
-	void ComponentFromJson<Plop::Component_SpriteRenderer>(entt::registry &reg, entt::registry::entity_type e, const json &_j)
-	{
-		auto &comp = reg.get_or_emplace<Plop::Component_SpriteRenderer>(e);
-		comp.FromJson(_j);
-	}
-
-} // namespace MM
-#endif

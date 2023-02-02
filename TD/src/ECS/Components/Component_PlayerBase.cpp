@@ -86,29 +86,3 @@ namespace PlayerBaseSystem
 
 	void OnStop(entt::registry &_registry) { pPlayerBaseComp = nullptr; }
 } // namespace PlayerBaseSystem
-
-#ifndef USE_COMPONENT_MGR
-namespace MM
-{
-	template<>
-	void ComponentEditorWidget<Component_PlayerBase>(entt::registry &reg, entt::registry::entity_type e)
-	{
-		auto &comp = reg.get<Component_PlayerBase>(e);
-		comp.EditorUI();
-	}
-
-	template<>
-	json ComponentToJson<Component_PlayerBase>(entt::registry &reg, entt::registry::entity_type e)
-	{
-		auto &comp = reg.get<Component_PlayerBase>(e);
-		return comp.ToJson();
-	}
-
-	template<>
-	void ComponentFromJson<Component_PlayerBase>(entt::registry &reg, entt::registry::entity_type e, const json &_j)
-	{
-		auto &comp = reg.get_or_emplace<Component_PlayerBase>(e);
-		comp.FromJson(_j);
-	}
-} // namespace MM
-#endif

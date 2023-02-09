@@ -39,7 +39,7 @@ void Component_Hexgrid::RegenerateGrid()
 	Plop::Entity	   owner  = Plop::GetComponentOwner(xLevel->GetEntityRegistry(), *this);
 
 	// @check destroying inside visitor ...
-	owner.ChildVisitor([&](Plop::Entity _child) {
+	owner.VisitChildren([&](Plop::Entity _child) {
 		xLevel->DestroyEntity(_child);
 		return VisitorFlow::CONTINUE;
 	});

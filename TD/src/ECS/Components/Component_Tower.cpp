@@ -95,7 +95,7 @@ namespace TowerSystem
 
 		// Instantiate a Bullet
 		glm::vec3 vSpawnPos(vTowerPos.xy, vTowerPos.z - 0.1f);
-		towerEntity.ChildVisitor([&vSpawnPos](Plop::Entity child) {
+		towerEntity.VisitChildren([&vSpawnPos](Plop::Entity child) {
 			if (child.GetComponent<Plop::Component_Name>().sName == "Nozzle")
 			{
 				vSpawnPos = child.GetComponent<Plop::Component_Transform>().GetWorldPosition();

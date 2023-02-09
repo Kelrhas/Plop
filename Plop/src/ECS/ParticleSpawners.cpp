@@ -292,11 +292,7 @@ namespace Plop::Particle
 	/* SpawnRadialSpeed */
 	void SpawnRadialSpeed::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
-#ifdef USE_ENTITY_HANDLE
 		auto owner = GetComponentOwner(Application::GetCurrentLevel().lock()->GetEntityRegistry(), _system);
-#else
-		auto owner = GetComponentOwner(Application::GetCurrentLevel().lock(), _system);
-#endif
 		glm::vec3 vCenter = owner ? owner.GetComponent<Component_Transform>().GetLocalPosition() : VEC3_0;
 
 		_pParticle->vSpeed = glm::normalize( _pParticle->vPosition - vCenter ) * fSpeed;

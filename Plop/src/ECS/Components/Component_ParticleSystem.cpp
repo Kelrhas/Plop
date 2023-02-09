@@ -143,12 +143,8 @@ namespace Plop
 		}
 
 		auto xLevel = Application::GetCurrentLevel().lock();
-#ifdef USE_ENTITY_HANDLE
-		auto owner = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
-#else
-		auto owner = GetComponentOwner(xLevel, *this);
-#endif
-		// we allow ParticleSystem to not 
+		auto owner	= GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		// we allow ParticleSystem to not
 		glm::vec3 vBasePosition = owner ? owner.GetComponent<Component_Transform>().GetWorldPosition() : VEC3_0;
 		while(m_iNbActiveParticles < m_iMaxNumberParticles && _iNbParticle > 0 )
 		{

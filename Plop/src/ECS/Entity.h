@@ -15,23 +15,13 @@ namespace Plop
 	{
 		friend class EditorLayer;
 
-#ifdef USE_ENTITY_HANDLE
 		entt::handle		m_hEntity;
-#else
-		entt::entity		m_EntityId{ entt::null };
-		LevelBaseWeakPtr	m_xLevel;
-#endif
 
 		//// CTORS
 	public:
 		Entity() = default;
-#ifdef USE_ENTITY_HANDLE
 		Entity(entt::handle _hEntity);
 		Entity(entt::entity _entityID, entt::registry& _reg);
-#else
-		Entity(entt::null_t);
-		Entity(entt::entity _entityID, const LevelBaseWeakPtr& _xLevel);
-#endif
 		Entity( const Entity& _other ) noexcept;
 		Entity( Entity&& _other ) noexcept;
 
@@ -44,12 +34,9 @@ namespace Plop
 		Entity& operator =( const Entity& _other );
 		bool operator ==( const Entity& _other );
 		bool operator !=(const Entity& _other);
-#ifdef USE_ENTITY_HANDLE
 		operator entt::entity() const { return m_hEntity.entity(); }
 		operator entt::handle() const { return m_hEntity; }
-#else
-		operator entt::entity() const { return m_EntityId; }
-#endif
+		entt::registry& GetRegistry() const { return m_hEntity.registry(); }
 		bool												IsFromLevel(GUID _guidLevel) const;
 
 		//// HIERARCHY

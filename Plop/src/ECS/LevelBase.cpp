@@ -153,16 +153,11 @@ namespace Plop
 
 	Entity LevelBase::CreateEntity( const String& _sName /*= "New Entity"*/ )
 	{
-		entt::entity entityID = m_ENTTRegistry.create();
-#ifdef USE_ENTITY_HANDLE
-		Entity e = { entityID, m_ENTTRegistry };
-#else
-		Entity e = { entityID, Application::GetCurrentLevel() };
-#endif
+		Entity e = { m_ENTTRegistry.create(), m_ENTTRegistry };
 
 		auto &nameComp = e.AddComponent<Component_Name>( _sName );
 		ASSERTM(m_mapGUIDToEntt.find(nameComp.guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", nameComp.guid);
-		m_mapGUIDToEntt[nameComp.guid] = entityID;
+		m_mapGUIDToEntt[nameComp.guid] = e;
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
@@ -173,16 +168,11 @@ namespace Plop
 
 	Entity LevelBase::CreateEntityWithGUID(GUID _guid)
 	{
-		entt::entity entityID = m_ENTTRegistry.create();
-#ifdef USE_ENTITY_HANDLE
-		Entity e = { entityID, m_ENTTRegistry };
-#else
-		Entity e = { entityID, Application::GetCurrentLevel() };
-#endif
+		Entity e = { m_ENTTRegistry.create(), m_ENTTRegistry };
 
 		e.AddComponent<Component_Name>(_guid);
 		ASSERTM(m_mapGUIDToEntt.find(_guid) == m_mapGUIDToEntt.end(), "There already is a mapping with this guid {}", _guid);
-		m_mapGUIDToEntt[_guid] = entityID;
+		m_mapGUIDToEntt[_guid] = e;
 		e.AddComponent<Component_GraphNode>();
 		e.AddComponent<Component_Transform>();
 
@@ -196,11 +186,7 @@ namespace Plop
 		auto it = m_mapGUIDToEntt.find(_guid);
 		if (it != m_mapGUIDToEntt.end())
 		{
-#ifdef USE_ENTITY_HANDLE
 			return Entity {it->second, m_ENTTRegistry};
-#else
-			return Entity {it->second, Application::GetCurrentLevel()};
-#endif
 		}
 
 		ASSERT(false);
@@ -299,11 +285,7 @@ namespace Plop
 
 		m_ENTTRegistry.each([&j, this] (entt::entity _entityID)
 		{
-#ifdef USE_ENTITY_HANDLE
 			Entity entity = { _entityID, m_ENTTRegistry };
-#else
-			Entity entity = { _entityID, Application::GetCurrentLevel() };
-#endif
 			if (!entity.HasFlag( EntityFlag::NO_SERIALISATION))
 			{
 				String &sName = entity.GetComponent<Component_Name>().sName;

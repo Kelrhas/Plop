@@ -91,11 +91,7 @@ namespace TowerSystem
 		vTowerRotation.z		 = fAngle;
 		transformTower.SetLocalRotation(glm::quat(vTowerRotation));
 
-#ifdef USE_ENTITY_HANDLE
 		Plop::Entity towerEntity(hEntityTower);
-#else
-		Plop::Entity towerEntity { hEntityTower.entity(), xLevel };
-#endif
 
 		// Instantiate a Bullet
 		glm::vec3 vSpawnPos(vTowerPos.xy, vTowerPos.z - 0.1f);

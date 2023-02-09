@@ -56,11 +56,7 @@ namespace EnemySystem
 		viewEnemy.each([fDeltaTime, &_registry](const entt::entity entity, Component_Enemy &enemy, Plop::Component_Transform &transform) {
 			if (enemy.IsDead())
 			{
-#ifdef USE_ENTITY_HANDLE
 				Plop::Entity e = { entity, _registry };
-#else
-				Plop::Entity e = { entity, Plop::Application::GetCurrentLevel() };
-#endif
 				Plop::Application::GetCurrentLevel().lock()->DestroyEntity(e);
 			}
 			else

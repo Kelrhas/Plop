@@ -25,11 +25,7 @@ Component_EnemySpawner::Component_EnemySpawner()
 void Component_EnemySpawner::EditorUI()
 {
 	Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
-#ifdef USE_ENTITY_HANDLE
 	Plop::Entity owner = Plop::GetComponentOwner(xLevel->GetEntityRegistry(), *this);
-#else
-	Plop::Entity owner = Plop::GetComponentOwner(xLevel, *this);
-#endif
 	const auto &vSpawnerPosition = owner.GetComponent<Plop::Component_Transform>().GetWorldPosition();
 
 	ImGui::Custom::InputPrefab("Enemy", wave.hEnemy);
@@ -136,11 +132,7 @@ void EnemySpawnerSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_re
 				// create an Enemy
 				// TODO: use a prefab
 				Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
-#ifdef USE_ENTITY_HANDLE
 				Plop::Entity owner { entity, _registry };
-#else
-				Plop::Entity owner { entity, xLevel };
-#endif
 
 				auto				 entityEnemy = Plop::PrefabManager::InstantiatePrefab(spawner.wave.hEnemy, _registry, owner);
 

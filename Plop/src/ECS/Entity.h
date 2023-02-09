@@ -49,8 +49,10 @@ namespace Plop
 		void												GetChildren(std::vector<Entity> &_outvecChildren) const;
 		size_t												GetChildrenCount() const;
 		
-		template<typename Visitor>
-		void												ChildVisitor(Visitor &&visitor) const;
+		template<typename Visitor> requires VisitorConcept<Visitor, Entity>
+		void												VisitChildren(Visitor &&visitor) const;
+		template<typename Visitor> requires VisitorConcept<Visitor, Entity>
+		void												VisitChildrenRecursive(Visitor &&visitor) const;
 
 	private:
 		void												AddChild( Entity _Child );

@@ -180,10 +180,10 @@ usage:
 
 					
 					// children, iterate over prefab, and match the instance from the mapping
-					_prefabEntity.ChildVisitor([&prefabInstanceComp, _instanceEntity, &func](Entity childPrefab) {
+					_prefabEntity.VisitChildren([&prefabInstanceComp, _instanceEntity, &func](Entity childPrefab) {
 						const GUID guidPrefab	= childPrefab.GetComponent<Component_Name>().guid;
 						const GUID guidInstance = prefabInstanceComp.mapping.at(guidPrefab);
-						_instanceEntity.ChildVisitor([&](Entity _childInstance) {
+						_instanceEntity.VisitChildren([&](Entity _childInstance) {
 							if (_childInstance.GetComponent<Component_Name>().guid == guidInstance)
 							{
 								func(childPrefab, _childInstance);
@@ -313,11 +313,11 @@ usage:
 					}
 
 					// children, iterate over prefab, and match the instance from the mapping
-					_prefabEntity.ChildVisitor([&prefabInstanceComp, _instanceEntity, &func](Entity childPrefab) {
+					_prefabEntity.VisitChildren([&prefabInstanceComp, _instanceEntity, &func](Entity childPrefab) {
 						const GUID guidPrefab	= childPrefab.GetComponent<Component_Name>().guid;
 						const GUID guidInstance = prefabInstanceComp.mapping.at(guidPrefab);
 
-						_instanceEntity.ChildVisitor([&](Entity _childInstance) {
+						_instanceEntity.VisitChildren([&](Entity _childInstance) {
 							if (_childInstance.GetComponent<Component_Name>().guid == guidInstance)
 							{
 								func(childPrefab, _childInstance);

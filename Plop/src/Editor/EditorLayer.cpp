@@ -926,7 +926,7 @@ namespace Plop
 					if (bHasChildren && bOpen)
 					{
 						ImGui::Indent();
-						_Entity.ChildVisitor([](Entity child) {
+						_Entity.VisitChildren([](Entity child) {
 							DrawEntity(child);
 							return VisitorFlow::CONTINUE;
 						});
@@ -1238,7 +1238,7 @@ namespace Plop
 
 		ComponentManager::DuplicateComponent( reg, _entity.m_hEntity.entity(), dupEntity.m_hEntity.entity() );
 
-		_entity.ChildVisitor( [&dupEntity](Entity _child ) {
+		_entity.VisitChildren( [&dupEntity](Entity _child ) {
 
 			Entity dupChild = DuplicateEntity( _child );
 			dupChild.SetParent(dupEntity);

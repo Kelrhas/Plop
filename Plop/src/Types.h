@@ -22,3 +22,6 @@ enum class VisitorFlow : uint8_t
 	BREAK
 };
 
+template<typename Visitor, typename ...Args>
+concept VisitorConcept = requires(Visitor v, Args...args) { {v(args...)} -> std::same_as<VisitorFlow>; };
+

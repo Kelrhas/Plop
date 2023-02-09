@@ -368,7 +368,7 @@ namespace Plop
 		}
 		else if (!PrefabManager::IsPartOfPrefab(*this))
 		{
-			ChildVisitor([&j](Entity _child) {
+			VisitChildren([&j](Entity _child) {
 				if (!_child.HasFlag(EntityFlag::NO_SERIALISATION))
 				{
 					GUID guid = _child.GetComponent<Component_Name>().guid;

@@ -3,8 +3,8 @@
 
 namespace Plop
 {
-	template<typename Visitor>
-	void Entity::ChildVisitor(Visitor &&visitor) const
+	template<typename Visitor> requires VisitorConcept<Visitor, Entity>
+	void Entity::VisitChildren(Visitor &&visitor) const
 	{
 		const auto& graphNodeParent = m_hEntity.get<Component_GraphNode>();
 		auto childEntity = graphNodeParent.firstChild;
@@ -18,6 +18,60 @@ namespace Plop
 				break;
 
 			childEntity = next;
+		}
+	}
+
+	template<typename Visitor> requires VisitorConcept<Visitor, Entity>
+	void Entity::VisitChildrenRecursive(Visitor &&visitor) const
+	{
+		/*
+			Depth First Search, like so
+
+				1
+			   / \
+			  2   8
+			 / \
+			3   7
+		   /
+		  4
+		 / \
+		5   6
+		*/
+
+		// first, call the visitor on this entity
+		if (visitor(*this) == VisitorFlow::BREAK)
+			return;
+
+		const auto rootEntity = m_hEntity.entity();
+		auto childEntity = m_hEntity.get<Component_GraphNode>().firstChild;
+		auto& reg = m_hEntity.registry();
+
+		while (childEntity != entt::null)
+		{
+			if (visitor(Entity(childEntity, reg)) == VisitorFlow::BREAK)
+				break;
+			
+			const Component_GraphNode& graphNodeChild = reg.get<Component_GraphNode>(childEntity);
+			if(graphNodeChild.firstChild != entt::null)
+				childEntity = graphNodeChild.firstChild;
+			else if (graphNodeChild.nextSibling != entt::null)
+				childEntity = graphNodeChild.nextSibling;
+			else
+			{
+				childEntity = graphNodeChild.parent;
+				entt::entity next = entt::null;
+				while(next == entt::null)
+				{
+					const Component_GraphNode& graphNodeParent = reg.get<Component_GraphNode>(childEntity);
+					if (childEntity == rootEntity)
+					{
+						break; // visit finished since we do not have any more parent
+					}
+					next = graphNodeParent.nextSibling;
+					childEntity = graphNodeParent.parent;
+				}
+				childEntity = next;
+			}
 		}
 	}
 

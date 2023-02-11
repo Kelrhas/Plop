@@ -56,6 +56,16 @@ usage:
 
 	PrefabHandle::operator GUID() const { return guid; }
 
+	Entity PrefabLibrary::GetEntityFromGUID(const GUID &_guid)
+	{
+		auto it = mapGUIDToEntt.find(_guid);
+		if(it != mapGUIDToEntt.end())
+			return Entity(it->second, registry);
+
+		return Entity{};
+	}
+
+
 	std::unordered_map<String, PrefabLibrary> PrefabManager::s_mapPrefabLibs;
 
 
@@ -64,12 +74,19 @@ usage:
 		if (!DoesPrefabLibExist(_sLibName))
 			return false;
 
-
 		PrefabLibrary &library = s_mapPrefabLibs.at(_sLibName);
 		GUIDMapping	   mapping;
 		auto		   rootId = CopyEntityHierarchyToRegistry(_entitySrc, library.registry, mapping);
 
 		library.vecPrefabs.emplace_back(rootId);
+
+		Entity entity(rootId, library.registry);
+		entity.VisitChildrenRecursive([&library](Entity _entity)
+		{
+		    auto& comp = _entity.GetComponent<Component_Name>();
+			library.mapGUIDToEntt[comp.guid] = _entity;
+			return VisitorFlow::CONTINUE;
+		});
 
 		return true;
 	}
@@ -84,38 +101,42 @@ usage:
 			auto it = std::find_if(lib.vecPrefabs.begin(), lib.vecPrefabs.end(), [_hPrefab](const Prefab &_p) { return _p.guid == _hPrefab.guid; });
 			if (it != lib.vecPrefabs.end())
 			{
-				Debug::TODO("Update prefab");
-#if 0
 				auto &		compInstance = _entity.GetComponent<Component_PrefabInstance>();
 				auto &		regPrefab	 = lib.registry;
 				const auto &regLevel	 = entt::handle(_entity).registry();
+				LevelBasePtr xLevel		 = Application::GetCurrentLevel().lock();
 
-				for (auto &[prefabEntity, levelEntity] : compInstance.mapping)
+				for (auto &[prefabEntityGUID, levelEntityGUID] : compInstance.mapping)
 				{
-					// first remove component in prefab that are not in level entity
-					ComponentManager::VisitAllComponents([&](const entt::id_type _compId, const ComponentManager::ComponentInfo &_compInfo) {
+					Entity prefabEntity = lib.GetEntityFromGUID(prefabEntityGUID);
+					Entity levelEntity	= xLevel->GetEntityFromGUID(levelEntityGUID);
+					// add/remove component in prefab if necessary
+					ComponentManager::VisitAllComponents(
+					  [&](const entt::id_type _compId, const ComponentManager::ComponentInfo &_compInfo)
+					  {
+						  if (_compId == entt::type_info<Component_Name>::id())
+							  return;
+						  if (_compId == entt::type_info<Component_GraphNode>::id())
+							  return;
+						  if (_compId == entt::type_info<Component_PrefabInstance>::id())
+							  return;
 
 						const bool prefabHas = ComponentManager::HasComponent(regPrefab, prefabEntity, _compId);
 						const bool levelHas	 = ComponentManager::HasComponent(regLevel, levelEntity, _compId);
-
-						if(prefabHas)
+				        
+						if(levelHas)
 						{
-							if(levelHas)
-							{
-								_compInfo.funcDuplicate(regLevel, levelEntity, regPrefab, prefabEntity);
-							}
-							else
-							{
-								_compInfo.funcRemove(regPrefab, prefabEntity);
-							}
+							_compInfo.funcDuplicate(regLevel, levelEntity, regPrefab, prefabEntity);
 						}
-					});
-
-
+						else if(prefabHas)
+						{
+							_compInfo.funcRemove(regPrefab, prefabEntity);
+						}
+					}); 
 				}
 
 				UpdateInstancesFromPrefab(lib, *it);
-#endif
+
 				return;
 			}
 		}
@@ -618,6 +639,15 @@ usage:
 					}
 				}
 
+				
+				lib.registry.each(
+				  [&lib](entt::entity _entt)
+				  {
+					  auto &comp				   = lib.registry.get<Component_Name>(_entt);
+					  lib.mapGUIDToEntt[comp.guid] = _entt;
+					  return VisitorFlow::CONTINUE;
+				  });
+
 				Plop::Log::Info("Prefab library '{}' loaded from file {}", sName, _sPath.string());
 			}
 			else
@@ -703,14 +733,33 @@ usage:
 
 	void PrefabManager::UpdateInstancesFromPrefab(PrefabLibrary &_lib, Prefab &_prefab)
 	{
-		Debug::TODO("UpdateInstancesFromPrefab");
-
 		auto &regLevel = Application::GetCurrentLevel().lock()->GetEntityRegistry();
 		auto  view	   = regLevel.view<Component_PrefabInstance>();
 		view.each([&](const Component_PrefabInstance& _prefabComp) {
 			if (_prefabComp.hSrcPrefab.guid == _prefab.guid)
 			{
-				// loop through all mapping inside _prefabComp.mapping
+				auto &		regPrefab	 = _lib.registry;
+
+				//for (auto &[prefabEntityGUID, levelEntityGUID] : _prefabComp.mapping)
+				//{
+				//	Entity prefabEntity = _lib.GetEntityFromGUID(prefabEntityGUID);
+				//	Entity levelEntity	= _lib.GetEntityFromGUID(levelEntityGUID);
+				//	// add/remove component in level if necessary
+				//	ComponentManager::VisitAllComponents([&](const entt::id_type _compId, const ComponentManager::ComponentInfo &_compInfo) {
+				//
+				//		const bool prefabHas = ComponentManager::HasComponent(regPrefab, prefabEntity, _compId);
+				//		const bool levelHas	 = ComponentManager::HasComponent(regLevel, levelEntity, _compId);
+				//
+				//		if(prefabHas)
+				//		{
+				//			_compInfo.funcDuplicate(regPrefab, prefabEntity, regLevel, levelEntity);
+				//		}
+				//		else if(levelHas)
+				//		{
+				//			_compInfo.funcRemove(regLevel, levelEntity);
+				//		}
+				//	});
+				//}
 			}
 		});
 	}

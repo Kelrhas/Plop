@@ -32,8 +32,11 @@ namespace Plop
 		std::vector<Prefab> vecPrefabs;
 		StringPath			sPath;
 		entt::registry		registry;
+		std::unordered_map<GUID, entt::entity> mapGUIDToEntt;
 
 		PrefabLibrary(const StringPath &_sPath) : sPath(_sPath) {}
+
+		Entity GetEntityFromGUID(const GUID &_guid);
 	};
 
 	class EditorLayer;

@@ -67,7 +67,10 @@ bool TDLevel::OnEvent(Plop::Event *_pEvent)
 		}
 	}
 
-	return false;
+	if (_pEvent->IsHandled())
+		return true;
+
+	return LevelBase::OnEvent(_pEvent);
 }
 
 void TDLevel::OnStart()

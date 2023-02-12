@@ -274,7 +274,7 @@ namespace Plop
 
 	glm::quat Component_Transform::GetWorldRotation() const
 	{
-		return glm::quat( GetWorldMatrix() );
+		return glm::quat_cast( GetWorldMatrix() );
 	}
 
 	void Component_Transform::TranslateWorld( const glm::vec3& _vTrans )

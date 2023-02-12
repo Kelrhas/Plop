@@ -133,18 +133,19 @@ namespace Plop::Particle
 	/* SpawnShapeArc */
 	void SpawnShapeArc::Spawn(ParticleData *_pParticle, Component_ParticleSystem &_system)
 	{
-		float fAngleSpawn = _system.GetRandom().NextFloatNeg11() * glm::radians(fAngle);
+		const float fHalfAngleRad = glm::radians(fAngle);
+		float		fAngleSpawn	  = _system.GetRandom().NextFloatNeg11() * fHalfAngleRad;
 
 		glm::vec2 vUnitPos(glm::cos(fAngleSpawn), glm::sin(fAngleSpawn));
 		glm::vec3 res = glm::vec3(vUnitPos * fRadius * _system.GetRandom().NextFloat01(), 0.f);
 
 		Entity owner = GetComponentOwner(Application::GetCurrentLevel().lock()->GetEntityRegistry(), _system);
-		const glm::quat qRot = owner.GetComponent<Component_Transform>().GetWorldRotation();
+		const glm::mat4 mWorld = owner.GetComponent<Component_Transform>().GetWorldMatrix();
 
-		res = glm::rotate(qRot, res);
+		res = mWorld * glm::vec4(res, 0.f);
 		_pParticle->vPosition += res;
 	}
-
+	 
 	Component_ParticleSystem::ParticleSpawnerPtr SpawnShapeArc::Clone() const
 	{
 		SpawnShapeArcPtr xSpawner = std::make_shared<SpawnShapeArc>();
@@ -158,11 +159,18 @@ namespace Plop::Particle
 		ImGui::SliderFloat("Angle (half arc)", &fAngle, 0.f, 180.f);
 		ImGui::DragFloat2("Direction", &vDir.x, 0.1f, -1.f, 1.f);
 
-		const float fAngleRad = glm::radians(fAngle);
-		glm::vec3 vPos = _owner.GetComponent<Component_Transform>().GetWorldPosition();
-		EditorGizmo::Arc(vPos, fRadius, fAngleRad, -fAngleRad);
-		EditorGizmo::Line(vPos, vPos + fRadius * glm::rotate(glm::quat(glm::vec3(0, 0, -fAngleRad)), VEC3_RIGHT));
-		EditorGizmo::Line(vPos, vPos + fRadius * glm::rotate(glm::quat(glm::vec3(0, 0, fAngleRad)), VEC3_RIGHT));
+		const float		fHalfAngleRad = glm::radians(fAngle);
+		const glm::mat4 mWorld		  = _owner.GetComponent<Component_Transform>().GetWorldMatrix();
+		const glm::vec3 &vPos = mWorld[3];
+
+		const float fZAngle = glm::atan(mWorld[0][1], mWorld[0][0]);
+		const float fScaledRadius = glm::abs(glm::length(mWorld[0]) * fRadius);
+		// TODO take local scale into account, just for edition purpose, the particles are spawned correctly
+		EditorGizmo::Arc(vPos, fScaledRadius, -fZAngle + fHalfAngleRad, -fZAngle - fHalfAngleRad);
+
+		EditorGizmo::Line(vPos, vPos + (mWorld * glm::vec4(VEC3_RIGHT, 0.f)).xyz() * fRadius, COLOR_BLUE);
+		EditorGizmo::Line(vPos, vPos + (glm::rotate(mWorld, -fHalfAngleRad, VEC3_Z) * glm::vec4(VEC3_RIGHT * fRadius, 0.f)).xyz());
+		EditorGizmo::Line(vPos, vPos + (glm::rotate(mWorld, +fHalfAngleRad, VEC3_Z) * glm::vec4(VEC3_RIGHT * fRadius, 0.f)).xyz());
 	}
 
 	json SpawnShapeArc::to_json()
@@ -293,7 +301,7 @@ namespace Plop::Particle
 	void SpawnRadialSpeed::Spawn( ParticleData* _pParticle, Component_ParticleSystem& _system )
 	{
 		auto owner = GetComponentOwner(Application::GetCurrentLevel().lock()->GetEntityRegistry(), _system);
-		glm::vec3 vCenter = owner ? owner.GetComponent<Component_Transform>().GetLocalPosition() : VEC3_0;
+		glm::vec3 vCenter = owner ? owner.GetComponent<Component_Transform>().GetWorldPosition() : VEC3_0;
 
 		_pParticle->vSpeed = glm::normalize( _pParticle->vPosition - vCenter ) * fSpeed;
 	}

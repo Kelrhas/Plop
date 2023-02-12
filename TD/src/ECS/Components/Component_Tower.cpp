@@ -147,7 +147,7 @@ namespace TowerSystem
 		{
 			Plop::Entity fx = Plop::PrefabManager::InstantiatePrefab(towerComp.hFiringParticle, hEntityTower.registry(), entt::null);
 			fx.GetComponent<Plop::Component_Transform>().SetLocalPosition(vSpawnPos);
-			fx.GetComponent<Plop::Component_Transform>().SetWorldRotation(glm::rotate(transformTower.GetWorldRotation(), glm::half_pi<float>(), VEC3_Z));
+			fx.GetComponent<Plop::Component_Transform>().SetWorldRotation(glm::rotate(transformTower.GetWorldMatrix(), glm::half_pi<float>(), VEC3_Z));
 		}
 	};
 

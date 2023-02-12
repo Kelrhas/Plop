@@ -50,6 +50,7 @@ namespace Plop
 		glm::vec3 GetWorldPosition() const;
 
 		void SetWorldRotation( const glm::quat& _qRot );
+		[[deprecated]]
 		glm::quat GetWorldRotation() const;
 
 		void TranslateWorld( const glm::vec3& _vTrans );

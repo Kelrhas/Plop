@@ -204,6 +204,7 @@ namespace Plop
 		{
 			DestroyEntity( e );
 		}
+		m_mapGUIDToEntt.erase(_entity.GetComponent<Component_Name>().guid);
 		m_ENTTRegistry.destroy( _entity );
 
 		EventDispatcher::SendEvent(EntityDestroyedEvent(_entity));

@@ -139,10 +139,7 @@ namespace Plop::Particle
 		glm::vec2 vUnitPos(glm::cos(fAngleSpawn), glm::sin(fAngleSpawn));
 		glm::vec3 res = glm::vec3(vUnitPos * fRadius * _system.GetRandom().NextFloat01(), 0.f);
 
-		Entity owner = GetComponentOwner(Application::GetCurrentLevel().lock()->GetEntityRegistry(), _system);
-		const glm::mat4 mWorld = owner.GetComponent<Component_Transform>().GetWorldMatrix();
-
-		res = mWorld * glm::vec4(res, 0.f);
+		res = _system.GetCachedMatrix() * glm::vec4(res, 0.f);
 		_pParticle->vPosition += res;
 	}
 	 
@@ -160,7 +157,7 @@ namespace Plop::Particle
 		ImGui::DragFloat2("Direction", &vDir.x, 0.1f, -1.f, 1.f);
 
 		const float		fHalfAngleRad = glm::radians(fAngle);
-		const glm::mat4 mWorld		  = _owner.GetComponent<Component_Transform>().GetWorldMatrix();
+		const glm::mat4	 &mWorld		   = _system.GetCachedMatrix();
 		const glm::vec3 &vPos = mWorld[3];
 
 		const float fZAngle = glm::atan(mWorld[0][1], mWorld[0][0]);

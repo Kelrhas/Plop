@@ -73,6 +73,7 @@ namespace Plop
 		size_t	  GetNbActiveParticles() const { return m_iNbActiveParticles; }
 		void	  SetBasePosition(const glm::vec3 &_vPosition) { m_vBasePosition = _vPosition; }
 		glm::vec3 GetBasePosition() const { return m_vBasePosition; }
+		const glm::mat4 &GetCachedMatrix() const { return m_mCachedWorld; }
 
 		Random								  &GetRandom() { return m_rand; }
 		std::vector<ParticleSpawnerPtr>		  &GetSpawners() { return m_vecSpawners; }
@@ -99,6 +100,7 @@ namespace Plop
 		std::vector<ParticleSpawnerPtr> m_vecSpawners;
 		std::vector<ParticleUpdaterPtr> m_vecUpdaters;
 		glm::vec3						m_vBasePosition = VEC3_0;
+		glm::mat4						m_mCachedWorld;
 	};
 
 } // namespace Plop

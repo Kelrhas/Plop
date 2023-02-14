@@ -1,7 +1,7 @@
 
 **[General]**
 - use an engine executable that calls the game dll (faster to compile ? easier to iterate on gameplay code by hot reloading the dll)
-- use C++20
+- ~~use C++20~~
 - update imgui (tables)
 - ~~use a code style file~~
 - passer sur CMake

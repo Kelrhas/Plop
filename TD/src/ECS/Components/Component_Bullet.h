@@ -18,3 +18,8 @@ struct Component_Bullet
 	glm::vec3 vVelocity = VEC3_0;
 	Plop::Entity emitting;
 };
+
+namespace BulletSystem
+{
+	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry);
+}

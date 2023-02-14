@@ -27,6 +27,8 @@
 #pragma warning(disable : 4267) // https://github.com/skypjack/entt/issues/122
 
 
+static constexpr float TIME_BETWEEN_WAVES = 5.f;
+
 TDLevel::TDLevel() {}
 
 TDLevel::~TDLevel() {}
@@ -59,9 +61,15 @@ bool TDLevel::OnEvent(Plop::Event *_pEvent)
 			{
 				break;
 			}
+			case GameEventType::WaveFinished:
+			{
+				m_eState	 = LevelState::WAITING_WAVE;
+				m_fTimerWave = TIME_BETWEEN_WAVES;
+				break;
+			}
 			case GameEventType::GameOver:
 			{
-				m_bPlaying = false;
+				m_eState = LevelState::GAME_OVER;
 				break;
 			}
 		}
@@ -78,7 +86,7 @@ void TDLevel::OnStart()
 	LevelBase::OnStart();
 
 	m_playerStats = PlayerLevelStats(); // reset stats
-	m_bPlaying	  = true;
+	m_eState	  = LevelState::INIT;
 
 	HexgridSystem::OnStart(m_ENTTRegistry);
 	PlayerBaseSystem::OnStart(m_ENTTRegistry);
@@ -88,74 +96,61 @@ void TDLevel::Update(Plop::TimeStep &_ts)
 {
 	PROFILING_FUNCTION();
 
-
-	if (m_bPlaying)
+	switch (m_eState)
 	{
-		PlayerBaseSystem::OnUpdate(_ts, m_ENTTRegistry);
-		EnemySpawnerSystem::OnUpdate(_ts, m_ENTTRegistry);
-		EnemySystem::OnUpdate(_ts, m_ENTTRegistry);
-		TowerSystem::OnUpdate(_ts, m_ENTTRegistry);
-		HexgridSystem::OnUpdate(_ts, m_ENTTRegistry);
-
-		auto viewEnemy = m_ENTTRegistry.view<Component_Enemy, Plop::Component_Transform, Plop::Component_AABBCollider>();
-
-		float fMaxDistSq = glm::compMax(Plop::Application::Get()->GetWindow().GetViewportSize()) * 2.f;
-
-		m_ENTTRegistry.view<Component_Bullet, Plop::Component_Transform, Plop::Component_AABBCollider>().each(
-		  [&](entt::entity entityID, const Component_Bullet &bulletComp, Plop::Component_Transform &transform, const Plop::Component_AABBCollider &collider) {
-			  transform.TranslateWorld(bulletComp.vVelocity * _ts.GetGameDeltaTime());
-
-			  bool bDestroyBullet = false;
-
-			  const glm::vec2 &thisPos2D = transform.GetWorldPosition();
-
-			  {
-				  PROFILING_SCOPE("View Enemy");
-				  viewEnemy.each([&](entt::entity						 entityID,
-									 Component_Enemy &					 enemyComp,
-									 const Plop::Component_Transform &	 transformEnemy,
-									 const Plop::Component_AABBCollider &colliderEnemy) {
-					  if (!enemyComp.IsDead() && !bDestroyBullet)
-					  {
-						  if (collider.IsColliding(colliderEnemy, transformEnemy.GetWorldPosition()))
-						  {
-							  bDestroyBullet = true;
-							  Plop::Entity enemy(entityID, m_ENTTRegistry);
-							  if (enemy.HasComponent<Plop::Component_ParticleSystem>())
-							  {
-								  auto &enemyParticles = enemy.GetComponent<Plop::Component_ParticleSystem>();
-								  enemyParticles.Spawn(20);
-							  }
-
-							  enemyComp.Hit(bulletComp.emitting.GetComponent<Component_Tower>().fDamage);
-
-							  return;
-						  }
-					  }
-				  });
-			  }
-
-
-			  // test if too far
-			  if (glm::distance2(transform.GetWorldPosition(), bulletComp.emitting.GetComponent<Plop::Component_Transform>().GetWorldPosition()) > fMaxDistSq)
-				  bDestroyBullet = true;
-
-			  if (bDestroyBullet)
-			  {
-				  DestroyEntity(Plop::Entity(entityID, m_ENTTRegistry));
-			  }
-		  });
+		case LevelState::PLAYING:
+		{
+			UpdatePlaying(_ts);
+			break;
+		}
+		case LevelState::WAITING_WAVE:
+		{
+			UpdateWaiting(_ts);
+			break;
+		}
 	}
 
 	if(ImGui::Begin("Level"))
 	{
 		ImGui::Text("Money %d", m_playerStats.iMoney);
-		ImGui::Text("Enemy killed %d", m_playerStats.iNbKill);
 
-		if (!m_bPlaying)
+		switch (m_eState)
 		{
-			ImGui::Separator();
-			ImGui::Text("GAME OVER");
+			case LevelState::INIT:
+			{
+				ImGui::Separator();
+				ImGui::Text("Place your turrets and click here to start the waves");
+				if (ImGui::Button("Start"))
+				{
+					m_eState = LevelState::PLAYING;
+					EnemySpawnerSystem::TriggerNextWave(m_ENTTRegistry);
+				}
+				break;
+			}
+			case LevelState::PLAYING:
+			{
+				ImGui::Separator();
+				ImGui::Text("Enemy killed %d", m_playerStats.iNbKill);
+				break;
+			}
+			case LevelState::WAITING_WAVE:
+			{
+				ImGui::Separator();
+				ImGui::Text("Enemy killed %d", m_playerStats.iNbKill);
+				if (ImGui::Button(fmt::format("Next wave in {:.3f}###NextWave", m_fTimerWave).c_str()))
+				{
+					m_eState = LevelState::PLAYING;
+					EnemySpawnerSystem::TriggerNextWave(m_ENTTRegistry);
+					m_fTimerWave = 0.f;
+				}
+				break;
+			}
+			case LevelState::GAME_OVER:
+			{
+				ImGui::Separator();
+				ImGui::Text("GAME OVER");
+				break;
+			}
 		}
 	}
 	ImGui::End();
@@ -177,4 +172,32 @@ void TDLevel::UpdateInEditor(const Plop::TimeStep &_ts)
 	Plop::LevelBase::UpdateInEditor(_ts);
 
 	HexgridSystem::OnUpdateEditor(_ts, m_ENTTRegistry);
+}
+
+void TDLevel::UpdatePlaying(Plop::TimeStep &_ts)
+{
+	PROFILING_FUNCTION();
+	PlayerBaseSystem::OnUpdate(_ts, m_ENTTRegistry);
+	EnemySpawnerSystem::OnUpdate(_ts, m_ENTTRegistry);
+	EnemySystem::OnUpdate(_ts, m_ENTTRegistry);
+	TowerSystem::OnUpdate(_ts, m_ENTTRegistry);
+	HexgridSystem::OnUpdate(_ts, m_ENTTRegistry);
+	BulletSystem::OnUpdate(_ts, m_ENTTRegistry);
+}
+
+void TDLevel::UpdateWaiting(Plop::TimeStep &_ts)
+{
+	PlayerBaseSystem::OnUpdate(_ts, m_ENTTRegistry);
+	EnemySpawnerSystem::OnUpdate(_ts, m_ENTTRegistry);
+	EnemySystem::OnUpdate(_ts, m_ENTTRegistry);
+	TowerSystem::OnUpdate(_ts, m_ENTTRegistry);
+	HexgridSystem::OnUpdate(_ts, m_ENTTRegistry);
+	BulletSystem::OnUpdate(_ts, m_ENTTRegistry);
+
+	m_fTimerWave -= _ts.GetGameDeltaTime();
+	if (m_fTimerWave <= 0.f)
+	{
+		m_eState = LevelState::PLAYING;
+		EnemySpawnerSystem::TriggerNextWave(m_ENTTRegistry);
+	}
 }

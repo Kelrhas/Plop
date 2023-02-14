@@ -12,6 +12,14 @@ struct PlayerLevelStats
 	int iNbKill = 0;
 };
 
+enum class LevelState
+{
+	NONE,
+	INIT,
+	PLAYING,
+	WAITING_WAVE,
+	GAME_OVER
+};
 
 class TDLevel : public Plop::LevelBase
 {
@@ -31,7 +39,12 @@ public:
 
 
 private:
+
+	void UpdatePlaying(Plop::TimeStep &_ts);
+	void UpdateWaiting(Plop::TimeStep &_ts);
+
 	PlayerLevelStats m_playerStats;
-	bool			 m_bPlaying = false;
+	LevelState		 m_eState = LevelState::NONE;
+	float			 m_fTimerWave = 0.f;
 };
 

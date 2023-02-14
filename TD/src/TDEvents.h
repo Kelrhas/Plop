@@ -6,5 +6,6 @@ enum class GameEventType : S32
 {
 	EnemyKilled,
 	LifeLost,
+	WaveFinished,
 	GameOver
 };

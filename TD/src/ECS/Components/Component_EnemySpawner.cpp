@@ -3,6 +3,7 @@
 #include "Component_EnemySpawner.h"
 
 #include "Component_Enemy.h"
+#include "TDEvents.h"
 
 #include <Application.h>
 #include <Assets/SpritesheetLoader.h>
@@ -11,11 +12,40 @@
 #include <ECS/Components/Component_Transform.h>
 #include <ECS/ECSHelper.h>
 #include <ECS/PrefabManager.h>
+#include <Events/EventDispatcher.h>
+#include <Events/GameEvent.h>
 #include <Utils/JsonTypes.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui_custom.h>
 
 #pragma warning(disable : 4267) // https://github.com/skypjack/entt/issues/122 ?
+
+static constexpr const char *JSON_PATH_CONTROL_POINTS = "ControlPoints";
+static constexpr const char *JSON_WAVES				  = "Waves";
+static constexpr const char *JSON_WAVE_ENEMIES_COUNT  = "EnemiesCount";
+static constexpr const char *JSON_WAVE_ENEMIES_DELAY  = "Delay";
+static constexpr const char *JSON_WAVE_ENEMIES_PREFAB = "EnemyPrefab";
+
+template<>
+struct nlohmann::adl_serializer<Component_EnemySpawner::Wave>
+{
+	static void to_json(json &_j, const Component_EnemySpawner::Wave &_w)
+	{
+		_j[JSON_WAVE_ENEMIES_COUNT]	 = _w.nbEnemies;
+		_j[JSON_WAVE_ENEMIES_DELAY]	 = _w.fSpawnDelay;
+		_j[JSON_WAVE_ENEMIES_PREFAB] = _w.hEnemy;
+	}
+
+	static void from_json(const json &_j, Component_EnemySpawner::Wave &_w)
+	{
+		if (_j.contains(JSON_WAVE_ENEMIES_COUNT))
+			_w.nbEnemies = _j[JSON_WAVE_ENEMIES_COUNT];
+		if (_j.contains(JSON_WAVE_ENEMIES_DELAY))
+			_w.fSpawnDelay = _j[JSON_WAVE_ENEMIES_DELAY];
+		if (_j.contains(JSON_WAVE_ENEMIES_PREFAB))
+			_w.hEnemy = _j[JSON_WAVE_ENEMIES_PREFAB];
+	}
+};
 
 Component_EnemySpawner::Component_EnemySpawner()
 {
@@ -24,14 +54,13 @@ Component_EnemySpawner::Component_EnemySpawner()
 
 void Component_EnemySpawner::EditorUI()
 {
-	Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
-	Plop::Entity owner = Plop::GetComponentOwner(xLevel->GetEntityRegistry(), *this);
-	const auto &vSpawnerPosition = owner.GetComponent<Plop::Component_Transform>().GetWorldPosition();
+	Plop::LevelBasePtr xLevel			= Plop::Application::GetCurrentLevel().lock();
+	Plop::Entity	   owner			= Plop::GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+	const auto		  &vSpawnerPosition = owner.GetComponent<Plop::Component_Transform>().GetWorldPosition();
 
-	ImGui::Custom::InputPrefab("Enemy", wave.hEnemy);
 
 	size_t iNbPoint = xPathCurve->vecControlPoints.size();
-	if (ImGui::TreeNode(this, "Number of points: %llu", iNbPoint))
+	if (ImGui::TreeNode(this, "Show %llu control points", iNbPoint))
 	{
 		int indexToRemove = -1;
 		for (int i = 0; i < iNbPoint; ++i)
@@ -88,30 +117,63 @@ void Component_EnemySpawner::EditorUI()
 		ImGui::TreePop();
 	}
 
-	ImGui::DragInt("Nb enemies", &wave.nbEnemies, 0.1f, 1);
-	ImGui::DragFloat("Spawn delay", &wave.fSpawnDelay, 0.01f, 0.01f, FLT_MAX);
+	if (ImGui::Button("Add wave"))
+	{
+		waves.emplace_back();
+	}
+	int iWave = 0;
+	for (auto it = waves.begin(); it != waves.end();)
+	{
+		bool  bRemoved = false;
+		Wave &w = *it;
+		if (ImGui::TreeNodeEx(fmt::format("Wave {0}: {1} enemies###Wave{0}", iWave + 1, w.nbEnemies).c_str(), ImGuiTreeNodeFlags_None))
+		{
+			ImGui::Custom::InputPrefab("Enemy", w.hEnemy);
+			ImGui::DragInt("Nb enemies", &w.nbEnemies, 0.1f, 1);
+			ImGui::DragFloat("Spawn delay", &w.fSpawnDelay, 0.01f, 0.01f, FLT_MAX);
+			if (ImGui::Button("Remove"))
+			{
+				it = waves.erase(it);
+				bRemoved = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		if (!bRemoved)
+			++it;
+
+		++iWave;
+	}
 }
+
 
 json Component_EnemySpawner::ToJson() const
 {
 	json j;
-	j["Points"]	   = xPathCurve->vecControlPoints;
-	j["NbEnemies"] = wave.nbEnemies;
-	j["Delay"]	   = wave.fSpawnDelay;
-	j["Prefab"]	   = wave.hEnemy;
+	j[JSON_PATH_CONTROL_POINTS] = xPathCurve->vecControlPoints;
+	j[JSON_WAVES]				= waves;
 	return j;
 }
 
 void Component_EnemySpawner::FromJson(const json &_j)
 {
-	if (_j.contains("Points"))
-		_j["Points"].get_to(xPathCurve->vecControlPoints);
-	if (_j.contains("NbEnemies"))
-		wave.nbEnemies = _j["NbEnemies"];
-	if (_j.contains("Delay"))
-		wave.fSpawnDelay = _j["Delay"];
-	if (_j.contains("Prefab"))
-		wave.hEnemy = _j["Prefab"];
+	if (_j.contains(JSON_PATH_CONTROL_POINTS))
+		_j[JSON_PATH_CONTROL_POINTS].get_to(xPathCurve->vecControlPoints);
+	if (_j.contains(JSON_WAVES))
+		_j[JSON_WAVES].get_to(waves);
+}
+
+void Component_EnemySpawner::NextWave()
+{
+	iWaveIndex = glm::min(iWaveIndex + 1, (int)waves.size()-1);
+	iNbEnemySpawned = 0;
+}
+
+void EnemySpawnerSystem::TriggerNextWave(entt::registry &_registry)
+{
+	auto viewEnemySpawner = _registry.view<Component_EnemySpawner>();
+	viewEnemySpawner.each([&_registry](const entt::entity entity, Component_EnemySpawner &spawner) { spawner.NextWave(); });
 }
 
 void EnemySpawnerSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
@@ -119,33 +181,44 @@ void EnemySpawnerSystem::OnUpdate(const Plop::TimeStep &_ts, entt::registry &_re
 	PROFILING_FUNCTION();
 
 	auto viewEnemySpawner = _registry.view<Component_EnemySpawner>();
-	viewEnemySpawner.each([&_ts, &_registry](const entt::entity entity, Component_EnemySpawner &spawner) {
-		if (spawner.fTimer >= 0 && spawner.iNbEnemySpawned < spawner.wave.nbEnemies)
-		{
-			spawner.fTimer -= _ts.GetGameDeltaTime();
+	viewEnemySpawner.each(
+	  [&_ts, &_registry](const entt::entity entity, Component_EnemySpawner &spawner)
+	  {
+		  Component_EnemySpawner::Wave &currentWave = spawner.waves[spawner.iWaveIndex];
 
-			if (spawner.fTimer <= 0)
-			{
-				++spawner.iNbEnemySpawned;
-				spawner.fTimer = spawner.wave.fSpawnDelay;
+		  if (spawner.fTimer >= 0 && spawner.iNbEnemySpawned < currentWave.nbEnemies)
+		  {
+			  spawner.fTimer -= _ts.GetGameDeltaTime();
 
-				// create an Enemy
-				// TODO: use a prefab
-				Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
-				Plop::Entity owner { entity, _registry };
+			  if (spawner.fTimer <= 0)
+			  {
+				  ++spawner.iNbEnemySpawned;
+				  spawner.fTimer = currentWave.fSpawnDelay;
 
-				auto				 entityEnemy = Plop::PrefabManager::InstantiatePrefab(spawner.wave.hEnemy, _registry, owner);
+				  // create an Enemy
+				  // TODO: use a prefab
+				  Plop::LevelBasePtr xLevel = Plop::Application::GetCurrentLevel().lock();
+				  Plop::Entity		 owner { entity, _registry };
 
-				entityEnemy.SetParent(owner);
+				  auto entityEnemy = Plop::PrefabManager::InstantiatePrefab(currentWave.hEnemy, _registry, owner);
 
-				auto &enemyComp		 = entityEnemy.GetComponent<Component_Enemy>();
-				enemyComp.xPathCurve = spawner.xPathCurve;
+				  entityEnemy.SetParent(owner);
 
-				auto &transformComp = entityEnemy.GetComponent<Plop::Component_Transform>();
-				// stagger the depth to avoid overlapping between enemies
-				transformComp.SetWorldPosition(owner.GetComponent<Plop::Component_Transform>().GetWorldPosition() +
-											   VEC3_Z * glm::fract(0.1f * (spawner.iNbEnemySpawned + 1))); 
-			}
-		}
-	});
+				  auto &enemyComp	   = entityEnemy.GetComponent<Component_Enemy>();
+				  enemyComp.xPathCurve = spawner.xPathCurve;
+
+				  auto &transformComp = entityEnemy.GetComponent<Plop::Component_Transform>();
+				  // stagger the depth to avoid overlapping between enemies
+				  transformComp.SetWorldPosition(owner.GetComponent<Plop::Component_Transform>().GetWorldPosition() +
+												 VEC3_Z * glm::fract(0.1f * (spawner.iNbEnemySpawned + 1)));
+
+				  if (spawner.iNbEnemySpawned >= currentWave.nbEnemies)
+				  {
+					  Plop::GameEvent gameEvent((S32)GameEventType::WaveFinished);
+					  gameEvent.SetData(spawner.iWaveIndex);
+					  Plop::EventDispatcher::SendEvent(gameEvent);
+				  }
+			  }
+		  }
+	  });
 }

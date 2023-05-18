@@ -438,7 +438,7 @@
           "Min": [-0.4000000059604645,-0.4000000059604645,-1.0]
         },
         "PlayerBase": {
-          "Life": 389.79998779296875
+          "Life": 100.0
         },
         "SpriteRenderer": {
           "Alias": "player_base",

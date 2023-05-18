@@ -20,6 +20,12 @@ double constexpr Sqrt(double x)
 		: std::numeric_limits<double>::quiet_NaN();
 }
 
+template<typename T> requires std::floating_point<T> || std::integral<T>
+T constexpr Square(T a)
+{
+	return a * a;
+}
+
 namespace glm
 {
 	template<length_t L, typename T, qualifier Q>

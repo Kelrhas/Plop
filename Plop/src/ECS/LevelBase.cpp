@@ -195,6 +195,8 @@ namespace Plop
 
 	void LevelBase::DestroyEntity( Entity _entity )
 	{
+		ASSERT(_entity);
+
 		PROFILING_FUNCTION();
 		_entity.SetParent( Entity() );
 

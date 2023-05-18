@@ -13,13 +13,17 @@ namespace Plop
 		{}
 		Component_Transform( const glm::vec3& _vTranslation, const glm::quat& _qRotation = glm::identity<glm::quat>(), const glm::vec3& _vScale = VEC3_1 )
 			: vPosition( _vTranslation ), qRotation( _qRotation ), vScale( _vScale )
-		{}
+		{
+		}
+		Component_Transform(const Component_Transform&) = default;
+		Component_Transform(Component_Transform&&) = default;
+		Component_Transform &operator=(const Component_Transform &) = default;
+		Component_Transform &operator=(Component_Transform &&) = default;
 
 
 		void EditorUI();
 		json ToJson() const;
 		void FromJson( const json& _j );
-
 
 
 		float Distance2D( const Component_Transform& _other ) const;

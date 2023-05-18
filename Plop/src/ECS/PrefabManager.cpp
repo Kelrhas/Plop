@@ -135,7 +135,7 @@ usage:
 					}); 
 				}
 
-				UpdateInstancesFromPrefab(lib, *it);
+				//UpdateInstancesFromPrefab(lib, *it);
 
 				return;
 			}
@@ -733,6 +733,9 @@ usage:
 
 	void PrefabManager::UpdateInstancesFromPrefab(PrefabLibrary &_lib, Prefab &_prefab)
 	{
+		Debug::TODO("UpdateInstancesFromPrefab");
+
+		/*
 		auto &regLevel = Application::GetCurrentLevel().lock()->GetEntityRegistry();
 		auto  view	   = regLevel.view<Component_PrefabInstance>();
 		view.each([&](const Component_PrefabInstance& _prefabComp) {
@@ -740,28 +743,29 @@ usage:
 			{
 				auto &		regPrefab	 = _lib.registry;
 
-				//for (auto &[prefabEntityGUID, levelEntityGUID] : _prefabComp.mapping)
-				//{
-				//	Entity prefabEntity = _lib.GetEntityFromGUID(prefabEntityGUID);
-				//	Entity levelEntity	= _lib.GetEntityFromGUID(levelEntityGUID);
-				//	// add/remove component in level if necessary
-				//	ComponentManager::VisitAllComponents([&](const entt::id_type _compId, const ComponentManager::ComponentInfo &_compInfo) {
-				//
-				//		const bool prefabHas = ComponentManager::HasComponent(regPrefab, prefabEntity, _compId);
-				//		const bool levelHas	 = ComponentManager::HasComponent(regLevel, levelEntity, _compId);
-				//
-				//		if(prefabHas)
-				//		{
-				//			_compInfo.funcDuplicate(regPrefab, prefabEntity, regLevel, levelEntity);
-				//		}
-				//		else if(levelHas)
-				//		{
-				//			_compInfo.funcRemove(regLevel, levelEntity);
-				//		}
-				//	});
-				//}
+				for (auto &[prefabEntityGUID, levelEntityGUID] : _prefabComp.mapping)
+				{
+					Entity prefabEntity = _lib.GetEntityFromGUID(prefabEntityGUID);
+					Entity levelEntity	= _lib.GetEntityFromGUID(levelEntityGUID);
+					// add/remove component in level if necessary
+					ComponentManager::VisitAllComponents([&](const entt::id_type _compId, const ComponentManager::ComponentInfo &_compInfo) {
+				
+						const bool prefabHas = ComponentManager::HasComponent(regPrefab, prefabEntity, _compId);
+						const bool levelHas	 = ComponentManager::HasComponent(regLevel, levelEntity, _compId);
+				
+						if(prefabHas)
+						{
+							_compInfo.funcDuplicate(regPrefab, prefabEntity, regLevel, levelEntity);
+						}
+						else if(levelHas)
+						{
+							_compInfo.funcRemove(regLevel, levelEntity);
+						}
+					});
+				}
 			}
 		});
+		*/
 	}
 
 	void PrefabManager::RemovePrefabReferenceFromInstance(Entity _entity)

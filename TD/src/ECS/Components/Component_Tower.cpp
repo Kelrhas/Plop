@@ -10,6 +10,8 @@
 #include <ECS/Components/Component_SpriteRenderer.h>
 #include <ECS/ECSHelper.h>
 #include <ECS/LevelBase.h>
+#include <Input/Input.h>
+#include <Math/Math.h>
 #include <Utils/JsonTypes.h>
 #include <entt/meta/resolve.hpp>
 
@@ -17,6 +19,7 @@
 
 
 static constexpr const char *JSON_DAMAGE		  = "Damage";
+static constexpr const char *JSON_IMPACT_RADIUS	  = "ImpactRadius";
 static constexpr const char *JSON_FIRING_RATE	  = "Firing rate";
 static constexpr const char *JSON_RANGE			  = "Range";
 static constexpr const char *JSON_FIRING_PARTICLE = "FiringParticlePrefab";
@@ -26,6 +29,13 @@ static constexpr const char *JSON_PROJECTILE	  = "ProjectilePrefab";
 void Component_Tower::EditorUI()
 {
 	ImGui::DragFloat("Damage", &fDamage, 0.1f, 1.f);
+	ImGui::DragFloat("Impact radius", &fImpactRadius, 0.1f, 1.f);
+	if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+	{
+		auto		&reg   = Plop::Application::GetCurrentLevel().lock()->GetEntityRegistry();
+		Plop::Entity owner = Plop::GetComponentOwner(reg, *this);
+		Plop::EditorGizmo::Circle(owner.GetComponent<Plop::Component_Transform>().GetWorldPosition(), fImpactRadius, COLOR_RED);
+	}
 	ImGui::DragFloat("Firing rate", &fFiringRate, 0.005f, 0.01f, FLT_MAX);
 	if (ImGui::IsItemHovered())
 	{
@@ -36,7 +46,7 @@ void Component_Tower::EditorUI()
 	ImGui::DragFloat("Range", &fRange, 0.005f, 0.01f, FLT_MAX);
 	if (ImGui::IsItemHovered() || ImGui::IsItemActive())
 	{
-		auto &		 reg   = Plop::Application::GetCurrentLevel().lock()->GetEntityRegistry();
+		auto		&reg   = Plop::Application::GetCurrentLevel().lock()->GetEntityRegistry();
 		Plop::Entity owner = Plop::GetComponentOwner(reg, *this);
 		Plop::EditorGizmo::Circle(owner.GetComponent<Plop::Component_Transform>().GetWorldPosition(), fRange);
 	}
@@ -48,6 +58,7 @@ json Component_Tower::ToJson() const
 {
 	json j;
 	j[JSON_DAMAGE]			= fDamage;
+	j[JSON_IMPACT_RADIUS]	= fImpactRadius;
 	j[JSON_FIRING_RATE]		= fFiringRate;
 	j[JSON_RANGE]			= fRange;
 	j[JSON_FIRING_PARTICLE] = hFiringParticle;
@@ -59,6 +70,8 @@ void Component_Tower::FromJson(const json &_j)
 {
 	if (_j.contains(JSON_DAMAGE))
 		fDamage = _j[JSON_DAMAGE];
+	if (_j.contains(JSON_IMPACT_RADIUS))
+		fImpactRadius = _j[JSON_IMPACT_RADIUS];
 	if (_j.contains(JSON_FIRING_RATE))
 		fFiringRate = _j[JSON_FIRING_RATE];
 	if (_j.contains(JSON_RANGE))
@@ -71,13 +84,16 @@ void Component_Tower::FromJson(const json &_j)
 
 bool Component_Tower::CanFire() const
 {
-	return fFireDelay <= 0.f;
+	return fFireDelay <= 0.f && hProjectile;
 }
 
 
 namespace TowerSystem
 {
-	void ShootAt(entt::handle hEntityTower, Component_Tower &towerComp, Plop::Component_Transform &transformTower, const glm::vec3 &_vEnemyPosition) {
+	entt::entity g_selectedTower = entt::null;
+
+	void ShootAt(entt::handle hEntityTower, Component_Tower &towerComp, Plop::Component_Transform &transformTower, const glm::vec3 &_vEnemyPosition)
+	{
 		towerComp.fFireDelay += 1.f / towerComp.fFiringRate;
 
 		Plop::LevelBasePtr xLevel	 = Plop::Application::GetCurrentLevel().lock();
@@ -95,13 +111,15 @@ namespace TowerSystem
 
 		// Instantiate a Bullet
 		glm::vec3 vSpawnPos(vTowerPos.xy, vTowerPos.z - 0.1f);
-		towerEntity.VisitChildren([&vSpawnPos](Plop::Entity child) {
-			if (child.GetComponent<Plop::Component_Name>().sName == "Nozzle")
-			{
-				vSpawnPos = child.GetComponent<Plop::Component_Transform>().GetWorldPosition();
-			}
-			return VisitorFlow::CONTINUE;
-		});
+		towerEntity.VisitChildren(
+		  [&vSpawnPos](Plop::Entity child)
+		  {
+			  if (child.GetComponent<Plop::Component_Name>().sName == "Nozzle")
+			  {
+				  vSpawnPos = child.GetComponent<Plop::Component_Transform>().GetWorldPosition();
+			  }
+			  return VisitorFlow::CONTINUE;
+		  });
 
 		{
 			Plop::Entity bullet;
@@ -151,15 +169,35 @@ namespace TowerSystem
 		}
 	};
 
+	void OnStart()
+	{
+		g_selectedTower = entt::null;
+	}
 
 	void OnUpdate(const Plop::TimeStep &_ts, entt::registry &_registry)
 	{
 		PROFILING_FUNCTION();
 
+		const bool	 bSelectTower = Plop::Input::IsMouseLeftPressed();
+		glm::vec3	 vMousePos;
+		entt::entity selectedTower = entt::null;
+
+		if (bSelectTower)
+		{
+			auto xLevel	 = Plop::Application::GetCurrentLevel().lock();
+			auto xCamera = xLevel->GetCamera().lock();
+
+			// TODO viewport panel
+			auto		   &editor		 = Plop::Application::Get()->GetEditor();
+			const glm::vec2 vViewportPos = editor.GetViewportPosFromWindowPos(Plop::Input::GetCursorWindowPos());
+			vMousePos					 = xCamera->GetWorldPosFromViewportPos(vViewportPos, 0.f);
+		}
+
 		auto viewEnemy = _registry.view<Component_Enemy, Plop::Component_Transform>();
 
 		_registry.view<Component_Tower, Plop::Component_Transform>().each(
-		  [&](entt::entity entityTower, Component_Tower &tower, Plop::Component_Transform &transform) {
+		  [&](entt::entity entityTower, Component_Tower &tower, Plop::Component_Transform &transform)
+		  {
 			  if (tower.fFireDelay > 0.f)
 			  {
 				  tower.fFireDelay -= _ts.GetGameDeltaTime();
@@ -172,15 +210,17 @@ namespace TowerSystem
 				  entt::entity iBestEnemy		   = entt::null;
 				  glm::vec3	   vEnemyPos;
 
-				  viewEnemy.each([&](entt::entity entityID, const Component_Enemy &, const Plop::Component_Transform &transformEnemy) {
-					  float fDistanceSq = transform.Distance2DSquare(transformEnemy);
-					  if (fDistanceSq < fTowerRangeSq && (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null))
-					  {
-						  fShortestDistanceSq = fDistanceSq;
-						  iBestEnemy		  = entityID;
-						  vEnemyPos			  = transformEnemy.GetWorldPosition();
-					  }
-				  });
+				  viewEnemy.each(
+					[&](entt::entity entityID, const Component_Enemy &, const Plop::Component_Transform &transformEnemy)
+					{
+						float fDistanceSq = transform.Distance2DSquare(transformEnemy);
+						if (fDistanceSq < fTowerRangeSq && (fDistanceSq < fShortestDistanceSq || iBestEnemy == entt::null))
+						{
+							fShortestDistanceSq = fDistanceSq;
+							iBestEnemy			= entityID;
+							vEnemyPos			= transformEnemy.GetWorldPosition();
+						}
+					});
 
 				  if (iBestEnemy != entt::null)
 				  {
@@ -188,6 +228,33 @@ namespace TowerSystem
 					  // tower.Fire( Plop::Entity{ iBestEnemy, Plop::Application::GetCurrentLevel() }, vEnemyPos );
 				  }
 			  }
+
+			  if (g_selectedTower == entityTower)
+			  {
+				  if (ImGui::Begin("Tower"))
+				  {
+					  tower.EditorUI();
+				  }
+				  ImGui::End();
+			  }
+
+			  if (bSelectTower && selectedTower == entt::null)
+			  {
+				  const glm::vec2 vThisPos	  = transform.GetWorldPosition();
+				  float			  fDistanceSq = glm::distance2(vThisPos, vMousePos.xy());
+				  if (fDistanceSq < Square(0.4f))
+				  {
+					  selectedTower = entityTower;
+				  }
+			  }
 		  });
+
+		if (bSelectTower)
+			g_selectedTower = selectedTower;
+	}
+
+	void OnStop()
+	{
+		g_selectedTower = entt::null;
 	}
 } // namespace TowerSystem

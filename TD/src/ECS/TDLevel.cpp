@@ -98,6 +98,12 @@ void TDLevel::Update(Plop::TimeStep &_ts)
 
 	switch (m_eState)
 	{
+		case LevelState::INIT:
+		{
+			TowerSystem::OnUpdate(_ts, m_ENTTRegistry);
+			HexgridSystem::OnUpdate(_ts, m_ENTTRegistry);
+			break;
+		}
 		case LevelState::PLAYING:
 		{
 			UpdatePlaying(_ts);

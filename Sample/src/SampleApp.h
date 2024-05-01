@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Application.h"
+
 struct SampleConfig : public Plop::GameConfig
 {
 
@@ -14,8 +16,6 @@ public:
 	virtual	void				Init() override;
 
 	virtual String				GetName() const override { return String("Sample"); }
-	virtual StringPath			GetEngineDirectory() const override { return ".." / Plop::Application::GetEngineDirectory(); }
-	virtual	StringPath			GetEditorDirectory() const override { return ".." / Plop::Application::GetEditorDirectory(); }
 
 
 private:

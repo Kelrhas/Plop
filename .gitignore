@@ -11,6 +11,7 @@ enc_temp_folder/*
 
 bin/
 intermediate/
+build/
 *.tlog
 *.idb
 *.log

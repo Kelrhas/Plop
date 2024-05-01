@@ -1,0 +1,29 @@
+#pragma once
+
+#ifdef PLATFORM_WINDOWS
+	#include <Windows.h>
+#elif defined(PLATFORM_LINUX)
+#endif
+
+#ifdef _DEBUG
+//#define ENABLE_MEMORY_TRACKING // not working because of static init order
+#elif defined _RELEASE
+#define ENABLE_MEMORY_TRACKING
+#elif defined _MASTER
+#endif
+
+#ifdef ENTT_ID_TYPE
+	#error ENTT_ID_TYPE Already defined, check includes orders "Config.h" must be included before any entt header
+#else
+	#define ENTT_ID_TYPE std::uint64_t
+#endif
+
+//#define USE_CONSTANT_RANDOM
+
+#ifdef _MASTER
+constexpr bool USE_EDITOR = false;
+#else
+constexpr bool USE_EDITOR = true;
+#endif
+
+#define GLM_FORCE_SWIZZLE

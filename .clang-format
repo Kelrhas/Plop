@@ -36,7 +36,13 @@ IncludeBlocks: Regroup
 IndentCaseLabels: 'true'
 IncludeCategories:
      - Regex:           '.*pch\.h'
+       Priority:        -2
+     - Regex:           '^.Config\.h'
        Priority:        -1
+     - Regex:           '^(")'
+       Priority:        2
+     - Regex:           '^(<)'
+       Priority:        3
 IndentPPDirectives: BeforeHash
 IndentWidth: '4'
 IndentWrappedFunctionNames: 'false'

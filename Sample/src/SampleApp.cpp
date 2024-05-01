@@ -1,34 +1,30 @@
-#include <Sample_pch.h>
-
-#include <imgui_entt_entity_editor.hpp>
-
-#include "Debug/Log.h"
+#include "Config.h"
 
 #include "SampleApp.h"
+
+#include "SampleComponents.h"
 #include "SampleLayer.h"
 #include "SampleLevel.h"
-#include "SampleComponents.h"
+
+#include <Debug/Log.h>
 
 
-Plop::Application* Plop::CreateApplication(const StringVec& _Arguments)
+Plop::Application *Plop::CreateApplication(const StringVec &_Arguments)
 {
-	return NEW SampleApp( _Arguments );
+	return NEW SampleApp(_Arguments);
 }
 
-SampleApp::SampleApp( const StringVec& _Arguments )
-	: Application( _Arguments )
-{
-}
+SampleApp::SampleApp(const StringVec &_Arguments) : Application(_Arguments) {}
 
 void SampleApp::Init()
 {
 	Plop::Application::Init();
 
-	RegisterAppLayer( NEW SampleLayer() );
-	RegisterAppLayer( NEW SampleLayer2D() );
+	RegisterAppLayer(NEW SampleLayer());
+	RegisterAppLayer(NEW SampleLayer2D());
 }
 
-Plop::GameConfig* SampleApp::CreateGameConfig()
+Plop::GameConfig *SampleApp::CreateGameConfig()
 {
 	return NEW SampleConfig();
 }
@@ -41,5 +37,5 @@ Plop::LevelBasePtr SampleApp::CreateNewLevelPrivate()
 
 void SampleApp::RegisterComponents()
 {
-	REGISTER_COMPONENT( Rotating );
+	REGISTER_COMPONENT(Rotating);
 }

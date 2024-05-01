@@ -1,4 +1,4 @@
-#include "Sample_pch.h"
+#include "Config.h"
 
 #include "SampleLevel.h"
 
@@ -10,7 +10,6 @@
 void SampleLevel::Init()
 {
 	LevelBase::Init();
-
 }
 
 void SampleLevel::Update(Plop::TimeStep &_ts)

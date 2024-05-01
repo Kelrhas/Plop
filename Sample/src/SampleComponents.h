@@ -1,6 +1,10 @@
 #pragma once
 
-#include <imgui_entt_entity_editor.hpp>
+#include "Constants.h"
+
+#include <nlohmann/json.hpp>
+
+using namespace nlohmann;
 
 struct Component_Rotating
 {

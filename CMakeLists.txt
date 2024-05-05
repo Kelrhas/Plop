@@ -68,6 +68,12 @@ add_compile_options(
 
 ###############################################################################
 # Configure Plop engine projects
+
+message("\n")
+message("===============================================================")
+message("Generating project from ${CMAKE_CURRENT_SOURCE_DIR}")
+message("===============================================================")
+
 project(PlopGames
 		LANGUAGES CXX
 		VERSION 0.1)
@@ -75,12 +81,6 @@ project(PlopGames
 add_subdirectory(PlopCore)
 add_subdirectory(Editor)
 add_subdirectory(Sample)
-
-
-message("\n")
-message("Generating project from ${CMAKE_CURRENT_SOURCE_DIR}")
-message("\n")
-
 
 
 # need to list every game directory available

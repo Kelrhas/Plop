@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(SOURCE_FILES
-		#"FileWatcher.cpp"
 		"Application.cpp"
+		"FileWatcher.cpp"
 		"TimeStep.cpp"
 		"Assets/SoundLoader.cpp"
 		"Assets/SpritesheetLoader.cpp"
@@ -67,11 +67,11 @@ set(SOURCE_FILES
 )
 
 set(HEADER_FILES
-		#"FileWatcher.h"
 		"Application.h"
 		"ApplicationLayer.h"
 		"Config.h"
 		"Constants.h"
+		"FileWatcher.h"
 		"PlopInclude.h"
 		"TimeStep.h"
 		"Types.h"

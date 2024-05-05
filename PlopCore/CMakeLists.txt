@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 # Copy a file by replacing the cmake variables (@VAR@)
 #configure_file(src/Version.in ${CMAKE_CURRENT_SOURCE_DIR}/src/Version.h)
 
-# Plop as a library
+message("Adding PlopCore as a library")
 add_library(PlopCore STATIC)
 add_subdirectory(src)
 target_include_directories(PlopCore PUBLIC src)
@@ -77,7 +77,6 @@ set(GLEW_USE_STATIC_LIBS ON)
 target_include_directories(PlopCore PUBLIC "Externals/glew/include")
 target_link_libraries(PlopCore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Externals/glew/lib/glew32s.lib")
 target_link_libraries(PlopCore PUBLIC "OpenGL32.lib")
-#add_compile_definitions(GLEW_STATIC)
 
 # STB
 set(STB_FILES

@@ -7,7 +7,7 @@ namespace Plop
 {
 	namespace AssetLoader
 	{
-		TextureHandle GetTexture( const String& _sFilename );
+		TextureHandle GetTexture( const StringPath& _sFilePath );
 
 		TextureHandle PickTextureFromCache();
 	};

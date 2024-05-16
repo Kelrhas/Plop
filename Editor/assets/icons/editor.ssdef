@@ -1,42 +1,42 @@
 {
-	"TexturePath": "../Editor/assets/icons/editor.png",
+	"TexturePath": "editor.png",
 	"Columns": 3,
 	"Rows": 3,
 	"Aliases": {
 		"translate": {
 			"Column":0,
 			"Row":0,
-			"Source":"../Editor/assets/icons/translate.png"
+			"Source":"translate.png"
 		},
 		"rotate": {
 			"Column":1,
 			"Row":0,
-			"Source":"../Editor/assets/icons/rotate.png"
+			"Source":"rotate.png"
 		},
 		"scale": {
 			"Column":2,
 			"Row":0,
-			"Source":"../Editor/assets/icons/scale.png"
+			"Source":"scale.png"
 		},
 		"play": {
 			"Column":0,
 			"Row":1,
-			"Source":"../Editor/assets/icons/play.png"
+			"Source":"play.png"
 		},
 		"pause": {
 			"Column":1,
 			"Row":1,
-			"Source":"../Editor/assets/icons/pause.png"
+			"Source":"pause.png"
 		},
 		"stop": {
 			"Column":2,
 			"Row":1,
-			"Source":"../Editor/assets/icons/stop.png"
+			"Source":"stop.png"
 		},
 		"prefab": {
 			"Column":0,
 			"Row":2,
-			"Source":"../Editor/assets/icons/prefab.png"
+			"Source":"prefab.png"
 		}
 	}
 }

@@ -221,7 +221,7 @@ namespace Plop
 			CameraPtr xCamera;
 			if (IsSelectedEntityForLevel(Application::GetCurrentLevel()) && m_SelectedEntity.HasComponent<Component_Camera>())
 			{
-				xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
+				xCamera = m_SelectedEntity.GetComponent<Component_Camera>().GetCamera();
 				if (!xCamera && Application::Get()->IsUsingEditorCamera())
 					xCamera = m_xEditorCamera;
 			}
@@ -1020,7 +1020,7 @@ namespace Plop
 
 				if (m_SelectedEntity.HasComponent<Component_Camera>())
 				{
-					CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().xCamera;
+					CameraPtr xCamera = m_SelectedEntity.GetComponent<Component_Camera>().GetCamera();
 					if (xCamera)
 					{
 						mViewMatrix = xCamera->GetViewMatrix();

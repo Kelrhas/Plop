@@ -1,9 +1,10 @@
 #pragma once
 
-#include <type_traits>
+#include "Debug/Debug.h"
 
 #include <entt/entity/helper.hpp>
 #include <entt/entity/registry.hpp>
+#include <type_traits>
 
 namespace Plop
 {
@@ -120,11 +121,9 @@ namespace Plop
 		//else
 		//	_dst.insert<Comp>( view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size() );
 
-		// @nocheckin test
+		CHECK_THIS("CloneAllRegistryComponents");
 		//auto &srcStorage = _src.storage<Comp>();
 		//_dst.storage<Comp>().insert(srcStorage.data(), srcStorage.data() + srcStorage.size(), srcStorage.raw(), srcStorage.raw() + srcStorage.size());
-
-		assert(false);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -164,7 +163,6 @@ namespace Plop
 	template<class Comp, class RegistryType, std::enable_if_t<HasOnCreate<Comp>::value, bool> = true>
 	constexpr static void BindOnCreate( RegistryType& registry )
 	{
-		// @nocheckin test
 		registry.on_construct<Comp>().connect<entt::invoke<&Comp::OnCreate>>();
 	}
 
@@ -189,7 +187,6 @@ namespace Plop
 	template<class Comp, class RegistryType, std::enable_if_t<HasOnDestroy<Comp>::value, bool> = true>
 	constexpr static void BindOnDestroy( RegistryType& registry )
 	{
-		// @nocheckin test
 		registry.on_destroy<Comp>().connect<entt::invoke<&Comp::OnDestroy>>();
 	}
 

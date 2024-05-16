@@ -1,5 +1,17 @@
 cmake_minimum_required(VERSION 3.16)
 
+# Set the output folder
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG 	"${ENGINE_PATH}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE 	"${ENGINE_PATH}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MASTER 	"${ENGINE_PATH}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG	"${ENGINE_PATH}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE 	"${ENGINE_PATH}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_MASTER 	"${ENGINE_PATH}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG	"${ENGINE_PATH}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE	"${ENGINE_PATH}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MASTER 	"${ENGINE_PATH}/bin")
+
+
 message("Adding Sample as a standalone")
 add_executable(Sample)
 target_include_directories(Sample PRIVATE src)
@@ -17,8 +29,6 @@ set_target_properties(Sample PROPERTIES
 					
 
 
-
-
 message("Adding Sample as a library")
 add_library(SampleLib SHARED)
 target_include_directories(SampleLib PRIVATE src)
@@ -33,6 +43,7 @@ set_target_properties(SampleLib PROPERTIES
 					DEBUG_POSTFIX "_d"
 					RELEASE_POSTFIX "_r"
 					)
+
 
 #target_compile_definitions(SampleLib PRIVATE LIBRARY_EXPORT)
 

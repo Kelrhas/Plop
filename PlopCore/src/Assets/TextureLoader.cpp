@@ -16,11 +16,11 @@ namespace Plop
 	{
 		using result_type = TexturePtr;
 
-		TexturePtr operator()(const String &_name) const
+		TexturePtr operator()(const StringPath &_path) const
 		{
 			switch (Renderer::GetAPI())
 			{
-				case RenderAPI::API::OPENGL:		return std::make_shared<OpenGL_Texture2D>( _name );
+				case RenderAPI::API::OPENGL: return std::make_shared<OpenGL_Texture2D>(_path);
 			}
 			ASSERTM( false, "Render API not supported" );
 			return nullptr;
@@ -29,9 +29,10 @@ namespace Plop
 
 	entt::resource_cache<Texture, TextureLoader> s_CacheTexture{};
 
-	TextureHandle AssetLoader::GetTexture( const String& _sFilename )
+	TextureHandle AssetLoader::GetTexture(const StringPath &_sFilepath)
 	{
-		return s_CacheTexture.load(entt::hashed_string(_sFilename.c_str()), _sFilename).first->second;
+		String sName = _sFilepath.stem().string();
+		return s_CacheTexture.load(entt::hashed_string(sName.c_str()), _sFilepath).first->second;
 	}
 
 	TextureHandle AssetLoader::PickTextureFromCache()

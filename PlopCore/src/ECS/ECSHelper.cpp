@@ -27,21 +27,15 @@ namespace Plop
 			entt::entity enttIDDst = _regDst.create();
 
 			// Copy components
-			// @nocheckin test
 			for (auto [id, storage] : regSrc.storage())
 			{
 				if (storage.contains(enttIDSrc))
 				{
-					const entt::meta_type type = entt::resolve(id);
-					type.func("clone"_hs).invoke({}, std::ref(regSrc), enttIDSrc, std::ref(_regDst), enttIDDst);
+					const entt::meta_type type = entt::resolve(storage.type());
+					if (auto func = type.func("clone"_hs))
+						func.invoke({}, entt::forward_as_meta(regSrc), enttIDSrc, entt::forward_as_meta(_regDst), enttIDDst);
 				}
 			}
-			/*
-			for(regSrc.visit([&regSrc, &_regDst, enttIDSrc, enttIDDst](const auto compId) {
-				const entt::meta_type type = entt::resolve(compId);
-				type.func("clone"_hs).invoke({}, std::ref(regSrc), enttIDSrc, std::ref(_regDst), enttIDDst);
-			});
-			*/
 
 			// Add the children to the queue
 			const auto &graphNodeSrc = regSrc.get<Component_GraphNode>(enttIDSrc);
@@ -62,16 +56,15 @@ namespace Plop
 			parentDst = entt::handle { _regDst, CopyEntity(_hSrc.entity()) };
 		else
 		{
-			// @nocheckin test
 			for (auto [id, storage] : regSrc.storage())
 			{
-				const entt::meta_type type = entt::resolve(id);
-				type.func("clone"_hs).invoke({}, std::ref(regSrc), _hSrc.entity(), std::ref(_regDst), parentDst);
+				if (storage.contains(_hSrc))
+				{
+					const entt::meta_type type = entt::resolve(storage.type());
+					if (auto func = type.func("clone"_hs))
+						func.invoke({}, entt::forward_as_meta(regSrc), _hSrc.entity(), entt::forward_as_meta(_regDst), parentDst.entity());
+				}
 			}
-			//regSrc.visit([&regSrc, &_regDst, enttIDSrc = _hSrc.entity(), enttIDDst=parentDst](const auto compId) {
-			//	const entt::meta_type type = entt::resolve(compId);
-			//	type.func("clone"_hs).invoke({}, std::ref(regSrc), enttIDSrc, std::ref(_regDst), enttIDDst);
-			//});
 
 			const auto & graphNodeSrc = _hSrc.get<Component_GraphNode>();
 			entt::entity childEntity = graphNodeSrc.firstChild;

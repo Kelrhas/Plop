@@ -90,13 +90,6 @@ namespace Plop
 
 				bool		IsSelectedEntityForLevel(LevelBaseWeakPtr _xLevel) const;
 
-		template<typename Comp, bool RegisterEditor>
-				void		RegisterComponent( const char* _pName )
-		{
-			// @nocheckin
-			//auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) );
-			//factory.func<&EditorLayer::CloneRegistryComponents<Comp>>( "cloneAllComponents"_hs );
-		}
 		template<typename Comp>
 		static	void		CloneRegistryComponents( entt::registry& _src, entt::registry& _dst )
 		{
@@ -105,7 +98,7 @@ namespace Plop
 			//	_dst.insert<Comp>( view.data(), view.data() + view.size() );
 			//else
 				_dst.insert<Comp>( view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size() );
-			assert(false);
+			ASSERT(false);
 		}
 
 		static	Entity		DuplicateEntity( const Entity& _entity );

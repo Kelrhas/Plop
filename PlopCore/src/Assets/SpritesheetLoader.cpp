@@ -20,7 +20,7 @@ namespace Plop::AssetLoader
 			SpritesheetPtr xSpritesheet;
 
 			std::ifstream assetFile(_path, std::ios::in);
-			ASSERTM(assetFile.is_open(), "Spritesheet file not found: {}", _path.string().c_str());
+			ASSERTM(assetFile.is_open(), "Spritesheet file not found: {}", std::filesystem::absolute(_path).string().c_str());
 			if (assetFile.is_open())
 			{
 				json jSpritesheet;
@@ -35,7 +35,9 @@ namespace Plop::AssetLoader
 				xSpritesheet = std::make_shared<Spritesheet>();
 				xSpritesheet->LoadFromFile(std::filesystem::canonical(_path));
 
-				xSpritesheet->m_hTexture = GetTexture(jSpritesheet["TexturePath"]);
+				StringPath sTexPath = _path.parent_path() / jSpritesheet["TexturePath"];
+
+				xSpritesheet->m_hTexture = GetTexture(sTexPath);
 				if (jSpritesheet.contains("Columns"))
 					xSpritesheet->m_uNbColumn = jSpritesheet["Columns"];
 				if (jSpritesheet.contains("Rows"))

@@ -146,14 +146,6 @@ namespace Plop
 		ASSERTM(s_pInstance == nullptr, "Only one instance of Application authorized");
 		s_pInstance = this;
 
-		try
-		{
-			std::filesystem::current_path(GetRootDirectory());
-		}
-		catch(...)
-		{
-			printf(std::filesystem::current_path().string().c_str());
-		}
 
 #ifdef USE_CONSTANT_RANDOM
 		RandomSeed(42llu);

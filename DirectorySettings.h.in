@@ -1,0 +1,4 @@
+// Copied by Cmake from DirectorySettings.h.in
+
+// set the engine path
+static constexpr const char* g_sEnginePath = "${ENGINE_PATH}";

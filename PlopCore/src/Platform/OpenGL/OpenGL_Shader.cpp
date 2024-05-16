@@ -30,7 +30,7 @@ namespace Plop
 
 		String sContent;
 		std::ifstream file(_sFile, std::ios::in | std::ios::binary);
-		ASSERTM(file.is_open(), "File not found: {}", _sFile.string().c_str());
+		ASSERTM(file.is_open(), "File not found: {}", std::filesystem::absolute(_sFile).string().c_str());
 		if (file.is_open())
 		{
 			file.seekg(0, std::ios::end);

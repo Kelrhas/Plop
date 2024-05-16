@@ -32,11 +32,18 @@ namespace Plop
 		void Assert_GL();
 		void Assert_AL();
 
-		void TODO( const char* _pMessage = nullptr );
-#define TODO_STATIC( message ) static_assert(false, message);
+		void TODO(const char *_pMessage = nullptr);
+#define TODO_STATIC(message) static_assert(false, message);
+#define CHECK_THIS(message){								\
+			if (message)									\
+				Plop::Log::Warn("CHECK THIS:\n\t{}:{}\n\t{}", __FILE__, __LINE__, message);\
+			static bool bIgnore = false;					\
+			if (!bIgnore)									\
+				BREAK();									\
+		}
 
-		void ShowAllocationsWindow( bool* _bOpened = nullptr );
-	}
+		void ShowAllocationsWindow(bool *_bOpened = nullptr);
+	} // namespace Debug
 }
 
 

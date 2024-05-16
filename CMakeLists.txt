@@ -7,22 +7,16 @@ set(CMAKE_CXX_STANDARD 20)
 # Remove the ZERO_CHECK vcxproj
 set(CMAKE_SUPPRESS_REGENERATION true)
 
-# Set the output folder
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/build)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/build) 
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG 	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE 	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MASTER 	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE 	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_MASTER 	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MASTER 	"${CMAKE_CURRENT_SOURCE_DIR}/bin")
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+message("\n")
+message("===============================================================")
+message("Generating project from ${CMAKE_CURRENT_SOURCE_DIR}")
+message("===============================================================")
+
+set(ENGINE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+configure_file(DirectorySettings.h.in "${ENGINE_PATH}/DirectorySettings.h")
+message("Engine path: ${ENGINE_PATH}")
 
 # Set the configuration targets
 set(CMAKE_CONFIGURATION_TYPES Debug;Release;Master)
@@ -69,11 +63,6 @@ add_compile_options(
 ###############################################################################
 # Configure Plop engine projects
 
-message("\n")
-message("===============================================================")
-message("Generating project from ${CMAKE_CURRENT_SOURCE_DIR}")
-message("===============================================================")
-
 project(PlopGames
 		LANGUAGES CXX
 		VERSION 0.1)
@@ -82,5 +71,5 @@ add_subdirectory(PlopCore)
 add_subdirectory(Editor)
 add_subdirectory(Sample)
 
-
-# need to list every game directory available
+# DYNAMIC_TARGETS (depends on folder present at the same level as the engine), DO NOT REMOVE
+add_subdirectory(../TD ../TD-build)

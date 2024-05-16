@@ -101,24 +101,10 @@ namespace Plop
 
 	void ComponentManager::DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest )
 	{
-		// @nocheckin check
+		CHECK_THIS("ComponentManager::DuplicateComponent");
 		for (auto& [id, info] : s_mapComponents)
 		{
 			info.funcDuplicate(_reg, _entitySrc, _reg, _entityDest);
 		}
 	}
-
-	//bool ComponentManager::HasComponent( const Registry& _reg, EntityType _e, ComponentTypeId _id )
-	//{
-	//	// @nocheckin check
-	//	Registry		   r;
-	//	entt::const_runtime_view view {};
-	//	ASSERT(_reg.storage(_id));
-	//	view.iterate(*_reg.storage(_id));
-	//	return view.contains(_e);
-	//
-	//	//ComponentTypeId type[] = { _id };
-	//	//return _reg.runtime_view( std::cbegin( type ), std::cend( type ) ).contains( _e );
-	//}
-
 }

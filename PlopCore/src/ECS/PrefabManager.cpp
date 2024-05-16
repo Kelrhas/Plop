@@ -667,20 +667,10 @@ usage:
 				}
 
 				// update the guid<->entity mapping
-				// @nocheckin test
 				for (auto [_entt, comp] : lib.registry.storage<Component_Name>().each())
 				{
 					lib.mapGUIDToEntt[comp.guid] = _entt;
 				}
-
-
-				// lib.registry.each(
-				//   [&lib](entt::entity _entt)
-				//   {
-				//	  auto &comp				   = lib.registry.get<Component_Name>(_entt);
-				//	  lib.mapGUIDToEntt[comp.guid] = _entt;
-				//	  return VisitorFlow::CONTINUE;
-				//   });
 
 				Plop::Log::Info("Prefab library '{}' loaded from file {}", sName, _sPath.string());
 			}
@@ -705,7 +695,7 @@ usage:
 				json jLib;
 				jLib[JSON_NAME] = sKey;
 
-				// @nocheckin test
+				CHECK_THIS("PrefabManager::SaveLibraries");
 				for (auto [enttID] : lib.registry.storage<entt::entity>()->each())
 				{
 					// TODO maybe merge with Entity::ToJson ?

@@ -124,7 +124,7 @@ namespace Plop
 		for (auto entity : view)
 		{
 			auto [camera, transform] = view.get<Component_Camera, Component_Transform>(entity);
-			xCurrentCamera = camera.xCamera;
+			xCurrentCamera			 = camera.GetCamera();
 			mViewMatrix = glm::inverse( transform.GetWorldMatrix() );
 		}
 
@@ -264,28 +264,32 @@ namespace Plop
 	{
 		auto& srcReg = _xLevel->m_ENTTRegistry;
 		auto& destReg = m_ENTTRegistry;
-
-		auto &srcStorage = srcReg.storage<entt::entity>();
-		auto &dstStorage = destReg.storage<entt::entity>();
-
-		// @nocheckin test
 		destReg.clear();
-		dstStorage.push(srcStorage.begin(), srcStorage.end());
-		//destReg.storage<entt::entity>().insert(srcStorage.data(), srcStorage.data() + srcStorage.size(), entt::null);
-		//for (auto entity : srcReg.storage<entt::entity>().each())
-		//{
-		//}
 
-		/*
-		destReg.clear();
-		destReg.assign( srcReg.data(), srcReg.data() + srcReg.size(), entt::null );
-
-		srcReg.visit( [&srcReg, &destReg]( auto _comp )
+		// first copy entities
 		{
-			auto type = entt::resolve( _comp );
-			auto f = type.func( "cloneAllComponents"_hs );
-			f.invoke( {}, std::ref( srcReg ), std::ref( destReg ) );
-		} );*/
+			auto &srcStorage = srcReg.storage<entt::entity>();
+			auto &dstStorage = destReg.storage<entt::entity>();
+			dstStorage.push(srcStorage.begin(), srcStorage.end());
+		}
+
+		// then all components
+		for (auto [id, srcStorage] : srcReg.storage())
+		{
+			auto *pDstStorage = destReg.storage(id);
+			if (pDstStorage == nullptr)
+			{
+				entt::resolve(srcStorage.type()).invoke("storage"_hs, {}, entt::forward_as_meta(destReg), id);
+				pDstStorage = destReg.storage(id);
+			}
+			ASSERT(pDstStorage);
+
+			pDstStorage->reserve(srcStorage.size());
+			for (auto it = srcStorage.begin(); it != srcStorage.end(); it++)
+			{
+				pDstStorage->push(*it, srcStorage.value(*it));
+			}
+		}
 	}
 
 	json LevelBase::ToJson()

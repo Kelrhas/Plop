@@ -152,11 +152,11 @@ namespace Plop
 #endif
 		}
 
-		void TODO( const char* _pMessage )
+		void TODO(const char *_pMessage)
 		{
 #ifndef _MASTER
 			if (_pMessage)
-				Plop::Log::Info( "TODO:\t{}", _pMessage );
+				Plop::Log::Info("TODO:\t{}", _pMessage);
 			static bool bIgnore = false;
 			if (!bIgnore)
 				BREAK();

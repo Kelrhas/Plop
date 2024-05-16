@@ -1,7 +1,10 @@
 #pragma once
 
+#include "Config.h"
+
 #include "ApplicationLayer.h"
 #include "Debug/ImGuiLayer.h"
+#include "ECS/ComponentManager.h"
 #include "Editor/EditorLayer.h"
 #include "Events/IEventListener.h"
 #include "TimeStep.h"
@@ -56,8 +59,8 @@ namespace Plop
 
 				void			Run();
 		virtual String			GetName() const = 0;
-				StringPath		GetEngineDirectory() const { return StringPath("../PlopCore"); }
-				StringPath		GetEditorDirectory() const { return StringPath("../Editor"); }
+				StringPath		GetEngineDirectory() const { return StringPath(g_sEnginePath) / "PlopCore"; }
+		StringPath				GetEditorDirectory() const { return StringPath(g_sEnginePath) / "Editor"; }
 
 				Window&			GetWindow() const { return *m_xWindow; }
 
@@ -85,10 +88,10 @@ namespace Plop
 
 	protected:
 		template<typename Comp, bool RegisterEditor = true>
-				void			RegisterComponent( const char* _pName )
-				{
-					m_EditorLayer.RegisterComponent<Comp, RegisterEditor>( _pName );
-				}
+		void RegisterComponent(const char *_pName)
+		{
+			ComponentManager::RegisterComponent<Comp>(_pName);
+		}
 
 
 	private:

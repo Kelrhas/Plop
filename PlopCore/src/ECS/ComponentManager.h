@@ -69,19 +69,14 @@ namespace Plop
 		template<typename Visitor>
 		static void ComponentsVisitor( Registry& _reg, EntityType _e, Visitor _v );
 
-		//static bool HasComponent( const Registry& _reg, EntityType _e, ComponentTypeId _id );
 
 	private:
-
-
 		template<typename Comp>
 		static Comp& MetaGetComponent( Registry& _reg, EntityType _e );
 		template<typename Comp>
 		static bool MetaHasComponent( const Registry& _reg, EntityType _e );
 		template<typename Comp>
 		static Comp& MetaAddComponent( Registry& _reg, EntityType _e );
-		//template<typename Comp>
-		//static void MetaCloneComponent( const Registry& _regSrc, EntityType _eSrc, Registry &_regDst, const EntityType &_eDst);
 
 
 		static std::unordered_map<ComponentTypeId, ComponentInfo> s_mapComponents;
@@ -124,16 +119,13 @@ namespace Plop
 		/// meta/reflection stuff
 
 		auto factory = entt::meta<Comp>().type( entt::hashed_string( _pName ) ).prop("name"_hs, String(_pName));
-		factory.func<&CloneAllRegistryComponents<Comp, Registry &>>("cloneAllComponents"_hs);
 		factory.func<&CallDuplicateComponent<Comp, Registry, EntityType>>("clone"_hs);
 		factory.func<&MetaGetComponent<Comp>, entt::as_ref_t>("get"_hs);
 		factory.func<&MetaHasComponent<Comp>>("has"_hs);
 		factory.func<&MetaAddComponent<Comp>, entt::as_ref_t>("add"_hs);
+		// and func for creating a storage from type_id, taken from https://github.com/skypjack/entt/blob/master/test/example/entity_copy.cpp#L34
+		factory.func<entt::overload<entt::storage_for_t<Comp, EntityType> &(const ComponentTypeId)>(&Registry::storage<Comp>), entt::as_ref_t>("storage"_hs);
 
-		/*if constexpr (std::is_invocable_v<Comp::SetupReflection>)
-		{
-			factory.func<&Comp::SetupReflection>("setup"_hs);
-		}*/
 	}
 
 	template<typename Visitor> // [](const entt::id_type, const ComponentManager::ComponentInfo&){}
@@ -160,7 +152,7 @@ namespace Plop
 			}
 		}*/
 
-		assert(false); // v THIS NEEDS TO BE FIXED v
+		ASSERT(false); // v THIS NEEDS TO BE FIXED v
 		/*
 		_reg.visit( _e, [&]( const auto compId ) {
 			const auto type = entt::resolve_type( compId );
@@ -187,13 +179,4 @@ namespace Plop
 	Comp& ComponentManager::MetaAddComponent( ComponentManager::Registry& _reg, EntityType _e ) {
 		return _reg.emplace<Comp>( _e );
 	}
-
-
-	//template<typename Comp>
-	//void ComponentManager::MetaCloneComponent(const ComponentManager::Registry &_regSrc, const EntityType &_eSrc,
-	//										  ComponentManager::Registry &_regDst, const EntityType &_eDst)
-	//{
-	//	const Comp &compSrc = _regSrc.get<Comp>(_eSrc);
-	//	Comp &compDst = _regDst.get_or_emplace<Comp>(_eDst, compSrc);
-	//}
 }

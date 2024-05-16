@@ -2,15 +2,68 @@
   "Entities": [
     {
       "Components": {
-        "SpriteRenderer": {
-          "Coord": [0,1],
-          "Spritesheet": "..\\Editor\\assets\\icons\\editor.ssdef",
-          "Tint": [1.0,1.0,1.0,1.0]
+        "Camera": {
+          "far": 1.0,
+          "near": 0.20000000298023224,
+          "ortho": true,
+          "orthoSize": 10.0,
+          "perspFOV": 1.1344640254974365
         },
         "Transform": {
-          "Position": [0.0,0.0,0.0],
-          "Rotation": [0.0,0.0,0.0,1.0],
-          "Scale": [1.0,1.0,1.0]
+          "Position": [
+            0.0,
+            0.0,
+            0.6000000238418579
+          ],
+          "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "GUID": 4280366292953392795,
+      "HintID": 4294967297,
+      "Name": "Camera"
+    },
+    {
+      "Components": {
+        "SpriteRenderer": {
+          "Coord": [
+            0,
+            1
+          ],
+          "Spritesheet": "..\\Editor\\assets\\icons\\editor.ssdef",
+          "Tint": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "Transform": {
+          "Position": [
+            1.8181822299957275,
+            0.8288770914077759,
+            0.0
+          ],
+          "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
         }
       },
       "GUID": 15800501584170203848,

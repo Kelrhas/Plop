@@ -1226,24 +1226,46 @@ namespace Plop
 		return false;
 	}
 
-	Entity EditorLayer::DuplicateEntity( const Entity& _entity )
+	Entity EditorLayer::DuplicateEntity(const Entity &_entity)
 	{
-		LevelBasePtr xLevel = Application::GetCurrentLevel().lock();
-		const String& sName = _entity.GetComponent<Component_Name>().sName + " - copy";
-		Entity dupEntity = xLevel->CreateEntity( sName );
-		dupEntity.SetParent( _entity.GetParent() );
+		LevelBasePtr xLevel	   = Application::GetCurrentLevel().lock();
+		const String sName	   = _entity.GetComponent<Component_Name>().sName + " - copy";
+		Entity		 dupEntity = xLevel->CreateEntity(sName);
+		dupEntity.SetParent(_entity.GetParent());
 
-		entt::registry& reg = xLevel->m_ENTTRegistry;
+		entt::registry &reg = xLevel->m_ENTTRegistry;
 
+		dupEntity.GetComponent<Component_Transform>() = _entity.GetComponent<Component_Transform>();
+		ComponentManager::DuplicateMissingComponents(reg, _entity.m_hEntity.entity(), dupEntity.m_hEntity.entity());
 
-		ComponentManager::DuplicateComponent( reg, _entity.m_hEntity.entity(), dupEntity.m_hEntity.entity() );
+		_entity.VisitChildren(
+		  [&dupEntity](Entity _child)
+		  {
+			  Entity dupChild = DuplicateEntityChildren(_child);
+			  dupChild.SetParent(dupEntity);
+			  return VisitorFlow::CONTINUE;
+		  });
 
-		_entity.VisitChildren( [&dupEntity](Entity _child ) {
+		return dupEntity;
+	}
 
-			Entity dupChild = DuplicateEntity( _child );
-			dupChild.SetParent(dupEntity);
-			return VisitorFlow::CONTINUE;
-		} );
+	Entity EditorLayer::DuplicateEntityChildren(const Entity &_entity)
+	{
+		LevelBasePtr xLevel	   = Application::GetCurrentLevel().lock();
+		Entity		 dupEntity = xLevel->CreateEntity(_entity.GetComponent<Component_Name>().sName);
+
+		entt::registry &reg = xLevel->m_ENTTRegistry;
+
+		dupEntity.GetComponent<Component_Transform>() = _entity.GetComponent<Component_Transform>();
+		ComponentManager::DuplicateMissingComponents(reg, _entity.m_hEntity.entity(), dupEntity.m_hEntity.entity());
+
+		_entity.VisitChildren(
+		  [&dupEntity](Entity _child)
+		  {
+			  Entity dupChild = DuplicateEntityChildren(_child);
+			  dupChild.SetParent(dupEntity);
+			  return VisitorFlow::CONTINUE;
+		  });
 
 		return dupEntity;
 	}

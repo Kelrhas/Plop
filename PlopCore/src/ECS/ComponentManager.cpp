@@ -99,12 +99,14 @@ namespace Plop
 		}
 	}
 
-	void ComponentManager::DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest )
+	void ComponentManager::DuplicateMissingComponents(Registry &_reg, EntityType _entitySrc, EntityType _entityDest)
 	{
-		CHECK_THIS("ComponentManager::DuplicateComponent");
-		for (auto& [id, info] : s_mapComponents)
+		for (auto [id, srcStorage] : _reg.storage())
 		{
-			info.funcDuplicate(_reg, _entitySrc, _reg, _entityDest);
+			if (srcStorage.contains(_entitySrc) && !srcStorage.contains(_entityDest))
+			{
+				srcStorage.push(_entityDest, srcStorage.value(_entitySrc));
+			}
 		}
 	}
 }

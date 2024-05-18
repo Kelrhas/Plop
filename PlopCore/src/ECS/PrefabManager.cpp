@@ -695,7 +695,6 @@ usage:
 				json jLib;
 				jLib[JSON_NAME] = sKey;
 
-				CHECK_THIS("PrefabManager::SaveLibraries");
 				for (auto [enttID] : lib.registry.storage<entt::entity>()->each())
 				{
 					// TODO maybe merge with Entity::ToJson ?
@@ -717,26 +716,6 @@ usage:
 					jLib[JSON_ENTITIES].emplace_back(std::move(j));
 				}
 
-				  //[&jLib, &lib](entt::entity enttID)
-				  //{
-					 // // TODO maybe merge with Entity::ToJson ?
-					 // auto &nameComp = lib.registry.get<Component_Name>(enttID);
-					 // json	j;
-					 // j[JSON_NAME]			  = nameComp.sName;
-					 // j[JSON_GUID]			  = nameComp.guid;
-					 // const auto &graphNode	  = lib.registry.get<Component_GraphNode>(enttID);
-					 // auto		  childEntity = graphNode.firstChild;
-					 // while (childEntity != entt::null)
-					 // {
-						//  auto &nameCompChild = lib.registry.get<Component_Name>(childEntity);
-						//  j[JSON_CHILDREN].push_back(nameCompChild.guid);
-
-						//  childEntity = lib.registry.get<Component_GraphNode>(childEntity).nextSibling;
-					 // }
-
-					 // ComponentManager::ToJson(lib.registry, enttID, j);
-					 // jLib[JSON_ENTITIES].emplace_back(std::move(j));
-				  //});
 
 				for (const auto &prefab : lib.vecPrefabs)
 				{

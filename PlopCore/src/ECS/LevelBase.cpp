@@ -302,11 +302,10 @@ namespace Plop
 			return VisitorFlow::CONTINUE;
 		});
 
-		for(auto _entityID : m_ENTTRegistry.storage<entt::entity>())
-		//m_ENTTRegistry.each([&j, this] (entt::entity _entityID)
+		for (auto [_entityID] : m_ENTTRegistry.storage<entt::entity>().each())
 		{
 			Entity entity = { _entityID, m_ENTTRegistry };
-			if (!entity.HasFlag( EntityFlag::NO_SERIALISATION))
+			if (!entity.HasFlag(EntityFlag::NO_SERIALISATION))
 			{
 				String &sName = entity.GetComponent<Component_Name>().sName;
 				if (entity.HasComponent<Component_PrefabInstance>() || !PrefabManager::IsPartOfPrefab(entity))

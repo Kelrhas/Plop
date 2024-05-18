@@ -62,7 +62,7 @@ namespace Plop
 		static void FromJson( Registry& _reg, EntityType _e, const Json& _j);
 		static void ToJson( const Registry& _reg, EntityType _e, Json& _j);
 		static void AfterLoad(Registry &_reg, EntityType _e);
-		static void DuplicateComponent( Registry& _reg, EntityType _entitySrc, EntityType _entityDest );
+		static void DuplicateMissingComponents(Registry &_reg, EntityType _entitySrc, EntityType _entityDest);
 
 		template<typename Visitor>
 		static void VisitAllComponents(Visitor &&_v);

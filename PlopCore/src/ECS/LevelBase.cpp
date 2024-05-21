@@ -104,6 +104,9 @@ namespace Plop
 	void LevelBase::StopToEditor()
 	{
 		OnStop();
+
+		m_mapGUIDToEntt.clear();
+		m_ENTTRegistry.clear();
 	}
 
 	void LevelBase::UpdateInEditor( const TimeStep &_ts )
@@ -262,15 +265,47 @@ namespace Plop
 
 	void LevelBase::CopyFrom( LevelBasePtr _xLevel )
 	{
+		json  j		  = _xLevel->ToJson();
+		FromJson(j);
+
+		std::ofstream levelFile("EditorLevel.lvl" , std::ios::out | std::ios::trunc);
+		if (levelFile.is_open())
+		{
+			levelFile << j.dump(2);
+		}
+		return;
+
+
+		// not sure it we need to do more than juste serialise/deserialise
+		// maybe for speed purpose
+		// but good enough for now (and safe)
+
+
 		auto& srcReg = _xLevel->m_ENTTRegistry;
 		auto& destReg = m_ENTTRegistry;
 		destReg.clear();
+
+
+		// we may need to patch GraphNode while copying, because of some entities not copied (NO_SERIALISATION flag)
+		// some entities may be the first child in the hierarchy but we still need to get retrieve the next sibling
+		// to put it as first child of its parent ...
+//#error TODO
+
+
 
 		// first copy entities
 		{
 			auto &srcStorage = srcReg.storage<entt::entity>();
 			auto &dstStorage = destReg.storage<entt::entity>();
-			dstStorage.push(srcStorage.begin(), srcStorage.end());
+			for (auto enttID : srcStorage)
+			{
+				if (Component_GraphNode *pCompNode = srcReg.try_get<Component_GraphNode>(enttID))
+				{
+					if (pCompNode->uFlags.Has(EntityFlag::NO_SERIALISATION))
+						continue;
+				}
+				dstStorage.push(enttID);
+			}
 		}
 
 		// then all components
@@ -287,8 +322,22 @@ namespace Plop
 			pDstStorage->reserve(srcStorage.size());
 			for (auto it = srcStorage.begin(); it != srcStorage.end(); it++)
 			{
-				pDstStorage->push(*it, srcStorage.value(*it));
+				// push only if the entity is in the destination register
+				if (destReg.valid(*it))
+					pDstStorage->push(*it, srcStorage.value(*it));
 			}
+		}
+
+		// notify loading finished
+		// @nocheckin
+		CHECK_THIS("Not sure if it is the correct moment to do that, but still need to (at least to generate the pathfind for now)");
+		for (auto enttID : destReg.storage<entt::entity>())
+		{
+			Entity e { enttID, destReg };
+//#error need to prevent creating/deleting entities while iterating through them ...
+			/*	Component_HexGrid::AfterLoad calls HexGrid::Init that deletes and creates entities for all tiles
+			* */
+			e.AfterLoad();
 		}
 	}
 

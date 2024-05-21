@@ -4,10 +4,9 @@
 - ~~use C++20~~
 - update imgui (tables)
 - ~~use a code style file~~
-- passer sur CMake
 
 
-**[Plop]**
+**[Core]**
 
 - ~~change window title depending on level & configuration~~
 - fix memory tracking (the std::map are released before every delete is called so we try to access freed memory, problem of static order initialization)
@@ -20,9 +19,6 @@
 - improve world/local matrices computation, use caching ? or a WorldMatrixComponent
 - fix resolution of 0 when minimizing
 - save the window being maximized
-- ~~use entt::handle~~
-- update EnTT
-	- use registry storage to store multiple component of the same type
 - use commands for rendering (probably vulkan switch)
 	- add debug render command (cube, line, sphere ...)
 - spritesheet creator/modification
@@ -74,15 +70,3 @@
 	- fix picking while paused
 - fix EditorCamera rotation when a Camera entity is selected and possibly when level is playing
 - fix zoom
-
-
-**[TD]**
-
-- using a hexgrid
-	- ~~pathfind~~
-	- ~~make a component to be serialised -> rebuild all the grid from data, and not entities~~
-	- make sure Private::bPickingCell is reset when cliking outside the viewport
-	- fix picking with all rotation
-- quadtree but for hex ?
-- clean LevelGrid
-

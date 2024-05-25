@@ -82,8 +82,7 @@ namespace Plop
 			if (info.funcHas(_reg, _e))
 			{
 				auto j = info.funcToJson(_reg, _e);
-				if (!j.empty())
-					_j[JSON_COMPONENTS][info.pName] = j;
+				_j[JSON_COMPONENTS][info.pName] = j;
 			}
 		}
 	}

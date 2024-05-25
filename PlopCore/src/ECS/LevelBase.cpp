@@ -266,13 +266,15 @@ namespace Plop
 	void LevelBase::CopyFrom( LevelBasePtr _xLevel )
 	{
 		json  j		  = _xLevel->ToJson();
-		FromJson(j);
 
 		std::ofstream levelFile("EditorLevel.lvl" , std::ios::out | std::ios::trunc);
 		if (levelFile.is_open())
 		{
 			levelFile << j.dump(2);
 		}
+
+		FromJson(j);
+
 		return;
 
 

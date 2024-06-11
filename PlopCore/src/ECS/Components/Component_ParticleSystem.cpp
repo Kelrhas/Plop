@@ -15,6 +15,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
+static constexpr const char *JSON_CAPACITY		= "Capacity";
+static constexpr const char *JSON_AUTOSPAWNRATE = "AutoSpawnRate";
+static constexpr const char *JSON_BURSTMODE		= "BurstMode";
+static constexpr const char *JSON_SPAWNERS		= "Spawners";
+static constexpr const char *JSON_UPDATERS		= "Updaters";
+
 namespace
 {
 	struct SpawnerHandlerAbstract // type erasure
@@ -59,9 +65,9 @@ namespace
 
 namespace Plop
 {
-	Component_ParticleSystem::Component_ParticleSystem(size_t _iMaxParticles) : m_iMaxNumberParticles(std::max<size_t>(_iMaxParticles, 1))
+	Component_ParticleSystem::Component_ParticleSystem(size_t _iMaxParticles) : m_iParticleCapacity(std::max<size_t>(_iMaxParticles, 1))
 	{
-		m_pParticles = NEW ParticleData[m_iMaxNumberParticles];
+		m_pParticles = NEW ParticleData[m_iParticleCapacity];
 	}
 
 	Component_ParticleSystem::Component_ParticleSystem(const Component_ParticleSystem &_other) noexcept
@@ -83,13 +89,13 @@ namespace Plop
 	{
 		if (m_pParticles)
 			delete[] m_pParticles;
-		m_pParticles = NEW ParticleData[_other.m_iMaxNumberParticles];
-		memcpy(m_pParticles, _other.m_pParticles, sizeof(ParticleData) * _other.m_iNbActiveParticles); // no need to copy inactive particles
-		m_iMaxNumberParticles = _other.m_iMaxNumberParticles;
-		m_iNbActiveParticles  = _other.m_iNbActiveParticles;
-		m_fAutoSpawnRate	  = _other.m_fAutoSpawnRate;
-		m_fAutoSpawnRemainder = _other.m_fAutoSpawnRemainder;
-		m_rand				  = _other.m_rand;
+		m_pParticles = NEW ParticleData[_other.m_iParticleCapacity];
+		memcpy(m_pParticles, _other.m_pParticles, sizeof(ParticleData) * _other.m_iActiveParticleCount); // no need to copy inactive particles
+		m_iParticleCapacity	   = _other.m_iParticleCapacity;
+		m_iActiveParticleCount = 0; // reset particles used
+		m_fAutoSpawnRate	   = _other.m_fAutoSpawnRate;
+		m_fAutoSpawnRemainder  = _other.m_fAutoSpawnRemainder;
+		m_rand				   = _other.m_rand;
 		m_vecSpawners.clear();
 		m_vecSpawners.reserve(_other.m_vecSpawners.size());
 		for (const auto &spawner : _other.m_vecSpawners)
@@ -112,19 +118,19 @@ namespace Plop
 	{
 		if (m_pParticles)
 			delete[] m_pParticles;
-		m_pParticles		  = _other.m_pParticles;
-		m_iMaxNumberParticles = _other.m_iMaxNumberParticles;
-		m_iNbActiveParticles  = _other.m_iNbActiveParticles;
-		m_fAutoSpawnRate	  = _other.m_fAutoSpawnRate;
-		m_fAutoSpawnRemainder = _other.m_fAutoSpawnRemainder;
-		m_rand				  = _other.m_rand;
-		m_vecSpawners		  = std::move(_other.m_vecSpawners);
-		m_vecUpdaters		  = std::move(_other.m_vecUpdaters);
-		m_vBasePosition		  = _other.m_vBasePosition;
-		m_bBurst			  = _other.m_bBurst;
+		m_pParticles		   = _other.m_pParticles;
+		m_iParticleCapacity	   = _other.m_iParticleCapacity;
+		m_iActiveParticleCount = _other.m_iActiveParticleCount;
+		m_fAutoSpawnRate	   = _other.m_fAutoSpawnRate;
+		m_fAutoSpawnRemainder  = _other.m_fAutoSpawnRemainder;
+		m_rand				   = _other.m_rand;
+		m_vecSpawners		   = std::move(_other.m_vecSpawners);
+		m_vecUpdaters		   = std::move(_other.m_vecUpdaters);
+		m_vBasePosition		   = _other.m_vBasePosition;
+		m_bBurst			   = _other.m_bBurst;
 
-		_other.m_pParticles			 = nullptr;
-		_other.m_iMaxNumberParticles = 0;
+		_other.m_pParticles		   = nullptr;
+		_other.m_iParticleCapacity = 0;
 		_other.Clear();
 
 		return *this;
@@ -134,20 +140,20 @@ namespace Plop
 	{
 		PROFILING_FUNCTION();
 
-		if (m_iNbActiveParticles + _iNbParticle > m_iMaxNumberParticles)
+		if (m_iActiveParticleCount + _iNbParticle > m_iParticleCapacity)
 		{
 			// TODO: expand the pool
-			_iNbParticle = m_iMaxNumberParticles - m_iNbActiveParticles;
+			_iNbParticle = m_iParticleCapacity - m_iActiveParticleCount;
 		}
 
-		auto xLevel = Application::GetCurrentLevel().lock();
-		auto owner	= GetComponentOwner(xLevel->GetEntityRegistry(), *this);
+		auto xLevel	   = Application::GetCurrentLevel().lock();
+		auto owner	   = GetComponentOwner(xLevel->GetEntityRegistry(), *this);
 		m_mCachedWorld = owner ? owner.GetComponent<Component_Transform>().GetWorldMatrix() : glm::identity<glm::mat4>();
 
 		glm::vec3 vBasePosition = m_mCachedWorld[3];
-		while (m_iNbActiveParticles < m_iMaxNumberParticles && _iNbParticle > 0)
+		while (m_iActiveParticleCount < m_iParticleCapacity && _iNbParticle > 0)
 		{
-			ParticleData &p = m_pParticles[m_iNbActiveParticles];
+			ParticleData &p = m_pParticles[m_iActiveParticleCount];
 			p.vPosition		= vBasePosition;
 			for (auto &spawner : m_vecSpawners)
 			{
@@ -156,7 +162,7 @@ namespace Plop
 
 			--_iNbParticle;
 			if (p.fRemainingLife > 0.f) // life has been correctly set
-				++m_iNbActiveParticles;
+				++m_iActiveParticleCount;
 		}
 	}
 
@@ -168,8 +174,8 @@ namespace Plop
 
 		if (m_bBurst)
 		{
-			if (m_iNbActiveParticles == 0)
-				Spawn(m_iMaxNumberParticles);
+			if (m_iActiveParticleCount == 0)
+				Spawn(m_iParticleCapacity);
 		}
 		else if (m_fAutoSpawnRate > 0.f)
 		{
@@ -180,7 +186,7 @@ namespace Plop
 		}
 
 		int iNbActive = 0;
-		for (size_t i = 0; i < m_iNbActiveParticles;)
+		for (size_t i = 0; i < m_iActiveParticleCount;)
 		{
 			if (m_pParticles[i].fRemainingLife > 0.f)
 			{
@@ -192,8 +198,8 @@ namespace Plop
 				if (p.fRemainingLife <= 0.f)
 				{
 					// swap with the last active one
-					m_pParticles[i] = m_pParticles[m_iNbActiveParticles - 1];
-					--m_iNbActiveParticles;
+					m_pParticles[i] = m_pParticles[m_iActiveParticleCount - 1];
+					--m_iActiveParticleCount;
 					continue;
 				}
 
@@ -209,7 +215,7 @@ namespace Plop
 			++i; // we can now go to the next particle
 		}
 
-		if (m_bBurst && m_bDestroyAfterBurst && m_iNbActiveParticles == 0)
+		if (m_bBurst && m_bDestroyAfterBurst && m_iActiveParticleCount == 0)
 		{
 			if (!Application::Get()->GetEditor().IsEditing())
 			{
@@ -240,24 +246,34 @@ namespace Plop
 
 	void Component_ParticleSystem::ResetSystem()
 	{
-		for (size_t i = 0; i < m_iMaxNumberParticles; ++i)
+		for (size_t i = 0; i < m_iParticleCapacity; ++i)
 		{
 			m_pParticles[i].fRemainingLife = 0.f;
 		}
-		m_iNbActiveParticles  = 0;
-		m_fAutoSpawnRemainder = 0;
+		m_iActiveParticleCount = 0;
+		m_fAutoSpawnRemainder  = 0;
 	}
 
 	void Component_ParticleSystem::SetMaxNbParticles(size_t _iMaxParticles)
 	{
-		if (_iMaxParticles != m_iMaxNumberParticles)
+		if (_iMaxParticles != m_iParticleCapacity)
 		{
 			ParticleData *pNewArray = NEW ParticleData[_iMaxParticles];
 
-			memcpy(pNewArray, m_pParticles, std::min(_iMaxParticles, m_iMaxNumberParticles) * sizeof(ParticleData));
-			m_iMaxNumberParticles = _iMaxParticles;
+			memcpy(pNewArray, m_pParticles, std::min(_iMaxParticles, m_iParticleCapacity) * sizeof(ParticleData));
+			m_iParticleCapacity = _iMaxParticles;
 			delete[] m_pParticles;
 			m_pParticles = pNewArray;
+
+			m_iActiveParticleCount = std::min(m_iActiveParticleCount, m_iParticleCapacity);
+			for (size_t i = 0; i < m_iParticleCapacity; ++i)
+			{
+				if (m_pParticles[i].fRemainingLife < 0.f)
+				{
+					m_iActiveParticleCount = i;
+					break;
+				}
+			}
 		}
 	}
 
@@ -401,26 +417,29 @@ namespace Plop
 	json Component_ParticleSystem::ToJson() const
 	{
 		json j;
-
-		j["AutoSpawnRate"] = GetAutoSpawnRate();
-		j["BurstMode"]	   = m_bBurst;
-		j["Spawners"]	   = GetSpawners();
-		j["Updaters"]	   = GetUpdaters();
+		j[JSON_CAPACITY]   = m_iParticleCapacity;
+		j[JSON_AUTOSPAWNRATE] = GetAutoSpawnRate();
+		j[JSON_BURSTMODE]	   = m_bBurst;
+		j[JSON_SPAWNERS]	   = GetSpawners();
+		j[JSON_UPDATERS]	   = GetUpdaters();
 
 		return j;
 	}
 
 	void Component_ParticleSystem::FromJson(const json &_j)
 	{
-		if (_j.contains("AutoSpawnRate"))
-			SetAutoSpawnRate(_j["AutoSpawnRate"]);
+		if (_j.contains(JSON_CAPACITY))
+			SetMaxNbParticles(_j[JSON_CAPACITY]);
 
-		if (_j.contains("BurstMode"))
-			m_bBurst = _j["BurstMode"];
+		if (_j.contains(JSON_AUTOSPAWNRATE))
+			SetAutoSpawnRate(_j[JSON_AUTOSPAWNRATE]);
 
-		if (_j.contains("Spawners"))
+		if (_j.contains(JSON_BURSTMODE))
+			m_bBurst = _j[JSON_BURSTMODE];
+
+		if (_j.contains(JSON_SPAWNERS))
 		{
-			for (auto &j : _j["Spawners"])
+			for (auto &j : _j[JSON_SPAWNERS])
 			{
 				ASSERTM(j.is_object(), "Not an object");
 				for (auto [key, value] : j.items())
@@ -438,9 +457,9 @@ namespace Plop
 				}
 			}
 		}
-		if (_j.contains("Updaters"))
+		if (_j.contains(JSON_UPDATERS))
 		{
-			for (auto &j : _j["Updaters"])
+			for (auto &j : _j[JSON_UPDATERS])
 			{
 				ASSERTM(j.is_object(), "Not an object");
 				for (auto [key, value] : j.items())

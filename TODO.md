@@ -19,8 +19,6 @@
 - improve world/local matrices computation, use caching ? or a WorldMatrixComponent
 - fix resolution of 0 when minimizing
 - save the window being maximized
-- use commands for rendering (probably vulkan switch)
-	- add debug render command (cube, line, sphere ...)
 - spritesheet creator/modification
 - prefab system
 	- ~~simple instanciation~~
@@ -32,13 +30,6 @@
 	- prevent referencing prefab children in any component
 	- focus the entity that we just instantiated
 	- add PrefabInstance to the source entity when creating a prefab
-- VFX
-	- GPU side for long term
-	- add more shape like cone and mesh (maybe also hexagon to match TD grid)
-	- auto augment pool size up to a fixed point
-	- remove spawners/updaters from possible list if already created
-	- auto kill for burst effect
-	- take entity rotation into account for spawning particles
 - add a virtual file system to load from different mount points (to load from the Editor/Engine/Game folder)
 - fix picking (enttID that change version have a big int value, that may be rounded when converting to float)
 - fix closing app
@@ -48,6 +39,15 @@
 - clean usage of entt::handle, Entity and entt::entity
 - use more StringView instead of String when we just want to output/see the content
 
+**[Graphics]**
+- use commands for rendering (probably vulkan switch)
+	- add debug render command (cube, line, sphere ...)
+- VFX
+	- GPU side for long term
+	- add more shape like cone and mesh (maybe also hexagon to match TD grid)
+	- auto augment pool size up to a fixed point
+	- remove spawners/updaters from possible list if already created
+	- rotate quad towards move direction (right now the Size is axis aligned, which is not great)
 
 **[Editor]**
 

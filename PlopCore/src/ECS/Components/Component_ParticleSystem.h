@@ -1,10 +1,11 @@
 #pragma once
 
-#include <ECS/ComponentManager.h>
 #include "Constants.h"
 #include "ECS/Entity.h"
 #include "TimeStep.h"
 #include "Utils/Random.h"
+
+#include <ECS/ComponentManager.h>
 
 namespace Plop
 {
@@ -68,11 +69,11 @@ namespace Plop
 		void  SetAutoSpawnRate(float _fSpawnRate) { m_fAutoSpawnRate = _fSpawnRate; } // number per seconds
 		float GetAutoSpawnRate() const { return m_fAutoSpawnRate; }					  // number per seconds
 
-		void	  SetMaxNbParticles(size_t _iMaxParticles);
-		size_t	  GetMaxNbParticles() const { return m_iMaxNumberParticles; }
-		size_t	  GetNbActiveParticles() const { return m_iNbActiveParticles; }
-		void	  SetBasePosition(const glm::vec3 &_vPosition) { m_vBasePosition = _vPosition; }
-		glm::vec3 GetBasePosition() const { return m_vBasePosition; }
+		void			 SetMaxNbParticles(size_t _iMaxParticles);
+		size_t			 GetMaxNbParticles() const { return m_iParticleCapacity; }
+		size_t			 GetNbActiveParticles() const { return m_iActiveParticleCount; }
+		void			 SetBasePosition(const glm::vec3 &_vPosition) { m_vBasePosition = _vPosition; }
+		glm::vec3		 GetBasePosition() const { return m_vBasePosition; }
 		const glm::mat4 &GetCachedMatrix() const { return m_mCachedWorld; }
 
 		Random								  &GetRandom() { return m_rand; }
@@ -90,11 +91,11 @@ namespace Plop
 		// TODO: write a proper Pool class
 		// TODO: convert to SoA instead of AoS
 		// TODO: go full GPU side
-		ParticleData				   *m_pParticles		  = nullptr;
-		size_t							m_iMaxNumberParticles = 0;
-		size_t							m_iNbActiveParticles  = 0;
-		bool							m_bBurst			  = false;
-		bool							m_bDestroyAfterBurst  = true;
+		ParticleData				   *m_pParticles		   = nullptr;
+		size_t							m_iParticleCapacity	   = 0;
+		size_t							m_iActiveParticleCount = 0;
+		bool							m_bBurst			   = false;
+		bool							m_bDestroyAfterBurst   = true;
 		float							m_fAutoSpawnRate = 0.f, m_fAutoSpawnRemainder = 0.f;
 		Random							m_rand;
 		std::vector<ParticleSpawnerPtr> m_vecSpawners;
@@ -104,4 +105,3 @@ namespace Plop
 	};
 
 } // namespace Plop
-

@@ -62,6 +62,7 @@ namespace Plop
 			EDITING,
 			STARTING, // for aync
 			RUNNING,
+			ONE_FRAME,
 			PAUSED,
 			STOPPING // for aync
 		};
@@ -84,6 +85,7 @@ namespace Plop
 				void		PauseLevel();
 				void		ResumeLevel();
 				void		StopLevel();
+				void		AdvanceOneFrame();
 
 				void		UpdateEntityInfo();
 

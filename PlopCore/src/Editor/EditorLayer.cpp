@@ -237,11 +237,13 @@ namespace Plop
 			if (xCamera)
 				Renderer::PrepareScene(xCamera->GetProjectionMatrix(), xCamera->GetViewMatrix());
 
-			if (m_eLevelState == EditorLayer::LevelState::RUNNING)
+			if (m_eLevelState == LevelState::RUNNING || m_eLevelState == LevelState::ONE_FRAME)
 			{
 				xLevel->Update(_timeStep);
+				if (m_eLevelState == LevelState::ONE_FRAME)
+					PauseLevel();
 			}
-			else if (m_eLevelState == EditorLayer::LevelState::EDITING || m_eLevelState == EditorLayer::LevelState::PAUSED)
+			else if (m_eLevelState == LevelState::EDITING || m_eLevelState == LevelState::PAUSED)
 			{
 				xLevel->UpdateInEditor(_timeStep);
 
@@ -359,7 +361,8 @@ namespace Plop
 				m_xEditorCamera->DisplaySettings( m_bShowCameraSettings );
 
 			if (m_eLevelState == LevelState::EDITING ||
-				m_eLevelState == LevelState::PAUSED)
+				m_eLevelState == LevelState::PAUSED || 
+				m_eLevelState == LevelState::ONE_FRAME)
 			{
 				PrefabManager::ImGuiRenderLibraries();
 
@@ -582,6 +585,10 @@ namespace Plop
 				ImGui::SameLine();
 				if (IconButton("Stop", Private::vToolbarIconSize))
 					StopLevel();
+
+				ImGui::SameLine();
+				if (IconButton("PlayOnce", Private::vToolbarIconSize))
+					AdvanceOneFrame();
 			}
 			else if (m_eLevelState == LevelState::EDITING)
 			{
@@ -1197,6 +1204,12 @@ namespace Plop
 			m_SelectedEntity = {};
 		}
 		m_mapEntityEditorInfoPlaying.clear();
+	}
+
+	void EditorLayer::AdvanceOneFrame()
+	{
+		TimeStep::PopGameScale();
+		m_eLevelState = LevelState::ONE_FRAME;
 	}
 
 	void EditorLayer::UpdateEntityInfo()

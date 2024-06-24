@@ -37,6 +37,11 @@
 			"Column":0,
 			"Row":2,
 			"Source":"prefab.png"
+		},
+		"playonce": {
+			"Column":1,
+			"Row":2,
+			"Source":"playOnce.png"
 		}
 	}
 }

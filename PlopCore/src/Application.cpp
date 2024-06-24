@@ -389,6 +389,7 @@ namespace Plop
 
 					case EditorLayer::LevelState::STARTING:
 					case EditorLayer::LevelState::RUNNING:
+					case EditorLayer::LevelState::ONE_FRAME:
 					case EditorLayer::LevelState::PAUSED:
 						return s_pInstance->m_xLoadedLevel;
 
@@ -409,8 +410,11 @@ namespace Plop
 
 	bool Application::IsUsingEditorCamera() const
 	{
-		if(m_bEditorMode)
-			return m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING || m_EditorLayer.m_eLevelState == EditorLayer::LevelState::PAUSED;
+		if (m_bEditorMode)
+		{
+			return m_EditorLayer.m_eLevelState == EditorLayer::LevelState::EDITING || m_EditorLayer.m_eLevelState == EditorLayer::LevelState::PAUSED ||
+				   m_EditorLayer.m_eLevelState == EditorLayer::LevelState::ONE_FRAME;
+		}
 
 		return FALSE;
 	}

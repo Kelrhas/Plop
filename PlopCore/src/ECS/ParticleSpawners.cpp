@@ -30,7 +30,7 @@ namespace Plop::Particle
 
 	void SpawnLife::Editor(Entity _owner, const Component_ParticleSystem &_system)
 	{
-		ImGui::DragFloat( "Lifetime", &fLifetime, 0.1f, 0.f, std::numeric_limits<float>::infinity() );
+		ImGui::DragFloat( "Lifetime##Time", &fLifetime, 0.1f, 0.f, std::numeric_limits<float>::infinity() );
 		ImGui::DragFloat( "Variation", &fVariation, 0.1f, 0.f, fLifetime );
 	}
 

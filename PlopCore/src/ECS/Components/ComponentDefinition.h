@@ -67,7 +67,11 @@ namespace Plop
 	concept FromJsonCallable = requires (Comp c, const JsonType &j) { c.FromJson(j); };
 							
 	template<typename Comp, typename JsonType>
-	constexpr static void AmbiguousCallComponentFromJson( entt::registry&, entt::entity, const JsonType&) {}
+	constexpr static void AmbiguousCallComponentFromJson(entt::registry &_registry, entt::entity _entity, const JsonType &)
+	{
+		if (!_registry.all_of<Comp>(_entity))
+			_registry.emplace<Comp>(_entity);
+	}
 
 	template<typename Comp, typename JsonType> requires FromJsonCallable<Comp, JsonType>
 	constexpr static void AmbiguousCallComponentFromJson( entt::registry& _registry, entt::entity _entity, const JsonType& _json )
@@ -133,7 +137,6 @@ namespace Plop
 	template<class Comp, class RegistryType, class EntityType>
 	void CallDuplicateComponent(const RegistryType &_regSrc, EntityType _entitySrc, RegistryType &_regDst, EntityType _entityDst)
 	{
-		// @check
 		if (_regSrc.all_of<Comp>(_entitySrc))
 		{
 			Comp &compDst = _regDst.template get_or_emplace<Comp>(_entityDst);

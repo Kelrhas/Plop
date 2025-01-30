@@ -36,7 +36,7 @@
 - change CanAddComponent/CanRemoveComponent from template function to type value inside component struct
 - clean up RegisterComponents (calling sometimes Application::, sometimes ComponentManager -the right one-)
 - use more of static constexpr and using, especially inside Components
-- clean usage of entt::handle, Entity and entt::entity
+- clean usage of entt::handle, Entity and entt::entity -> maybe remove the Entity wrapper, not really useful, use helpers functions instead
 - use more StringView instead of String when we just want to output/see the content
 
 **[Graphics]**

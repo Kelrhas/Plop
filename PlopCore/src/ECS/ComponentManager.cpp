@@ -22,9 +22,16 @@ namespace Plop
 				if (info.funcHas(_reg, _e))
 				{
 					bool bKeepComp = true;
-					if (ImGui::CollapsingHeader( info.pName, info.funcCanRemove() ? &bKeepComp : nullptr ))
+					if (info.funcEditorUI)
 					{
-						info.funcEditorUI( _reg, _e );
+						if (ImGui::CollapsingHeader(info.pName, info.funcCanRemove() ? &bKeepComp : nullptr))
+						{
+							info.funcEditorUI(_reg, _e);
+						}
+					}
+					else
+					{
+						ImGui::CollapsingHeader(info.pName, info.funcCanRemove() ? &bKeepComp : nullptr, ImGuiTreeNodeFlags_Leaf);
 					}
 
 					if (bKeepComp == false)

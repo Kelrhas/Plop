@@ -100,7 +100,8 @@ namespace Plop
 		ComponentInfo  info;
 		info.pName		   = _pName;
 		info.funcCanEdit   = CanEditComponent<Comp>;
-		info.funcEditorUI  = CallComponentEditorUI<Comp>;
+		if (CanEditComponent<Comp>())
+			info.funcEditorUI = CallComponentEditorUI<Comp>;
 		info.funcCanAdd	   = CanAddComponent<Comp>;
 		info.funcCanRemove = CanRemoveComponent<Comp>;
 		info.funcHas	   = HasComponent<Comp, const Registry&, EntityType>;

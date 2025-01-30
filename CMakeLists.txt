@@ -47,6 +47,7 @@ add_compile_options(
 	$<$<CXX_COMPILER_ID:MSVC>:/MP> # parallel build
 	$<$<CXX_COMPILER_ID:MSVC>:/external:anglebrackets> # include with angle brackets are considered external
 	$<$<CXX_COMPILER_ID:MSVC>:/external:W0> # external includes warning
+	$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Debug>>:/ZI> # Incremental linking
 	
 	
 	#
@@ -58,6 +59,10 @@ add_compile_options(
 	#$<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<CONFIG:Debug>>:-O0>
 	#$<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<CONFIG:Release>>:-O2>
 	#$<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<CONFIG:Master>>:-O3>
+)
+
+add_link_options(
+	$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Debug>>:/INCREMENTAL> # Incremental linking
 )
 
 ###############################################################################

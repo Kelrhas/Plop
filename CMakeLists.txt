@@ -77,4 +77,3 @@ add_subdirectory(Editor)
 add_subdirectory(Sample)
 
 # DYNAMIC_TARGETS (depends on folder present at the same level as the engine), DO NOT REMOVE
-add_subdirectory(../TD ../TD-build)

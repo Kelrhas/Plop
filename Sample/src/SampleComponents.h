@@ -13,5 +13,5 @@ struct Component_Rotating
 
 	void EditorUI();
 	void FromJson(const json& _j);
-	json ToJson();
+	json ToJson() const;
 };

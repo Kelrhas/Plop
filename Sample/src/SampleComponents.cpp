@@ -20,7 +20,7 @@ void Component_Rotating::FromJson(const json &_j)
 		fSpeed = _j["Speed"];
 }
 
-json Component_Rotating::ToJson()
+json Component_Rotating::ToJson() const
 {
 	json j;
 	j["Axis"]  = vAxis;

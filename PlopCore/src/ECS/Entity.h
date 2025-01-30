@@ -71,6 +71,8 @@ namespace Plop
 		bool						HasComponent() const;
 		template <class Comp>
 		Comp&						GetComponent() const;
+		template <class Comp>
+		Comp*						GetComponentInHierarchy() const;
 		void						EditorUI();
 		bool						HasComponent(const entt::id_type _compID) const;
 

@@ -106,5 +106,29 @@ namespace Plop
 		ASSERTM(HasComponent<Comp>(), "Entity does not have this component");
 		return m_hEntity.get<Comp>();
 	}
+
+	template<class Comp>
+	Comp *Entity::GetComponentInHierarchy() const
+	{
+		ASSERTM(m_hEntity, "Invalid entity");
+
+		if (m_hEntity.all_of<Comp>())
+			return &m_hEntity.get<Comp>();
+
+		Comp *pComp = nullptr;
+		VisitChildrenRecursive(
+		  [&](Entity _e)
+		  {
+			  if (_e.HasComponent<Comp>())
+			  {
+				  pComp = &_e.GetComponent<Comp>();
+				  return VisitorFlow::BREAK;
+			  }
+			  return VisitorFlow::CONTINUE;
+		  });
+
+
+		return pComp;
+	}
 	
 }

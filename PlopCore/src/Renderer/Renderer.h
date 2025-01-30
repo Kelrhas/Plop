@@ -21,8 +21,9 @@ namespace Plop
 		{
 			NONE,
 			OPENGL,
-			//VULKAN,
-			//DIRECTX
+			VULKAN,
+			//DX12,
+			//METAL
 		};
 
 		RenderAPI() = default;
@@ -44,6 +45,7 @@ namespace Plop
 	private:
 		static API s_eRenderer;
 	};
+	using RenderAPIPtr = std::shared_ptr<RenderAPI>;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -132,5 +134,7 @@ namespace Plop
 
 		inline RenderAPI::API	GetAPI() { return RenderAPI::GetAPI(); }
 
+
+		RenderAPIPtr Create();
 	};
 }
